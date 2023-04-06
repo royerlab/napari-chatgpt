@@ -1,0 +1,41 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.2.0
+    hooks:
+      - id: check-docstring-first
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        exclude: ^\.napari-hub/.*
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.32.1
+    hooks:
+      - id: pyupgrade
+        args: [--py38-plus, --keep-runtime-typing]
+  - repo: https://github.com/myint/autoflake
+    rev: v1.4
+    hooks:
+      - id: autoflake
+        args: ["--in-place", "--remove-all-unused-imports"]
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-typing-imports>=1.9.0]
+  - repo: https://github.com/tlambert03/napari-plugin-checks
+    rev: v0.3.0
+    hooks:
+      - id: napari-plugin-checks
+  # https://mypy.readthedocs.io/en/stable/introduction.html
+  # you may wish to add this as well!
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v0.910-1
+  #   hooks:
+  #     - id: mypy

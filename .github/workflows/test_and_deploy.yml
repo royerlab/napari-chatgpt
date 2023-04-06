@@ -1,0 +1,90 @@
+# This workflows will upload a Python Package using Twine when a release is created
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+name: tests
+
+on:
+  push:
+    branches:
+      - main
+      - npe2
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+  pull_request:
+    branches:
+      - main
+      - npe2
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.platform }} py${{ matrix.python-version }}
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10']
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # these libraries enable testing on Qt on linux
+      - uses: tlambert03/setup-qt-libs@v1
+
+      # strategy borrowed from vispy for installing opengl libs on windows
+      - name: Install Windows OpenGL
+        if: runner.os == 'Windows'
+        run: |
+          git clone --depth 1 https://github.com/pyvista/gl-ci-helpers.git
+          powershell gl-ci-helpers/appveyor/install_opengl.ps1
+
+      # note: if you need dependencies from conda, considering using
+      # setup-miniconda: https://github.com/conda-incubator/setup-miniconda
+      # and
+      # tox-conda: https://github.com/tox-dev/tox-conda
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install setuptools tox tox-gh-actions
+
+      # this runs the platform-specific tests declared in tox.ini
+      - name: Test with tox
+        uses: aganders3/headless-gui@v1
+        with:
+          run: python -m tox
+        env:
+          PLATFORM: ${{ matrix.platform }}
+
+      - name: Coverage
+        uses: codecov/codecov-action@v3
+
+  deploy:
+    # this will run when you have tagged a commit, starting with "v*"
+    # and requires that you have put your twine API key in your
+    # github secrets (see readme for details)
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'tags')
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U setuptools setuptools_scm wheel twine build
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TWINE_API_KEY }}
+        run: |
+          git tag
+          python -m build .
+          twine upload dist/*
