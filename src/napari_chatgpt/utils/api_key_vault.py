@@ -10,10 +10,10 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 class KeyVault:
 
-    def __init__(self, key_name: str):
+    def __init__(self, key_name: str, folder_path: str = "~/.omega_api_keys"):
 
         # Define the path to the directory where the key file will be stored
-        keys_dir = os.path.expanduser("~/.omega_api_keys")
+        keys_dir = os.path.expanduser(folder_path)
 
         # Create the directory if it doesn't already exist
         os.makedirs(keys_dir, exist_ok=True)
@@ -79,9 +79,8 @@ class KeyVault:
             return api_key
 
 
-def _normalise_password(password):
+def _normalise_password(password: str, salt: bytes = b'123456789'):
 
-    salt = b'123456789'
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,

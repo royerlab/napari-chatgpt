@@ -59,7 +59,9 @@ class OmegaQWidget(QWidget):
                 )
             while True:
                 query = input()
-                if query == 'quit':
+                if len(query.strip())==0:
+                    continue
+                elif query == 'quit':
                     break
                 try:
                     result = agent_chain.run(input=query)
