@@ -6,14 +6,13 @@ see: https://napari.org/stable/plugins/guides.html?#widgets
 
 Replace code below according to your needs.
 """
-import time
 import webbrowser
 from typing import TYPE_CHECKING
 
 from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
 
 if TYPE_CHECKING:
-    import napari
+    pass
 
 from queue import Queue
 from threading import Thread
@@ -76,6 +75,7 @@ class OmegaQWidget(QWidget):
 
         # time.sleep(2)
         # Open browser:
-        # url = "http://0.0.0.0:9000 "
-        # webbrowser.open(url, new=0, autoraise=True)
+        url = "http://0.0.0.0:9000 "
+        webbrowser.open(url, new=0, autoraise=True)
+        # browser = BrowserWindow(url)
 

@@ -46,7 +46,7 @@ class NapariBaseTool(AsyncBaseTool):
             chain = LLMChain(
                 prompt=self.get_prompt_template(),
                 llm=self.llm,
-                verbose=True
+                verbose=False
             )
 
             # chain.callback_manager.add_handler(ToolCallbackHandler(type(self).__name__))
@@ -81,7 +81,8 @@ class NapariBaseTool(AsyncBaseTool):
             # Get response:
             response = self.from_napari_queue.get()
 
-            if 'success' in response:
+            # The response should always contained 'Success' if things went well!
+            if 'Success' in response:
                 return f'Tool {type(self).__name__} succeeded to do: {query}'
             else:
                 return f'Tool {type(self).__name__} failed to do: {query} because of this error or reason: {response}'
@@ -94,7 +95,12 @@ class NapariBaseTool(AsyncBaseTool):
             return str(e)
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
+        """
+        This is the code that is executed, see implementations for details,
+        must return 'Success: ...' if thinsg went well, otherwise it is failure!
+        """
         raise NotImplementedError("This method must be implemented")
+
 
     # async def _arun(self, query: str) -> str:
     #     """Use the tool asynchronously."""

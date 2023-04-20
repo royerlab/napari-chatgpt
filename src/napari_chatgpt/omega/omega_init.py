@@ -14,6 +14,7 @@ from napari_chatgpt.omega.omega_agent.omega_agent_executor import \
     OmegaAgentExecutor
 from napari_chatgpt.omega.omega_agent.omega_callback_handler import \
     OmegaCallbackHandler
+from napari_chatgpt.omega.omega_agent.omega_prompts import PREFIX, SUFFIX
 from napari_chatgpt.tools.functions_info import PythonFunctionsInfoTool
 from napari_chatgpt.tools.google_search_tool import GoogleSearchTool
 from napari_chatgpt.tools.napari_viewer_control import NapariViewerControlTool
@@ -22,17 +23,20 @@ from napari_chatgpt.tools.napari_widget_maker import NapariWidgetMakerTool
 
 def initialize_omega_agent(to_napari_queue: Queue = None,
                            from_napari_queue: Queue = None,
-                           llm: BaseLanguageModel = None,
-                           agent_callback_manager: Optional[BaseCallbackManager] = None,
+                           main_llm: BaseLanguageModel = None,
                            ) -> OmegaAgentExecutor:
 
+    main_llm = main_llm or ChatOpenAI(model_name='gpt-3.5-turbo',
+                                      temperature=0
+                                      )
 
+    memory = ConversationBufferMemory(memory_key="chat_history",
+                                      return_messages=True)
 
     wiki = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper())
-    llm_for_math = ChatOpenAI(temperature=0)
     tools = [wiki,
              GoogleSearchTool(),
-             _get_llm_math(llm_for_math),
+             _get_llm_math(main_llm),
              PythonFunctionsInfoTool(),
              _get_human_tool(),
              # FileDownloadTool(),
@@ -45,27 +49,18 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         tools.append(NapariWidgetMakerTool(to_napari_queue=to_napari_queue,
                                            from_napari_queue=from_napari_queue))
 
-    llm = llm or ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0)
-
-    memory = ConversationBufferMemory(memory_key="chat_history",
-                                      return_messages=True)
-
-    if not agent_callback_manager:
-        agent_callback_manager = CallbackManager([])
-
-    agent_callback_manager.add_handler(OmegaCallbackHandler())
-
     agent = OmegaAgent.from_llm_and_tools(
-        llm=llm,
+        llm=main_llm,
         tools=tools,
-        callback_manager=agent_callback_manager
+        system_message=PREFIX,
+        human_message=SUFFIX,
     )
 
     executor = OmegaAgentExecutor.from_agent_and_tools(
         agent=agent,
         tools=tools,
-        callback_manager=agent_callback_manager,
         memory=memory,
+        verbose=True
     )
 
     return executor

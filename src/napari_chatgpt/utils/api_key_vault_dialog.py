@@ -17,32 +17,38 @@ class APIKeyDialog(QDialog):
 
         height = 10
 
-        if not self.key_vault.is_key_present():
+        enter_new_key =  not self.key_vault.is_key_present()
+
+        if enter_new_key:
             # Create the label, text field, and button
             self.api_key_label = QLabel(f'Enter {api_key_name} API key:', self)
             self.api_key_label.move(10, height)
-            height += 20
+            height += 25
 
             self.api_key_textbox = QLineEdit(self)
             self.api_key_textbox.move(10, height)
-            height += 20
+            height += 25
             self.api_key_textbox.resize(200, 20)
 
-            height += 20
+            height += 25
+
 
         # Create the label, text field, and button
-        passsword_label_text = 'Enter password:' if self.key_vault.is_key_present() else 'Enter password to secure key:'
+        passsword_label_text = 'Enter password to unlock key:' if self.key_vault.is_key_present() else 'Enter password to secure key:'
         self.password_label = QLabel(passsword_label_text, self)
         self.password_label.move(10, height)
-        height += 20
+        height += 25
 
         self.password_textbox = QLineEdit(self)
         self.password_textbox.move(10, height)
-        height += 20
+        height += 25
         self.password_textbox.resize(200, 20)
 
+        if not enter_new_key:
+            self.password_textbox.setEchoMode(QLineEdit.Password)
+
         self.button = QPushButton('Enter', self)
-        height += 20
+        height += 25
         self.button.move(10, height)
 
         # Connect the button to a slot

@@ -1,6 +1,6 @@
 from langchain.agents.conversational_chat.output_parser import ConvoOutputParser
 
-from napari_chatgpt.agents.omega.omega_prompts import FORMAT_INSTRUCTIONS
+from napari_chatgpt.omega.omega_agent.omega_prompts import FORMAT_INSTRUCTIONS
 
 
 class OmegaAgentOutputParser(ConvoOutputParser):
