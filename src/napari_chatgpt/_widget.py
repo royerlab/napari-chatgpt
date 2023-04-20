@@ -12,9 +12,6 @@ from typing import TYPE_CHECKING
 
 from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
 
-from napari_chatgpt.omega.napari_bridge import NapariBridge
-from napari_chatgpt.omega.omega_init import initialize_omega_agent
-
 if TYPE_CHECKING:
     import napari
 
@@ -42,6 +39,13 @@ class OmegaQWidget(QWidget):
 
     def _on_click(self):
         aprint("Starting Omega!")
+
+        from napari_chatgpt.openai_key import set_openai_key
+        set_openai_key()
+
+        from napari_chatgpt.omega.napari_bridge import NapariBridge
+        from napari_chatgpt.omega.omega_init import initialize_omega_agent
+
 
         # Instantiates a napari bridge:
         self.bridge = NapariBridge(self.viewer)

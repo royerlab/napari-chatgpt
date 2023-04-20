@@ -2,6 +2,7 @@
 import sys
 from queue import Queue
 
+from arbol import aprint
 from langchain import LLMChain, PromptTemplate
 from langchain.callbacks import StdOutCallbackHandler
 from langchain.chat_models import ChatOpenAI
@@ -69,7 +70,7 @@ class NapariBaseTool(AsyncBaseTool):
             # Prepend prefix:
             code = self.code_prefix + code
 
-            # aprint(f"code:\n{code}")
+            aprint(f"code:\n{code}")
 
             # Setting up delegated fuction:
             delegated_function = lambda v: self._run_code(query, code, v)
