@@ -1,21 +1,11 @@
 name: napari-chatgpt
-display_name: chatGPT
+display_name: chatgpt
 contributions:
   commands:
     - id: napari-chatgpt.make_qwidget
-      python_name: napari_chatgpt._widget:ExampleQWidget
+      python_name: napari_chatgpt._widget:OmegaQWidget
       title: Make example QWidget
-    - id: napari-chatgpt.make_magic_widget
-      python_name: napari_chatgpt._widget:example_magic_widget
-      title: Make example magic widget
-    - id: napari-chatgpt.make_func_widget
-      python_name: napari_chatgpt._widget:example_function_widget
-      title: Make example function widget
   widgets:
     - command: napari-chatgpt.make_qwidget
-      display_name: Example QWidget
-    - command: napari-chatgpt.make_magic_widget
-      display_name: Example Magic Widget
-    - command: napari-chatgpt.make_func_widget
-      autogenerate: true
-      display_name: Example Function Widget
+      display_name: Omega -- a chatGPT enabled napari plugin
+
