@@ -1,20 +1,21 @@
-"""A tool for running python code in a REPL."""
-from typing import Callable
+"""A tool for making a napari widget."""
 
 from napari import Viewer
 
+from napari_chatgpt.tools.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.dynamic_import import dynamic_import
 from napari_chatgpt.utils.filter_lines import filter_lines
 from napari_chatgpt.utils.find_function_name import find_function_name
-from napari_chatgpt.tools.napari_base_tool import NapariBaseTool
 
-_prompt = """
+_napari_widget_maker_prompt = """
 Task:
 You competently write image processing and image analysis functions in python given a plain text request. 
 The function should be pure, self-contained, effective, well-written, syntactically correct.
 The function should work on 2D and 3D images, and images of any number of dimensions (nD), 
 unless the request is explicit about the number of dimensions. 
 The function MUST convert all input image arrays to float type before processing. 
+Any intermediate or locally created array should also be of type float.
+All constants used for the values in arrays created with: np.full(), np.ones(), np.zeros(), ... should be floats (for example 1.0).
 The function should not clip the resulting image unless input image(s) have been normalised accordingly.
 The function should do all and everything that is asked, but nothing superfluous.
 
@@ -34,7 +35,7 @@ DO NOT write code to add the widget to the napari window by calling viewer.windo
 Request:  
 {input}
 
-Answer in pure python code:
+Answer in markdown:
 """
 #
 # Important: all import statements must be inside of the function except for those needed for magicgui and for type hints.
@@ -48,7 +49,6 @@ import numpy as np
 from typing import Union
 """
 
-from napari.types import ImageData
 
 class NapariWidgetMakerTool(NapariBaseTool):
     """A tool for making napari widgets"""
@@ -56,14 +56,17 @@ class NapariWidgetMakerTool(NapariBaseTool):
     name = "NapariWidgetMakerTool"
     description = (
         "Forward to this tool requests to make napari function widgets from function descriptions. "
-        "Requests must be a plain text description (no code) of an image processing or analysis function"
-        "This tool will interpret the request and creates a napari function widget for it."
+        "Requests must be a plain text description (no code) of an image processing or analysis function."
         "For example, you can ask for 'a gaussian filter widget with sigma parameter'. "
+        "This tool does not process or analyse images, it makes widget that then do that. "
+        "ONLY use this tool when the word 'widget' is mentioned. "
     )
     code_prefix = _code_prefix
-    prompt = _prompt
+    prompt = _napari_widget_maker_prompt
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
+
+        code = super()._prepare_code(code)
 
         # Extracts function name:
         function_name = find_function_name(code)

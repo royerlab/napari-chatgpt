@@ -6,7 +6,7 @@ w.utils.available_audio_devices()
 
 model_name = "tiny.en"
 
-model  = w.Whisper.from_pretrained(model_name)
+model = w.Whisper.from_pretrained(model_name)
 
 iterator = None
 try:
@@ -27,4 +27,3 @@ finally:
         ["\nTranscription (line by line):\n"] + [f"{it}\n" for it in iterator]
     )
     sys.stderr.flush()
-

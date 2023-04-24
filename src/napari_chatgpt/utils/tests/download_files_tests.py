@@ -6,8 +6,8 @@ from arbol import aprint
 from src.napari_chatgpt.utils.download_files import download_files
 from src.napari_chatgpt.utils.extract_urls import extract_urls
 
-def test_download_files():
 
+def test_download_files():
     # Example string with urls:
     text = "Check out my website at https://www.example.com! " \
            "For more information, visit http://en.wikipedia.org/wiki/URL."
@@ -26,6 +26,3 @@ def test_download_files():
             file_name = url.split('/')[-1]
             file_path = os.path.join(tmp_dir, file_name)
             assert os.path.exists(file_path)
-
-
-

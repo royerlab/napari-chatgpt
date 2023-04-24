@@ -13,7 +13,7 @@ class ToolCallbackHandler(BaseCallbackHandler):
         self.tool_name = tool_name
 
     def on_llm_start(
-        self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
+            self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
     ) -> None:
         """Print out the prompts."""
         pass
@@ -27,25 +27,24 @@ class ToolCallbackHandler(BaseCallbackHandler):
         pass
 
     def on_llm_error(
-        self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any
+            self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any
     ) -> None:
         """Do nothing."""
         pass
 
     def on_chain_start(
-        self, serialized: Dict[str, Any], inputs: Dict[str, Any], **kwargs: Any
+            self, serialized: Dict[str, Any], inputs: Dict[str, Any],
+            **kwargs: Any
     ) -> None:
         """Print out that we are entering a chain."""
-        aprint(Fore.RED +f"Entering tool {self.tool_name} chain:")
+        aprint(Fore.RED + f"Entering tool {self.tool_name} chain:")
 
     def on_chain_end(self, outputs: Dict[str, Any], **kwargs: Any) -> None:
         """Print out that we finished a chain."""
-        aprint(Fore.RED +f"Leaving tool {self.tool_name} chain.")
+        aprint(Fore.RED + f"Leaving tool {self.tool_name} chain.")
 
     def on_chain_error(
-        self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any
+            self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any
     ) -> None:
         """Do nothing."""
         pass
-
-

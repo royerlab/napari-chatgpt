@@ -1,11 +1,12 @@
 import time
+
 from arbol import aprint
 from langchain.chat_models import ChatOpenAI
+
 from src.napari_chatgpt.utils.llm_cache import wrap_llm
 
 
 def test_llm_cache():
-
     # TODO: not functional!
 
     llm = ChatOpenAI(temperature=0)
@@ -29,4 +30,3 @@ def test_llm_cache():
     answer = cached_llm(question)
     aprint(answer)
     aprint("Cache Hit Time Spent =", time.time() - before)
-

@@ -5,7 +5,6 @@ from src.napari_chatgpt.utils.summarizer import summarize
 
 
 def test_summarizer():
-
     url = 'https://en.wikipedia.org/wiki/Albert_Einstein'
 
     # Download text:

@@ -22,4 +22,3 @@ agent = initialize_agent(tools,
                          agent="conversational-react-description",
                          verbose=True)
 result = agent.run("Who is Albert Einstein? ")
-

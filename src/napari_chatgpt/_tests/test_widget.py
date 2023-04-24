@@ -19,5 +19,3 @@ def test_omega_q_widget(make_napari_viewer, capsys):
     # read captured output and check that it's as we expected
     captured = capsys.readouterr()
     assert 'Omega' in captured.out
-
-

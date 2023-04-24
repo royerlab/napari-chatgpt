@@ -1,8 +1,9 @@
 from arbol import aprint
+
 from src.napari_chatgpt.utils.wikipedia import search_wikipedia
 
-def test_wikipedia_search():
 
+def test_wikipedia_search():
     term = 'Albert Einstein'
 
     # Get summary of wikipedia article:
@@ -10,4 +11,3 @@ def test_wikipedia_search():
                             summarise_page=True)
 
     aprint(text)
-

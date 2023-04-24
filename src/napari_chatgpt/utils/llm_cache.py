@@ -12,7 +12,6 @@ from napari_chatgpt.utils.folders import get_or_create_folder_in_home
 def wrap_llm(llm: LLM,
              cache_name: str = 'cache_data',
              max_cache_size: int = 512):
-
     # TODO: not functional!
 
     # get or create llm cache folder:
@@ -28,7 +27,8 @@ def wrap_llm(llm: LLM,
     llm_cache = Cache()
 
     # Instantiates data manager:
-    data_manager = get_data_manager(data_path=cache_file, max_size=max_cache_size)
+    data_manager = get_data_manager(data_path=cache_file,
+                                    max_size=max_cache_size)
 
     # Initialises cache:
     cache.init(data_manager=data_manager,

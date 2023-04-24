@@ -6,7 +6,7 @@ from napari_chatgpt.utils.api_key_vault import KeyVault
 
 
 class APIKeyDialog(QDialog):
-    def __init__(self, api_key_name:str, parent=None):
+    def __init__(self, api_key_name: str, parent=None):
         super().__init__(parent)
 
         self.api_key = None
@@ -17,7 +17,7 @@ class APIKeyDialog(QDialog):
 
         height = 10
 
-        enter_new_key =  not self.key_vault.is_key_present()
+        enter_new_key = not self.key_vault.is_key_present()
 
         if enter_new_key:
             # Create the label, text field, and button
@@ -31,7 +31,6 @@ class APIKeyDialog(QDialog):
             self.api_key_textbox.resize(200, 20)
 
             height += 25
-
 
         # Create the label, text field, and button
         passsword_label_text = 'Enter password to unlock key:' if self.key_vault.is_key_present() else 'Enter password to secure key:'
@@ -74,7 +73,7 @@ class APIKeyDialog(QDialog):
             password = self.password_textbox.text()
 
             # Do something with the text (e.g. print it)
-            #aprint(api_key)
+            # aprint(api_key)
 
             # Encrypt and store API key:
             self.key_vault.write_api_key(api_key=api_key,
@@ -94,7 +93,6 @@ class APIKeyDialog(QDialog):
 
 
 def request_if_needed_api_key_dialog(api_key_name: str) -> str:
-
     dialog = APIKeyDialog(api_key_name=api_key_name)
 
     # Set the dialog box to be modal, so that it blocks interaction with the main window
@@ -105,4 +103,3 @@ def request_if_needed_api_key_dialog(api_key_name: str) -> str:
 
     # Return key:
     return dialog.get_api_key()
-

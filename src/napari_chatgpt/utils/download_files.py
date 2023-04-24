@@ -6,7 +6,6 @@ from arbol import aprint, asection
 
 
 def download_files(urls, path=None) -> List[str]:
-
     # Defaults to working directory:
     path = path or os.getcwd()
 
@@ -15,7 +14,6 @@ def download_files(urls, path=None) -> List[str]:
     with asection("Downloading files:"):
         # Iterates through urls:
         for url in urls:
-
             # builds the filepath from the url:
             file_name = url.split('/')[-1]
             file_path = path + '/' + file_name

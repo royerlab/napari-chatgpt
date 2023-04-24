@@ -33,7 +33,8 @@ class NapariBridge():
                     self.from_napari_queue.put(guard.error_string)
 
         @thread_worker(connect={'yielded': qt_code_executor})
-        def omega_napari_worker(to_napari_queue: Queue, from_napari_queue: Queue):
+        def omega_napari_worker(to_napari_queue: Queue,
+                                from_napari_queue: Queue):
             while True:
                 code = to_napari_queue.get()
                 if code is None:
@@ -42,5 +43,5 @@ class NapariBridge():
                 yield code
 
         # create the worker:
-        self.worker = omega_napari_worker(self.to_napari_queue, self.from_napari_queue)
-
+        self.worker = omega_napari_worker(self.to_napari_queue,
+                                          self.from_napari_queue)

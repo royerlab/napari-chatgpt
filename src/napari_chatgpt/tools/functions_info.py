@@ -1,13 +1,15 @@
 """A tool for running python code in a REPL."""
-from arbol import aprint
-from langchain.tools.base import BaseTool
+import traceback
 
+from arbol import aprint
+
+from napari_chatgpt.tools.async_base_tool import AsyncBaseTool
 from napari_chatgpt.utils.inspection import extract_package_path, \
     get_function_info
 from napari_chatgpt.utils.summarizer import summarize
 
 
-class PythonFunctionsInfoTool(BaseTool):
+class PythonFunctionsInfoTool(AsyncBaseTool):
     """A tool for querying the signature and docstrings of python functions."""
 
     name = "PythonFunctionsInfoTool"
@@ -45,11 +47,5 @@ class PythonFunctionsInfoTool(BaseTool):
 
         except Exception as e:
             error_info = f"Error: {type(e).__name__} occured while trying to get information about: '{function_path_and_name}'."
-            aprint(error_info)
+            traceback.print_exc()
             return error_info
-
-
-    async def _arun(self, query: str) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError("PythonFunctionsInfoTool does not support async")
-

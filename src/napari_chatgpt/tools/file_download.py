@@ -1,17 +1,17 @@
 from arbol import asection
-from langchain.tools import BaseTool
 
+from napari_chatgpt.tools.async_base_tool import AsyncBaseTool
 from napari_chatgpt.utils.download_files import download_files
 from napari_chatgpt.utils.extract_urls import extract_urls
 
 
-class FileDownloadTool(BaseTool):
+class FileDownloadTool(AsyncBaseTool):
     name = "UrlDownload"
-    description = ("Use this tool to download file(s) by writing: download(<url>) where <url> is a valid syntatically corect url."
-                   "The file(s) is(are) stored in the current folder using its(their) filename as found in the URL," 
-                   "and thus is(are) directly accessible using its(their) filename."
-                   "Use this tool to download files before any subsequent operations.")
-
+    description = (
+        "Use this tool to download file(s) by writing: download(<url>) where <url> is a valid syntatically corect url."
+        "The file(s) is(are) stored in the current folder using its(their) filename as found in the URL,"
+        "and thus is(are) directly accessible using its(their) filename."
+        "Use this tool to download files before any subsequent operations.")
 
     def _run(self, query: str) -> str:
         """Use the tool."""
@@ -29,10 +29,4 @@ class FileDownloadTool(BaseTool):
                 return f"Successfully downloaded {len(urls)} file: {', '.join(filenames)}"
 
             except Exception as e:
-                 return f"Exception: {type(e).__name__} with message: {e.args[0]}"
-
-    
-    async def _arun(self, query: str) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError("FileDownloadTool does not support async")
-
+                return f"Exception: {type(e).__name__} with message: {e.args[0]}"

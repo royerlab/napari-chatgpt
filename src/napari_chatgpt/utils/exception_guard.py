@@ -1,4 +1,3 @@
-
 import contextlib
 import traceback
 
@@ -29,7 +28,9 @@ class ExceptionGuard(contextlib.AbstractContextManager):
             self.line_number = last_frame.lineno
             self.function_name = last_frame.name
             self.filename = last_frame.filename
-            self.error_string = f"Exception: {self.exception_type}, reason: '{self.exception_value.args[0]}', in function: {self.function_name}, at line: {self.line_number} of file: '{self.filename}'."
+            reason = self.exception_value.args[0] if len(
+                self.exception_value.args) > 0 else 'None'
+            self.error_string = f"Exception: {self.exception_type}, reason: '{reason}', in function: {self.function_name}, at line: {self.line_number} of file: '{self.filename}'."
 
             if self.print_stacktrace:
                 traceback.print_exc()

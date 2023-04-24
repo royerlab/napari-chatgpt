@@ -1,14 +1,14 @@
-import sys
-from builtins import print
 import os
 import getpass
+import os
 import socket
 from pathlib import Path
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QPlainTextEdit, \
-    QDesktopWidget
+
+from PyQt5.QtCore import Qt, pyqtSignal, QRegExp, QProcess, QThread
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QColor, QFont, \
     QTextCursor
-from PyQt5.QtCore import Qt, pyqtSignal, QRegExp, QProcess, QThread
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QPlainTextEdit, \
+    QDesktopWidget
 
 
 class PlainTextEdit(QPlainTextEdit):
@@ -75,8 +75,8 @@ class PlainTextEdit(QPlainTextEdit):
 
                 if text == self.name + text.replace(self.name,
                                                     "") and text.replace(
-                        self.name,
-                        "") != "":  # This is to prevent adding in commands that were not meant to be added in
+                    self.name,
+                    "") != "":  # This is to prevent adding in commands that were not meant to be added in
                     self.commands.append(text.replace(self.name, ""))
                 self.commandSignal.emit(text)
                 self.appendPlainText(self.name)

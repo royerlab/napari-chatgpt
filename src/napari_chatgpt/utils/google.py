@@ -2,7 +2,7 @@
 
 import random
 
-from napari_chatgpt.utils.headers import request_headers
+from napari_chatgpt.utils.headers import _scrapping_request_headers
 from napari_chatgpt.utils.scrapper import text_from_url
 
 _useragent_list = [
@@ -14,8 +14,11 @@ _useragent_list = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.62',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0'
 ]
+
+
 def _get_useragent():
     return random.choice(_useragent_list)
+
 
 """googlesearch is a Python library for searching Google, easily."""
 from time import sleep
@@ -24,8 +27,7 @@ from requests import get
 
 
 def _req(term, results, lang, start, timeout):
-
-    headers = request_headers
+    headers = _scrapping_request_headers
     headers["User-Agent"] = _get_useragent()
 
     resp = get(
@@ -96,9 +98,8 @@ def search_google(query,
                 if link and title and description:
                     start += 1
                     if advanced:
-                        yield SearchResult(link["href"], title.text, description)
+                        yield SearchResult(link["href"], title.text,
+                                           description)
                     else:
                         yield link["href"]
         sleep(sleep_interval)
-
-

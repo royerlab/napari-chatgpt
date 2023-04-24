@@ -1,19 +1,33 @@
 
+function escapeHTML(unsafeText)
+{
+    let div = document.createElement('div');
+    div.innerText = unsafeText;
+    return div.innerHTML;
+}
+
 // Endpoint for websocket:
 var endpoint = "ws://localhost:9000/chat";
 var ws = new WebSocket(endpoint);
 
 // Default subtitle:
-default_subtitle = "Ask a question, ask for a napari widget, or anything else!";
+default_subtitle = " Ask a question, ask for a widget, or control the napari viewer, or anything else! ";
 
 // Receive message from server and process it:
 ws.onmessage = function (event)
 {
+
     // Message list element:
     var messages = document.getElementById('messages');
 
     // JSON parsingof message data:
     var data = JSON.parse(event.data);
+
+    // Log event on the console for debugging:
+    console.log("__________________________________________________________________");
+    console.log("data.sender ="+data.sender+'\n');
+    console.log("data.type   ="+data.type+'\n');
+    console.log("data.message="+data.message+'\n');
 
     // Message received from agent:
     if (data.sender === "agent")
@@ -25,28 +39,87 @@ ws.onmessage = function (event)
             var header = document.getElementById('header');
             header.innerHTML = "Thinking...";
 
+        }
+        // agent is typing:
+        else if (data.type === "typing")
+        {
+            // Set subtitle:
+            var header = document.getElementById('header');
+            header.innerHTML = 'Typing...';
+        }
+        // action message:
+        else if (data.type === "action")
+        {
+
+             // Set subtitle:
+            var header = document.getElementById('header');
+            header.innerHTML = "Using a tool...";
+
             // Create a new message entry:
             var div = document.createElement('div');
             div.className = 'server-message';
             var p = document.createElement('p');
 
-            // Set temporary message:
-            p.innerHTML = "<strong>" + "Omega: " + "</strong> thinking...";
-
             // Add this new message into message list:
             div.appendChild(p);
             messages.appendChild(div);
+
+            // Current (last) message:
+            var p = messages.lastChild.lastChild;
+
+            // Set background color:
+            p.parentElement.className = 'action-message';
+
+            // Parse markdown and render as HTML:
+            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + marked.parse(data.message)
+
         }
-        // end message, this is sent once the agent has a response:
-        else if (data.type === "end")
+        // Tool end:
+        else if (data.type === "tool_end")
         {
-            var header = document.getElementById('header');
+            // Current (last) message:
+            var p = messages.lastChild.lastChild;
+
+            // Set background color:
+            //p.parentElement.className = 'server-message';
+
+            // markdown:
+            message = data.message
+
+            // Parse markdown and render as HTML:
+            p.innerHTML += marked.parse(data.message)
+
+        }
+        // action message:
+        else if (data.type === "tool_result")
+        {
 
             // Current (last) message:
             var p = messages.lastChild.lastChild;
 
             // Parse markdown and render as HTML:
-            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + marked.parse(data.message)
+            p.innerHTML += "<br>"+marked.parse(data.message);
+        }
+        // end message, this is sent once the agent has a final response:
+        else if (data.type === "final")
+        {
+            // Create a new message entry:
+            var div = document.createElement('div');
+            div.className = 'server-message';
+            var p = document.createElement('p');
+
+            // Add message to message list:
+            div.appendChild(p);
+            messages.appendChild(div);
+
+            // Current (last) message:
+            var p = messages.lastChild.lastChild;
+
+            // Set background color:
+            p.parentElement.className = 'server-message';
+
+            // Parse markdown and render as HTML:
+            p.innerHTML = marked.parse(data.message)
 
             // Reset subtitle:
             var header = document.getElementById('header');
@@ -69,9 +142,21 @@ ws.onmessage = function (event)
             button.innerHTML = "Send";
             button.disabled = false;
 
+            // Create a new message entry:
+            var div = document.createElement('div');
+            div.className = 'server-message';
+            var p = document.createElement('p');
+
+            // Add message to message list:
+            div.appendChild(p);
+            messages.appendChild(div);
+
             // Display error message:
             var p = messages.lastChild.lastChild;
-            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + message
+            p.innerHTML = "<strong>" + "Omega: " + "</strong> error:" + marked.parse(data.message)
+
+            // Set background color:
+            p.parentElement.className = 'error-message';
         }
     }
     // Message received from user:
@@ -84,7 +169,7 @@ ws.onmessage = function (event)
 
         // Set default (empty) message:
         p.innerHTML = "<strong>" + "You: " + "</strong>";
-        p.innerHTML += data.message;
+        p.innerHTML += marked.parse(data.message);
 
         // Add message to message list:
         div.appendChild(p);

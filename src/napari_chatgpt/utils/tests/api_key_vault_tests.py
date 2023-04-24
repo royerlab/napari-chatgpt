@@ -1,22 +1,14 @@
-import os
-import tempfile
-
-from arbol import aprint
-from cryptography.fernet import InvalidToken
-
 from napari_chatgpt.utils.api_key_vault import KeyVault, _encode64, _decode64
-from src.napari_chatgpt.utils.download_files import download_files
-from src.napari_chatgpt.utils.extract_urls import extract_urls
+
 
 def test_b64_encode_decode():
-
     plain = '1234'
     encoded = _encode64(plain)
     decoded = _decode64(encoded)
     assert plain == decoded
 
-def test_api_key_vault():
 
+def test_api_key_vault():
     api_key = 'APIKEY123456789'
 
     key_vault = KeyVault('dummy')
@@ -25,7 +17,7 @@ def test_api_key_vault():
 
     assert not key_vault.is_key_present()
 
-    encrypted_key = key_vault.write_api_key(api_key,'1234')
+    encrypted_key = key_vault.write_api_key(api_key, '1234')
     print(encrypted_key)
 
     assert encrypted_key
@@ -44,8 +36,3 @@ def test_api_key_vault():
     print(correct_api_key)
 
     assert correct_api_key == api_key
-
-
-
-
-

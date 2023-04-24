@@ -4,8 +4,12 @@ from langchain.docstore.document import Document
 from langchain.llms import BaseLLM
 from langchain.text_splitter import CharacterTextSplitter
 
+from napari_chatgpt.utils.openai_key import set_openai_key
 
-def summarize(text:str, llm:BaseLLM = None):
+
+def summarize(text: str, llm: BaseLLM = None):
+    # Ensure that OpenAI key is set:
+    set_openai_key()
 
     # Instantiates LLM if needed:
     llm = llm or ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0)
@@ -24,4 +28,3 @@ def summarize(text:str, llm:BaseLLM = None):
     summary = chain.run(docs)
 
     return summary
-

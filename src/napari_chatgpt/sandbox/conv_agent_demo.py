@@ -6,11 +6,13 @@ from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.tools.python.tool import PythonREPLTool
 from langchain.tools.wikipedia.tool import WikipediaQueryRun
+
 from src.napari_chatgpt.tools.google_search_tool import GoogleSearchTool
 
 llm = ChatOpenAI(temperature=0)
 
-memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+memory = ConversationBufferMemory(memory_key="chat_history",
+                                  return_messages=True)
 
 wiki = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper())
 tools = [wiki, GoogleSearchTool(), _get_llm_math(llm), PythonREPLTool()]
@@ -52,9 +54,8 @@ json blob with a single action, and NOTHING else):
 
 {{{{input}}}}"""
 
-
-agent_kwargs = {'system_message':system_message,
-                'human_message':human_message}
+agent_kwargs = {'system_message': system_message,
+                'human_message': human_message}
 
 agent_chain = initialize_agent(tools,
                                llm,

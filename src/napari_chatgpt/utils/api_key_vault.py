@@ -27,16 +27,15 @@ class KeyVault:
         except OSError:
             pass
 
-
     def write_api_key(self, api_key: str, password: str) -> str:
 
         cipher_suite = Fernet(_normalise_password(password))
 
         # Write the encrypted key to the file
         with open(self.keys_file, "w") as f:
-
             # Compute encrypted key:
-            encrypted_key = _encode64(cipher_suite.encrypt(bytes(api_key, 'ascii')))
+            encrypted_key = _encode64(
+                cipher_suite.encrypt(bytes(api_key, 'ascii')))
 
             # Create a dictionary containing the encrypted key
             data = {
@@ -47,7 +46,6 @@ class KeyVault:
 
             return encrypted_key
 
-
     def is_key_present(self) -> bool:
 
         try:
@@ -57,16 +55,14 @@ class KeyVault:
                 data = json.load(f)
 
                 # Check if key is present:
-                return data["api_key"] is not None and len(data["api_key"])>0
+                return data["api_key"] is not None and len(data["api_key"]) > 0
         except FileNotFoundError:
             return False
-
 
     def read_api_key(self, password: str) -> str:
         cipher_suite = Fernet(_normalise_password(password))
 
         with open(self.keys_file, "r") as f:
-
             # Load the dictionary from the file
             data = json.load(f)
 
@@ -80,7 +76,6 @@ class KeyVault:
 
 
 def _normalise_password(password: str, salt: bytes = b'123456789'):
-
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
@@ -94,13 +89,13 @@ def _normalise_password(password: str, salt: bytes = b'123456789'):
 
 
 def _encode64(message: Union[str, bytes]):
-
     if type(message) == str:
         message = message.encode('ascii')
 
     base64_bytes = base64.b64encode(message)
     base64_message = base64_bytes.decode('ascii')
     return base64_message
+
 
 def _decode64(message_b64: str, to_string: bool = True):
     base64_bytes = message_b64.encode('ascii')

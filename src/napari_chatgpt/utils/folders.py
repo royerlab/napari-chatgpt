@@ -1,14 +1,14 @@
 import os
 
-def get_home_folder():
 
+def get_home_folder():
     # Get the home directory
     home_dir = os.path.expanduser('~')
 
     return home_dir
 
-def get_or_create_folder_in_home(folder_name: str):
 
+def get_or_create_folder_in_home(folder_name: str):
     home_folder = get_home_folder()
 
     # Create the path to the cache folder
@@ -19,4 +19,3 @@ def get_or_create_folder_in_home(folder_name: str):
         os.mkdir(folder)
 
     return folder
-

@@ -1,6 +1,7 @@
 import ast
 import pkgutil
 
+
 def get_missing_imports(code):
     tree = ast.parse(code)
     missing_imports = set()
@@ -27,6 +28,7 @@ def get_missing_imports(code):
 
     return missing_imports
 
+
 def _get_required_imports(code):
     tree = ast.parse(code)
     required_imports = set()
@@ -41,6 +43,7 @@ def _get_required_imports(code):
                 required_imports.add(module_name)
 
     return required_imports
+
 
 def _module_available(module_name):
     try:

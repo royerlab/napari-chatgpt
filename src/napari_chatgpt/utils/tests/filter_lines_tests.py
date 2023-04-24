@@ -1,9 +1,6 @@
-
-from arbol import aprint
-
 from napari_chatgpt.utils.filter_lines import filter_lines
 
-___text="""
+___text = """
 from magicgui import magicgui
 from typing import Union
 from napari.types import ImageData
@@ -27,11 +24,8 @@ def lucy_richardson_deconvolution(image: ImageData, sigma: float = 1.0, iteratio
 viewer.window.add_dock_widget(lucy_richardson_deconvolution)
 """
 
-def test_filter_lines():
 
+def test_filter_lines():
     filtered_text = filter_lines(___text, ['viewer.window.add_dock_widget'])
 
     assert not 'viewer.window.add_dock_widget' in filtered_text
-
-
-

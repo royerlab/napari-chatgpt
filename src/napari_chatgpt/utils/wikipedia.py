@@ -11,7 +11,6 @@ def search_wikipedia(query: str,
                      max_text_length: int = 4000,
                      summarise_page: bool = False,
                      llm: BaseLLM = None) -> str:
-
     # Run a google search specifically on wikipedia:
     urls = search_google(query=f"{query} site:wikipedia.org",
                          num_results=10,

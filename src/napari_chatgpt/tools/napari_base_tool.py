@@ -10,18 +10,24 @@ from napari import Viewer
 from pydantic import Field
 
 from napari_chatgpt.tools.async_base_tool import AsyncBaseTool
+from napari_chatgpt.utils.extract_code import extract_code_from_markdown
+from napari_chatgpt.utils.filter_lines import filter_lines
 from napari_chatgpt.utils.installed_packages import installed_package_list
+from napari_chatgpt.utils.missing_libraries import missing_libraries, \
+    pip_install
 
-_generic_codegen_instructions="""
+_generic_codegen_instructions = """
 Generic Instructions for Python Code Generation:
 1) The code should be fully functional and not depend on any missing code, data or computation.
-2) Use any standard python library available in python {python_version}, 
-3) Use any installed library from this list: "{packages}". Write your code against the installed version of these libraries. 
-4) Do not forget any import statements! For example, if you use function scipy.signal.convolve2d() add the statement: import scipy
-5) The response should be just pure python code with minimal comments,
+2) Use any functions from the standard python {python_version} library, 
+3) Use any functions from installed libraries from this list: "{packages}" -- write your code against the installed version of these libraries. 
+4) ONLY USE parameters or arguments of functions that you are certain exist in the corresponding package or library version!
+5) Do not forget any import statements! For example, if you use function scipy.signal.convolve2d() add the statement: import scipy
+6) The response should be just pure python code with minimal comments,
 and no explanations before or after the python code. 
 
 """
+
 
 class NapariBaseTool(AsyncBaseTool):
     """A base tool for that delegates to execution to a sub-LLM and communicates with napari via queues."""
@@ -36,41 +42,43 @@ class NapariBaseTool(AsyncBaseTool):
     prompt: str = None
     to_napari_queue: Queue = Field(default=None)
     from_napari_queue: Queue = Field(default=None)
-    llm: ChatOpenAI = Field(default=ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0))
+    llm: ChatOpenAI = Field(default=None)
+    return_direct = False
 
     def _run(self, query: str) -> str:
         """Use the tool."""
         try:
+            if self.prompt:
+                # Instantiate chain:
+                chain = LLMChain(
+                    prompt=self.get_prompt_template(),
+                    llm=self.llm,
+                    verbose=True,
+                    callback_manager=self.callback_manager
+                )
 
-            # Instantiate chain:
-            chain = LLMChain(
-                prompt=self.get_prompt_template(),
-                llm=self.llm,
-                verbose=False
-            )
+                # chain.callback_manager.add_handler(ToolCallbackHandler(type(self).__name__))
+                chain.callback_manager.add_handler(StdOutCallbackHandler())
 
-            # chain.callback_manager.add_handler(ToolCallbackHandler(type(self).__name__))
-            chain.callback_manager.add_handler(StdOutCallbackHandler())
+                # List of installed packages:
+                package_list = installed_package_list()
 
+                generic_codegen_instructions = _generic_codegen_instructions.format(
+                    python_version=str(sys.version.split()[0]),
+                    packages=', '.join(package_list))
 
-            # List of installed packages:
-            package_list = installed_package_list()
+                # Variable for prompt:
+                variables = {"input": query,
+                             "generic_codegen_instructions": generic_codegen_instructions
+                             }
 
-            generic_codegen_instructions = _generic_codegen_instructions.format(python_version=str(sys.version.split()[0]),
-                                                                                packages=', '.join(package_list))
+                # call LLM:
+                code = chain(variables)['text']
 
-            # Variable for prompt:
-            variables = {"input": query,
-                         "generic_codegen_instructions": generic_codegen_instructions
-                         }
-
-            # call LLM:
-            code = chain(variables)['text']
-
-            # Prepend prefix:
-            code = self.code_prefix + code
-
-            aprint(f"code:\n{code}")
+                aprint(f"code:\n{code}")
+            else:
+                # No code generated because no sub-LLM delegation, delegated_function has the buisness logic.
+                code = None
 
             # Setting up delegated fuction:
             delegated_function = lambda v: self._run_code(query, code, v)
@@ -83,16 +91,16 @@ class NapariBaseTool(AsyncBaseTool):
 
             # The response should always contained 'Success' if things went well!
             if 'Success' in response:
-                return f'Tool {type(self).__name__} succeeded to do: {query}'
+                return f"Success: tool {type(self).__name__} succeeded to satisfy request: '{query}'\n"
             else:
-                return f'Tool {type(self).__name__} failed to do: {query} because of this error or reason: {response}'
+                return f"Failure: tool {type(self).__name__} failed to satisfy request: '{query}' because: '{response}'\n"
 
             return response
 
-
         except Exception as e:
+            import traceback
             traceback.print_exc()
-            return str(e)
+            return f"Failure: {' '.join(args)} ({type(e).__name__}) "
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
         """
@@ -100,7 +108,6 @@ class NapariBaseTool(AsyncBaseTool):
         must return 'Success: ...' if thinsg went well, otherwise it is failure!
         """
         raise NotImplementedError("This method must be implemented")
-
 
     # async def _arun(self, query: str) -> str:
     #     """Use the tool asynchronously."""
@@ -114,3 +121,24 @@ class NapariBaseTool(AsyncBaseTool):
 
         return prompt_template
 
+    def _prepare_code(self, code: str):
+
+        # extract code from markdown:
+        code = extract_code_from_markdown(code)
+
+        # Prepend prefix:
+        code = self.code_prefix + code
+
+        # Remove any viewer instantiation code:
+        code = filter_lines(code, ['napari.Viewer(', '= Viewer('])
+
+        # Add spaces around code:
+        code = '\n\n' + code + '\n\n'
+
+        # Are there missing libraries that need to be installed?
+        libraries = missing_libraries(code)
+
+        # Install them:
+        pip_install(libraries)
+
+        return code

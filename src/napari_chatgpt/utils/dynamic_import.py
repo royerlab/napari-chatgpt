@@ -4,7 +4,6 @@ from typing import Optional, Any
 
 
 def dynamic_import(module_code: str) -> Optional[Any]:
-
     # Write code to temp file:
     with tempfile.NamedTemporaryFile(mode="w", suffix='.py', delete=False) as f:
         f.write(module_code)
