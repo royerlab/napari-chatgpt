@@ -1,5 +1,5 @@
 from napari_chatgpt.tools.async_base_tool import AsyncBaseTool
-from napari_chatgpt.utils.duckduckgo import search_overview
+from napari_chatgpt.utils.duckduckgo import summary_ddg
 
 
 class WebSearchTool(AsyncBaseTool):
@@ -8,5 +8,5 @@ class WebSearchTool(AsyncBaseTool):
 
     def _run(self, query: str) -> str:
         """Use the tool."""
-        result = search_overview(query=query)
+        result = summary_ddg(query=query)
         return result

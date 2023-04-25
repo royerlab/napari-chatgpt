@@ -20,15 +20,26 @@ The function should not clip the resulting image unless input image(s) have been
 The function should do all and everything that is asked, but nothing superfluous.
 
 Instructions for Function Signature:
-The function signature must be typed with any of the following type hints:
-(i) napari layer data types: ImageData, LabelsData, PointsData, ShapesData, 
-SurfaceData, TracksData, VectorsData. These types must be imported with import 
-statements such as: 'from napari.types import ImageData' 
-(ii) integers, floats, boolean, or any other type accepted by the magicgui library.
+Integers, floats, boolean, or any other type accepted by the magicgui library.
 Decorate the function with the magicgui decorator: '@magicgui(call_button='Run')'
 where <function_name> is the name of the function that you wrote.
 DO NOT CREATE A NEW INSTANCE OF A NAPARI VIEWER, use the one provided in the variable: 'viewer'.
 DO NOT write code to add the widget to the napari window by calling viewer.window.add_dock_widget().
+
+You have two mutually exclusive options for passing data:
+
+    (i) The first kind of function signature must be typed with any of the following type hints:
+    napari layer data types: ImageData, LabelsData, PointsData, ShapesData, 
+    SurfaceData, TracksData, VectorsData. These types must be imported with import 
+    statements such as: 'from napari.types import ImageData' 
+    
+    (ii) The second type of function signature must be typed with any of the following type hints:
+    napari layer types: Data, Labels, Points, Shapes, Surface, Tracks, Vectors. 
+    These types must be imported with import statements such as: 'from napari.layers import Image' 
+    
+The function code must be consistent: if you use layers then you access the data via: 'layer.data', otherwise you can directly operate on the arrays.
+Do not mix these two options for the function parameters.
+The function signature should have a type hint for the return, e.g.  -> ImageData or -> Image
 
 {generic_codegen_instructions}
 

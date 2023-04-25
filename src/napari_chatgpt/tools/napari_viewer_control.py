@@ -1,4 +1,6 @@
 """A tool for controlling a napari instance."""
+from contextlib import redirect_stdout
+from io import StringIO
 
 from napari import viewer, Viewer
 
@@ -30,11 +32,19 @@ viewer.add_vectors(data: ArrayLike=None, ndim=None, features=None, properties=No
 
 Note 1: To add images, labels, points, shapes, surfaces, tracks, vectors or any other type of layer,
 that are not stored as an array, you might need to write additional code to read files from
-disk or download 
+disk or download from url.
 
-Note 2: When operating on layers (for example applying a filter, etc.) the resulting images, labels, points, ... 
-should be added ideally as new layer in napari, unless it is explicitly asked that the operation be in-place.
+Note 2: The result of operations on layers (for example applying a filter, etc.) should be a new layer in napari, 
+unless the requests states explicitly that it be in-place.
  
+Note 3: Convert arrays  to float type before processing. 
+Intermediate or local arrays should be of type float.
+Constants for: np.full(), np.ones(), np.zeros(), ... should be floats (for example 1.0).
+
+Note 4: If the request mentions 'this/that/the image/layer' then most likely it refers to the last added image/layer.
+
+Note 5: You can get requested information from the viewer (layer names, shape of arrays, etc..) by using print statements.
+
 Request: 
 {input}
 
@@ -56,7 +66,12 @@ class NapariViewerControlTool(NapariBaseTool):
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
         code = super()._prepare_code(code)
 
-        # Running code:
-        exec(code, globals(), {**locals(), 'viewer': viewer})
+        # Redirect output:
+        f = StringIO()
+        with redirect_stdout(f):
+            # Running code:
+            exec(code, globals(), {**locals(), 'viewer': viewer})
 
-        return f"Success: request satisfied: '{query}'!"
+        captured_output = f.getvalue()
+
+        return f"Success: request satisfied: '{query}'! returned: {captured_output}"

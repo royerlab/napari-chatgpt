@@ -10,7 +10,6 @@ from napari_chatgpt.omega.omega_agent.omega_agent_executor import \
     OmegaAgentExecutor
 from napari_chatgpt.omega.omega_agent.omega_prompts import PREFIX, SUFFIX
 from napari_chatgpt.tools.functions_info import PythonFunctionsInfoTool
-from napari_chatgpt.tools.google_search_tool import GoogleSearchTool
 from napari_chatgpt.tools.human_input_tool import HumanInputTool
 from napari_chatgpt.tools.math_tool import MathTool
 from napari_chatgpt.tools.napari_file_open import NapariFileOpenTool
@@ -18,6 +17,7 @@ from napari_chatgpt.tools.napari_viewer_control import NapariViewerControlTool
 from napari_chatgpt.tools.napari_widget_maker import NapariWidgetMakerTool
 from napari_chatgpt.tools.web_search_tool import WebSearchTool
 from napari_chatgpt.tools.wikipedia_query_tool import WikipediaQueryTool
+from napari_chatgpt.tools.wikipedia_search_tool import WikipediaSearchTool
 
 
 def initialize_omega_agent(to_napari_queue: Queue = None,
@@ -39,7 +39,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
     memory = ConversationBufferMemory(memory_key="chat_history",
                                       return_messages=True)
 
-    tools = [WikipediaQueryTool(callback_manager=tool_callback_manager),
+    tools = [WikipediaSearchTool(callback_manager=tool_callback_manager),
              WebSearchTool(callback_manager=tool_callback_manager),
              MathTool(llm=tool_llm, callback_manager=tool_callback_manager),
              PythonFunctionsInfoTool(callback_manager=tool_callback_manager),

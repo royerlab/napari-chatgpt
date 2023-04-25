@@ -119,7 +119,7 @@ ws.onmessage = function (event)
             p.parentElement.className = 'server-message';
 
             // Parse markdown and render as HTML:
-            p.innerHTML = marked.parse(data.message)
+            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + marked.parse(data.message)
 
             // Reset subtitle:
             var header = document.getElementById('header');

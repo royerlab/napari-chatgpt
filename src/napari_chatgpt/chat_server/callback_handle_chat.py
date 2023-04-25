@@ -82,6 +82,10 @@ class ChatCallbackHandler(AsyncCallbackHandler):
         aprint(f"CHAT on_agent_action: {action}")
         tool = camel_case_to_lower_case(action.tool)
         message = f"I am using the {tool} to tackle your request: '{action.tool_input}'"
+
+        if not 'Action:' in action.log and not  'Input:' in action.log:
+            message += f"\n {action.log}"
+
         resp = ChatResponse(sender="agent", message=message, type="action")
         await self.websocket.send_json(resp.dict())
 

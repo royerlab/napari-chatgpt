@@ -92,7 +92,7 @@ def get_function_info(function_path: str,
                                          add_docstrings=add_docstrings)
 
     if len(info) > 0:
-        return info[1]
+        return '\n\n'.join(info)
     else:
         return f'Function {function_path} not found.'
 

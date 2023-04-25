@@ -1,34 +1,32 @@
 # Code vendored from: https://github.com/Nv7-GitHub/googlesearch/blob/master/googlesearch/__init__.py
 from langchain.llms import BaseLLM
 
+from napari_chatgpt.utils.duckduckgo import summary_ddg, search_ddg
 from napari_chatgpt.utils.google import search_google
 from napari_chatgpt.utils.scrapper import text_from_url
 from napari_chatgpt.utils.summarizer import summarize
 
 
 def search_wikipedia(query: str,
-                     lang: str = "english",
+                     num_results: int = 3,
                      max_text_length: int = 4000,
-                     summarise_page: bool = False,
+                     do_summarize: bool = False,
                      llm: BaseLLM = None) -> str:
+
+
     # Run a google search specifically on wikipedia:
-    urls = search_google(query=f"{query} site:wikipedia.org",
-                         num_results=10,
-                         lang='en')
+    results = search_ddg(query=f"{query} site:wikipedia.org", num_results=max(10, num_results))
 
-    # convert generator to list:
-    urls = list(urls)
+    # keep the top k results:
+    results = results[0: num_results]
 
-    # pick the first url:
-    url = urls[0]
-
-    # Get text from first url:
-    text = text_from_url(url=url)
+    # Get pages summaries:
+    text = '\n\n'.join([r['body'] for r in results])
 
     # Limit text length:
     text = text[:max_text_length]
 
-    if summarise_page:
+    if do_summarize:
         text = summarize(text, llm=llm)
 
     return text
