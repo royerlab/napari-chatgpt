@@ -1,5 +1,4 @@
 """A tool for opening ome-zarr files in napari"""
-import traceback
 
 from napari import Viewer
 
@@ -42,4 +41,3 @@ class NapariFileOpenTool(NapariBaseTool):
                 return f"Success: query: '{query}' worked!"
             else:
                 return f"Failure: one or more of the image files could not be opened!"
-

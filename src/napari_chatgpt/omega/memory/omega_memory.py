@@ -1,7 +1,5 @@
 from typing import Any, Dict, List, Type
 
-from pydantic import BaseModel, root_validator
-
 from langchain.chains.llm import LLMChain
 from langchain.memory.chat_memory import BaseChatMemory
 from langchain.memory.prompt import SUMMARY_PROMPT
@@ -12,6 +10,8 @@ from langchain.schema import (
     SystemMessage,
     get_buffer_string,
 )
+from pydantic import BaseModel, root_validator
+
 
 class SummarizerMixin(BaseModel):
     human_prefix: str = "Human"
@@ -22,7 +22,7 @@ class SummarizerMixin(BaseModel):
     newlines_max_length: int = 1800
 
     def predict_new_summary(
-        self, messages: List[BaseMessage], existing_summary: str
+            self, messages: List[BaseMessage], existing_summary: str
     ) -> str:
         new_lines = get_buffer_string(
             messages,
@@ -32,7 +32,8 @@ class SummarizerMixin(BaseModel):
         # limit size of the buffer:
         if len(new_lines) > self.newlines_max_length:
             post_fix = '... [truncated because too long]'
-            new_lines = new_lines[:self.newlines_max_length-len(post_fix)] + post_fix
+            new_lines = new_lines[
+                        :self.newlines_max_length - len(post_fix)] + post_fix
 
         chain = LLMChain(llm=self.llm, prompt=self.prompt)
         return chain.predict(summary=existing_summary, new_lines=new_lines)
@@ -72,7 +73,8 @@ class OmegaConversationSummaryMemory(BaseChatMemory, SummarizerMixin):
             )
         return values
 
-    def save_context(self, inputs: Dict[str, Any], outputs: Dict[str, str]) -> None:
+    def save_context(self, inputs: Dict[str, Any],
+                     outputs: Dict[str, str]) -> None:
         """Save context from this conversation to buffer."""
         super().save_context(inputs, outputs)
         self.buffer = self.predict_new_summary(

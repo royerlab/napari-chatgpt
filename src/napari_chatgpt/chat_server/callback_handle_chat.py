@@ -38,7 +38,8 @@ class ChatCallbackHandler(AsyncCallbackHandler):
             **kwargs: Any
     ) -> Any:
         """Run when chain starts running."""
-        aprint(f"CHAT on_chain_start: serialized={serialized},  inputs={inputs}")
+        aprint(
+            f"CHAT on_chain_start: serialized={serialized},  inputs={inputs}")
 
     async def on_chain_end(self, outputs: Dict[str, Any], **kwargs: Any) -> Any:
         """Run when chain ends running."""
@@ -54,7 +55,8 @@ class ChatCallbackHandler(AsyncCallbackHandler):
             self, serialized: Dict[str, Any], input_str: str, **kwargs: Any
     ) -> Any:
         """Run when tool starts running."""
-        aprint(f"CHAT on_tool_start: serialized={serialized}, input_str={input_str}")
+        aprint(
+            f"CHAT on_tool_start: serialized={serialized}, input_str={input_str}")
 
     async def on_tool_end(self, output: str, **kwargs: Any) -> Any:
         """Run when tool ends running."""
@@ -83,17 +85,15 @@ class ChatCallbackHandler(AsyncCallbackHandler):
         tool = camel_case_to_lower_case(action.tool)
         message = f"I am using the {tool} to tackle your request: '{action.tool_input}'"
 
-        if not 'Action:' in action.log and not  'Input:' in action.log:
+        if not 'Action:' in action.log and not 'Input:' in action.log:
             message += f"\n {action.log}"
 
         resp = ChatResponse(sender="agent", message=message, type="action")
         await self.websocket.send_json(resp.dict())
 
-
     async def on_agent_finish(self, finish: AgentFinish, **kwargs: Any) -> Any:
         """Run on agent end."""
         aprint(f"CHAT on_agent_finish: {finish}")
-        #message = finish.return_values['output']
-        #resp = ChatResponse(sender="agent", message=message, type="finish")
-        #await self.websocket.send_json(resp.dict())
-
+        # message = finish.return_values['output']
+        # resp = ChatResponse(sender="agent", message=message, type="finish")
+        # await self.websocket.send_json(resp.dict())

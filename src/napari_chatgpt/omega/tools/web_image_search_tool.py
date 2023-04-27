@@ -18,7 +18,7 @@ class WebImageSearchTool(NapariBaseTool):
         "Provide a plain text query and the number of images from the top results (default=1)."
         "Use this simple two part format for forwarded requests to WebImageSearchTool: <query> | <nb images> "
     )
-    prompt:str = None
+    prompt: str = None
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
 
@@ -28,7 +28,7 @@ class WebImageSearchTool(NapariBaseTool):
 
             # Basic Cleanup:
             search_query = search_query.strip()
-            nb_images_str=nb_images_str.strip()
+            nb_images_str = nb_images_str.strip()
 
             # More advanced cleanup:
             search_query = re.sub(r"[^a-zA-Z0-9]", "", search_query)
@@ -62,5 +62,3 @@ class WebImageSearchTool(NapariBaseTool):
             # If anything goes wrong:
             traceback.print_exc()
             return f"Failure: one of the image files could not be opened because of an exception: {type(e).__name__}!"
-
-

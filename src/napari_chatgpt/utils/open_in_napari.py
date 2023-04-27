@@ -17,12 +17,13 @@ def open_in_napari(viewer: napari.Viewer(), url: str) -> bool:
     else:
         return False
 
-def open_video_in_napari(viewer: napari.Viewer(), url: str):
 
+def open_video_in_napari(viewer: napari.Viewer(), url: str):
     try:
         # First we check if it is a file that we can resonable expect to open:
-        if not ( url.endswith('mp4') or url.endswith('mpg') or url.endswith('mov') or url.endswith('avi') or url.endswith('m4v')) :
-           return False
+        if not (url.endswith('mp4') or url.endswith('mpg') or url.endswith(
+                'mov') or url.endswith('avi') or url.endswith('m4v')):
+            return False
 
         # temp folder:
         temp_folder = tempfile.gettempdir()

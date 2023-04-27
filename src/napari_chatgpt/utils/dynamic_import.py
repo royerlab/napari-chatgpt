@@ -4,8 +4,7 @@ from random import randint
 from typing import Optional, Any
 
 
-def dynamic_import(module_code: str, name:str = None) -> Optional[Any]:
-
+def dynamic_import(module_code: str, name: str = None) -> Optional[Any]:
     # Module name:
     if not name:
         name = f'some_code_{randint(0, 999999999)}'

@@ -30,12 +30,11 @@ ANSWER:
 
 
 def required_libraries(code: str, llm: BaseLLM = None):
-
     # Cleanup code:
     code = code.strip()
 
     # If code is empty, nothing is missing!
-    if len(code)==0:
+    if len(code) == 0:
         return []
 
     # Ensure that OpenAI key is set:

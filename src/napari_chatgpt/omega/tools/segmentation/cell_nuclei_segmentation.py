@@ -76,8 +76,8 @@ Request:
 Answer in markdown with a single function segment(viewer)->ArrayLike that takes the viewer and returns the segmented image.
 """
 
-def _get_seg_code(name:str, signature: bool = False):
 
+def _get_seg_code(name: str, signature: bool = False):
     # Get package folder:
     package_folder = Path(__file__).parent
 
@@ -89,8 +89,8 @@ def _get_seg_code(name:str, signature: bool = False):
 
     # extract signature:
     if signature:
-       splitted_code = code.split('### SIGNATURE')
-       code = splitted_code[1]
+        splitted_code = code.split('### SIGNATURE')
+        code = splitted_code[1]
 
     return code
 
@@ -107,10 +107,10 @@ class CellNucleiSegmentationTool(NapariBaseTool):
         "This tool has the highest priority when the request pertains to cell or nuclei segmentation."
     )
     prompt = _cell_segmentation_prompt
+
     # generic_codegen_instructions: str = ''
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
-
         # prepare code:
         code = super()._prepare_code(code)
 
@@ -132,11 +132,3 @@ class CellNucleiSegmentationTool(NapariBaseTool):
         viewer.add_labels(segmented_image, name='segmented')
 
         return f"Success: segmentation succeeded!"
-
-
-
-
-
-
-
-

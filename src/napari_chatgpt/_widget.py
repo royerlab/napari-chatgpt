@@ -6,7 +6,6 @@ see: https://napari.org/stable/plugins/guides.html?#widgets
 
 Replace code below according to your needs.
 """
-import webbrowser
 from typing import TYPE_CHECKING
 
 from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
@@ -15,9 +14,6 @@ from napari_chatgpt.chat_server.chat_server import start_chat_server
 
 if TYPE_CHECKING:
     pass
-
-from queue import Queue
-from threading import Thread
 
 from arbol import aprint
 

@@ -5,7 +5,8 @@ from typing import Union
 from langchain.agents import AgentOutputParser
 from langchain.schema import AgentAction, AgentFinish
 
-from napari_chatgpt.omega.omega_agent.omega_prompts import OMEGA_FORMAT_INSTRUCTIONS
+from napari_chatgpt.omega.omega_agent.omega_prompts import \
+    OMEGA_FORMAT_INSTRUCTIONS
 
 
 class OmegaAgentOutputParser(AgentOutputParser):

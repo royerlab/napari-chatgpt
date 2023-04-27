@@ -98,7 +98,6 @@ class NapariBaseTool(AsyncBaseTool):
 
         return response
 
-
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
         """
         This is the code that is executed, see implementations for details,

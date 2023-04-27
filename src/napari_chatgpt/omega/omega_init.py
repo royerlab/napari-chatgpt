@@ -43,8 +43,8 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         [tool_callback_handler])) if chat_callback_handler else None
 
     memory = OmegaConversationSummaryMemory(llm=memory_llm,
-                                             memory_key="chat_history",
-                                             return_messages=True)
+                                            memory_key="chat_history",
+                                            return_messages=True)
 
     tools = [WikipediaSearchTool(callback_manager=tool_callback_manager),
              WebSearchTool(callback_manager=tool_callback_manager),
@@ -79,13 +79,9 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                                                 from_napari_queue=from_napari_queue,
                                                 callback_manager=tool_callback_manager))
         tools.append(NapariViewerQueryTool(llm=tool_llm,
-                                        to_napari_queue=to_napari_queue,
-                                        from_napari_queue=from_napari_queue,
-                                        callback_manager=tool_callback_manager))
-
-
-
-
+                                           to_napari_queue=to_napari_queue,
+                                           from_napari_queue=from_napari_queue,
+                                           callback_manager=tool_callback_manager))
 
     agent = OmegaAgent.from_llm_and_tools(
         llm=main_llm,

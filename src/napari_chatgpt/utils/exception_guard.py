@@ -45,7 +45,6 @@ class ExceptionGuard(contextlib.AbstractContextManager):
             if len(self.filename.strip()) > 0:
                 self.error_string += f", of file: '{self.filename}'."
 
-
             if self.print_stacktrace:
                 traceback.print_exc()
 

@@ -5,10 +5,10 @@ from napari.types import ArrayLike
 
 
 ### SIGNATURE
-def cellpose_segmentation( image: ArrayLike,
-                   model_type: str = 'cyto',
-                   channel: Optional[Sequence[int]] = None,
-                   diameter: Optional[float] = None) -> ArrayLike:
+def cellpose_segmentation(image: ArrayLike,
+                          model_type: str = 'cyto',
+                          channel: Optional[Sequence[int]] = None,
+                          diameter: Optional[float] = None) -> ArrayLike:
     """
     CP cell segmentation function.
 
@@ -45,7 +45,7 @@ def cellpose_segmentation( image: ArrayLike,
     Segmented image as a labels array that can be added to napari as a Labels layer.
 
     """
-### SIGNATURE
+    ### SIGNATURE
 
     if channel is None:
         channel = [0, 0]
@@ -55,8 +55,7 @@ def cellpose_segmentation( image: ArrayLike,
 
     # Run cellpose:
     labels, flows, styles, diams = model.eval([image],
-                                             diameter=diameter,
-                                             channels=[channel])
+                                              diameter=diameter,
+                                              channels=[channel])
 
     return labels[0]
-

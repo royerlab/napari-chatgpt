@@ -12,6 +12,7 @@ def test_wikipedia_search_1():
 
     aprint(text)
 
+
 def test_wikipedia_search_2():
     term = 'CZ Biohub'
 

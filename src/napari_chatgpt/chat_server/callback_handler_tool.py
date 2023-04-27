@@ -39,7 +39,8 @@ class ToolCallbackHandler(BaseCallbackHandler):
             **kwargs: Any
     ) -> Any:
         """Run when chain starts running."""
-        aprint(f"TOOL on_chain_start: serialized={serialized},  inputs={inputs}")
+        aprint(
+            f"TOOL on_chain_start: serialized={serialized},  inputs={inputs}")
 
     def on_chain_end(self, outputs: Dict[str, Any], **kwargs: Any) -> Any:
         """Run when chain ends running."""
@@ -58,7 +59,8 @@ class ToolCallbackHandler(BaseCallbackHandler):
             self, serialized: Dict[str, Any], input_str: str, **kwargs: Any
     ) -> Any:
         """Run when tool starts running."""
-        aprint(f"TOOL on_tool_start: serialized={serialized}, input_str={input_str}")
+        aprint(
+            f"TOOL on_tool_start: serialized={serialized}, input_str={input_str}")
         # tool = camel_case_to_lower_case(serialized['name'])
         # message = f"The {tool} received this request: '{input_str}'"
         # resp = ChatResponse(sender="agent", message=message, type="tool_start")
@@ -70,7 +72,6 @@ class ToolCallbackHandler(BaseCallbackHandler):
             aprint(f"TOOL on_tool_end: {output}")
             resp = ChatResponse(sender="agent", message=output, type="error")
             run_async(self.websocket.send_json, resp.dict())
-
 
     def on_tool_error(
             self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any

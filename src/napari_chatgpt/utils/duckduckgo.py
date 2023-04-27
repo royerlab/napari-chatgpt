@@ -10,7 +10,6 @@ def summary_ddg(query: str,
                 lang: str = "us-en",
                 do_summarize: bool = True,
                 ) -> str:
-
     try:
         results = search_ddg(query=query,
                              num_results=num_results,
@@ -38,7 +37,6 @@ def search_ddg(query: str,
                lang: str = "us-en",
                safesearch: str = 'moderate'
                ) -> str:
-
     results = ddg(query,
                   region=lang,
                   time='h_',
@@ -49,21 +47,21 @@ def search_ddg(query: str,
 
     return results
 
-def search_images_ddg(query: str,
-               num_results: int = 3,
-               lang: str = "us-en",
-               safesearch: str = 'moderate'
-               ) -> str:
 
+def search_images_ddg(query: str,
+                      num_results: int = 3,
+                      lang: str = "us-en",
+                      safesearch: str = 'moderate'
+                      ) -> str:
     results = ddg_images(query,
-                   region=lang,
-                   safesearch=safesearch,
-                   size=None,
-                   color=None,
-                   type_image=None,
-                   layout=None,
-                   license_image=None,
-                   max_results=num_results)
+                         region=lang,
+                         safesearch=safesearch,
+                         size=None,
+                         color=None,
+                         type_image=None,
+                         layout=None,
+                         license_image=None,
+                         max_results=num_results)
 
     results = list(results)
 

@@ -17,7 +17,6 @@ and descriptions on a wide range of topics.
 
 """
 
-
 OMEGA_FORMAT_INSTRUCTIONS = """RESPONSE FORMAT INSTRUCTIONS
 ----------------------------
 
@@ -36,7 +35,8 @@ string \\ The input to the action
 
 **Option #2:**
 Use this if you want to respond directly to the human. 
-Particularly if you think you have succeeded in doing what the human wants or answered his questions.
+Particularly if you think you have succeeded in doing what the human wants, or answered the question,
+or if you are not sure what is asked from you.
 Use the following schema:
 
 Action:

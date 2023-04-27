@@ -52,7 +52,6 @@ class NapariViewerQueryTool(NapariBaseTool):
     prompt = _napari_viewer_query_prompt
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
-
         # prepare code:
         code = super()._prepare_code(code)
 
