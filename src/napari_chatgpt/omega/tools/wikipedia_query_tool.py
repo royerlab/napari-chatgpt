@@ -1,6 +1,6 @@
 from langchain import WikipediaAPIWrapper
 
-from napari_chatgpt.tools.async_base_tool import AsyncBaseTool
+from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 
 _api_wrapper = WikipediaAPIWrapper()
 

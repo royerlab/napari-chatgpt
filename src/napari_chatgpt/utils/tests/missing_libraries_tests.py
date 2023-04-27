@@ -1,4 +1,4 @@
-from napari_chatgpt.utils.missing_libraries import missing_libraries, \
+from napari_chatgpt.utils.missing_libraries import required_libraries, \
     pip_install
 
 generated_python_code = """
@@ -22,7 +22,7 @@ def denoise_bilateral(image: ImageData, d: int = 15, sigmaColor: float = 75, sig
 
 
 def test_pip_install_missing():
-    libraries = missing_libraries(generated_python_code)
+    libraries = required_libraries(generated_python_code)
     print(libraries)
     assert libraries
 

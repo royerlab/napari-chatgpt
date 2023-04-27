@@ -1,4 +1,4 @@
-from napari_chatgpt.tools.async_base_tool import AsyncBaseTool
+from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 from napari_chatgpt.utils.wikipedia import search_wikipedia
 
 

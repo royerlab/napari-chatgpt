@@ -1,9 +1,7 @@
 """A tool for running python code in a REPL."""
 import traceback
 
-from arbol import aprint
-
-from napari_chatgpt.tools.async_base_tool import AsyncBaseTool
+from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 from napari_chatgpt.utils.inspection import extract_package_path, \
     get_function_info
 from napari_chatgpt.utils.summarizer import summarize

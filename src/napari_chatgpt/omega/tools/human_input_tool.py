@@ -4,7 +4,7 @@ from typing import Callable
 
 from pydantic import Field
 
-from napari_chatgpt.tools.async_base_tool import AsyncBaseTool
+from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 
 
 def _print_func(text: str) -> None:

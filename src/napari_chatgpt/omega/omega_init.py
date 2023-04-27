@@ -2,28 +2,34 @@ from queue import Queue
 
 from langchain.callbacks import CallbackManager, \
     AsyncCallbackManager, BaseCallbackHandler
-from langchain.memory import ConversationBufferMemory
 from langchain.schema import BaseLanguageModel
 
+from napari_chatgpt.omega.memory.omega_memory import \
+    OmegaConversationSummaryMemory
 from napari_chatgpt.omega.omega_agent.omega_agent import OmegaAgent
 from napari_chatgpt.omega.omega_agent.omega_agent_executor import \
     OmegaAgentExecutor
 from napari_chatgpt.omega.omega_agent.omega_prompts import PREFIX, SUFFIX
-from napari_chatgpt.tools.functions_info import PythonFunctionsInfoTool
-from napari_chatgpt.tools.human_input_tool import HumanInputTool
-from napari_chatgpt.tools.math_tool import MathTool
-from napari_chatgpt.tools.napari_file_open import NapariFileOpenTool
-from napari_chatgpt.tools.napari_viewer_control import NapariViewerControlTool
-from napari_chatgpt.tools.napari_widget_maker import NapariWidgetMakerTool
-from napari_chatgpt.tools.web_search_tool import WebSearchTool
-from napari_chatgpt.tools.wikipedia_query_tool import WikipediaQueryTool
-from napari_chatgpt.tools.wikipedia_search_tool import WikipediaSearchTool
+from napari_chatgpt.omega.tools.functions_info import PythonFunctionsInfoTool
+from napari_chatgpt.omega.tools.human_input_tool import HumanInputTool
+from napari_chatgpt.omega.tools.math_tool import MathTool
+from napari_chatgpt.omega.tools.napari_file_open import NapariFileOpenTool
+from napari_chatgpt.omega.tools.napari_viewer_control import \
+    NapariViewerControlTool
+from napari_chatgpt.omega.tools.napari_viewer_query import NapariViewerQueryTool
+from napari_chatgpt.omega.tools.napari_widget_maker import NapariWidgetMakerTool
+from napari_chatgpt.omega.tools.segmentation.cell_nuclei_segmentation import \
+    CellNucleiSegmentationTool
+from napari_chatgpt.omega.tools.web_image_search_tool import WebImageSearchTool
+from napari_chatgpt.omega.tools.web_search_tool import WebSearchTool
+from napari_chatgpt.omega.tools.wikipedia_search_tool import WikipediaSearchTool
 
 
 def initialize_omega_agent(to_napari_queue: Queue = None,
                            from_napari_queue: Queue = None,
                            main_llm: BaseLanguageModel = None,
                            tool_llm: BaseLanguageModel = None,
+                           memory_llm: BaseLanguageModel = None,
                            is_async: bool = False,
                            chat_callback_handler: BaseCallbackHandler = None,
                            tool_callback_handler: BaseCallbackHandler = None,
@@ -36,8 +42,9 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
     tool_callback_manager = (CallbackManager(
         [tool_callback_handler])) if chat_callback_handler else None
 
-    memory = ConversationBufferMemory(memory_key="chat_history",
-                                      return_messages=True)
+    memory = OmegaConversationSummaryMemory(llm=memory_llm,
+                                             memory_key="chat_history",
+                                             return_messages=True)
 
     tools = [WikipediaSearchTool(callback_manager=tool_callback_manager),
              WebSearchTool(callback_manager=tool_callback_manager),
@@ -63,6 +70,22 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                                         to_napari_queue=to_napari_queue,
                                         from_napari_queue=from_napari_queue,
                                         callback_manager=tool_callback_manager))
+        tools.append(WebImageSearchTool(llm=tool_llm,
+                                        to_napari_queue=to_napari_queue,
+                                        from_napari_queue=from_napari_queue,
+                                        callback_manager=tool_callback_manager))
+        tools.append(CellNucleiSegmentationTool(llm=tool_llm,
+                                                to_napari_queue=to_napari_queue,
+                                                from_napari_queue=from_napari_queue,
+                                                callback_manager=tool_callback_manager))
+        tools.append(NapariViewerQueryTool(llm=tool_llm,
+                                        to_napari_queue=to_napari_queue,
+                                        from_napari_queue=from_napari_queue,
+                                        callback_manager=tool_callback_manager))
+
+
+
+
 
     agent = OmegaAgent.from_llm_and_tools(
         llm=main_llm,

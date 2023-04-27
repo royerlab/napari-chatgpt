@@ -2,7 +2,7 @@ from langchain import OpenAI, WikipediaAPIWrapper
 from langchain.agents import initialize_agent
 from langchain.tools.wikipedia.tool import WikipediaQueryRun
 
-from src.napari_chatgpt.tools.google_search_tool import GoogleSearchTool
+from napari_chatgpt.omega.tools.google_search_tool import GoogleSearchTool
 
 llm = OpenAI(temperature=0)
 

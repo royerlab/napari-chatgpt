@@ -2,7 +2,7 @@
 
 from napari import Viewer
 
-from napari_chatgpt.tools.napari_base_tool import NapariBaseTool
+from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.dynamic_import import dynamic_import
 from napari_chatgpt.utils.filter_lines import filter_lines
 from napari_chatgpt.utils.find_function_name import find_function_name
@@ -13,18 +13,22 @@ You competently write image processing and image analysis functions in python gi
 The function should be pure, self-contained, effective, well-written, syntactically correct.
 The function should work on 2D and 3D images, and images of any number of dimensions (nD), 
 unless the request is explicit about the number of dimensions. 
-The function MUST convert all input image arrays to float type before processing. 
-Any intermediate or locally created array should also be of type float.
-All constants used for the values in arrays created with: np.full(), np.ones(), np.zeros(), ... should be floats (for example 1.0).
-The function should not clip the resulting image unless input image(s) have been normalised accordingly.
-The function should do all and everything that is asked, but nothing superfluous.
+The widget should do all and everything that is asked, but nothing else or superfluous.
+
+Instructions for manipulating arrays from Images layers:
+- Convert arrays to float type before processing.
+- Any intermediate or locally created image array should also be of type float.
+- Images arrays created with: np.full(), np.ones(), np.zeros(), ... should use float parameters (for example 1.0).
+- DO NOT clip (np.clip) the resulting image.
+
+Instructions for manipulating arrays from Labels layers:
+- DO NOT convert to float arrays originating from labels layers, instead cast to np.uint32.
 
 Instructions for Function Signature:
-Integers, floats, boolean, or any other type accepted by the magicgui library.
-Decorate the function with the magicgui decorator: '@magicgui(call_button='Run')'
-where <function_name> is the name of the function that you wrote.
-DO NOT CREATE A NEW INSTANCE OF A NAPARI VIEWER, use the one provided in the variable: 'viewer'.
-DO NOT write code to add the widget to the napari window by calling viewer.window.add_dock_widget().
+- Integers, floats, boolean, or any other type accepted by the magicgui library.
+- Decorate the function with the magicgui decorator: '@magicgui(call_button='Run')' where <function_name> is the name of the function that you wrote.
+- DO NOT CREATE A NEW INSTANCE OF A NAPARI VIEWER, use the one provided in the variable: 'viewer'.
+- DO NOT write code to add the widget to the napari window by calling viewer.window.add_dock_widget().
 
 You have two mutually exclusive options for passing data:
 
@@ -66,7 +70,7 @@ class NapariWidgetMakerTool(NapariBaseTool):
 
     name = "NapariWidgetMakerTool"
     description = (
-        "Forward to this tool requests to make napari function widgets from function descriptions. "
+        "Forward plain text requests to this tool when you need to make napari function widgets from function descriptions. "
         "Requests must be a plain text description (no code) of an image processing or analysis function."
         "For example, you can ask for 'a gaussian filter widget with sigma parameter'. "
         "This tool does not process or analyse images, it makes widget that then do that. "
@@ -89,10 +93,10 @@ class NapariWidgetMakerTool(NapariBaseTool):
             code = filter_lines(code, ['viewer.window.add_dock_widget('])
 
             # Load the code as module:
-            module = dynamic_import(code)
+            loaded_module = dynamic_import(code)
 
             # get the function:
-            function = getattr(module, function_name)
+            function = getattr(loaded_module, function_name)
 
             # Load the widget in the viewer:
             viewer.window.add_dock_widget(function)

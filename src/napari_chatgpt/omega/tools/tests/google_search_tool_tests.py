@@ -1,4 +1,4 @@
-from src.napari_chatgpt.tools.google_search_tool import GoogleSearchTool
+from napari_chatgpt.omega.tools.google_search_tool import GoogleSearchTool
 
 
 def test_google_search_tool():

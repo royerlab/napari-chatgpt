@@ -29,8 +29,22 @@ class ExceptionGuard(contextlib.AbstractContextManager):
             self.function_name = last_frame.name
             self.filename = last_frame.filename
             reason = self.exception_value.args[0] if len(
-                self.exception_value.args) > 0 else 'None'
-            self.error_string = f"Exception: {self.exception_type}, reason: '{reason}', in function: {self.function_name}, at line: {self.line_number} of file: '{self.filename}'."
+                self.exception_value.args) > 0 else ''
+
+            self.error_string = f"Exception: {self.exception_type}"
+
+            if len(reason.strip()) > 0:
+                self.error_string += f", reason: '{reason}'"
+
+            if len(self.function_name.strip()) > 0:
+                self.error_string += f", in function: {self.function_name}"
+
+            if len(str(self.line_number).strip()) > 0:
+                self.error_string += f", at line: {self.line_number}"
+
+            if len(self.filename.strip()) > 0:
+                self.error_string += f", of file: '{self.filename}'."
+
 
             if self.print_stacktrace:
                 traceback.print_exc()

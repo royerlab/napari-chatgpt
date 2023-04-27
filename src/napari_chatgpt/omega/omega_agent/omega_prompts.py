@@ -45,7 +45,9 @@ FinalAnswer \\ The final action
 Input:
 string \\ You should put what you want to return to use here
 
-Note 1: As soon as a satisfactory response has been found, please choose the FinalAnswer action.
+Notes: 
+- As soon as a satisfactory response has been found, please choose the FinalAnswer action.
+- Input of tools must be in PLAIN TEXT ONLY, not in pseudo code!
 """
 
 SUFFIX = """TOOLS

@@ -2,10 +2,9 @@
 from contextlib import redirect_stdout
 from io import StringIO
 
-from napari import viewer, Viewer
+from napari import Viewer
 
-from napari_chatgpt.tools.napari_base_tool import NapariBaseTool
-from napari_chatgpt.utils.inspection import object_info_str
+from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
 
 _napari_viewer_control_prompt = """
 "
@@ -30,20 +29,10 @@ viewer.add_surface(data: ArrayLike, colormap='gray', contrast_limits=None, gamma
 viewer.add_tracks(data: ArrayLike, features=None, properties=None, graph=None, tail_width=2, tail_length=30, head_length=0, name=None, metadata=None, scale=None, translate=None, rotate=None, shear=None, affine=None, opacity=1, blending='additive', visible=True, colormap='turbo', color_by='track_id', colormaps_dict=None, cache=True, experimental_clipping_planes=None)
 viewer.add_vectors(data: ArrayLike=None, ndim=None, features=None, properties=None, property_choices=None, edge_width=1, edge_color='red', edge_color_cycle=None, edge_colormap='viridis', edge_contrast_limits=None, out_of_slice_display=False, length=1, name=None, metadata=None, scale=None, translate=None, rotate=None, shear=None, affine=None, opacity=0.7, blending='translucent', visible=True, cache=True, experimental_clipping_planes=None)
 
-Note 1: To add images, labels, points, shapes, surfaces, tracks, vectors or any other type of layer,
-that are not stored as an array, you might need to write additional code to read files from
-disk or download from url.
-
-Note 2: The result of operations on layers (for example applying a filter, etc.) should be a new layer in napari, 
-unless the requests states explicitly that it be in-place.
- 
-Note 3: Convert arrays  to float type before processing. 
-Intermediate or local arrays should be of type float.
-Constants for: np.full(), np.ones(), np.zeros(), ... should be floats (for example 1.0).
-
+Note 1: To add images, labels, points, shapes, surfaces, tracks, vectors or any other type of layer, that are not stored as an array, you might need to write additional code to read files from disk or download from url.
+Note 2: The result of operations on layers (for example applying a filter, etc.) should be a new layer in napari, unless the requests states explicitly that it be in-place.
+Note 3: Convert arrays  to float type before processing. Intermediate or local arrays should be of type float. Constants for: np.full(), np.ones(), np.zeros(), ... should be floats (for example 1.0).
 Note 4: If the request mentions 'this/that/the image/layer' then most likely it refers to the last added image/layer.
-
-Note 5: You can get requested information from the viewer (layer names, shape of arrays, etc..) by using print statements.
 
 Request: 
 {input}
@@ -57,13 +46,12 @@ class NapariViewerControlTool(NapariBaseTool):
 
     name = "NapariViewerControlTool"
     description = (
-        "Forward to this tool requests to control, operate, act, or set parameters of a napari viewer instance. "
-        "Requests must be a plain text description (no code) of what must be done with the viewer, its layers, or parameters"
+        "Forward plain text requests to this tool when you need to control, operate, act, or set parameters of a napari viewer instance. "
+        "Requests must be a plain text description (no code) of what must be done with the viewer, its layers, or parameters."
     )
-    prompt = _napari_viewer_control_prompt.replace('***', object_info_str(
-        viewer.Viewer(show=False), add_docstrings=False))
+    prompt = _napari_viewer_control_prompt
 
-    def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
+    def _run_code(self, request: str, code: str, viewer: Viewer) -> str:
         code = super()._prepare_code(code)
 
         # Redirect output:
@@ -74,4 +62,4 @@ class NapariViewerControlTool(NapariBaseTool):
 
         captured_output = f.getvalue()
 
-        return f"Success: request satisfied: '{query}'! returned: {captured_output}"
+        return f"Success: request '{request}' satisfied:\n{captured_output}"

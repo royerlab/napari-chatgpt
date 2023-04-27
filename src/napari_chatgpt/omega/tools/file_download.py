@@ -1,6 +1,6 @@
 from arbol import asection
 
-from napari_chatgpt.tools.async_base_tool import AsyncBaseTool
+from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 from napari_chatgpt.utils.download_files import download_files
 from napari_chatgpt.utils.extract_urls import extract_urls
 

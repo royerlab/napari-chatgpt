@@ -68,7 +68,7 @@ class ChatCallbackHandler(AsyncCallbackHandler):
         aprint(f"CHAT on_tool_error: {error}")
         error_type = type(error).__name__
         error_message = ', '.join(error.args)
-        message = f"Failed because: '{error_message}', Exception: '{error_type}'"
+        message = f"Failed because:\n'{error_message}'\nException: '{error_type}'\n"
         resp = ChatResponse(sender="agent", message=message, type="error")
         asyncio.run(self.websocket.send_json(resp.dict()))
 

@@ -7,7 +7,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.tools.python.tool import PythonREPLTool
 from langchain.tools.wikipedia.tool import WikipediaQueryRun
 
-from src.napari_chatgpt.tools.google_search_tool import GoogleSearchTool
+from napari_chatgpt.omega.tools.google_search_tool import GoogleSearchTool
 
 llm = ChatOpenAI(temperature=0)
 

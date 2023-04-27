@@ -1,6 +1,6 @@
 import napari
 
-from napari_chatgpt.utils.open_zarr_in_napari import open_zarr_in_napari
+from napari_chatgpt.utils.open_in_napari import open_zarr_in_napari
 
 # url = 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0062A/6001240.zarr'
 # url = 'http://public.czbiohub.org/royerlab/zebrahub/imaging/multi-view/ZMNS001.ome.zarr/'

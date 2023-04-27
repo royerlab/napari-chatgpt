@@ -11,7 +11,7 @@ var endpoint = "ws://localhost:9000/chat";
 var ws = new WebSocket(endpoint);
 
 // Default subtitle:
-default_subtitle = " Ask a question, ask for a widget, or control the napari viewer, or anything else! ";
+default_subtitle = " Ask a question, ask for a widget, ask to process images, or control the napari viewer ! ";
 
 // Receive message from server and process it:
 ws.onmessage = function (event)
@@ -153,7 +153,7 @@ ws.onmessage = function (event)
 
             // Display error message:
             var p = messages.lastChild.lastChild;
-            p.innerHTML = "<strong>" + "Omega: " + "</strong> error:" + marked.parse(data.message)
+            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + marked.parse(data.message)
 
             // Set background color:
             p.parentElement.className = 'error-message';
