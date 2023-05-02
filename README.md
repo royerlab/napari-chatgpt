@@ -13,15 +13,14 @@ a napari-aware agent capable of performing image processing and analysis tasks i
 This repository was created as a 'week-end project' by [Loic A. Royer](https://twitter.com/loicaroyer) 
 who leads a [research group](https://royerlab.org) at the [Chan Zuckerberg Biohub](https://czbiohub.org/sf/) .
 It levegages [OpenAI](https://openai.com)'s ChatGPT API via the [LangChain](https://python.langchain.com/en/latest/index.html) 
-Python library, as well as [napari](https://napari.org) a fast, interactive, multi-dimensional 
+Python library, as well as [napari](https://napari.org), a fast, interactive, multi-dimensional 
 image viewer for Python, [another](https://ilovesymposia.com/2019/10/24/introducing-napari-a-fast-n-dimensional-image-viewer-in-python/) 
-of Loic's week-end projects :-).
+of Loic's week-end projects.
 
 # What is Omega?
 
-Omega is a LLM-based autonomous agent that demonstrates the potential for Large Language Models (LLMs) 
-to write image processing and analysis code using napari as image viewer. Can LLM-based agents 
-write image processing code and napari widgets, correct its coding mistakes, perform 
+Omega is a LLM-based and tool-armed autonomous agent that demonstrates the potential for Large Language Models (LLMs) to write image processing and analysis code using napari as image viewer. 
+Can LLM-based agents write image processing code and napari widgets, correct its coding mistakes, perform 
 follow-up analysis, and control the napari viewer? The answer appears to be yes.
 
 #### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in skimage, but fails because of an inexistant 'multichannel' parameter. Realising that, it tries again, and this time, succeeds. 
@@ -32,14 +31,15 @@ As LLMs continue to improve, Omega will become even more adept at handling compl
 image processing and analysis tasks. The current version of ChatGPT, 3.5, 
 has a cutoff date of 2021, which means that it lacks nearly two years of knowledge 
 on the napari API and usage, as well as the latest versions of popular libraries 
-like scikit-image. Despite this, you can see in the videos below that it is quite capableWhile ChatGPT 4.0 is a significant upgrade, it is not yet widely 
+like scikit-image. Despite this, you can see in the videos below that it is quite capable.
+While ChatGPT 4.0 is a significant upgrade, it is not yet widely 
 available.
 
 Omega could eventually help non-experts analyse images, especially in the bioimage domain. 
 It is also potentially valuable for educative purposes as it could 
 assist in teaching image processing and analysis, making it more accessible. 
 Although ChatGPT may not be yet on par with an expert image analyst or computer vision 
-expert, it is likely just a matter of time...
+expert, it is just a matter of time...
 
 Omega holds a conversation with the user and uses the following tools to acheive answer questions, 
 download and operate on images, write widgets for napari, and more:
@@ -73,10 +73,6 @@ download and operate on images, write widgets for napari, and more:
 
 - wikipedia search:
     Gioves Omega access to teh whole wikipedia
-
-Beware: Omega will install whatever python packages it thinks it needs,
-and will write and execute whatever code it deems nescessary to satisfy your requests. 
-Do not ask for 'deleting all files on drive', it WILL HAPPILY DO IT.
 
 
 ----------------------------------
@@ -119,10 +115,11 @@ or:
 ## Requirements:
 
 You need an OpenAI key, there is no way around this, unless we add some other,
-potentially local LLMs compatible to LangChaim (LLamaCPP is an interesting candidate).
-You can get  your key by signing up [here](https://openai.com/blog/openai-api).
-Developping Omega cost me 13.97$, hardly a fortune. OpenAI pricing on ChatGPT 3.5 is very
-reasonable at 0.002 dollars per 1K tokens, which means 2$ per 750000 words. A bargain.
+potentially local LLMs compatible to LangChain ([llama.cpp](https://github.com/ggerganov/llama.cpp) and similar approaches could help here). However, this will likely be at the cost in cognitive performance,
+which I am not sure is worth it at this point. Please proove me wrong.
+You can get your OpenAI key by signing up [here](https://openai.com/blog/openai-api).
+Developping Omega cost me $13.97, hardly a fortune. OpenAI pricing on ChatGPT 3.5 is very
+reasonable at 0.002 dollars per 1K tokens, which means $2 per 750000 words. A bargain.
 Now, ChatGPT 4.0 is about 10x more expensive... But that could eventually drop, hopefully.
 
 
@@ -141,10 +138,12 @@ Omega can store it _safely_ in an _encrypted_ way on your machine (~/.omega_api_
 
 <img width="293" alt="image" src="https://user-images.githubusercontent.com/1870994/235793528-9e892c5e-d8ca-43e1-9020-f2dfab45b32d.png">
 
-Just enter a encryption/decription password, you OpenAI key, and
-everytime it will just ask for the password:
+Just enter an encryption/decription key, you OpenAI key, and
+everytime it will just ask for the key:
 
 <img width="300" alt="image" src="https://user-images.githubusercontent.com/1870994/235794262-4c0eff4d-1c81-47b0-a097-f34e3d5c93b8.png">
+
+(The idea is that you might not beable to remember your openAI key by heart but you you might be able to do so with your own password or passphrase)
 
 You can then direct your browser to: [http://0.0.0.0:9000/](http://0.0.0.0:9000/)
 and start having an hopefully nice chat with Omega.
@@ -182,41 +181,38 @@ Not everyone will want or can get an API key for the latest and best LLM models,
 so here are videos showcasing what's possible. You will notice that Omega sometimes 
 fails on its first attempt, typically because of mistaken parameters for functions,
 or other syntax errors. But it also often recovers by having access to the error message,
-and reasoning its way to the write piece of code. This is what ChatGPT 3.5 can do, imagine
-what will be possible with much more capable models...
+and reasoning its way to the right piece of code. This is what ChatGPT 3.5 can do, imagine
+what will be possible with 4.0 and future more capable models...
 
-### 
+##
 In this first video, I ask Omega to make a napari widget to convert images from RGB to grayscale:
 
 https://user-images.githubusercontent.com/1870994/235769895-23cfc7ed-622a-47f9-95aa-4be77efc0f78.mp4
 
-### 
+##
 Of course Omega is capable of holding a conversation, it sort of knows 'who it is', can search the web
 and wikipedia. Eventually I imagine it could leverage the ability to search for improving its responses,
 and I have seen doing it a few times:
 
 https://user-images.githubusercontent.com/1870994/235769920-86b02d9d-1196-4339-a8d9-9a028bcd4607.mp4
 
-### 
+##
 After loading into napari a sample 3D image of cell nuclei, I ask Omega to segment the nuclei using the Otsu method. My first request was very vague, so it just segmented foreground versus background. I then ask to segment
 the foreground into distinct segments for each connected component. Omega does a rookie mistake by forgetting 
-to 'import np'. No problem, it tries again, and succeeds:   
+to 'import np'. No problem, it notices, tries again, and succeeds:   
 
 https://user-images.githubusercontent.com/1870994/235769990-a281a118-1369-47aa-834a-b491f706bd48.mp4
 
-###
-Following up from the previous video, I ask Omega to create a new labels layer with the largest segment.
-The script that Omega writes as another rookie mistake: it confuses layers and images. The error message
-then confuses Omega i to thinking that it got the name of the layer wrong, setting it off in a quest
-to find the name of the labels layer. It succeeds at writting code that does so, and uses that name to
-write a script that then does extracts te largest segment into its own layer: 
+##
+Following-up from the previous video, I ask Omega to create a new labels layer containing just the largest segment. The script that Omega writes as another rookie mistake: it confuses layers and images. The error message then confuses Omega into thinking that it got the name of the layer wrong, setting it off in a quest
+to find the name of the labels layer. It succeeds at writting code that searches for the labels layer, and uses that name to write a script that then does extracts te largest segment into its own layer. Not bad: 
 
 https://user-images.githubusercontent.com/1870994/235770741-d8905afd-0a9b-4eb7-a075-481979ab7b01.mp4
 
-###
-In this video, I ask Omega to write 'segmentation widget'. Pretty unspecific. The answer is a vanilla yet effective widget that uses the Otsu approach to threshold the image and then finds the connected components.
+##
+In this video, I ask Omega to write a 'segmentation widget'. Pretty unspecific. The answer is a vanilla yet effective widget that uses the Otsu approach to threshold the image and then finds the connected components.
 Note that when you ask Omega to make a widget, it won't know of any runtime issues with the code because
-it is not running the code itself, yet (it can tell if there is a syntax problem though). The widget works:
+it is not running the code itself, yet. It can tell if there is a syntax problem though... Nevertheless, the widget ends up working just fine:
 
 https://user-images.githubusercontent.com/1870994/235770794-90091bfe-b546-4dd0-bd9c-3895bfc33a1d.mp4
 
@@ -224,23 +220,27 @@ https://user-images.githubusercontent.com/1870994/235770794-90091bfe-b546-4dd0-b
 Now it gets more interesting. Following up on the previous video, can we ask Omega to do some follow-
 up analysis on the segments themselves? I ask Omega to list the 10 largest segments and compute their 
 areas and centroids. No problem: 
+
 https://user-images.githubusercontent.com/1870994/235770828-0f829f76-1f3d-44b8-b8e8-89fcbcde6e11.mp4
 
 ##
 Next I ask Omega to make a widget that lets me filter segments by area. And it works beautifully.
 Arguably it is not rocket science, but the thought-to-widget time ratio must be in the hundreds when comparing Omega to an average user trying to write their own widget:
+
 https://user-images.githubusercontent.com/1870994/235770860-4287e6a3-dae3-4c6d-a588-dea2bb1f69b7.mp4
 
 ##
 This is an example of a failed widget. I ask for a widget that can do dilations and erosions. The widget
 is created but is 'broken' because Omega made the mistake of using floats for the number of dilations
 and erosions: (In the next video I tell Omega to fix it)
+
 https://user-images.githubusercontent.com/1870994/235770896-819f394d-9785-46e8-a31a-a135b19316bf.mp4
 
 ##
 Following up from previous video, I explain that I want the two parameters (number erosions and dilations)
 to be integers. Notice that I exploit the conversational nature of the agent by assuming that it remembers
 what the widget is about:
+
 https://user-images.githubusercontent.com/1870994/235770914-90991ac4-337e-4dcd-a04c-dd44b5e8be3e.mp4
 
 ##
