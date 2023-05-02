@@ -11,9 +11,9 @@ A [napari](napari.org) plugin that levegares Large Language Models like ChatGPT 
 a napari-aware agent capable of performing image processing and analysis tasks in a conversational manner.
 
 This repository was created as a 'week-end project' by [Loic A. Royer](https://twitter.com/loicaroyer) 
-who leads a [research group](royerlab.org) at the [Chan Zuckerberg Biohub](czbiohub.org/sf/) .
-It levegages [OpenAI](openai.com)'s ChatGPT API via the [LangChain](https://python.langchain.com/en/latest/index.html) 
-Python library, as well as [napari](napari.org) a fast, interactive, multi-dimensional 
+who leads a [research group](https://royerlab.org) at the [Chan Zuckerberg Biohub](https://czbiohub.org/sf/) .
+It levegages [OpenAI](https://openai.com)'s ChatGPT API via the [LangChain](https://python.langchain.com/en/latest/index.html) 
+Python library, as well as [napari](https://napari.org) a fast, interactive, multi-dimensional 
 image viewer for Python, [another](https://ilovesymposia.com/2019/10/24/introducing-napari-a-fast-n-dimensional-image-viewer-in-python/) 
 of Loic's week-end projects :-).
 
@@ -21,10 +21,12 @@ of Loic's week-end projects :-).
 
 Omega demonstrates the potential for Large Language Models (LLMs) to write image 
 processing and analysis code using napari as image viewer. Can LLM-based agents 
-write image processing code and napari widgets, correct coding mistakes, perform 
+write image processing code and napari widgets, correct its coding mistakes, perform 
 follow-up analysis, and control the napari viewer? The answer appears to be yes.
 
-(Video)
+#### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in skimage, but fails because of an inexistant 'multichannel' parameter. Realising that, it tries again, and this time, succeeds. 
+https://user-images.githubusercontent.com/1870994/235768559-ca8bfa84-21f5-47b6-b2bd-7fcc07cedd92.mp4
+
 
 As LLMs continue to improve, Omega will become even more adept at handling complex 
 image processing and analysis tasks. The current version of ChatGPT, 3.5, 
@@ -127,23 +129,6 @@ reasonable at $0.002 / 1K tokens, which means 2$ per 750'000 words. A bargain.
 Now, ChatGPT 4.0 is about 10x more expensive... But that could eventually drop, hopefully.
 
 
-## Disclaimer:
-
-Do not use this software lightly, it will download libaries by its own volition,
-write any code that it deems nescessary, it might actually do what you ask, even if
-it is a bad idea. Also, beware that it might _misundertand_ what you ask and then do
-something bad. For example, it is unwise to use Omega to delete 'some' files from your system,
-it might end up deleteing more than that if you are unclear in your request.  
-To be 100% safe, we recommend that you use this software from within a sandboxed virtual machine. 
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE 
-USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
 ## Usage:
 
 Here are example prompts/questions/requests to try:
@@ -172,7 +157,65 @@ Here are example prompts/questions/requests to try:
 
 ## Video Demos:
 
-(all videos)
+Not everyone will want or can get an API key for the latest and best LLM models, 
+so here are videos showcasing what's possible. You will notice that Omega sometimes 
+fails on its first attempt, typically because of a mistaken parameters of functions,
+or other syntax errors. But it also often recovers by having access to the error message,
+and reasoning its way to the write piece of code. This is what ChatGPT 3.5 can do, imagine
+what will be possible with much more capable models...
+
+https://user-images.githubusercontent.com/1870994/235769895-23cfc7ed-622a-47f9-95aa-4be77efc0f78.mp4
+
+https://user-images.githubusercontent.com/1870994/235769920-86b02d9d-1196-4339-a8d9-9a028bcd4607.mp4
+
+https://user-images.githubusercontent.com/1870994/235769990-a281a118-1369-47aa-834a-b491f706bd48.mp4
+
+https://user-images.githubusercontent.com/1870994/235770741-d8905afd-0a9b-4eb7-a075-481979ab7b01.mp4
+
+https://user-images.githubusercontent.com/1870994/235770794-90091bfe-b546-4dd0-bd9c-3895bfc33a1d.mp4
+
+https://user-images.githubusercontent.com/1870994/235770828-0f829f76-1f3d-44b8-b8e8-89fcbcde6e11.mp4
+
+https://user-images.githubusercontent.com/1870994/235770860-4287e6a3-dae3-4c6d-a588-dea2bb1f69b7.mp4
+
+https://user-images.githubusercontent.com/1870994/235770896-819f394d-9785-46e8-a31a-a135b19316bf.mp4
+
+https://user-images.githubusercontent.com/1870994/235770914-90991ac4-337e-4dcd-a04c-dd44b5e8be3e.mp4
+
+https://user-images.githubusercontent.com/1870994/235770933-07f5cbe6-2224-4dcd-b378-e81cc4e66500.mov
+
+https://user-images.githubusercontent.com/1870994/235770959-406e8173-8416-4100-bcb6-7f0b617ce234.mp4
+
+https://user-images.githubusercontent.com/1870994/235770984-c88c8eac-d3b2-47d7-81b1-48fbe4429e90.mp4
+
+https://user-images.githubusercontent.com/1870994/235771000-89dba0db-e710-4f76-b271-e9dcf65239b1.mp4
+
+https://user-images.githubusercontent.com/1870994/235771031-d978b652-2e28-4178-aa7e-dbdfd2e21c2d.mp4
+
+https://user-images.githubusercontent.com/1870994/235771066-adc7f0bb-0b8e-415c-8e89-6107182cd5b1.mp4
+
+https://user-images.githubusercontent.com/1870994/235771093-85a751c8-cc5a-4685-b40a-acdf81f0e5c9.mp4
+
+https://user-images.githubusercontent.com/1870994/235771129-db095c1f-56f7-4bb9-9bff-ef57ce66387b.mp4
+
+https://user-images.githubusercontent.com/1870994/235771146-ced45353-4886-42cb-b48f-3ce0859ed434.mp4
+
+
+## Disclaimer:
+
+Do not use this software lightly, it will download libaries by its own volition,
+write any code that it deems nescessary, it might actually do what you ask, even if
+it is a bad idea. Also, beware that it might _misundertand_ what you ask and then do
+something bad. For example, it is unwise to use Omega to delete 'some' files from your system,
+it might end up deleteing more than that if you are unclear in your request.  
+To be 100% safe, we recommend that you use this software from within a sandboxed virtual machine. 
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE 
+USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ## Contributing
