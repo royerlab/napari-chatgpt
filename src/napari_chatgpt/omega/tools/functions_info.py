@@ -41,7 +41,7 @@ class PythonFunctionsInfoTool(AsyncBaseTool):
                 result = f"Here is the information you requested about function {function_path_and_name}:\n{function_info}\n"
                 return result
             else:
-                return "Error: there is no qualified function name in the requet!"
+                return "Error: there is no qualified function name in the request!"
 
         except Exception as e:
             error_info = f"Error: {type(e).__name__} occured while trying to get information about: '{function_path_and_name}'."
