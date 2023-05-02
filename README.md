@@ -1,4 +1,4 @@
-# napari-chatgpt, home of _Omega_
+# napari-chatgpt, home of _Omega_ a napari-aware autonomous LLM-based agent.
 
 [![License BSD-3](https://img.shields.io/pypi/l/napari-chatgpt.svg?color=green)](https://github.com/royerlab/napari-chatgpt/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-chatgpt.svg?color=green)](https://pypi.org/project/napari-chatgpt)
@@ -136,7 +136,18 @@ You can then start the Omega via the plugins menu:
 
 <img width="498" alt="image" src="https://user-images.githubusercontent.com/1870994/235790134-1d87fd50-583f-4fd9-ade2-c64497b91331.png">
 
+If you have not set the 'OPENAI_API_KEY' environment variable as is typicall,
+Omega can store it _safely_ in an _encrypted_ way on your machine (~/.omega_api_keys/OpenAI.json):
 
+<img width="293" alt="image" src="https://user-images.githubusercontent.com/1870994/235793528-9e892c5e-d8ca-43e1-9020-f2dfab45b32d.png">
+
+Just enter a encryption/decription password, you OpenAI key, and
+everytime it will just ask for the password:
+
+<img width="300" alt="image" src="https://user-images.githubusercontent.com/1870994/235794262-4c0eff4d-1c81-47b0-a097-f34e3d5c93b8.png">
+
+You can then direct your browser to: [http://0.0.0.0:9000/](http://0.0.0.0:9000/)
+and start having an hopefully nice chat with Omega.
 
 
 ## Example prompts:
