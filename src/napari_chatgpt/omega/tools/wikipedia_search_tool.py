@@ -4,7 +4,7 @@ from napari_chatgpt.utils.wikipedia import search_wikipedia
 
 class WikipediaSearchTool(AsyncBaseTool):
     name = "WikipediaSearch"
-    description = "Useful for when you need to answer questions that might be" \
+    description = "Useful for when you need to answer questions that might be " \
                   "contained in wikipedia's encyclopedic resource. "
 
     def _run(self, query: str) -> str:

@@ -71,7 +71,7 @@ class NapariWidgetMakerTool(NapariBaseTool):
     name = "NapariWidgetMakerTool"
     description = (
         "Forward plain text requests to this tool when you need to make napari function widgets from function descriptions. "
-        "Requests must be a plain text description (no code) of an image processing or analysis function."
+        "Requests must be a plain text description (no code) of an image processing or analysis function. "
         "For example, you can ask for 'a gaussian filter widget with sigma parameter'. "
         "This tool does not process or analyse images, it makes widget that then do that. "
         "ONLY use this tool when the word 'widget' is mentioned. "

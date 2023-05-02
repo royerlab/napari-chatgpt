@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Omega -- a chatGPT agent for image processing and analysis with
+        napari</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
+          rel="stylesheet">
+    <link href="static/prism.css" rel="stylesheet"/>
+
+    <style>
+        .chat-body {
+            width: 90%;
+            margin: 50px auto;
+        }
+
+        .card-body {
+            background-color: #333;
+            color: #fff;
+            border-radius: 10px;
+        }
+
+        .server-message {
+            background-color: #444;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        .client-message {
+            background-color: #555;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        .error-message {
+            background-color: #F4856D;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        .action-message {
+            background-color: #5B7687;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        .form-inline {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-control {
+            width: 80%;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            margin-right: 10px;
+        }
+
+        #send {
+            background-color: #4C4CFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+        }
+
+        .form-message {
+            margin-top: 10px;
+        }
+    </style>
+    <script src="static/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="static/chat.js"></script>
+</head>
+<body class="bg-black">
+<div class="chat-body card">
+    <div class="card-body p-5">
+        <h4 class="card-title text-center text-xl font-medium"> Omega </h4>
+        <p class="card-text text-center text-sm" id="header"> Ask a question,
+            ask for a widget, or control the napari viewer, or anything
+            else! </p>
+        <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
+        <div id="messages" class="leading-tight overflow-auto"
+             style="max-height: 500px;">
+        </div>
+        <form action="" class="form-inline mt-5" id="chat-form"
+              onsubmit="sendMessage(event)">
+            <input type="text" class="form-control"
+                   placeholder="Write your question" id="messageText">
+            <button id="send" type="submit" class="btn btn-primary">Send
+            </button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -34,25 +34,27 @@ string \\ The input to the action
 
 
 **Option #2:**
-Use this if you want to respond directly to the human. 
-Particularly if you think you have succeeded in doing what the human wants, or answered the question,
-or if you are not sure what is asked from you.
+Use this if you want to respond directly to me. 
+Particularly if you think you have succeeded in doing what I want, or answered the question,
+or if you are not sure what I asked from you.
 Use the following schema:
 
 Action:
 FinalAnswer \\ The final action
 
 Input:
-string \\ You should put what you want to return to use here
+string \\ You should put what you want to return to the human here
 
 Notes: 
-- As soon as a satisfactory response has been found, please choose the FinalAnswer action.
+- Please choose the FinalAnswer action if you have answered the question or performed the task, or if you have determined that you can't.
 - Input of tools must be in PLAIN TEXT ONLY, not in pseudo code!
 """
 
 SUFFIX = """TOOLS
 ------
-Omega can ask the user to use tools to do things such as control a napari viewer instance or look up information that may be helpful in answering the users original question. The tools the human can use are:
+Omega can ask the user to use tools to do things such as control a napari viewer instance 
+or look up information that may be helpful in answering the users original question. 
+The tools the user can use are:
 
 {{tools}}
 
@@ -73,6 +75,7 @@ USER'S INPUT
 
 Okay, so what is the response to my last comment? If using information obtained from the tools 
 you must mention it explicitly without mentioning the tool names - I have forgotten all TOOL RESPONSES! 
-If the tool failed, use the tool's response to refine your tool's request or to try something else or. 
+If the tool failed, use the tool's response to refine your tool's request, try something else, 
+or stop by giving a final answer. 
 Remember to to respond with the schema described above, and NOTHING else.
 """

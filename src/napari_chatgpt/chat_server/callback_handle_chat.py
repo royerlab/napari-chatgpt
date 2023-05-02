@@ -66,7 +66,6 @@ class ChatCallbackHandler(AsyncCallbackHandler):
             self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any
     ) -> Any:
         """Run when tool errors."""
-        pass
         aprint(f"CHAT on_tool_error: {error}")
         error_type = type(error).__name__
         error_message = ', '.join(error.args)

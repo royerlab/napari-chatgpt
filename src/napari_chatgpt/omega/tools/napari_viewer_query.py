@@ -46,7 +46,8 @@ class NapariViewerQueryTool(NapariBaseTool):
 
     name = "NapariViewerQueryTool"
     description = (
-        "Forward plain text requests to this tool when you need information about images, labels, points, tracks, shapes, meshes, etc... held by the napari viewer. "
+        "Forward plain text requests to this tool when you need information about images, "
+        "labels, points, tracks, shapes, meshes, etc... held by the napari viewer. "
         "Requests must be a plain text description (no code) of the request."
     )
     prompt = _napari_viewer_query_prompt

@@ -43,7 +43,10 @@ def search_ddg(query: str,
                   safesearch=safesearch,
                   max_results=num_results)
 
-    results = list(results)
+    if results:
+        results = list(results)
+    else:
+        results = []
 
     return results
 

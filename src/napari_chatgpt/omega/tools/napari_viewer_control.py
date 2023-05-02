@@ -46,8 +46,10 @@ class NapariViewerControlTool(NapariBaseTool):
 
     name = "NapariViewerControlTool"
     description = (
-        "Forward plain text requests to this tool when you need to control, operate, act, or set parameters of a napari viewer instance. "
-        "Requests must be a plain text description (no code) of what must be done with the viewer, its layers, or parameters."
+        "Forward plain text requests to this tool when you need to control, operate, "
+        "act, or set parameters of a napari viewer instance. "
+        "Requests must be a plain text description (no code) of what must be done with "
+        "the viewer, its layers, or parameters."
     )
     prompt = _napari_viewer_control_prompt
 

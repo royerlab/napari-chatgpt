@@ -12,7 +12,7 @@ class NapariFileOpenTool(NapariBaseTool):
     name = "NapariFileOpen"
     description = (
         "Forward plain text requests to this tool when you need to open image files in napari. "
-        "Requests must be a newline (\\n) delimited list of local file paths or URLs to be opened."
+        "Requests must be a newline (\\n) delimited list of local file paths or URLs to be opened. "
         "This tool can open image files with these extensions: .tif, .png, .jpg, .zarr, and more..."
 
     )

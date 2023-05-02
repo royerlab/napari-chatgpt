@@ -22,6 +22,7 @@ from napari_chatgpt.omega.tools.segmentation.cell_nuclei_segmentation import \
     CellNucleiSegmentationTool
 from napari_chatgpt.omega.tools.web_image_search_tool import WebImageSearchTool
 from napari_chatgpt.omega.tools.web_search_tool import WebSearchTool
+from napari_chatgpt.omega.tools.wikipedia_query_tool import WikipediaQueryTool
 from napari_chatgpt.omega.tools.wikipedia_search_tool import WikipediaSearchTool
 
 
@@ -46,7 +47,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                                             memory_key="chat_history",
                                             return_messages=True)
 
-    tools = [WikipediaSearchTool(callback_manager=tool_callback_manager),
+    tools = [WikipediaQueryTool(callback_manager=tool_callback_manager),
              WebSearchTool(callback_manager=tool_callback_manager),
              MathTool(llm=tool_llm, callback_manager=tool_callback_manager),
              PythonFunctionsInfoTool(callback_manager=tool_callback_manager),
