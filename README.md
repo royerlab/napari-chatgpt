@@ -19,8 +19,8 @@ of Loic's week-end projects :-).
 
 # What is Omega?
 
-Omega demonstrates the potential for Large Language Models (LLMs) to write image 
-processing and analysis code using napari as image viewer. Can LLM-based agents 
+Omega is a LLM-based autonomous agent that demonstrates the potential for Large Language Models (LLMs) 
+to write image processing and analysis code using napari as image viewer. Can LLM-based agents 
 write image processing code and napari widgets, correct its coding mistakes, perform 
 follow-up analysis, and control the napari viewer? The answer appears to be yes.
 
