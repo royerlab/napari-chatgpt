@@ -1,4 +1,4 @@
-# napari-chatgpt, home of _Omega_ a napari-aware autonomous LLM-based agent.
+# napari-chatgpt, home of _Omega_, a napari-aware autonomous LLM-based agent.
 
 [![License BSD-3](https://img.shields.io/pypi/l/napari-chatgpt.svg?color=green)](https://github.com/royerlab/napari-chatgpt/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-chatgpt.svg?color=green)](https://pypi.org/project/napari-chatgpt)
@@ -7,13 +7,11 @@
 [![codecov](https://codecov.io/gh/royerlab/napari-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/royerlab/napari-chatgpt)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
 
-A [napari](napari.org) plugin that levegares Large Language Models like ChatGPT to implement _Omega_ 
+A [napari](napari.org) plugin that levegares OpenAI's Large Language Model ChatGPT to implement _Omega_ 
 a napari-aware agent capable of performing image processing and analysis tasks in a conversational manner.
 
 This repository was created as a 'week-end project' by [Loic A. Royer](https://twitter.com/loicaroyer) 
-who leads a [research group](https://royerlab.org) at the [Chan Zuckerberg Biohub](https://czbiohub.org/sf/) .
-It levegages [OpenAI](https://openai.com)'s ChatGPT API via the [LangChain](https://python.langchain.com/en/latest/index.html) 
-Python library, as well as [napari](https://napari.org), a fast, interactive, multi-dimensional 
+who leads a [research group](https://royerlab.org) at the [Chan Zuckerberg Biohub](https://czbiohub.org/sf/). It levegages [OpenAI](https://openai.com)'s ChatGPT API via the [LangChain](https://python.langchain.com/en/latest/index.html) Python library, as well as [napari](https://napari.org), a fast, interactive, multi-dimensional 
 image viewer for Python, [another](https://ilovesymposia.com/2019/10/24/introducing-napari-a-fast-n-dimensional-image-viewer-in-python/) 
 of Loic's week-end projects.
 
@@ -23,7 +21,7 @@ Omega is a LLM-based and tool-armed autonomous agent that demonstrates the poten
 Can LLM-based agents write image processing code and napari widgets, correct its coding mistakes, perform 
 follow-up analysis, and control the napari viewer? The answer appears to be yes.
 
-#### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in skimage, but fails because of an inexistant 'multichannel' parameter. Realising that, it tries again, and this time, succeeds. 
+#### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image, but fails because of an inexistant 'multichannel' parameter. Realising that, Omega tries again, and this time, succeeds. 
 https://user-images.githubusercontent.com/1870994/235768559-ca8bfa84-21f5-47b6-b2bd-7fcc07cedd92.mp4
 
 
@@ -223,6 +221,8 @@ areas and centroids. No problem:
 
 https://user-images.githubusercontent.com/1870994/235770828-0f829f76-1f3d-44b8-b8e8-89fcbcde6e11.mp4
 
+Note: You could even ask for it in markdown format, which would look better (not shown here).
+
 ##
 Next I ask Omega to make a widget that lets me filter segments by area. And it works beautifully.
 Arguably it is not rocket science, but the thought-to-widget time ratio must be in the hundreds when comparing Omega to an average user trying to write their own widget:
@@ -247,26 +247,25 @@ https://user-images.githubusercontent.com/1870994/235770914-90991ac4-337e-4dcd-a
 This video demos a specialised 'cell and nuclei segmentation tool' which leverages [cellpose 2.0](https://www.cellpose.org/) to segment cell cytoplasms or nuclei. In general, we can't assume that
 LLMs know about every single image processing library, especially for specific domains. So it can be 
 a good strategy to provide such specialised tools. After Omega successfully segments the nuclei, I ask
-from it to count the nuclei. Answer: 340. Notice that the code generated 'searches' the layer with a loop. Cute:
+from it to count the nuclei. Answer: 340. Notice that the code generated 'searches' the layer with name 'segmented' with a loop. Cute:
 
 https://user-images.githubusercontent.com/1870994/235770933-07f5cbe6-2224-4dcd-b378-e81cc4e66500.mov
 
 ##
-Enough cells. The 'memory' of ChatGPT is filled with unescessary information, it knows the url of Albert Einstein's photo on wikipedia, and combined with the 'napari file open' tool it can therefore open that
-photo in napari. 
+Enough with cells. Aparently The 'memory' of ChatGPT is filled with unescessary information, it knows the url of Albert Einstein's photo on wikipedia, and combined with the 'napari file open' tool it can therefore open that photo in napari:
 
 https://user-images.githubusercontent.com/1870994/235770959-406e8173-8416-4100-bcb6-7f0b617ce234.mp4
 
 ## 
-You can ask for rather incongruous widgets, widgets you would probably never write because you just need them once or something. Here i ask for a widget that applies a rather odd non-linear transformation to each
-pixel. The result is predictably boring, but it works, and i don't think that the answer was 'copy pasted'
+You can ask for rather incongruous widgets, widgets you would probably never write because you just need them once or something. Here I ask for a widget that applies a rather odd non-linear transformation to each
+pixel. The result is predictably boring, but it works, and I don't think that the answer was 'copy pasted'
 from somewhere else...
 
 https://user-images.githubusercontent.com/1870994/235770984-c88c8eac-d3b2-47d7-81b1-48fbe4429e90.mp4
 
 ##
 In this one, starting again from our beloved Albert, I ask to rename that layer to 'Einstein' which looks
-better than just 'array'. Then I ask Omega to apply a Canny edge filter. predictably it uses scikit-image:
+better than just 'array'. Then I ask Omega to apply a Canny edge filter. Predictably it uses scikit-image:
 
 https://user-images.githubusercontent.com/1870994/235771000-89dba0db-e710-4f76-b271-e9dcf65239b1.mp4
 
@@ -277,7 +276,7 @@ https://user-images.githubusercontent.com/1870994/235771031-d978b652-2e28-4178-a
 
 ##
 Following up on previous video, I play with dilations on the edge image. 
-Omega has some trouble when I ask it to 'Do it again'. Fine, sometimes you have a bit more explicit.
+Omega has some trouble when I ask to 'do it again'. Fine, sometimes you have a bit more explicit:
 
 https://user-images.githubusercontent.com/1870994/235771066-adc7f0bb-0b8e-415c-8e89-6107182cd5b1.mp4
 
@@ -288,14 +287,12 @@ the output live:
 https://user-images.githubusercontent.com/1870994/235771093-85a751c8-cc5a-4685-b40a-acdf81f0e5c9.mp4
 
 ##
-This video demonstrates that Omega understand many aspects of the napari viewer API. It can switch viewing modes,
-translate layers, etc... :
+This video demonstrates that Omega understand many aspects of the napari viewer API. It can switch viewing modes, translate layers, etc... :
 
 https://user-images.githubusercontent.com/1870994/235771129-db095c1f-56f7-4bb9-9bff-ef57ce66387b.mp4
 
 ##
-I never thought this one would work: I ask napari to open in napari a mp4 video from a url and then use OpenCV
-to detect people. It does it. But the one thing that Omega does not know is that creating a layer for each frame of the video is not a practical idea. Not clear what happenbed to the collors though. Probably an RGB ordering or format issue.
+I never thought this one would work: I ask Omega to open in napari a mp4 video from a URL and then use OpenCV to detect people. It does it. But the one thing that Omega does not know is that creating a layer for each frame of the video is not a practical approach. Not clear what happened to the colors though. Probably an RGB ordering or format issue:
 
 https://user-images.githubusercontent.com/1870994/235771146-ced45353-4886-42cb-b48f-3ce0859ed434.mp4
 
