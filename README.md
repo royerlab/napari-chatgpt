@@ -7,20 +7,25 @@
 [![codecov](https://codecov.io/gh/royerlab/napari-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/royerlab/napari-chatgpt)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
 
-A napari plugin to process and analyse images with chatGPT.
+A napari plugin that levegares Large Language Models like ChatGPT to facilitate image processing and analysis.
+
+It implements /Omega/ an agent that has at its disposal the follwoing tools:
+
+- web search 
+- web image serach 
+- wikipedia search
+- file download
+- napari viewer control (running its own sub-LLM)
+- napari query (running its own sub-LLM)
+- napari widget maker (running its own sub-LLM)
+- cellpose segmentation (running its own sub-LLM)
+- python function signature query
+
+
+
 
 ----------------------------------
 
-This [napari] plugin was generated with [Cookiecutter] using [@napari]'
-s [cookiecutter-napari-plugin] template.
-
-<!--
-Don't miss the full getting started guide to set up your new package:
-https://github.com/napari/cookiecutter-napari-plugin#getting-started
-
-and review the napari docs for plugin developers:
-https://napari.org/stable/plugins/index.html
--->
 
 ## Installation
 
