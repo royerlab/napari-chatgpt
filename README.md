@@ -164,56 +164,116 @@ or other syntax errors. But it also often recovers by having access to the error
 and reasoning its way to the write piece of code. This is what ChatGPT 3.5 can do, imagine
 what will be possible with much more capable models...
 
-In this first video, I ask Omega to make a napari widget to convert images from RGB to grayscale.
+### 
+In this first video, I ask Omega to make a napari widget to convert images from RGB to grayscale:
 
 https://user-images.githubusercontent.com/1870994/235769895-23cfc7ed-622a-47f9-95aa-4be77efc0f78.mp4
 
+### 
 Of course Omega is capable of holding a conversation, it sort of knows 'who it is', can search the web
 and wikipedia. Eventually I imagine it could leverage the ability to search for improving its responses,
-and I have seen doing it a few times.
+and I have seen doing it a few times:
 
 https://user-images.githubusercontent.com/1870994/235769920-86b02d9d-1196-4339-a8d9-9a028bcd4607.mp4
 
+### 
 After loading into napari a sample 3D image of cell nuclei, I ask Omega to segment the nuclei using the Otsu method. My first request was very vague, so it just segmented foreground versus background. I then ask to segment
 the foreground into distinct segments for each connected component. Omega does a rookie mistake by forgetting 
-to 'import np'. No problem, it tries again, and succeeds.   
+to 'import np'. No problem, it tries again, and succeeds:   
 
 https://user-images.githubusercontent.com/1870994/235769990-a281a118-1369-47aa-834a-b491f706bd48.mp4
 
-Following up from the previous video, I ask Omega to creat a new labels layer with the largest segment.
+###
+Following up from the previous video, I ask Omega to create a new labels layer with the largest segment.
 The script that Omega writes as another rookie mistake: it confuses layers and images. The error message
 then confuses Omega i to thinking that it got the name of the layer wrong, setting it off in a quest
 to find the name of the labels layer. It succeeds at writting code that does so, and uses that name to
-write a script that then does extracts te largest segment into its own layer. 
+write a script that then does extracts te largest segment into its own layer: 
 
 https://user-images.githubusercontent.com/1870994/235770741-d8905afd-0a9b-4eb7-a075-481979ab7b01.mp4
 
+###
+In this video, I ask Omega to write 'segmentation widget'. Pretty unspecific. The answer is a vanilla yet effective widget that uses the Otsu approach to threshold the image and then finds the connected components.
+Note that when you ask Omega to make a widget, it won't know of any runtime issues with the code because
+it is not running the code itself, yet (it can tell if there is a syntax problem though). The widget works:
 
 https://user-images.githubusercontent.com/1870994/235770794-90091bfe-b546-4dd0-bd9c-3895bfc33a1d.mp4
 
+##
+Now it gets more interesting. Following up on the previous video, can we ask Omega to do some follow-
+up analysis on the segments themselves? I ask Omega to list the 10 largest segments and compute their 
+areas and centroids. No problem: 
 https://user-images.githubusercontent.com/1870994/235770828-0f829f76-1f3d-44b8-b8e8-89fcbcde6e11.mp4
 
+##
+Next I ask Omega to make a widget that lets me filter segments by area. And it works beautifully.
+Arguably it is not rocket science, but the thought-to-widget time ratio must be in the hundreds when comparing Omega to an average user trying to write their own widget:
 https://user-images.githubusercontent.com/1870994/235770860-4287e6a3-dae3-4c6d-a588-dea2bb1f69b7.mp4
 
+##
+This is an example of a failed widget. I ask for a widget that can do dilations and erosions. The widget
+is created but is 'broken' because Omega made the mistake of using floats for the number of dilations
+and erosions: (In the next video I tell Omega to fix it)
 https://user-images.githubusercontent.com/1870994/235770896-819f394d-9785-46e8-a31a-a135b19316bf.mp4
 
+##
+Following up from previous video, I explain that I want the two parameters (number erosions and dilations)
+to be integers. Notice that I exploit the conversational nature of the agent by assuming that it remembers
+what the widget is about:
 https://user-images.githubusercontent.com/1870994/235770914-90991ac4-337e-4dcd-a04c-dd44b5e8be3e.mp4
+
+##
+This video demos a specialised 'cell and nuclei segmentation tool' which leverages [cellpose 2.0](https://www.cellpose.org/) to segment cell cytoplasms or nuclei. In general, we can't assume that
+LLMs know about every single image processing library, especially for specific domains. So it can be 
+a good strategy to provide such specialised tools. After Omega successfully segments the nuclei, I ask
+from it to count the nuclei. Answer: 340. Notice that the code generated 'searches' the layer with a loop. Cute:
 
 https://user-images.githubusercontent.com/1870994/235770933-07f5cbe6-2224-4dcd-b378-e81cc4e66500.mov
 
+##
+Enough cells. The 'memory' of ChatGPT is filled with unescessary information, it knows the url of Albert Einstein's photo on wikipedia, and combined with the 'napari file open' tool it can therefore open that
+photo in napari. 
+
 https://user-images.githubusercontent.com/1870994/235770959-406e8173-8416-4100-bcb6-7f0b617ce234.mp4
+
+## 
+You can ask for rather incongruous widgets, widgets you would probably never write because you just need them once or something. Here i ask for a widget that applies a rather odd non-linear transformation to each
+pixel. The result is predictably boring, but it works, and i don't think that the answer was 'copy pasted'
+from somewhere else...
 
 https://user-images.githubusercontent.com/1870994/235770984-c88c8eac-d3b2-47d7-81b1-48fbe4429e90.mp4
 
+##
+In this one, starting again from our beloved Albert, I ask to rename that layer to 'Einstein' which looks
+better than just 'array'. Then I ask Omega to apply a Canny edge filter. predictably it uses scikit-image:
+
 https://user-images.githubusercontent.com/1870994/235771000-89dba0db-e710-4f76-b271-e9dcf65239b1.mp4
+
+## 
+Then I ask for a 'Canny edge detection widget'. It happily makes the widget and offers relevant parameters:
 
 https://user-images.githubusercontent.com/1870994/235771031-d978b652-2e28-4178-aa7e-dbdfd2e21c2d.mp4
 
+##
+Following up on previous video, I play with dilations on the edge image. 
+Omega has some trouble when I ask it to 'Do it again'. Fine, sometimes you have a bit more explicit.
+
 https://user-images.githubusercontent.com/1870994/235771066-adc7f0bb-0b8e-415c-8e89-6107182cd5b1.mp4
 
+##
+You can also experiment with more classic 'numpy' code by creating and manipulating arrays and visualising 
+the output live:
 https://user-images.githubusercontent.com/1870994/235771093-85a751c8-cc5a-4685-b40a-acdf81f0e5c9.mp4
 
+##
+This video demonstrates that Omega understand many aspects of the napari viewer API. It can switch viewing modes,
+translate layers, etc... :
+
 https://user-images.githubusercontent.com/1870994/235771129-db095c1f-56f7-4bb9-9bff-ef57ce66387b.mp4
+
+##
+I never thought this one would work: I ask napari to open in napari a mp4 video from a url and then use OpenCV
+to detect people. It does it. But the one thing that Omega does not know is that creating a layer for each frame of the video is not a practical idea. Not clear what happenbed to the collors though. Probably an RGB ordering or format issue.
 
 https://user-images.githubusercontent.com/1870994/235771146-ced45353-4886-42cb-b48f-3ce0859ed434.mp4
 
