@@ -4,12 +4,12 @@ from langchain.callbacks import CallbackManager, \
     AsyncCallbackManager, BaseCallbackHandler
 from langchain.schema import BaseLanguageModel
 
-from napari_chatgpt.omega.memory.omega_memory import \
+from napari_chatgpt.omega.memory.memory import \
     OmegaConversationSummaryMemory
-from napari_chatgpt.omega.omega_agent.omega_agent import OmegaAgent
-from napari_chatgpt.omega.omega_agent.omega_agent_executor import \
+from napari_chatgpt.omega.omega_agent.agent import OmegaAgent
+from napari_chatgpt.omega.omega_agent.agent_executor import \
     OmegaAgentExecutor
-from napari_chatgpt.omega.omega_agent.omega_prompts import PREFIX, SUFFIX
+from napari_chatgpt.omega.omega_agent.prompts import PREFIX, SUFFIX
 from napari_chatgpt.omega.tools.functions_info import PythonFunctionsInfoTool
 from napari_chatgpt.omega.tools.human_input_tool import HumanInputTool
 from napari_chatgpt.omega.tools.math_tool import MathTool
@@ -23,7 +23,6 @@ from napari_chatgpt.omega.tools.segmentation.cell_nuclei_segmentation import \
 from napari_chatgpt.omega.tools.web_image_search_tool import WebImageSearchTool
 from napari_chatgpt.omega.tools.web_search_tool import WebSearchTool
 from napari_chatgpt.omega.tools.wikipedia_query_tool import WikipediaQueryTool
-from napari_chatgpt.omega.tools.wikipedia_search_tool import WikipediaSearchTool
 
 
 def initialize_omega_agent(to_napari_queue: Queue = None,

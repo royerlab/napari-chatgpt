@@ -10,7 +10,7 @@ from napari_chatgpt.utils.camel_case_to_normal import camel_case_to_lower_case
 
 
 class ChatCallbackHandler(AsyncCallbackHandler):
-    """Callback handler for streaming LLM responses."""
+    """Callback handler for chat responses."""
 
     def __init__(self, websocket):
         self.websocket = websocket

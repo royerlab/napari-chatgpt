@@ -1,4 +1,4 @@
-from napari_chatgpt.omega.omega_agent.omega_agent_output_parser import \
+from napari_chatgpt.omega.omega_agent.agent_output_parser import \
     OmegaAgentOutputParser
 
 __omega_agent_output_example_1 = \

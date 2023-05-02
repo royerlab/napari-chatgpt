@@ -6,9 +6,9 @@ from typing import List, Tuple, Any
 from langchain.agents import ConversationalChatAgent, AgentOutputParser
 from langchain.schema import AgentAction, BaseMessage, AIMessage, HumanMessage
 
-from napari_chatgpt.omega.omega_agent.omega_agent_output_parser import \
+from napari_chatgpt.omega.omega_agent.agent_output_parser import \
     OmegaAgentOutputParser
-from napari_chatgpt.omega.omega_agent.omega_prompts import \
+from napari_chatgpt.omega.omega_agent.prompts import \
     TEMPLATE_TOOL_RESPONSE
 
 

@@ -9,7 +9,7 @@ from napari_chatgpt.utils.api_key_vault_dialog import \
 
 def set_openai_key() -> bool:
     # If key is already present, no need to do anthing:
-    if 'OPENAI_API_KEY' in dict(os.environ):
+    if is_openai_key_available():
         return True
 
     # Check if there is already a QApplication instance running
@@ -28,3 +28,6 @@ def set_openai_key() -> bool:
         os.environ['OPENAI_API_KEY'] = api_key
     else:
         return False
+
+def is_openai_key_available() -> bool:
+    return 'OPENAI_API_KEY' in dict(os.environ)

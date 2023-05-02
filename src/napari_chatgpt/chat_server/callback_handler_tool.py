@@ -9,7 +9,7 @@ from napari_chatgpt.utils.tests.run_async import run_async
 
 
 class ToolCallbackHandler(BaseCallbackHandler):
-    """Callback handler for streaming LLM responses."""
+    """Callback handler for tool responses."""
 
     def __init__(self, websocket):
         self.websocket = websocket

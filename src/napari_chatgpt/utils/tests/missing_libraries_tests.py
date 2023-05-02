@@ -1,5 +1,8 @@
+import pytest
+
 from napari_chatgpt.utils.missing_libraries import required_libraries, \
     pip_install
+from napari_chatgpt.utils.openai_key import is_openai_key_available
 
 generated_python_code = """
 
@@ -20,7 +23,7 @@ def denoise_bilateral(image: ImageData, d: int = 15, sigmaColor: float = 75, sig
 
 """
 
-
+@pytest.mark.skipif(not is_openai_key_available(), reason="requires OpenAI key to run")
 def test_pip_install_missing():
     libraries = required_libraries(generated_python_code)
     print(libraries)

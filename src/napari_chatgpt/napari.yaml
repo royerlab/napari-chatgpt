@@ -7,5 +7,5 @@ contributions:
       title: Make example QWidget
   widgets:
     - command: napari-chatgpt.make_qwidget
-      display_name: Omega -- a chatGPT enabled napari plugin
+      display_name: Omega -- a ChatGPT-enabled agent
 
