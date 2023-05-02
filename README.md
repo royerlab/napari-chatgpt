@@ -94,19 +94,16 @@ Activate environment:
 
     conda activate napari-chatgpt 
 
-
 Install napari in the environment using conda-forge: (important on Apple M1/M2)
 
     conda install -c conda-forge napari     
-
 
 Install the repo in enbvironment:
 
     pip install napari-chatgpt
 
-Start napari:
 
-    napari
+## Installation variations:
 
 To install latest development version :
 
@@ -124,12 +121,25 @@ or:
 You need an OpenAI key, there is no way around this, unless we add some other,
 potentially local LLMs compatible to LangChaim (LLamaCPP is an interesting candidate).
 You can get  your key by signing up [here](https://openai.com/blog/openai-api).
-Developping Omega cost me 13.97$, a fortune, indeed. OpenAI pricing on ChatGPT 3.5 is very
-reasonable at $0.002 / 1K tokens, which means 2$ per 750'000 words. A bargain.
+Developping Omega cost me 13.97$, hardly a fortune. OpenAI pricing on ChatGPT 3.5 is very
+reasonable at 0.002 dollars per 1K tokens, which means 2$ per 750000 words. A bargain.
 Now, ChatGPT 4.0 is about 10x more expensive... But that could eventually drop, hopefully.
 
 
 ## Usage:
+
+Once installed, start napari if it is not already running:
+
+    napari
+    
+You can then start the Omega via the plugins menu:
+
+<img width="498" alt="image" src="https://user-images.githubusercontent.com/1870994/235790134-1d87fd50-583f-4fd9-ade2-c64497b91331.png">
+
+
+
+
+## Example prompts:
 
 Here are example prompts/questions/requests to try:
 
@@ -263,6 +273,7 @@ https://user-images.githubusercontent.com/1870994/235771066-adc7f0bb-0b8e-415c-8
 ##
 You can also experiment with more classic 'numpy' code by creating and manipulating arrays and visualising 
 the output live:
+
 https://user-images.githubusercontent.com/1870994/235771093-85a751c8-cc5a-4685-b40a-acdf81f0e5c9.mp4
 
 ##
