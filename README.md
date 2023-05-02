@@ -17,11 +17,11 @@ of Loic's week-end projects.
 
 # What is Omega?
 
-Omega is a LLM-based and tool-armed autonomous agent that demonstrates the potential for Large Language Models (LLMs) to write image processing and analysis code using napari as image viewer. 
+Omega is a LLM-based and tool-armed autonomous agent that demonstrates the potential for Large Language Models (LLMs) to be applied to image processing, analysis and visualisation. 
 Can LLM-based agents write image processing code and napari widgets, correct its coding mistakes, perform 
 follow-up analysis, and control the napari viewer? The answer appears to be yes.
 
-#### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image, but fails because of an inexistant 'multichannel' parameter. Realising that, Omega tries again, and this time, succeeds. 
+#### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image, but fails because of an inexistant 'multichannel' parameter. Realising that, Omega tries again, and this time, succeeds. More video demos below! 
 https://user-images.githubusercontent.com/1870994/235768559-ca8bfa84-21f5-47b6-b2bd-7fcc07cedd92.mp4
 
 
@@ -29,14 +29,14 @@ As LLMs continue to improve, Omega will become even more adept at handling compl
 image processing and analysis tasks. The current version of ChatGPT, 3.5, 
 has a cutoff date of 2021, which means that it lacks nearly two years of knowledge 
 on the napari API and usage, as well as the latest versions of popular libraries 
-like scikit-image. Despite this, you can see in the videos below that it is quite capable.
-While ChatGPT 4.0 is a significant upgrade, it is not yet widely 
+like scikit-image, OpenCV, numpy, scipy, etc... Despite this, you can see in the videos below 
+that it is quite capable. While ChatGPT 4.0 is a significant upgrade, it is not yet widely 
 available.
 
-Omega could eventually help non-experts analyse images, especially in the bioimage domain. 
+Omega could eventually help non-experts process and analyse images, especially in the bioimage domain. 
 It is also potentially valuable for educative purposes as it could 
 assist in teaching image processing and analysis, making it more accessible. 
-Although ChatGPT may not be yet on par with an expert image analyst or computer vision 
+Although ChatGPT, which powers Omega, may not be yet on par with an expert image analyst or computer vision 
 expert, it is just a matter of time...
 
 Omega holds a conversation with the user and uses the following tools to acheive answer questions, 
@@ -44,7 +44,7 @@ download and operate on images, write widgets for napari, and more:
 
 ### napari related tools:
 - napari viewer control: 
-    Gives Omega the ability to control all aspects of the viewer.
+    Gives Omega the ability to control all aspects of the napari viewer.
   
 - napari query:
     Gives Omega the ability to query information about the state of the viewer, of its layers, and their contents.
@@ -54,23 +54,21 @@ download and operate on images, write widgets for napari, and more:
 
 ### cell segmentation tools: 
 - cell and nuclei segmentation:
-    This tool specialises in segmenting cells and nuclei in images using some predefined segmentation algorithms.
-    Right now only cellpose is implemented. Experimental, functional, but quite limited. Exists mostly because of
-    lack of knowledge of ChatGPT on some of the specilaised bioimaging segmentation tools. 
+    This tool specialises in segmenting cells and nuclei in images using some predefined segmentation algorithms. Right now only cellpose is implemented. 
 
 ### Generic python installation queries:
 - python function signature query:
-    Lets Omega query the signature of function when it is unsure how to call a function and what the names of parameters are.
+    Lets Omega query the signature of function when it is unsure how to call a function and what the names and type of the parameters are.
 
 ### web search related tools:
 - web search:
-    Usefull to give Omega access to the whole knowledge in the webQ
+    Usefull to give Omega access to the knowledge accessible through the web
 
 - web image serach:
     Streamlined path to search the web for images and open them in napari  
 
 - wikipedia search:
-    Gioves Omega access to teh whole wikipedia
+    Gives Omega access to the whole wikipedia
 
 
 ----------------------------------
@@ -113,35 +111,38 @@ or:
 ## Requirements:
 
 You need an OpenAI key, there is no way around this, unless we add some other,
-potentially local LLMs compatible to LangChain ([llama.cpp](https://github.com/ggerganov/llama.cpp) and similar approaches could help here). However, this will likely be at the cost in cognitive performance,
-which I am not sure is worth it at this point. Please proove me wrong.
+potentially local LLMs compatible to LangChain ([llama.cpp](https://github.com/ggerganov/llama.cpp) and similar models come to mind). However, this will likely be at the cost of cognitive performance,
+which I am not sure is worth it at this point. Please prove me wrong.
 You can get your OpenAI key by signing up [here](https://openai.com/blog/openai-api).
-Developping Omega cost me $13.97, hardly a fortune. OpenAI pricing on ChatGPT 3.5 is very
+Developing Omega cost me $13.97, hardly a fortune. OpenAI pricing on ChatGPT 3.5 is very
 reasonable at 0.002 dollars per 1K tokens, which means $2 per 750000 words. A bargain.
 Now, ChatGPT 4.0 is about 10x more expensive... But that could eventually drop, hopefully.
+
+Note: you can limit the burn-rate to a certain amount of dollars per month, just in case you let
+Omega thinking over the week end and forget to stop it (don't worry, this is actually not possible). 
 
 
 ## Usage:
 
-Once installed, start napari if it is not already running:
+Once all is installed, and if it is not already running, start napari:
 
     napari
     
-You can then start the Omega via the plugins menu:
+You can then start Omega via the plugins menu:
 
 <img width="498" alt="image" src="https://user-images.githubusercontent.com/1870994/235790134-1d87fd50-583f-4fd9-ade2-c64497b91331.png">
 
-If you have not set the 'OPENAI_API_KEY' environment variable as is typicall,
+If you have not set the 'OPENAI_API_KEY' environment variable as is typicall done,
 Omega can store it _safely_ in an _encrypted_ way on your machine (~/.omega_api_keys/OpenAI.json):
 
 <img width="293" alt="image" src="https://user-images.githubusercontent.com/1870994/235793528-9e892c5e-d8ca-43e1-9020-f2dfab45b32d.png">
 
 Just enter an encryption/decription key, you OpenAI key, and
-everytime it will just ask for the key:
+everytime you start Omega it will just ask for the decryption key:
 
 <img width="300" alt="image" src="https://user-images.githubusercontent.com/1870994/235794262-4c0eff4d-1c81-47b0-a097-f34e3d5c93b8.png">
 
-(The idea is that you might not beable to remember your openAI key by heart but you you might be able to do so with your own password or passphrase)
+(The idea is that you might not be able to remember your openAI key by heart, but you might be able to do so with your own password or passphrase)
 
 You can then direct your browser to: [http://0.0.0.0:9000/](http://0.0.0.0:9000/)
 and start having an hopefully nice chat with Omega.
@@ -175,7 +176,7 @@ Here are example prompts/questions/requests to try:
 
 ## Video Demos:
 
-Not everyone will want or can get an API key for the latest and best LLM models, 
+Not everyone will want, or can, get an API key for the latest and best LLM models, 
 so here are videos showcasing what's possible. You will notice that Omega sometimes 
 fails on its first attempt, typically because of mistaken parameters for functions,
 or other syntax errors. But it also often recovers by having access to the error message,
