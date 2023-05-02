@@ -165,16 +165,19 @@ and reasoning its way to the write piece of code. This is what ChatGPT 3.5 can d
 what will be possible with much more capable models...
 
 In this first video, I ask Omega to make a napari widget to convert images from RGB to grayscale.
+
 https://user-images.githubusercontent.com/1870994/235769895-23cfc7ed-622a-47f9-95aa-4be77efc0f78.mp4
 
 Of course Omega is capable of holding a conversation, it sort of knows 'who it is', can search the web
 and wikipedia. Eventually I imagine it could leverage the ability to search for improving its responses,
 and I have seen doing it a few times.
+
 https://user-images.githubusercontent.com/1870994/235769920-86b02d9d-1196-4339-a8d9-9a028bcd4607.mp4
 
 After loading into napari a sample 3D image of cell nuclei, I ask Omega to segment the nuclei using the Otsu method. My first request was very vague, so it just segmented foreground versus background. I then ask to segment
 the foreground into distinct segments for each connected component. Omega does a rookie mistake by forgetting 
-to 'import np'. No problem, it tries again, and succeeds.      
+to 'import np'. No problem, it tries again, and succeeds.   
+
 https://user-images.githubusercontent.com/1870994/235769990-a281a118-1369-47aa-834a-b491f706bd48.mp4
 
 Following up from the previous video, I ask Omega to creat a new labels layer with the largest segment.
@@ -182,6 +185,7 @@ The script that Omega writes as another rookie mistake: it confuses layers and i
 then confuses Omega i to thinking that it got the name of the layer wrong, setting it off in a quest
 to find the name of the labels layer. It succeeds at writting code that does so, and uses that name to
 write a script that then does extracts te largest segment into its own layer. 
+
 https://user-images.githubusercontent.com/1870994/235770741-d8905afd-0a9b-4eb7-a075-481979ab7b01.mp4
 
 
