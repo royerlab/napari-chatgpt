@@ -21,8 +21,11 @@ Omega is a LLM-based and tool-armed autonomous agent that demonstrates the poten
 Can LLM-based agents write image processing code and napari widgets, correct its coding mistakes, perform 
 follow-up analysis, and control the napari viewer? The answer appears to be yes.
 
-#### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image, but fails because of an inexistant 'multichannel' parameter. Realising that, Omega tries again, and this time, succeeds. More video demos below! 
+#### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image, but fails because of an inexistant 'multichannel' parameter. Realising that, Omega tries again, and this time, succeeds:
 https://user-images.githubusercontent.com/1870994/235768559-ca8bfa84-21f5-47b6-b2bd-7fcc07cedd92.mp4
+
+#### After loading in napari a sample 3D image of cell nuclei, I ask Omega to segment the nuclei using the Otsu method. My first request was very vague, so it just segmented foreground versus background. I then ask to segment the foreground into distinct segments for each connected component. Omega does a rookie mistake by forgetting to 'import np'. No problem, it notices, tries again, and succeeds:   
+https://user-images.githubusercontent.com/1870994/235769990-a281a118-1369-47aa-834a-b491f706bd48.mp4
 
 
 As LLMs continue to improve, Omega will become even more adept at handling complex 
@@ -194,13 +197,6 @@ and wikipedia. Eventually I imagine it could leverage the ability to search for 
 and I have seen doing it a few times:
 
 https://user-images.githubusercontent.com/1870994/235769920-86b02d9d-1196-4339-a8d9-9a028bcd4607.mp4
-
-##
-After loading into napari a sample 3D image of cell nuclei, I ask Omega to segment the nuclei using the Otsu method. My first request was very vague, so it just segmented foreground versus background. I then ask to segment
-the foreground into distinct segments for each connected component. Omega does a rookie mistake by forgetting 
-to 'import np'. No problem, it notices, tries again, and succeeds:   
-
-https://user-images.githubusercontent.com/1870994/235769990-a281a118-1369-47aa-834a-b491f706bd48.mp4
 
 ##
 Following-up from the previous video, I ask Omega to create a new labels layer containing just the largest segment. The script that Omega writes as another rookie mistake: it confuses layers and images. The error message then confuses Omega into thinking that it got the name of the layer wrong, setting it off in a quest
