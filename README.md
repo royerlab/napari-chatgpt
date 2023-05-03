@@ -77,10 +77,18 @@ download and operate on images, write widgets for napari, and more:
 
 ----------------------------------
 
-## Installation:
+## Installation from within napari:
 
-You can also install `napari-chatgpt` directly from within napari in the Plugins>Install/Uninstall Plugins menu.
-(Please note that the Omega agent will hapilly install packages in the corresponding environment)
+You can install `napari-chatgpt` directly from within napari in the Plugins>Install/Uninstall Plugins menu.
+(Please note that the Omega agent will hapilly install packages in the corresponding environment).
+
+IMPORTANT NOTE: Makre sure you have a recent version of napari! Ideally the latest one!
+
+
+## Installation in an new conda environment (RECOMMENDED):
+
+Make sure you have an anaocnda/miniconda installation on your system. 
+Ask ChatGPT what is that all about if you are unsure ;-)
 
 Create environment: 
 
