@@ -131,16 +131,23 @@ Once all is installed, and if it is not already running, start napari:
 
     napari
     
-You can then start Omega via the plugins menu:
+You can then the Omega napari plugin via the plugins menu:
 
 <img width="498" alt="image" src="https://user-images.githubusercontent.com/1870994/235790134-1d87fd50-583f-4fd9-ade2-c64497b91331.png">
 
+
+You just opened the plugin as a widget, you now need to actually start Omega:
+
+<img width="104" alt="image" src="https://user-images.githubusercontent.com/1870994/235811111-9e468785-9562-410a-8e9a-c63cb03fb765.png">
+
+
 If you have not set the 'OPENAI_API_KEY' environment variable as is typicall done,
-Omega can store it _safely_ in an _encrypted_ way on your machine (~/.omega_api_keys/OpenAI.json):
+Omega will ask you for your OpenAI API key, and will store it _safely_ in an _encrypted_ way on your machine (~/.omega_api_keys/OpenAI.json):
 
 <img width="293" alt="image" src="https://user-images.githubusercontent.com/1870994/235793528-9e892c5e-d8ca-43e1-9020-f2dfab45b32d.png">
 
-Just enter an encryption/decription key, you OpenAI key, and
+
+Just enter an encryption/decription key, your OpenAI key, and
 everytime you start Omega it will just ask for the decryption key:
 
 <img width="300" alt="image" src="https://user-images.githubusercontent.com/1870994/235794262-4c0eff4d-1c81-47b0-a097-f34e3d5c93b8.png">
