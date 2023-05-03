@@ -2,12 +2,8 @@ import os
 import tempfile
 import traceback
 
-import napari
 
-from napari_chatgpt.utils.download_files import download_files
-
-
-def open_in_napari(viewer: napari.Viewer(), url: str) -> bool:
+def open_in_napari(viewer: "Viewer", url: str) -> bool:
     if open_zarr_in_napari(viewer, url):
         return True
     elif _open_imageio_in_napari(viewer, url):
@@ -18,7 +14,7 @@ def open_in_napari(viewer: napari.Viewer(), url: str) -> bool:
         return False
 
 
-def open_video_in_napari(viewer: napari.Viewer(), url: str):
+def open_video_in_napari(viewer: "Viewer", url: str):
     try:
         # First we check if it is a file that we can resonable expect to open:
         if not (url.endswith('mp4') or url.endswith('mpg') or url.endswith(
@@ -29,6 +25,7 @@ def open_video_in_napari(viewer: napari.Viewer(), url: str):
         temp_folder = tempfile.gettempdir()
 
         # Download video file:
+        from napari_chatgpt.utils.download_files import download_files
         files = download_files(urls=[url], path=temp_folder)
         file = files[0]
 
@@ -49,7 +46,7 @@ def open_video_in_napari(viewer: napari.Viewer(), url: str):
         return False
 
 
-def _open_imageio_in_napari(viewer: napari.Viewer(), url: str) -> bool:
+def _open_imageio_in_napari(viewer: "Viewer", url: str) -> bool:
     try:
         import imageio.v3 as imageio
 
@@ -63,7 +60,7 @@ def _open_imageio_in_napari(viewer: napari.Viewer(), url: str) -> bool:
         return False
 
 
-def open_zarr_in_napari(viewer: napari.Viewer(), url: str) -> bool:
+def open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
     if _open_ome_zarr_in_napari(viewer, url):
         return True
     elif _open_zarr_in_napari(viewer, url):
@@ -72,7 +69,7 @@ def open_zarr_in_napari(viewer: napari.Viewer(), url: str) -> bool:
         return False
 
 
-def _open_zarr_in_napari(viewer: napari.Viewer(), url: str) -> bool:
+def _open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
     try:
         import zarr
         z = zarr.convenience.open(url, mode='r')
@@ -86,7 +83,7 @@ def _open_zarr_in_napari(viewer: napari.Viewer(), url: str) -> bool:
         return False
 
 
-def _open_ome_zarr_in_napari(viewer: napari.Viewer(), url: str) -> bool:
+def _open_ome_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
     try:
         import zarr
         from ome_zarr.io import parse_url

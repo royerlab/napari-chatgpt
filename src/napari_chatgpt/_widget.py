@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
 
-from napari_chatgpt.chat_server.chat_server import start_chat_server
+
 
 if TYPE_CHECKING:
     pass
@@ -36,6 +36,7 @@ class OmegaQWidget(QWidget):
     def _on_click(self):
         aprint("Starting Omega!")
 
+        from napari_chatgpt.chat_server.chat_server import start_chat_server
         start_chat_server(self.viewer)
 
         # from napari_chatgpt.utils.openai_key import set_openai_key
