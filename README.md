@@ -1,4 +1,4 @@
-# napari-chatgpt, home of _Omega_, a napari-aware autonomous LLM-based agent.
+# napari-chatgpt, home of _Omega_, a napari-aware autonomous LLM-based agent specialised in image processing and analysis.
 
 [![License BSD-3](https://img.shields.io/pypi/l/napari-chatgpt.svg?color=green)](https://github.com/royerlab/napari-chatgpt/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-chatgpt.svg?color=green)](https://pypi.org/project/napari-chatgpt)
