@@ -147,7 +147,7 @@ class NapariChatServer:
 
     def run(self):
         import uvicorn
-        uvicorn.run(self.app, host="0.0.0.0", port=9000)
+        uvicorn.run(self.app, host="127.0.0.1", port=9000)
 
 
 def start_chat_server(viewer: napari.Viewer = None):
@@ -175,7 +175,7 @@ def start_chat_server(viewer: napari.Viewer = None):
 
     # function to open browser on page:
     def _open_browser():
-        url = "http://0.0.0.0:9000"
+        url = "http://127.0.0.1:9000"
         webbrowser.open(url, new=0, autoraise=True)
 
     # open browser after delay of a few seconds:
