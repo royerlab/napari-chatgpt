@@ -181,9 +181,11 @@ def start_chat_server(viewer: napari.Viewer = None):
     # open browser after delay of a few seconds:
     QTimer.singleShot(2000, _open_browser)
 
-    # Start qt event loop and wait for it to stop:
-    napari.run()
+
 
 
 if __name__ == "__main__":
     start_chat_server()
+
+    # Start qt event loop and wait for it to stop:
+    napari.run()
