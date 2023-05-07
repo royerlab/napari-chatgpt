@@ -163,7 +163,7 @@ everytime you start Omega it will just ask for the decryption key:
 
 (The idea is that you might not be able to remember your openAI key by heart, but you might be able to do so with your own password or passphrase)
 
-You can then direct your browser to: [http://0.0.0.0:9000/](http://0.0.0.0:9000/)
+You can then direct your browser to: [http://127.0.0.1:9000/](http://127.0.0.1:9000/)
 and start having an hopefully nice chat with Omega.
 
 
