@@ -6,11 +6,14 @@ see: https://napari.org/stable/plugins/guides.html?#widgets
 
 Replace code below according to your needs.
 """
+import sys
 from typing import TYPE_CHECKING
 
-from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
-
-
+import openai
+from PyQt5.QtWidgets import QApplication, QLabel
+from PyQt5.QtWidgets import QVBoxLayout, QComboBox
+from napari.viewer import Viewer
+from qtpy.QtWidgets import QPushButton, QWidget
 
 if TYPE_CHECKING:
     pass
@@ -27,54 +30,63 @@ class OmegaQWidget(QWidget):
         super().__init__()
         self.viewer = napari_viewer
 
-        btn = QPushButton("Start Omega")
-        btn.clicked.connect(self._on_click)
+        # Create a QVBoxLayout instance
+        self.layout = QVBoxLayout()
 
-        self.setLayout(QHBoxLayout())
-        self.layout().addWidget(btn)
+        # Create a QLabel instance
+        self.model_label = QLabel("Select a model:")
+
+        # Add the label to the layout
+        self.layout.addWidget(self.model_label)
+
+        # Create a QComboBox instance
+        self.model_combo_box = QComboBox()
+
+        # Add items to the combo box
+        for model in openai.Model.list().data:
+            model_id = model.openai_id
+            if 'gpt' in model_id:
+                self.model_combo_box.addItem(model_id)
+
+        # Connect the activated signal to a slot
+        # self.model_combo_box.activated[str].connect(self.onActivated)
+
+        # Add the combo box to the layout
+        self.layout.addWidget(self.model_combo_box)
+
+        # Start Omega button:
+        self.start_omega_button = QPushButton("Start Omega")
+        self.start_omega_button.clicked.connect(self._on_click)
+
+        # Omega button:
+        self.layout.addWidget(self.start_omega_button)
+
+        # Set the layout on the application's window
+        self.setLayout(self.layout)
+
+
 
     def _on_click(self):
         aprint("Starting Omega!")
 
         from napari_chatgpt.chat_server.chat_server import start_chat_server
-        start_chat_server(self.viewer)
+        start_chat_server(self.viewer,
+                          llm_model_name=self.model_combo_box.currentText())
 
-        # from napari_chatgpt.utils.openai_key import set_openai_key
-        # set_openai_key()
-        #
-        # from napari_chatgpt.omega.napari_bridge import NapariBridge
-        # from napari_chatgpt.omega.omega_init import initialize_omega_agent
-        #
-        # # Instantiates a napari bridge:
-        # self.bridge = NapariBridge(self.viewer)
-        #
-        # def omega_thread(to_napari_queue: Queue,
-        #                  from_napari_queue: Queue):
-        #
-        #     agent_chain = initialize_omega_agent(
-        #         to_napari_queue=to_napari_queue,
-        #         from_napari_queue=from_napari_queue,
-        #     )
-        #     while True:
-        #         query = input()
-        #         if len(query.strip()) == 0:
-        #             continue
-        #         elif query == 'quit':
-        #             break
-        #         try:
-        #             result = agent_chain.run(input=query)
-        #             aprint(result)
-        #         except Exception as e:
-        #             return f"Exception: {type(e).__name__} with message: {e.args[0]}"
-        #
-        # # Create and start the thread that will run Omega:
-        # self.omega_thread = Thread(target=omega_thread, args=(
-        #     self.bridge.to_napari_queue, self.bridge.from_napari_queue),
-        #                            daemon=True)
-        # self.omega_thread.start()
-        #
-        # # time.sleep(2)
-        # # Open browser:
-        # url = "http://0.0.0.0:9000 "
-        # webbrowser.open(url, new=0, autoraise=True)
-        # # browser = BrowserWindow(url)
+
+
+
+def main():
+    app = QApplication(sys.argv)
+
+    # You need to create an instance of napari.viewer.Viewer
+    # I'm creating a dummy instance here, replace it with a real instance if needed
+    viewer = Viewer()
+
+    widget = OmegaQWidget(viewer)
+    widget.show()
+
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()

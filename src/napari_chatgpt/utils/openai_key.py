@@ -3,10 +3,6 @@ import sys
 
 from PyQt5.QtWidgets import QApplication
 
-from napari_chatgpt.utils.api_key_vault_dialog import \
-    request_if_needed_api_key_dialog
-
-
 def set_openai_key() -> bool:
     # If key is already present, no need to do anthing:
     if is_openai_key_available():
@@ -21,6 +17,8 @@ def set_openai_key() -> bool:
         app = QApplication.instance()
 
     # Get the key from vault or via user, password protected:
+    from napari_chatgpt.utils.api_key_vault_dialog import \
+        request_if_needed_api_key_dialog
     api_key = request_if_needed_api_key_dialog('OpenAI')
 
     # API KEY:
