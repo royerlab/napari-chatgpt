@@ -23,7 +23,8 @@ from napari_chatgpt.utils.openai_key import set_openai_key
 
 class NapariChatServer:
     def __init__(self,
-                 napari_bridge: NapariBridge
+                 napari_bridge: NapariBridge,
+                 llm_model_name='gpt-3.5-turbo',
                  ):
 
         # Napari bridge:
@@ -69,7 +70,7 @@ class NapariChatServer:
 
             # Instantiates OpenAI's LLM:
             main_llm = ChatOpenAI(
-                model_name='gpt-3.5-turbo',
+                model_name=llm_model_name,
                 verbose=True,
                 streaming=True,
                 temperature=0.0,
@@ -78,7 +79,7 @@ class NapariChatServer:
 
             # Instantiates OpenAI's LLM:
             tool_llm = ChatOpenAI(
-                model_name='gpt-3.5-turbo',
+                model_name=llm_model_name,
                 verbose=True,
                 streaming=True,
                 temperature=0.0,
@@ -86,7 +87,7 @@ class NapariChatServer:
             )
 
             memory_llm = ChatOpenAI(
-                model_name='gpt-3.5-turbo',
+                model_name=llm_model_name,
                 verbose=False,
                 temperature=0.01,
                 # callback_manager=AsyncCallbackManager([tool_callback_handler])
@@ -150,7 +151,8 @@ class NapariChatServer:
         uvicorn.run(self.app, host="127.0.0.1", port=9000)
 
 
-def start_chat_server(viewer: napari.Viewer = None):
+def start_chat_server(viewer: napari.Viewer = None,
+                      llm_model_name: str = 'gpt-3.5-turbo'):
     # Set OpenAI key:
     set_openai_key()
 
@@ -162,7 +164,8 @@ def start_chat_server(viewer: napari.Viewer = None):
     bridge = NapariBridge(viewer)
 
     # Instantiates server:
-    chat_server = NapariChatServer(bridge)
+    chat_server = NapariChatServer(bridge,
+                                   llm_model_name=llm_model_name)
 
     # Define server thread code:
     def server_thread_function():

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton
 from arbol import aprint
-from cryptography.fernet import InvalidToken
+
 
 from napari_chatgpt.utils.api_key_vault import KeyVault
 
@@ -56,6 +56,7 @@ class APIKeyDialog(QDialog):
     def button_clicked(self):
 
         if self.key_vault.is_key_present():
+            from cryptography.fernet import InvalidToken
             try:
                 password = self.password_textbox.text()
 
