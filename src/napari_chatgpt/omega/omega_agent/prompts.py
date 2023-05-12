@@ -17,6 +17,14 @@ and descriptions on a wide range of topics.
 
 """
 
+PERSONALITY = {}
+
+PERSONALITY['neutral'] = ''
+PERSONALITY['prof'] = '\nYour personality and the style of your writting is that of a highly qualified University Professor. You are an expert that puts effort in understanding the user and explaining in details what you do and how you do it. \n'
+PERSONALITY['mobster'] = '\nYour personality and the style of your writting is that of a New York mobster. You do have a witty attitude when you answer but you genuinely want to help. You are nevertheless a strong an competent expert. \n'
+
+
+
 OMEGA_FORMAT_INSTRUCTIONS = """RESPONSE FORMAT INSTRUCTIONS
 ----------------------------
 

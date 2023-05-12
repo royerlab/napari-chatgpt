@@ -24,7 +24,9 @@ from napari_chatgpt.utils.openai_key import set_openai_key
 class NapariChatServer:
     def __init__(self,
                  napari_bridge: NapariBridge,
-                 llm_model_name='gpt-3.5-turbo',
+                 llm_model_name: str = 'gpt-3.5-turbo',
+                 memory_type: str = 'standard',
+                 agent_personality: str = 'neutral',
                  ):
 
         # Napari bridge:
@@ -103,7 +105,9 @@ class NapariChatServer:
                 is_async=True,
                 chat_callback_handler=chat_callback_handler,
                 tool_callback_handler=tool_callback_handler,
-                has_human_input_tool=False
+                has_human_input_tool=False,
+                memory_type=memory_type,
+                agent_personality=agent_personality,
             )
 
             # Dialog Loop:
@@ -152,7 +156,9 @@ class NapariChatServer:
 
 
 def start_chat_server(viewer: napari.Viewer = None,
-                      llm_model_name: str = 'gpt-3.5-turbo'):
+                      llm_model_name: str = 'gpt-3.5-turbo',
+                      memory_type: str = 'standard',
+                      agent_personality: str = 'neutral'):
     # Set OpenAI key:
     set_openai_key()
 
@@ -165,7 +171,9 @@ def start_chat_server(viewer: napari.Viewer = None,
 
     # Instantiates server:
     chat_server = NapariChatServer(bridge,
-                                   llm_model_name=llm_model_name)
+                                   llm_model_name=llm_model_name,
+                                   memory_type=memory_type,
+                                   agent_personality=agent_personality)
 
     # Define server thread code:
     def server_thread_function():

@@ -2,6 +2,7 @@ from queue import Queue
 
 from langchain.callbacks import CallbackManager, \
     AsyncCallbackManager, BaseCallbackHandler
+from langchain.memory import ConversationTokenBufferMemory
 from langchain.schema import BaseLanguageModel
 
 from napari_chatgpt.omega.memory.memory import \
@@ -9,7 +10,7 @@ from napari_chatgpt.omega.memory.memory import \
 from napari_chatgpt.omega.omega_agent.agent import OmegaAgent
 from napari_chatgpt.omega.omega_agent.agent_executor import \
     OmegaAgentExecutor
-from napari_chatgpt.omega.omega_agent.prompts import PREFIX, SUFFIX
+from napari_chatgpt.omega.omega_agent.prompts import PREFIX, SUFFIX, PERSONALITY
 from napari_chatgpt.omega.tools.functions_info import PythonFunctionsInfoTool
 from napari_chatgpt.omega.tools.human_input_tool import HumanInputTool
 from napari_chatgpt.omega.tools.math_tool import MathTool
@@ -33,8 +34,11 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                            is_async: bool = False,
                            chat_callback_handler: BaseCallbackHandler = None,
                            tool_callback_handler: BaseCallbackHandler = None,
-                           has_human_input_tool: bool = True
+                           has_human_input_tool: bool = True,
+                           memory_type: str = 'standard',
+                           agent_personality: str = 'neutral',
                            ) -> OmegaAgentExecutor:
+
     chat_callback_manager = (AsyncCallbackManager(
         [chat_callback_handler]) if is_async else CallbackManager(
         [chat_callback_handler])) if chat_callback_handler else None
@@ -42,9 +46,16 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
     tool_callback_manager = (CallbackManager(
         [tool_callback_handler])) if chat_callback_handler else None
 
-    memory = OmegaConversationSummaryMemory(llm=memory_llm,
-                                            memory_key="chat_history",
-                                            return_messages=True)
+    if memory_type == 'standard':
+        memory = ConversationTokenBufferMemory(
+            llm=memory_llm,
+            memory_key="chat_history",
+            return_messages=True)
+    elif memory_type == 'summarising':
+        memory = OmegaConversationSummaryMemory(
+            llm=memory_llm,
+            memory_key="chat_history",
+            return_messages=True)
 
     tools = [WikipediaQueryTool(callback_manager=tool_callback_manager),
              WebSearchTool(callback_manager=tool_callback_manager),
@@ -83,12 +94,15 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                                            from_napari_queue=from_napari_queue,
                                            callback_manager=tool_callback_manager))
 
+    # prepend the personality:
+    PREFIX_ = PREFIX + PERSONALITY[agent_personality]
+
     agent = OmegaAgent.from_llm_and_tools(
         llm=main_llm,
         tools=tools,
-        system_message=PREFIX,
+        system_message=PREFIX_,
         human_message=SUFFIX,
-        callback_manager=chat_callback_manager
+        callback_manager=chat_callback_manager,
     )
 
     executor = OmegaAgentExecutor.from_agent_and_tools(

@@ -33,26 +33,11 @@ class OmegaQWidget(QWidget):
         # Create a QVBoxLayout instance
         self.layout = QVBoxLayout()
 
-        # Create a QLabel instance
-        self.model_label = QLabel("Select a model:")
+        self._model_selection()
 
-        # Add the label to the layout
-        self.layout.addWidget(self.model_label)
+        self._memory_type_selection()
 
-        # Create a QComboBox instance
-        self.model_combo_box = QComboBox()
-
-        # Add items to the combo box
-        for model in openai.Model.list().data:
-            model_id = model.openai_id
-            if 'gpt' in model_id:
-                self.model_combo_box.addItem(model_id)
-
-        # Connect the activated signal to a slot
-        # self.model_combo_box.activated[str].connect(self.onActivated)
-
-        # Add the combo box to the layout
-        self.layout.addWidget(self.model_combo_box)
+        self._personality_selection()
 
         # Start Omega button:
         self.start_omega_button = QPushButton("Start Omega")
@@ -64,14 +49,58 @@ class OmegaQWidget(QWidget):
         # Set the layout on the application's window
         self.setLayout(self.layout)
 
+    def _personality_selection(self):
+        # Create a QLabel instance
+        self.agent_personality_label = QLabel("Select a personality:")
+        # Add the label to the layout
+        self.layout.addWidget(self.agent_personality_label)
+        # Create a QComboBox instance
+        self.agent_personality_combo_box = QComboBox()
+        # Add characters:
+        self.agent_personality_combo_box.addItem('neutral')
+        self.agent_personality_combo_box.addItem('prof')
+        self.agent_personality_combo_box.addItem('mobster')
+        # Add the combo box to the layout
+        self.layout.addWidget(self.agent_personality_combo_box)
 
+    def _memory_type_selection(self):
+        # Create a QLabel instance
+        self.memory_type_label = QLabel("Select a memory type:")
+        # Add the label to the layout
+        self.layout.addWidget(self.memory_type_label)
+        # Create a QComboBox instance
+        self.memory_type_combo_box = QComboBox()
+        # Add memory types:
+        self.memory_type_combo_box.addItem('standard')
+        self.memory_type_combo_box.addItem('summarising')
+        # Add the combo box to the layout
+        self.layout.addWidget(self.memory_type_combo_box)
+
+    def _model_selection(self):
+        # Create a QLabel instance
+        self.model_label = QLabel("Select a model:")
+        # Add the label to the layout
+        self.layout.addWidget(self.model_label)
+        # Create a QComboBox instance
+        self.model_combo_box = QComboBox()
+        # Add items to the combo box
+        for model in openai.Model.list().data:
+            model_id = model.openai_id
+            if 'gpt' in model_id:
+                self.model_combo_box.addItem(model_id)
+        # Connect the activated signal to a slot
+        # self.model_combo_box.activated[str].connect(self.onActivated)
+        # Add the combo box to the layout
+        self.layout.addWidget(self.model_combo_box)
 
     def _on_click(self):
         aprint("Starting Omega!")
 
         from napari_chatgpt.chat_server.chat_server import start_chat_server
         start_chat_server(self.viewer,
-                          llm_model_name=self.model_combo_box.currentText())
+                          llm_model_name=self.model_combo_box.currentText(),
+                          memory_type=self.memory_type_combo_box.currentText(),
+                          agent_personality= self.agent_personality_combo_box.currentText())
 
 
 
