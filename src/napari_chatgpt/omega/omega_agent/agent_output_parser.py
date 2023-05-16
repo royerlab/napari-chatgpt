@@ -26,11 +26,11 @@ class OmegaAgentOutputParser(AgentOutputParser):
             input = ''
             state = 'start'
             for word in words:
-                normalised_line = word.strip().lower()
-                if 'action:' == normalised_line:
+                normalised_word = word.strip().lower()
+                if 'action:' == normalised_word or '**action:**' == normalised_word:
                     state = 'action'
                     continue
-                elif 'input:' == normalised_line:
+                elif 'input:' == normalised_word or '**input:**' == normalised_word:
                     state = 'input'
                     continue
 
@@ -41,6 +41,9 @@ class OmegaAgentOutputParser(AgentOutputParser):
 
             action = action.strip()
             input = input.strip()
+
+            # Clean up the input, necessary for Bard:
+            input = input.split("FinalAnswer:")[0].strip()
 
             if action.lower() == "finalanswer":
                 return AgentFinish({"output": input}, text)

@@ -7,7 +7,7 @@ from arbol import aprint, asection
 from napari import Viewer
 from napari.qt.threading import thread_worker
 
-from napari_chatgpt.utils.exception_guard import ExceptionGuard
+from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 
 
 class NapariBridge():

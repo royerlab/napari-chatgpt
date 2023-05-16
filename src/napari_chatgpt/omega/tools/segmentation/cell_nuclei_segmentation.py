@@ -3,8 +3,8 @@ from pathlib import Path
 
 from napari import Viewer
 
-from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
-from napari_chatgpt.utils.dynamic_import import dynamic_import
+from napari_chatgpt.omega.tools.machinery.napari_base_tool import NapariBaseTool
+from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 
 _cell_segmentation_prompt = """
 "

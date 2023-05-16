@@ -5,7 +5,7 @@ from langchain.callbacks.base import BaseCallbackHandler
 from langchain.schema import AgentFinish, AgentAction, LLMResult
 
 from napari_chatgpt.chat_server.chat_response import ChatResponse
-from napari_chatgpt.utils.tests.run_async import run_async
+from napari_chatgpt.utils.async_utils.run_async import run_async
 
 
 class ToolCallbackHandler(BaseCallbackHandler):

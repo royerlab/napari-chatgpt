@@ -1,12 +1,13 @@
-import re
 import traceback
 
 import numpy
 from imageio.v3 import imread
 from napari import Viewer
 
-from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
-from napari_chatgpt.utils.duckduckgo import search_images_ddg
+from napari_chatgpt.omega.tools.machinery.napari_base_tool import NapariBaseTool
+from napari_chatgpt.utils.strings.find_integer_in_parenthesis import \
+    find_integer_in_parenthesis
+from napari_chatgpt.utils.web.duckduckgo import search_images_ddg
 
 
 class WebImageSearchTool(NapariBaseTool):
@@ -17,7 +18,7 @@ class WebImageSearchTool(NapariBaseTool):
         "Useful when you need to open in napari: photographs, paintings, drawings, "
         "maps or any other kind of image, and open them in napari. "
         "The images are found by conducting a web search. "
-        "Provide a plain text query and the number of images to open (default=1)."
+        "Provide a plain text query and the number of images to open in parenthesis, for example: <query> (2) for two images."
     )
     prompt: str = None
 
@@ -25,20 +26,16 @@ class WebImageSearchTool(NapariBaseTool):
 
         try:
             # Split query:
-            if '|' in query:
-                search_query, nb_images_str = query.split('|')
-            elif '\n' in query:
-                search_query, nb_images_str = query.split('\n')
+            result = find_integer_in_parenthesis(query)
+
+            if result:
+                search_query, nb_images = result
             else:
-                search_query, nb_images_str = query, '1'
+                search_query, nb_images = query, 1
 
             # Basic Cleanup:
             search_query = search_query.strip()
-            nb_images_str = nb_images_str.strip()
-
-            # More advanced cleanup:
-            #search_query = re.sub(r"[^a-zA-Z0-9]", "", search_query)
-            nb_images_str = re.sub(r"[^0-9]", "", nb_images_str)
+            nb_images = max(1, nb_images)
 
             # Search for image:
             results = search_images_ddg(query=search_query)
@@ -48,7 +45,7 @@ class WebImageSearchTool(NapariBaseTool):
 
             # Parse number of images:
             try:
-                nb_images = min(len(urls), int(nb_images_str))
+                nb_images = min(len(urls), int(nb_images))
             except:
                 traceback.print_exc()
                 nb_images = 1
@@ -67,7 +64,7 @@ class WebImageSearchTool(NapariBaseTool):
                     # We ignore single failures:
                     traceback.print_exc()
 
-            if number_of_opened_images>0:
+            if number_of_opened_images > 0:
                 return f"Success: searched, found {len(urls)} images, and opened {number_of_opened_images} !"
             else:
                 return f"Failure: searched, found {len(urls)} images, but could not open any !"

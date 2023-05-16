@@ -6,7 +6,8 @@ from langchain.callbacks.base import AsyncCallbackHandler
 from langchain.schema import AgentFinish, AgentAction, LLMResult
 
 from napari_chatgpt.chat_server.chat_response import ChatResponse
-from napari_chatgpt.utils.camel_case_to_normal import camel_case_to_lower_case
+from napari_chatgpt.utils.strings.camel_case_to_normal import \
+    camel_case_to_lower_case
 
 
 class ChatCallbackHandler(AsyncCallbackHandler):

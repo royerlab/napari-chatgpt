@@ -1,0 +1,38 @@
+import os
+
+from napari_chatgpt.utils.qt.qt_app import get_or_create_qt_app
+
+__api_key_names = {}
+__api_key_names['OpenAI'] = 'OPENAI_API_KEY'
+__api_key_names['Anthropic'] = 'ANTHROPIC_API_KEY'
+__api_key_names['GoogleBard'] = 'BARD_KEY'
+
+
+def set_api_key(api_name: str) -> bool:
+    # Api key name:
+    api_key_name = __api_key_names[api_name]
+
+    # If key is already present, no need to do anthing:
+    if is_api_key_available(api_name):
+        return True
+
+    get_or_create_qt_app()
+
+    # Get the key from vault or via user, password protected:
+    from napari_chatgpt.utils.api_keys.api_key_vault_dialog import \
+        request_if_needed_api_key_dialog
+    api_key = request_if_needed_api_key_dialog(api_name)
+
+    # API KEY:
+    if api_key:
+        os.environ[api_key_name] = api_key
+    else:
+        return False
+
+
+def is_api_key_available(api_name: str) -> bool:
+    # Api key name:
+    api_key_name = __api_key_names[api_name]
+
+    # Check if API key is set:
+    return api_key_name in dict(os.environ)
