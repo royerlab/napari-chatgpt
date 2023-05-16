@@ -9,22 +9,26 @@ from PyQt5.QtCore import QTimer
 from arbol import aprint
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
-from langchain.callbacks import AsyncCallbackManager
-from langchain.chat_models import ChatOpenAI
 from starlette.staticfiles import StaticFiles
 
 from napari_chatgpt.chat_server.callback_handle_chat import ChatCallbackHandler
 from napari_chatgpt.chat_server.callback_handler_tool import ToolCallbackHandler
 from napari_chatgpt.chat_server.chat_response import ChatResponse
+from napari_chatgpt.llm.llms import instantiate_LLMs
 from napari_chatgpt.omega.napari_bridge import NapariBridge
 from napari_chatgpt.omega.omega_init import initialize_omega_agent
-from napari_chatgpt.utils.openai_key import set_openai_key
+from napari_chatgpt.utils.api_keys.api_key import set_api_key
+from napari_chatgpt.utils.download.gpt4all import get_gpt4all_model
+from napari_chatgpt.utils.python.installed_packages import is_package_installed
 
 
 class NapariChatServer:
     def __init__(self,
                  napari_bridge: NapariBridge,
-                 llm_model_name='gpt-3.5-turbo',
+                 llm_model_name: str = 'gpt-3.5-turbo',
+                 temperature: float = 0.01,
+                 memory_type: str = 'standard',
+                 agent_personality: str = 'neutral',
                  ):
 
         # Napari bridge:
@@ -68,30 +72,10 @@ class NapariChatServer:
             # Tool callback handler:
             tool_callback_handler = ToolCallbackHandler(websocket)
 
-            # Instantiates OpenAI's LLM:
-            main_llm = ChatOpenAI(
-                model_name=llm_model_name,
-                verbose=True,
-                streaming=True,
-                temperature=0.0,
-                callback_manager=AsyncCallbackManager([chat_callback_handler])
-            )
-
-            # Instantiates OpenAI's LLM:
-            tool_llm = ChatOpenAI(
-                model_name=llm_model_name,
-                verbose=True,
-                streaming=True,
-                temperature=0.0,
-                # callback_manager=AsyncCallbackManager([tool_callback_handler])
-            )
-
-            memory_llm = ChatOpenAI(
-                model_name=llm_model_name,
-                verbose=False,
-                temperature=0.01,
-                # callback_manager=AsyncCallbackManager([tool_callback_handler])
-            )
+            main_llm, memory_llm, tool_llm = instantiate_LLMs(
+                llm_model_name=llm_model_name,
+                temperature=temperature,
+                chat_callback_handler=chat_callback_handler)
 
             # Agent
             agent_chain = initialize_omega_agent(
@@ -103,7 +87,9 @@ class NapariChatServer:
                 is_async=True,
                 chat_callback_handler=chat_callback_handler,
                 tool_callback_handler=tool_callback_handler,
-                has_human_input_tool=False
+                has_human_input_tool=False,
+                memory_type=memory_type,
+                agent_personality=agent_personality,
             )
 
             # Dialog Loop:
@@ -152,9 +138,27 @@ class NapariChatServer:
 
 
 def start_chat_server(viewer: napari.Viewer = None,
-                      llm_model_name: str = 'gpt-3.5-turbo'):
-    # Set OpenAI key:
-    set_openai_key()
+                      llm_model_name: str = 'gpt-3.5-turbo',
+                      temperature: float = 0.01,
+                      memory_type: str = 'standard',
+                      agent_personality: str = 'neutral'):
+    # Set OpenAI key if necessary:
+    if 'gpt' in llm_model_name and '4all' not in llm_model_name and is_package_installed(
+            'openai'):
+        set_api_key('OpenAI')
+
+    if 'bard' in llm_model_name:
+        set_api_key('GoogleBard')
+
+    # Set Anthropic key if necessary:
+    if 'claude' in llm_model_name and is_package_installed('anthropic'):
+        set_api_key('Anthropic')
+
+    # Download GPT4All model if necessary:
+    if 'ggml' in llm_model_name and is_package_installed('pygpt4all'):
+        # The first this is run it will download the file, afterwards
+        # it uses the downloaded file in ~/.gpt4all
+        get_gpt4all_model(llm_model_name)
 
     # Instantiates napari viewer:
     if not viewer:
@@ -165,7 +169,10 @@ def start_chat_server(viewer: napari.Viewer = None,
 
     # Instantiates server:
     chat_server = NapariChatServer(bridge,
-                                   llm_model_name=llm_model_name)
+                                   llm_model_name=llm_model_name,
+                                   temperature=temperature,
+                                   memory_type=memory_type,
+                                   agent_personality=agent_personality)
 
     # Define server thread code:
     def server_thread_function():
@@ -183,8 +190,6 @@ def start_chat_server(viewer: napari.Viewer = None,
 
     # open browser after delay of a few seconds:
     QTimer.singleShot(2000, _open_browser)
-
-
 
 
 if __name__ == "__main__":

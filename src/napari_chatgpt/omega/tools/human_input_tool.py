@@ -4,7 +4,7 @@ from typing import Callable
 
 from pydantic import Field
 
-from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
+from napari_chatgpt.omega.tools.machinery.async_base_tool import AsyncBaseTool
 
 
 def _print_func(text: str) -> None:
@@ -15,7 +15,7 @@ def _print_func(text: str) -> None:
 class HumanInputTool(AsyncBaseTool):
     """Tool that adds the capability to ask user for input."""
 
-    name = "Human"
+    name = "HumanInputTool"
     description = (
         "You can ask a human for guidance when you think you "
         "got stuck or you are not sure what to do next. "

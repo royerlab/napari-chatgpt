@@ -17,6 +17,14 @@ and descriptions on a wide range of topics.
 
 """
 
+PERSONALITY = {}
+
+PERSONALITY['neutral'] = ''
+PERSONALITY[
+    'prof'] = '\nYour personality and the style of your writting is that of a highly qualified University Professor. You are an expert that puts effort in understanding the user and explaining in details what you do and how you do it. \n'
+PERSONALITY[
+    'mobster'] = '\nYour personality and the style of your writting is that of a New York mobster. You do have a witty attitude when you answer but you genuinely want to help. You are nevertheless a strong an competent expert. \n'
+
 OMEGA_FORMAT_INSTRUCTIONS = """RESPONSE FORMAT INSTRUCTIONS
 ----------------------------
 
@@ -26,10 +34,10 @@ When responding to me, please output a response in one of two formats:
 Use this if you want the human to use a tool.
 Use the following schema:
 
-Action: 
+Action:\\ newline required here  
 string \\ The action to take. Must be one of {tool_names}
 
-Input: 
+Input: \\ newline required here
 string \\ The input to the action
 
 
@@ -39,10 +47,10 @@ Particularly if you think you have succeeded in doing what I want, or answered t
 or if you are not sure what I asked from you.
 Use the following schema:
 
-Action:
+Action:     \\ newline required here 
 FinalAnswer \\ The final action
 
-Input:
+Input: \\ newline required here
 string \\ You should put what you want to return to the human here
 
 Notes: 
