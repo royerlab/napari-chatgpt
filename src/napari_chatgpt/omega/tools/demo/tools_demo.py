@@ -2,7 +2,7 @@ from langchain import OpenAI, WikipediaAPIWrapper
 from langchain.agents import initialize_agent
 from langchain.tools.wikipedia.tool import WikipediaQueryRun
 
-from napari_chatgpt.omega.tools.google_search_tool import GoogleSearchTool
+from napari_chatgpt.omega.tools.search.web_search_tool import WebSearchTool
 
 llm = OpenAI(temperature=0)
 
@@ -16,7 +16,7 @@ llm = OpenAI(temperature=0)
 
 wiki = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper())
 
-tools = [wiki, GoogleSearchTool()]
+tools = [wiki, WebSearchTool()]
 agent = initialize_agent(tools,
                          llm,
                          agent="conversational-react-description",

@@ -1,9 +1,53 @@
 
+//import {markedHighlight} from "marked-highlight";
+
+marked.use(markedHighlight({
+  langPrefix: 'language-',
+  highlight(code, lang) {
+
+    var highlighter = new Sunlight.Highlighter();
+
+    //first argument is the text to highlight, second is the language id
+    var context = highlighter.highlight(code, lang);
+    var nodes = context.getNodes(); //array of DOM nodes
+
+    //the following will convert it to an HTML string
+    var dummyElement = document.createElement("div");
+    for (var i = 0; i < nodes.length; i++) {
+        dummyElement.appendChild(nodes[i]);
+    }
+
+    var rawHtml = dummyElement.innerHTML + '<br>';
+
+    console.log(rawHtml)
+
+    return rawHtml
+  }
+}));
+
+//marked.use(markedHighlight({
+//  langPrefix: 'hljs language-',
+//  highlight(code, lang) {
+//    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+//    return hljs.highlight(code, { language }).value;
+//  }
+//}));
+
 function escapeHTML(unsafeText)
 {
     let div = document.createElement('div');
     div.innerText = unsafeText;
     return div.innerHTML;
+}
+
+function parse_markdown(str)
+{
+    // Parse Markdown to HTML:
+    str = marked.parse(str);
+
+    // Make sure that ordered lists show up as ordered with numbers:
+    str = str.replace("<ol>", '<ol class="list-decimal">');
+    return str;
 }
 
 // Endpoint for websocket:
@@ -37,7 +81,7 @@ ws.onmessage = function (event)
         {
             // Set subtitle:
             var header = document.getElementById('header');
-            header.innerHTML = "Thinking...";
+            header.innerHTML = "Thinking... please wait!";
 
         }
         // agent is typing:
@@ -53,7 +97,7 @@ ws.onmessage = function (event)
 
              // Set subtitle:
             var header = document.getElementById('header');
-            header.innerHTML = "Using a tool...";
+            header.innerHTML = "Using a tool... please wait!";
 
             // Create a new message entry:
             var div = document.createElement('div');
@@ -87,7 +131,7 @@ ws.onmessage = function (event)
             message = data.message
 
             // Parse markdown and render as HTML:
-            p.innerHTML += marked.parse(data.message)
+            p.innerHTML += parse_markdown(data.message)
 
         }
         // action message:
@@ -98,7 +142,7 @@ ws.onmessage = function (event)
             var p = messages.lastChild.lastChild;
 
             // Parse markdown and render as HTML:
-            p.innerHTML += "<br>"+marked.parse(data.message);
+            p.innerHTML += "<br>"+parse_markdown(data.message);
         }
         // end message, this is sent once the agent has a final response:
         else if (data.type === "final")
@@ -119,7 +163,7 @@ ws.onmessage = function (event)
             p.parentElement.className = 'server-message';
 
             // Parse markdown and render as HTML:
-            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + marked.parse(data.message)
+            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + parse_markdown(data.message)
 
             // Reset subtitle:
             var header = document.getElementById('header');
@@ -153,7 +197,7 @@ ws.onmessage = function (event)
 
             // Display error message:
             var p = messages.lastChild.lastChild;
-            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + marked.parse(data.message)
+            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + parse_markdown(data.message)
 
             // Set background color:
             p.parentElement.className = 'error-message';
@@ -169,7 +213,7 @@ ws.onmessage = function (event)
 
         // Set default (empty) message:
         p.innerHTML = "<strong>" + "You: " + "</strong>";
-        p.innerHTML += marked.parse(data.message);
+        p.innerHTML += parse_markdown(data.message);
 
         // Add message to message list:
         div.appendChild(p);
@@ -196,3 +240,5 @@ function sendMessage(event)
     button.innerHTML = "Loading...";
     button.disabled = true;
 }
+
+

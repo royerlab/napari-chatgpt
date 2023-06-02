@@ -1,43 +1,59 @@
 from queue import Queue
 
+import langchain
 from langchain.base_language import BaseLanguageModel
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.callbacks.manager import AsyncCallbackManager, CallbackManager
-from langchain.memory import ConversationSummaryBufferMemory, \
-    ConversationBufferWindowMemory
+from langchain.schema import BaseMemory
 
 from napari_chatgpt.omega.omega_agent.agent import OmegaAgent
 from napari_chatgpt.omega.omega_agent.agent_executor import \
     OmegaAgentExecutor
 from napari_chatgpt.omega.omega_agent.prompts import PREFIX, SUFFIX, PERSONALITY
-from napari_chatgpt.omega.tools.functions_info_tool import PythonFunctionsInfoTool
-from napari_chatgpt.omega.tools.human_input_tool import HumanInputTool
-from napari_chatgpt.omega.tools.napari_file_open_tool import NapariFileOpenTool
-from napari_chatgpt.omega.tools.machinery.napari_plugin_tool import NapariPluginTool
-from napari_chatgpt.omega.tools.napari_viewer_control_tool import \
-    NapariViewerControlTool
-from napari_chatgpt.omega.tools.napari_viewer_query_tool import NapariViewerQueryTool
-from napari_chatgpt.omega.tools.napari_widget_maker_tool import NapariWidgetMakerTool
-from napari_chatgpt.omega.tools.segmentation.cell_nuclei_segmentation import \
+from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation import \
     CellNucleiSegmentationTool
-from napari_chatgpt.omega.tools.web_image_search_tool import WebImageSearchTool
-from napari_chatgpt.omega.tools.web_search_tool import WebSearchTool
-from napari_chatgpt.omega.tools.wikipedia_query_tool import WikipediaQueryTool
+from napari_chatgpt.omega.tools.napari.file_open_tool import NapariFileOpenTool
+from napari_chatgpt.omega.tools.napari.viewer_control_tool import \
+    NapariViewerControlTool
+from napari_chatgpt.omega.tools.napari.viewer_query_tool import \
+    NapariViewerQueryTool
+from napari_chatgpt.omega.tools.napari.widget_maker_tool import \
+    NapariWidgetMakerTool
+from napari_chatgpt.omega.tools.napari_plugin_tool import \
+    NapariPluginTool
+from napari_chatgpt.omega.tools.search.web_image_search_tool import \
+    WebImageSearchTool
+from napari_chatgpt.omega.tools.search.web_search_tool import WebSearchTool
+from napari_chatgpt.omega.tools.search.wikipedia_query_tool import \
+    WikipediaQueryTool
+from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
+    ExceptionCatcherTool
+from napari_chatgpt.omega.tools.special.functions_info_tool import \
+    PythonFunctionsInfoTool
+from napari_chatgpt.omega.tools.special.human_input_tool import HumanInputTool
 from napari_chatgpt.utils.omega_plugins.discover_omega_plugins import \
     discover_omega_tools
+
+# Default verbosity to False:
+langchain.verbose = False
 
 
 def initialize_omega_agent(to_napari_queue: Queue = None,
                            from_napari_queue: Queue = None,
                            main_llm: BaseLanguageModel = None,
                            tool_llm: BaseLanguageModel = None,
-                           memory_llm: BaseLanguageModel = None,
                            is_async: bool = False,
                            chat_callback_handler: BaseCallbackHandler = None,
                            tool_callback_handler: BaseCallbackHandler = None,
                            has_human_input_tool: bool = True,
-                           memory_type: str = 'standard',
+                           memory: BaseMemory = None,
                            agent_personality: str = 'neutral',
+                           fix_imports: bool = True,
+                           install_missing_packages: bool = True,
+                           fix_bad_calls: bool = True,
+                           autofix_mistakes: bool = False,
+                           autofix_widget: bool = False,
+                           verbose: bool = False
                            ) -> OmegaAgentExecutor:
     chat_callback_manager = (AsyncCallbackManager(
         [chat_callback_handler]) if is_async else CallbackManager(
@@ -46,19 +62,10 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
     tool_callback_manager = (CallbackManager(
         [tool_callback_handler])) if chat_callback_handler else None
 
-    if memory_type == 'standard':
-        memory = ConversationBufferWindowMemory(
-            memory_key="chat_history",
-            return_messages=True)
-    elif memory_type == 'summarising':
-        memory = ConversationSummaryBufferMemory(
-            llm=memory_llm,
-            memory_key="chat_history",
-            return_messages=True)
-
     tools = [WikipediaQueryTool(callback_manager=tool_callback_manager),
              WebSearchTool(callback_manager=tool_callback_manager),
              PythonFunctionsInfoTool(callback_manager=tool_callback_manager),
+             ExceptionCatcherTool(callback_manager=tool_callback_manager)
              # FileDownloadTool(),
              # PythonREPLTool()
              ]
@@ -68,30 +75,23 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
 
     if to_napari_queue:
 
-        tools.append(NapariViewerControlTool(llm=tool_llm,
-                                             to_napari_queue=to_napari_queue,
-                                             from_napari_queue=from_napari_queue,
-                                             callback_manager=tool_callback_manager))
-        tools.append(NapariWidgetMakerTool(llm=tool_llm,
-                                           to_napari_queue=to_napari_queue,
-                                           from_napari_queue=from_napari_queue,
-                                           callback_manager=tool_callback_manager))
-        tools.append(NapariFileOpenTool(llm=tool_llm,
-                                        to_napari_queue=to_napari_queue,
-                                        from_napari_queue=from_napari_queue,
-                                        callback_manager=tool_callback_manager))
-        tools.append(WebImageSearchTool(llm=tool_llm,
-                                        to_napari_queue=to_napari_queue,
-                                        from_napari_queue=from_napari_queue,
-                                        callback_manager=tool_callback_manager))
-        tools.append(CellNucleiSegmentationTool(llm=tool_llm,
-                                                to_napari_queue=to_napari_queue,
-                                                from_napari_queue=from_napari_queue,
-                                                callback_manager=tool_callback_manager))
-        tools.append(NapariViewerQueryTool(llm=tool_llm,
-                                           to_napari_queue=to_napari_queue,
-                                           from_napari_queue=from_napari_queue,
-                                           callback_manager=tool_callback_manager))
+        kwargs = {'llm': tool_llm,
+                  'to_napari_queue': to_napari_queue,
+                  'from_napari_queue': from_napari_queue,
+                  'callback_manager': tool_callback_manager,
+                  'fix_imports': fix_imports,
+                  'install_missing_packages': install_missing_packages,
+                  'fix_bad_calls': fix_bad_calls,
+                  'verbose': verbose
+                  }
+
+        tools.append(NapariViewerControlTool(**kwargs, return_direct=not autofix_mistakes))
+        tools.append(NapariViewerQueryTool(**kwargs, return_direct=not autofix_mistakes))
+        tools.append(NapariWidgetMakerTool(**kwargs, return_direct=not autofix_widget))
+        tools.append(NapariFileOpenTool(**kwargs))
+        tools.append(WebImageSearchTool(**kwargs))
+        tools.append(CellNucleiSegmentationTool(**kwargs))
+
 
         tool_classes = discover_omega_tools()
 
@@ -121,6 +121,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         tools=tools,
         system_message=PREFIX_,
         human_message=SUFFIX,
+        verbose=verbose,
         callback_manager=chat_callback_manager,
     )
 
@@ -128,7 +129,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         agent=agent,
         tools=tools,
         memory=memory,
-        verbose=True,
+        verbose=verbose,
         callback_manager=chat_callback_manager
     )
 

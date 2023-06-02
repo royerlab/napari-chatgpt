@@ -7,7 +7,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.tools.python.tool import PythonREPLTool
 from langchain.tools.wikipedia.tool import WikipediaQueryRun
 
-from napari_chatgpt.omega.tools.google_search_tool import GoogleSearchTool
+from napari_chatgpt.omega.tools.search.web_search_tool import WebSearchTool
 
 llm = ChatOpenAI(temperature=0)
 
@@ -15,7 +15,7 @@ memory = ConversationBufferMemory(memory_key="chat_history",
                                   return_messages=True)
 
 wiki = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper())
-tools = [wiki, GoogleSearchTool(), _get_llm_math(llm), PythonREPLTool()]
+tools = [wiki, WebSearchTool(), _get_llm_math(llm), PythonREPLTool()]
 
 system_message = """Omega is a large language model trained by OpenAI.
 

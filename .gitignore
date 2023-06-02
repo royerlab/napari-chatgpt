@@ -82,3 +82,4 @@ venv/
 
 # written by setuptools_scm
 **/_version.py
+/src/napari_chatgpt/llm/test/.pytest_cache/README.md

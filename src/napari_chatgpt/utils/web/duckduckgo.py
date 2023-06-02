@@ -3,7 +3,14 @@ import traceback
 from duckduckgo_search import ddg, ddg_images
 
 from napari_chatgpt.utils.llm.summarizer import summarize
+from napari_chatgpt.utils.python.missing_packages import \
+    pip_install_single_package
 
+# Make sure we have the latest version installed:
+try:
+    pip_install_single_package('duckduckgo_search', upgrade=True)
+except Exception as e:
+    traceback.print_exc()
 
 def summary_ddg(query: str,
                 num_results: int = 3,

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <title>Omega -- a chatGPT agent for image processing and analysis with
         napari</title>
-    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
-          rel="stylesheet">
-    <link href="static/prism.css" rel="stylesheet"/>
+<!--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"-->
+<!--          rel="stylesheet">-->
+    <link href="static/tailwind.min.css" rel="stylesheet"/>-->
 
     <style>
         .chat-body {
@@ -43,7 +43,7 @@
         }
 
         .action-message {
-            background-color: #5B7687;
+            background-color: #354d5d;
             padding: 10px;
             margin: 10px;
             border-radius: 10px;
@@ -56,12 +56,15 @@
 
         .form-control {
             width: 80%;
+            height: auto;
             background-color: #333;
             color: #fff;
             border: none;
             border-radius: 5px;
             padding: 10px;
             margin-right: 10px;
+            white-space: pre-wrap;
+            resize: vertical;
         }
 
         #send {
@@ -75,10 +78,32 @@
         .form-message {
             margin-top: 10px;
         }
+
+        .wrapper .entry-content ol {
+            list-style-type: decimal;
+            margin: 0;
+            padding-left: 25px;
+        }
     </style>
-    <script src="static/prism.js"></script>
+<!--    <script src="static/prism.js"></script>-->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!--    <script src="https://cdn.jsdelivr.net/npm/marked-highlight@2.0.1/lib/index.umd.js"></script>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/marked-highlight@2.0.1/lib/index.umd.min.js"></script>-->
+    <script type="text/javascript" src="static/marked-highlight.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="static/sunlight.dark.css" />
+    <script type="text/javascript" src="static/sunlight-min.js"></script>
+    <script type="text/javascript" src="static/sunlight.python-min.js"></script>
+
     <script src="static/chat.js"></script>
+
+    <style>
+       .wrapper .entry-content ol {
+            list-style-type: decimal;
+            margin: 0;
+            padding-left: 25px;
+        }
+    </style>
 </head>
 <body class="bg-black">
 <div class="chat-body card">
@@ -89,12 +114,14 @@
             else! </p>
         <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
         <div id="messages" class="leading-tight overflow-auto"
-             style="max-height: 500px;">
+             style="max-height: 600px;">
         </div>
         <form action="" class="form-inline mt-5" id="chat-form"
               onsubmit="sendMessage(event)">
-            <input type="text" class="form-control"
-                   placeholder="Write your question" id="messageText">
+            <textarea class="form-control"
+                      placeholder="Enter your question or request here."
+                      id="messageText" wrap="soft"
+                      onkeydown="if(event.keyCode === 13 && !event.shiftKey) { sendMessage(event); return false; } else if(event.keyCode === 13 && event.shiftKey) { this.value += ''; }"></textarea>
             <button id="send" type="submit" class="btn btn-primary">Send
             </button>
         </form>

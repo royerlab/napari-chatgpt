@@ -1,4 +1,5 @@
-from napari_chatgpt.omega.tools.wikipedia_search_tool import WikipediaSearchTool
+from napari_chatgpt.omega.tools.search.wikipedia_search_tool import \
+    WikipediaSearchTool
 
 
 def test_wikipedia_search_tool():

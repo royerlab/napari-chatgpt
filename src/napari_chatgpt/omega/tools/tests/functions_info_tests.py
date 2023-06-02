@@ -1,4 +1,5 @@
-from napari_chatgpt.omega.tools.functions_info_tool import PythonFunctionsInfoTool
+from napari_chatgpt.omega.tools.special.functions_info_tool import \
+    PythonFunctionsInfoTool
 
 
 def test_tools():

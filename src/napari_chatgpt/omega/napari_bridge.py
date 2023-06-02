@@ -7,6 +7,8 @@ from arbol import aprint, asection
 from napari import Viewer
 from napari.qt.threading import thread_worker
 
+from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
+    enqueue_exception
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 
 
@@ -27,10 +29,11 @@ class NapariBridge():
                     aprint(result)
                     self.from_napari_queue.put(result)
 
-                if guard.exception_type:
+                if guard.exception:
                     aprint(
-                        f"Error while executing on napari's QT thread:\n{guard.error_string}")
-                    self.from_napari_queue.put(guard.error_string)
+                        f"Exception while executing on napari's QT thread:\n{guard.exception_description}")
+                    self.from_napari_queue.put(guard)
+                    enqueue_exception(guard.exception_value)
 
         @thread_worker(connect={'yielded': qt_code_executor})
         def omega_napari_worker(to_napari_queue: Queue,

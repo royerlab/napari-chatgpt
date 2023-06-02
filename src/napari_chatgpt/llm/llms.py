@@ -11,12 +11,17 @@ from napari_chatgpt.utils.download.gpt4all import get_gpt4all_model
 
 def instantiate_LLMs(llm_model_name: str,
                      temperature: float,
-                     chat_callback_handler):
-    if 'gpt' in llm_model_name and '4all' not in llm_model_name:
+                     tool_temperature: float,
+                     chat_callback_handler,
+                     tool_callback_handler,
+                     memory_callback_handler,
+                     verbose: bool = False
+                     ):
+    if 'gpt-' in llm_model_name:
         # Instantiates Main LLM:
         main_llm = ChatOpenAI(
             model_name=llm_model_name,
-            verbose=True,
+            verbose=verbose,
             streaming=True,
             temperature=temperature,
             callback_manager=AsyncCallbackManager(
@@ -26,10 +31,11 @@ def instantiate_LLMs(llm_model_name: str,
         # Instantiates Tool LLM:
         tool_llm = ChatOpenAI(
             model_name=llm_model_name,
-            verbose=True,
+            verbose=verbose,
             streaming=True,
-            temperature=temperature,
-            # callback_manager=AsyncCallbackManager([tool_callback_handler])
+            temperature=tool_temperature,
+
+            callback_manager=AsyncCallbackManager([tool_callback_handler])
         )
 
         # Instantiates Memory LLM:
@@ -37,13 +43,16 @@ def instantiate_LLMs(llm_model_name: str,
             model_name=llm_model_name,
             verbose=False,
             temperature=temperature,
-            # callback_manager=AsyncCallbackManager([tool_callback_handler])
+            callback_manager=AsyncCallbackManager([memory_callback_handler])
         )
+
+        max_token_limit = 8000 if 'gpt-4' in llm_model_name else 2000
+
     if 'bard' in llm_model_name:
         # Instantiates Main LLM:
         main_llm = ChatBard(
             bard_token=os.environ['BARD_KEY'],
-            verbose=True,
+            verbose=verbose,
             streaming=True,
             callback_manager=AsyncCallbackManager(
                 [chat_callback_handler])
@@ -52,22 +61,26 @@ def instantiate_LLMs(llm_model_name: str,
         # Instantiates Tool LLM:
         tool_llm = ChatBard(
             bard_token=os.environ['BARD_KEY'],
-            verbose=True,
+            verbose=verbose,
             streaming=True,
+            callback_manager=AsyncCallbackManager([tool_callback_handler])
         )
 
         # Instantiates Memory LLM:
         memory_llm = ChatBard(
             bard_token=os.environ['BARD_KEY'],
             verbose=False,
+            callback_manager=AsyncCallbackManager([memory_callback_handler])
         )
+
+        max_token_limit = 1000
 
     elif 'claude' in llm_model_name:
 
         # Instantiates Main LLM:
         main_llm = ChatAnthropic(
             model=llm_model_name,
-            verbose=True,
+            verbose=verbose,
             streaming=True,
             temperature=temperature,
             max_tokens_to_sample=4096,
@@ -78,11 +91,11 @@ def instantiate_LLMs(llm_model_name: str,
         # Instantiates Tool LLM:
         tool_llm = ChatAnthropic(
             model=llm_model_name,
-            verbose=True,
+            verbose=verbose,
             streaming=True,
-            temperature=temperature,
+            temperature=tool_temperature,
             max_tokens_to_sample=4096,
-            # callback_manager=AsyncCallbackManager([tool_callback_handler])
+            callback_manager=AsyncCallbackManager([tool_callback_handler])
         )
 
         # Instantiates Memory LLM:
@@ -91,8 +104,10 @@ def instantiate_LLMs(llm_model_name: str,
             verbose=False,
             temperature=temperature,
             max_tokens_to_sample=4096,
-            # callback_manager=AsyncCallbackManager([tool_callback_handler])
+            callback_manager=AsyncCallbackManager([memory_callback_handler])
         )
+
+        max_token_limit = 8000
 
     elif 'ggml' in llm_model_name:
 
@@ -107,7 +122,7 @@ def instantiate_LLMs(llm_model_name: str,
         # Instantiates Main LLM:
         main_llm = GPT4AllFixed(
             model=model_path,
-            verbose=True,
+            verbose=verbose,
             streaming=True,
             n_ctx=n_ctx,
             n_threads=n_threads,
@@ -122,4 +137,6 @@ def instantiate_LLMs(llm_model_name: str,
         memory_llm = main_llm
         tool_llm = main_llm
 
-    return main_llm, memory_llm, tool_llm
+        max_token_limit = n_ctx
+
+    return main_llm, memory_llm, tool_llm, max_token_limit
