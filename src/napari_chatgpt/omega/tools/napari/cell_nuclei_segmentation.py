@@ -57,9 +57,8 @@ Here is an explanation of the parameters:
             diameter can be a list or a single number for all images
 
 This function returns the segmented image as a labels array.
-To use function cellpose_segmentation() simply import it:
+Use function cellpose_segmentation() directly without importing it:
 
-from napari_chatgpt.omega.tools.segmentation.cellpose import cellpose_segmentation
 
 **IMPORTANT INSTRUCTIONS:**
 - DO NOT include code for the function 'cellpose_segmentation()' in your answer.

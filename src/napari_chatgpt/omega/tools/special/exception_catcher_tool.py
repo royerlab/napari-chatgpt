@@ -1,6 +1,7 @@
 """A tool for opening ome-zarr files in napari"""
 import queue
 import sys
+import traceback
 
 from arbol import aprint, asection
 
@@ -16,11 +17,12 @@ _original_exception_handler = sys.excepthook
 
 
 # New handler:
-def _uncaught_exception_handler(exctype, value, traceback):
+def _uncaught_exception_handler(exctype, value, _traceback):
     # Store the exception information in the queue
 
     enqueue_exception(value)
     aprint(value)
+    traceback.print_exc()
 
     # if _original_exception_handler != sys.__excepthook__:
     #     # Call the existing uncaught exception handler

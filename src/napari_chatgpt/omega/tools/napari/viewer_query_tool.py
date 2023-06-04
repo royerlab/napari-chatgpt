@@ -15,6 +15,9 @@ Your task is to write Python code that can query an already instantiated napari 
 
 To answer the request, you need to implement a Python function called `query(viewer)` which takes the napari viewer as a parameter and returns a string. This string will be the answer to the request.
 
+**Request:**
+{input}
+
 **Here are some additional notes to help you determine which layer is referred to:**
 - If the request mentions 'this/that/the image (or layer)', it most likely refers to the last added layer.
 - If you are unsure about the layer being referred to, assume it is the last layer of the type most appropriate for the request.
@@ -31,13 +34,11 @@ To answer the request, you need to implement a Python function called `query(vie
 {generic_codegen_instructions}
 - DO NOT call the 'query(viewer)' function yourself.
 - Please provide your answer in Markdown format.
-- Write the `query(viewer) -> str` function that takes the viewer as a parameter and returns the response.
 
 {last_generated_code}
 
-**Request:**
-{input}
-
+Make sure we have the right answer!
+Write the `query(viewer) -> str` function that takes the viewer as a parameter and returns the response.
 **Answer in markdown:**
 """
 
@@ -78,7 +79,10 @@ class NapariViewerQueryTool(NapariBaseTool):
             captured_output = f.getvalue()
 
             # Message:
-            message = f"Tool completed query successfully, here is the response:\n\n{response}\n\nand the captured standard output:\n\n{captured_output}\n\n"
+            if len(captured_output) > 0:
+                message = f"Tool completed query successfully, here is the response:\n\n{response}\n\nand the captured standard output:\n\n{captured_output}\n\n"
+            else:
+                message = f"Tool completed query successfully, here is the response:\n\n{response}\n\n"
 
             with asection(f"Message:"):
                 aprint(message)

@@ -68,7 +68,7 @@ def find_straight_lines(image: ImageData) -> LabelsData:
 
 @pytest.mark.skipif(not is_api_key_available('OpenAI'),
                     reason="requires OpenAI key to run")
-def test_ix_code_imports_1():
+def test_fix_bad_call_1():
     fixed_code, did_something = fix_all_bad_function_calls(_code_snippet_1)
     aprint(fixed_code)
 
@@ -77,7 +77,7 @@ def test_ix_code_imports_1():
 
 @pytest.mark.skipif(not is_api_key_available('OpenAI'),
                     reason="requires OpenAI key to run")
-def test_fix_code_imports_2():
+def test_fix_bad_call_2():
     fixed_code, did_something  = fix_all_bad_function_calls(_code_snippet_2)
     aprint(fixed_code)
 
@@ -85,7 +85,7 @@ def test_fix_code_imports_2():
 
 @pytest.mark.skipif(not is_api_key_available('OpenAI'),
                     reason="requires OpenAI key to run")
-def test_fix_code_imports_3():
+def test_fix_bad_call_3():
     fixed_code, did_something  = fix_all_bad_function_calls(_code_snippet_3)
     aprint(fixed_code)
 

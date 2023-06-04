@@ -1,4 +1,5 @@
 """A tool for controlling a napari instance."""
+import traceback
 from contextlib import redirect_stdout
 from io import StringIO
 
@@ -6,6 +7,10 @@ from arbol import asection, aprint
 from napari import Viewer
 
 from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
+from napari_chatgpt.utils.python.exception_description import \
+    exception_description
+from napari_chatgpt.utils.python.fix_code_given_error import \
+    fix_code_given_error_message
 
 _napari_viewer_control_prompt = """
 "
@@ -13,9 +18,8 @@ _napari_viewer_control_prompt = """
 
 Your task is to write Python code to control an already instantiated napari viewer instance based on a plain text request. The viewer instance is accessible using the variable `viewer`, so you can directly use methods like `viewer.add_image(np.zeros((10,10)))` without any preamble.
 
-**Please note the following instructions for your code:**
-- Do not create a new instance of `napari.Viewer()`. Use the existing instance provided in the variable `viewer`.
-- Ensure that your calls to the viewer's methods are correct.
+**Request:**
+{input}
 
 **Please keep the following notes in mind:**
 - If you need to add images, labels, points, shapes, surfaces, tracks, vectors, or any other type of layer that is not stored as an array, you may need additional code to read files from disk or download from a URL.
@@ -27,12 +31,15 @@ Your task is to write Python code to control an already instantiated napari view
 - To get the selected layer use: viewer.layers.selection.active
 - Important: At the end of your code add a print statement that states clearly and concisely what has been, or not, achieved. 
 
+**Please note the following instructions for your code:**
+- Do not create a new instance of `napari.Viewer()`. Use the existing instance provided in the variable `viewer`.
+- Ensure that your calls to the viewer's methods are correct.
+
 {generic_codegen_instructions}
 
 {last_generated_code}
 
-**Request:**
-{input}
+Make sure that the code is correct!
 
 **Answer in markdown:**
 """
@@ -79,14 +86,7 @@ class NapariViewerControlTool(NapariBaseTool):
             # Prepare code:
             code = super()._prepare_code(code, do_fix_bad_calls=True)
 
-            # Redirect output:
-            f = StringIO()
-            with redirect_stdout(f):
-                # Running code:
-                exec(code, globals(), {**locals(), 'viewer': viewer})
-
-            # Get captured stdout:
-            captured_output = f.getvalue().strip()
+            captured_output = _run_code_catch_errors_fix_and_try_again(code, viewer)
 
             # Message:
             if len(captured_output) > 0:
@@ -98,3 +98,33 @@ class NapariViewerControlTool(NapariBaseTool):
                 aprint(message)
 
             return message
+
+def _run_code_catch_errors_fix_and_try_again(code, viewer, error:str = '', nb_tries: int = 3) -> str:
+
+    try:
+        # Redirect output:
+        f = StringIO()
+        with redirect_stdout(f):
+            # Running code:
+            exec(code, globals(), {**locals(), 'viewer': viewer})
+
+        # Get captured stdout:
+        captured_output = f.getvalue().strip()
+    except Exception as e:
+        if nb_tries >= 1:
+            traceback.print_exc()
+            description = error+'\n\n'+exception_description(e)
+            description = description.strip()
+            fixed_code = fix_code_given_error_message(code,
+                                                      description,
+                                                      viewer)
+            # We try again:
+            return _run_code_catch_errors_fix_and_try_again(fixed_code, viewer,
+                                                            error=error,
+                                                            nb_tries = nb_tries-1)
+        else:
+            # No more tries available, we give up!
+            raise e
+
+
+    return captured_output

@@ -2,9 +2,81 @@ import ast
 import importlib
 import inspect
 import re
+import traceback
 from functools import lru_cache
 from typing import get_type_hints, Any, List
 
+import inspect
+
+from arbol import aprint
+
+
+@lru_cache
+def get_function_signature(function_name: str,
+                           include_docstring: bool = False) -> str:
+    try:
+        module_name, function_name = function_name.rsplit('.', 1)
+        module = __import__(module_name, fromlist=[function_name])
+        function = getattr(module, function_name)
+        signature = inspect.signature(function)
+
+        # Get function parameters
+        parameters = []
+        for name, param in signature.parameters.items():
+            if param.annotation != inspect.Parameter.empty:
+                if param.default != inspect.Parameter.empty:
+                    default_value = str(param.default)
+                    parameters.append(f"{name}: {param.annotation.__name__} = {default_value}")
+                else:
+                    parameters.append(f"{name}: {param.annotation.__name__}")
+            else:
+                parameters.append(name)
+
+        # get the return type:
+        if signature.return_annotation != inspect.Signature.empty:
+            return_type = f" -> {str(signature.return_annotation.__name__)}"
+        else:
+            return_type = f""
+
+        # Get function name and signature
+        function_signature = f"def {function_name}({', '.join(parameters)}){return_type}:"
+
+        # Include docstring if flag is True
+        if include_docstring:
+            docstring = inspect.getdoc(function)
+            if docstring:
+                lines = docstring.strip().split('\n')
+                sections = {'Description':''}
+                current_section = 'Description'
+                for i, line in enumerate(lines):
+                    try:
+                        line_stripped = line.strip()
+                        if line_stripped.startswith('----'):
+                            current_section = lines[i-1].strip()
+                            sections[current_section] = ''
+                        else:
+                            if current_section and i+1 < len(lines) and not lines[i+1].startswith('----'):
+                                sections[current_section] += line + '\n'
+                    except Exception:
+                       traceback.print_exc()
+                       aprint(f'Issue while parsing docstring line {i}: {line} ')
+
+
+                desc_section = sections.get('Description', '')
+                param_section = sections.get('Parameters', '')
+                return_section = sections.get('Returns', '')
+
+                if desc_section:
+                    function_signature += f"\n\nDescription\n---------\n{desc_section}"
+                if param_section:
+                    function_signature += f"\n\nParameters\n---------\n{param_section}"
+                if return_section:
+                    function_signature += f"\n\nReturns\n------\n{return_section}"
+
+        return function_signature
+
+    except (ImportError, AttributeError):
+        return None
 
 @lru_cache
 def object_info_str(obj: Any,
@@ -86,6 +158,7 @@ def get_signature(method):
 @lru_cache
 def get_function_info(function_path: str,
                       add_docstrings: bool = False):
+
     splitted_function_path = function_path.split('.')
 
     function_name = splitted_function_path[-1]
@@ -159,45 +232,52 @@ def extract_package_path(path: str):
 
 @lru_cache
 def extract_fully_qualified_function_names(code: str,
-                                           unzip_result: bool = False) -> List[
-    str]:
-    function_calls = []
-    import_statements = {}
+                                           unzip_result: bool = False) -> List[str]:
 
-    tree = ast.parse(code)
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                module_name = alias.name
-                import_statements[alias.asname or module_name] = module_name
 
-        elif isinstance(node, ast.ImportFrom):
-            module_name = node.module
-            for item in node.names:
-                import_statements[
-                    item.asname or item.name] = module_name + '.' + item.name
+    try:
+        function_calls = []
+        import_statements = {}
 
-        elif isinstance(node, ast.Call) and isinstance(node.func,
-                                                       ast.Attribute):
-            module_name = ""
-            if isinstance(node.func.value, ast.Name):
-                module_name = node.func.value.id
-            elif isinstance(node.func.value, ast.Attribute):
-                module_name = node.func.value.value.id + "." + node.func.value.attr
+        tree = ast.parse(code)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    module_name = alias.name
+                    import_statements[alias.asname or module_name] = module_name
 
-            function_name = node.func.attr
-            if module_name and function_name:
-                if module_name in import_statements:
-                    fully_qualified_module_name = import_statements[module_name]
-                    fully_qualified_function_name = fully_qualified_module_name + '.' + function_name
-                    original_function_call = module_name + '.' + function_name
-                    function_calls.append(
-                        (fully_qualified_function_name, original_function_call))
+            elif isinstance(node, ast.ImportFrom):
+                module_name = node.module
+                for item in node.names:
+                    import_statements[
+                        item.asname or item.name] = module_name + '.' + item.name
 
-    if unzip_result:
-        function_calls = unzip(function_calls)
+            elif isinstance(node, ast.Call) and isinstance(node.func,
+                                                           ast.Attribute):
+                module_name = ""
+                if isinstance(node.func.value, ast.Name):
+                    module_name = node.func.value.id
+                elif isinstance(node.func.value, ast.Attribute):
+                    module_name = node.func.value.value.id + "." + node.func.value.attr
 
-    return function_calls
+                function_name = node.func.attr
+                if module_name and function_name:
+                    if module_name in import_statements:
+                        fully_qualified_module_name = import_statements[module_name]
+                        fully_qualified_function_name = fully_qualified_module_name + '.' + function_name
+                        original_function_call = module_name + '.' + function_name
+                        function_calls.append(
+                            (fully_qualified_function_name, original_function_call))
+
+        if unzip_result:
+            function_calls = unzip(function_calls)
+
+        return function_calls
+    except:
+        traceback.print_exc()
+        return None
+
+
 
 
 def unzip(list_of_tuples):

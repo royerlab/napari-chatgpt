@@ -2,7 +2,8 @@ import pytest
 from arbol import aprint
 
 from napari_chatgpt.utils.api_keys.api_key import is_api_key_available
-from napari_chatgpt.utils.python.required_imports import required_imports
+from napari_chatgpt.utils.python.required_imports import required_imports, \
+    check_import_statement
 
 _code_snippet_1 = \
     """
@@ -41,6 +42,14 @@ _code_snippet_2 = \
         return trace
     """
 
+_code_snipper_3 = \
+"""
+def query(viewer) -> str:
+    layers = viewer.layers
+    layer_names = [layer.name for layer in layers]
+    return str(layer_names)
+"""
+
 
 @pytest.mark.skipif(not is_api_key_available('OpenAI'),
                     reason="requires OpenAI key to run")
@@ -59,3 +68,25 @@ def test_required_imports_2():
     aprint(imports)
 
     assert 'import scipy.signal' in imports
+
+
+@pytest.mark.skipif(not is_api_key_available('OpenAI'),
+                    reason="requires OpenAI key to run")
+def test_required_imports_3():
+    imports = required_imports(_code_snipper_3)
+    aprint(imports)
+
+    assert len(imports)==0
+
+
+@pytest.mark.skipif(not is_api_key_available('OpenAI'),
+                    reason="requires OpenAI key to run")
+def test_check_import_statement():
+
+    assert not check_import_statement('from napari.layers import LayerList')
+
+    assert check_import_statement('import napari')
+
+    assert check_import_statement('from arbol import aprint')
+
+    assert check_import_statement('from arbol import aprint as funny_print')

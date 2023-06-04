@@ -104,11 +104,14 @@ def fix_all_bad_function_calls(code: str,
 
 
 _fix_bad_fun_calls_prompt = f"""
-**Task:**
+**Context:**
+You are an expert Python coder with extensive knowledge of all python libraries and their different versions.
+
 This function call: '{'{call}'}' refers to a non-existent function '{'{fully_qual_fun_name}'}'.
 The current environment is based on Python version {sys.version.split()[0]} and has the following packages/libraries installed:
 {'{package_list}'}. It is very likely that the function call exists but for a different version of the library! 
 
+**Task:**
 Please propose the most likely fix for the function call. 
 For example: if I tell you that this function call: 'transform.line' refers to a non existent function: 'skimage.transform.line',
 you should return the fully qualified corrected function call: 'skimage.draw.line' as this is the correct call for recent version of scikit-image. 
@@ -116,7 +119,7 @@ In any case you should check the list above of packages and their version to ret
 Important: just return the function call as a single line with no comments before or after!
 please enclose the returned fixed function call using apostrophes: '<fully_qualified_fixed_function_call>'.
 
-**FIXED CALL:**
+**Fixed Call:**
 """
 
 def fix_function_call(original_function_call:str,
@@ -140,7 +143,7 @@ def fix_function_call(original_function_call:str,
         llm=llm,
         verbose=verbose,
         callback_manager=CallbackManager(
-            [ArbolCallbackHandler('Required imports')])
+            [ArbolCallbackHandler('fix_all_bad_function_calls')])
     )
 
     # List of installed packages with their versions:

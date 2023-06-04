@@ -1,9 +1,11 @@
 from pprint import pprint
 
+from arbol import aprint
+
 from napari_chatgpt.utils.python.python_lang_utils import enumerate_methods, \
     find_function_info_in_package, \
     get_function_info, object_info_str, extract_fully_qualified_function_names, \
-    function_exists, get_imported_modules
+    function_exists, get_imported_modules, get_function_signature
 
 
 def test_object_info():
@@ -114,3 +116,39 @@ def test_get_imported_modules():
 #
 #     print('\n\n')
 #     pprint(functions)
+
+def test_get_function_signature():
+
+    print('\n')
+
+    signature = get_function_signature('napari_chatgpt.utils.python.python_lang_utils.get_function_signature')
+    aprint(signature)
+    assert 'get_function_signature(function_name: str, include_docstring: bool = False) -> str' in signature
+
+    print('\n\n')
+
+    signature = get_function_signature('numpy.zeros_like', include_docstring=True)
+    aprint(signature)
+    assert 'zeros_like(a, dtype, order, subok, shape)' in signature
+    assert 'shape : int or sequence of ints, optional.' in signature
+
+    print('\n\n')
+
+    signature = get_function_signature('skimage.draw.line', include_docstring=True)
+    aprint(signature)
+    assert 'line(r0, c0, r1, c1)' in signature
+
+    print('\n\n')
+
+    signature = get_function_signature('skimage.transform.probabilistic_hough_line', include_docstring=True)
+    aprint(signature)
+    assert 'probabilistic_hough_line(image, threshold, line_length, line_gap, theta, seed)' in signature
+
+    print('\n\n')
+
+
+
+
+
+
+

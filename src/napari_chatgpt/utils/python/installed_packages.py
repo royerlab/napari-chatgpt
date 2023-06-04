@@ -1,4 +1,5 @@
 import traceback
+from functools import lru_cache
 
 _image_processing_analysis_packages = \
     ['OpenCV', 'Pillow', 'PyWavelets', 'scipy', 'networkx', 'tifffile',
@@ -9,7 +10,7 @@ _image_processing_analysis_packages = \
      'tensorflow', 'pytorch', 'mahotas', 'SimpleITK', 'matplotlib', 'pgmagick',
      'xarray', 'image', 'magicgui', 'arbol', 'tqdm']
 
-
+@lru_cache
 def installed_package_list(clean_up: bool = True,
                            version: bool = True,
                            filter=_image_processing_analysis_packages):
@@ -72,6 +73,11 @@ def conda_list(version: bool = False):
 
 
 def is_package_installed(package_name: str):
-    from pkgutil import find_loader
-    loader = find_loader(package_name)
-    return loader is not None
+    try:
+        from pkgutil import find_loader
+        loader = find_loader(package_name)
+        return loader is not None
+    except Exception as e:
+        traceback.print_exc()
+        # If for whatever reason the above fails, we just return false:
+        return False
