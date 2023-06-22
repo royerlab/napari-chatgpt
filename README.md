@@ -151,25 +151,17 @@ or:
 
 ## Requirements:
 
-You need an OpenAI key, there is no way around this, unless we add some other,
-potentially local LLMs compatible to
-LangChain ([llama.cpp](https://github.com/ggerganov/llama.cpp) and similar
-models come to mind). However, this will likely be at the cost of cognitive
-performance,
-which I am not sure is worth it at this point. Please prove me wrong.
-You can get your OpenAI key by signing
-up [here](https://openai.com/blog/openai-api).
+You need an OpenAI key, there is no way around this, I have been experimentaing with 
+other models, but right now the best results, by far are obained with ChatGPT 4 (and to
+a lesser extent 3.5). You can get your OpenAI key by signing up [here](https://openai.com/blog/openai-api).
 Developing Omega cost me $13.97, hardly a fortune. OpenAI pricing on ChatGPT 3.5
-is very
-reasonable at 0.002 dollars per 1K tokens, which means $2 per 750000 words. A
-bargain.
-Now, ChatGPT 4.0 is about 10x more expensive... But that could eventually drop,
+is very reasonable at 0.002 dollars per 1K tokens, which means $2 per 750000 words. A
+bargain. Now, ChatGPT 4.0 is about 10x more expensive... But that could eventually drop,
 hopefully.
 
 Note: you can limit the burn-rate to a certain amount of dollars per month, just
-in case you let
-Omega thinking over the week end and forget to stop it (don't worry, this is
-actually not possible).
+in case you let Omega thinking over the week end and forget to stop it (don't worry, 
+this is actually not possible).
 
 ## Usage:
 
@@ -182,30 +174,43 @@ You can then the Omega napari plugin via the plugins menu:
 <img width="498" alt="image" src="https://user-images.githubusercontent.com/1870994/235790134-1d87fd50-583f-4fd9-ade2-c64497b91331.png">
 
 
-You just opened the plugin as a widget, you now need to actually start Omega:
+You just opened the plugin as a widget, this widget will appear:
+
+<img width="267" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/fdbde938-548d-4104-9241-d87c46c76dcf">
+
+I recomend that initially you stick to the defaults values, which work well.
+The best memory is 'hybrid'.
+The 'autofix' features only make sense if you are choosing a ChatGPT 4 model, 
+ChatGPT might get confused... 
+Increasing creativity also decreases 'attention to detail'; the models will make more
+coding mistakes, but might try more original solutions...
+
+You then need to actually start Omega:
 
 <img width="104" alt="image" src="https://user-images.githubusercontent.com/1870994/235811111-9e468785-9562-410a-8e9a-c63cb03fb765.png">
 
 
-If you have not set the 'OPENAI_API_KEY' environment variable as is typicall
-done,
-Omega will ask you for your OpenAI API key, and will store it _safely_ in an
+If you have not set the 'OPENAI_API_KEY' environment variable as is typically
+done, Omega will ask you for your OpenAI API key, and will store it _safely_ in an
 _encrypted_ way on your machine (~/.omega_api_keys/OpenAI.json):
 
 <img width="293" alt="image" src="https://user-images.githubusercontent.com/1870994/235793528-9e892c5e-d8ca-43e1-9020-f2dfab45b32d.png">
 
 
-Just enter an encryption/decription key, your OpenAI key, and
+Just enter an encryption/decryption key, your OpenAI key, and
 everytime you start Omega it will just ask for the decryption key:
 
 <img width="300" alt="image" src="https://user-images.githubusercontent.com/1870994/235794262-4c0eff4d-1c81-47b0-a097-f34e3d5c93b8.png">
 
-(The idea is that you might not be able to remember your openAI key by heart,
+(The idea is that you might not be able to remember your openAI key by heart, obviously,
 but you might be able to do so with your own password or passphrase)
 
 You can then direct your browser
 to: [http://127.0.0.1:9000/](http://127.0.0.1:9000/)
-and start having an hopefully nice chat with Omega.
+and start having a hopefully nice chat with Omega:
+
+<img width="631" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/a5cf6d4d-deea-4df8-be8a-601d1cc0424c">
+
 
 ## Example prompts:
 
@@ -252,9 +257,8 @@ fails on its first attempt, typically because of mistaken parameters for
 functions,
 or other syntax errors. But it also often recovers by having access to the error
 message,
-and reasoning its way to the right piece of code. This is what ChatGPT 3.5 can
-do, imagine
-what will be possible with 4.0 and future more capable models...
+and reasoning its way to the right piece of code. The videos below were made with ChatGPT 3.5,
+version 4 works much better imagine what will be possible with future even more capable models...
 
 ##
 
