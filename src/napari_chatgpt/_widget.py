@@ -9,20 +9,23 @@ Replace code below according to your needs.
 import sys
 from typing import TYPE_CHECKING
 
-import openai
+from napari_chatgpt.chat_server.chat_server import NapariChatServer
+from napari_chatgpt.utils.api_keys.api_key import set_api_key
+from napari_chatgpt.utils.python.installed_packages import \
+    is_package_installed
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QLabel, QCheckBox
 from PyQt5.QtWidgets import QVBoxLayout, QComboBox
 from napari.viewer import Viewer
 from qtpy.QtWidgets import QPushButton, QWidget
 
-from napari_chatgpt.chat_server.chat_server import NapariChatServer
-from napari_chatgpt.utils.python.installed_packages import is_package_installed
+
+
 
 if TYPE_CHECKING:
     pass
 
-from arbol import aprint
+from arbol import aprint, asection
 
 _creativity_mapping = {}
 _creativity_mapping['normal'] = 0.0
@@ -38,6 +41,7 @@ class OmegaQWidget(QWidget):
     # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
     def __init__(self, napari_viewer):
         super().__init__()
+        aprint("OmegaQWidget instantiated!")
 
         # Napari viewer instance:
         self.viewer = napari_viewer
@@ -69,6 +73,8 @@ class OmegaQWidget(QWidget):
         self.setLayout(self.layout)
 
     def _model_selection(self):
+        aprint("Setting up model selection UI.")
+
         # Create a QLabel instance
         self.model_label = QLabel("Select a model:")
         # Add the label to the layout
@@ -82,10 +88,14 @@ class OmegaQWidget(QWidget):
             "and unfortunately barely usable.")
 
         # Add OpenAI models to the combo box:
-        for model in openai.Model.list().data:
-            model_id = model.openai_id
-            if 'gpt' in model_id:
-                self.model_combo_box.addItem(model_id)
+        with asection(f"Enumerating all OpenAI ChatGPT models:"):
+            import openai
+            set_api_key('OpenAI')
+            for model in openai.Model.list().data:
+                model_id = model.openai_id
+                if 'gpt' in model_id:
+                    aprint(model_id)
+                    self.model_combo_box.addItem(model_id)
 
         # if is_package_installed('googlebard'):
         self.model_combo_box.addItem('bard')
@@ -112,6 +122,8 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.model_combo_box)
 
     def _creativity_level(self):
+        aprint("Setting up creativity level UI.")
+
         # Create a QLabel instance
         self.creativity_label = QLabel("Chose the level of creativity:")
         # Add the label to the layout
@@ -135,6 +147,8 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.creativity_combo_box)
 
     def _memory_type_selection(self):
+        aprint("Setting up memory type UI.")
+
         # Create a QLabel instance
         self.memory_type_label = QLabel("Select a memory type:")
         # Add the label to the layout
@@ -153,6 +167,8 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.memory_type_combo_box)
 
     def _personality_selection(self):
+        aprint("Setting up personality UI.")
+
         # Create a QLabel instance
         self.agent_personality_label = QLabel("Select a personality:")
         # Add the label to the layout
@@ -172,6 +188,8 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.agent_personality_combo_box)
 
     def _fix_imports(self):
+        aprint("Setting up fix imports UI.")
+
         # Create a QLabel instance
         self.fix_imports_checkbox = QCheckBox("Fix missing imports")
         self.fix_imports_checkbox.setChecked(True)
@@ -184,6 +202,8 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.fix_imports_checkbox)
 
     def _fix_bad_version_calls(self):
+        aprint("Setting up bad version imports UI.")
+
         # Create a QLabel instance
         self.fix_bad_calls_checkbox = QCheckBox("Fix bad function calls")
         self.fix_bad_calls_checkbox.setChecked(True)
@@ -198,6 +218,8 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.fix_bad_calls_checkbox)
 
     def _install_missing_packages(self):
+        aprint("Setting up install missing packages UI.")
+
         # Create a QLabel instance
         self.install_missing_packages_checkbox = QCheckBox(
             "Install missing packages")
@@ -210,6 +232,8 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.install_missing_packages_checkbox)
 
     def _autofix_mistakes(self):
+        aprint("Setting up autofix mistakes UI.")
+
         # Create a QLabel instance
         self.autofix_mistakes_checkbox = QCheckBox(
             "Autofix coding mistakes")
@@ -225,6 +249,8 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.autofix_mistakes_checkbox)
 
     def _autofix_widgets(self):
+        aprint("Setting up autofix widgets UI.")
+
         # Create a QLabel instance
         self.autofix_widgets_checkbox = QCheckBox(
             "Autofix widget coding mistakes")
@@ -239,6 +265,8 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.autofix_widgets_checkbox)
 
     def _verbose(self):
+        aprint("Setting up verbose UI.")
+
         # Create a QLabel instance
         self.verbose_checkbox = QCheckBox(
             "High console verbosity")
@@ -254,6 +282,8 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.verbose_checkbox)
 
     def _start_omega_button(self):
+        aprint("Setting up start Omega button UI.")
+
         # Start Omega button:
         self.start_omega_button = QPushButton("Start Omega")
         self.start_omega_button.clicked.connect(self._on_click)
@@ -266,7 +296,7 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.start_omega_button)
 
     def _on_click(self):
-        aprint("Starting Omega!")
+        aprint("Starting Omega now!")
 
         # Stop previous instance if it exists:
         if self.server:

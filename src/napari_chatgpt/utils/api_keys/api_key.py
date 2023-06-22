@@ -1,5 +1,7 @@
 import os
 
+from arbol import asection, aprint
+
 from napari_chatgpt.utils.qt.qt_app import get_or_create_qt_app
 
 __api_key_names = {}
@@ -9,25 +11,35 @@ __api_key_names['GoogleBard'] = 'BARD_KEY'
 
 
 def set_api_key(api_name: str) -> bool:
-    # Api key name:
-    api_key_name = __api_key_names[api_name]
 
-    # If key is already present, no need to do anthing:
-    if is_api_key_available(api_name):
-        return True
+    with asection(f"Setting API key: '{api_name}': "):
 
-    get_or_create_qt_app()
+        # Api key name:
+        api_key_name = __api_key_names[api_name]
+        aprint(f"API key name: '{api_key_name}'")
 
-    # Get the key from vault or via user, password protected:
-    from napari_chatgpt.utils.api_keys.api_key_vault_dialog import \
-        request_if_needed_api_key_dialog
-    api_key = request_if_needed_api_key_dialog(api_name)
+        # If key is already present, no need to do anthing:
+        if is_api_key_available(api_name):
+            aprint(f"API key is already set as an environment variable!")
+            return True
 
-    # API KEY:
-    if api_key:
-        os.environ[api_key_name] = api_key
-    else:
-        return False
+        # Something technical required for Qt to be happy:
+        get_or_create_qt_app()
+
+        # Get the key from vault or via user, password protected:
+        from napari_chatgpt.utils.api_keys.api_key_vault_dialog import \
+            request_if_needed_api_key_dialog
+        aprint(f"Requesting key from user via user interface...")
+        api_key = request_if_needed_api_key_dialog(api_name)
+
+        # API KEY:
+        if api_key:
+            os.environ[api_key_name] = api_key
+            if api_key_name == 'OPENAI_API_KEY':
+                import openai
+                openai.api_key = api_key
+        else:
+            return False
 
 
 def is_api_key_available(api_name: str) -> bool:

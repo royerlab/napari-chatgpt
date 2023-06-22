@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 
+from arbol import aprint
 from langchain.callbacks.manager import AsyncCallbackManager
 from langchain.chat_models import ChatOpenAI, ChatAnthropic
 
@@ -17,6 +18,7 @@ def instantiate_LLMs(llm_model_name: str,
                      memory_callback_handler,
                      verbose: bool = False
                      ):
+    aprint(f"Instantiating LLMs with model: '{llm_model_name}', t={temperature}, t_tool={tool_temperature}. ")
     if 'gpt-' in llm_model_name:
         # Instantiates Main LLM:
         main_llm = ChatOpenAI(

@@ -1,5 +1,4 @@
 from langchain.chains.summarize import load_summarize_chain
-from langchain.chat_models import ChatOpenAI
 from langchain.docstore.document import Document
 from langchain.llms import BaseLLM
 from langchain.text_splitter import CharacterTextSplitter
@@ -14,6 +13,7 @@ def summarize(text: str, llm: BaseLLM = None):
         return text
 
     # Instantiates LLM if needed:
+    from langchain.chat_models import ChatOpenAI
     llm = llm or ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0)
 
     # Splits the text:
