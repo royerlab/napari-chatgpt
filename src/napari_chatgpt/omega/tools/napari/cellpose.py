@@ -1,12 +1,16 @@
 from typing import Sequence, Optional
 
-from cellpose import models
+
 from napari.types import ArrayLike
+
 
 
 ### SIGNATURE
 def cellpose_segmentation(image: ArrayLike,
                           model_type: str = 'cyto',
+                          normalize: Optional[bool] = True,
+                          norm_range_low: Optional[float] = 1.0,
+                          norm_range_high: Optional[float] = 99.8,
                           channel: Optional[Sequence[int]] = None,
                           diameter: Optional[float] = None) -> ArrayLike:
     """
@@ -24,6 +28,15 @@ def cellpose_segmentation(image: ArrayLike,
             'nuclei'=nucleus model;
             'cyto2'=cytoplasm (whole cell) model with additional user images
 
+    normalize: Optional[bool]
+            If True, normalizes the image to a given percentile range.
+            If False, assumes that the image is already normalized to [0,1].
+
+    norm_range_low: Optional[float]
+            Lower percentile for normalization
+
+    norm_range_high: Optional[float]
+            Higher percentile for normalization
 
     channel: Optional[Sequence[int]]
             Default is None.
@@ -51,7 +64,13 @@ def cellpose_segmentation(image: ArrayLike,
         channel = [0, 0]
 
     # Load cellpose models:
+    from cellpose import models
     model = models.Cellpose(model_type=model_type)
+
+    # If normalize is True, normalize the image:
+    if normalize:
+        from napari_chatgpt.utils.images.normalize import normalize_img
+        image = normalize_img(image, norm_range_low, norm_range_high)
 
     # Run cellpose:
     labels, flows, styles, diams = model.eval([image],
