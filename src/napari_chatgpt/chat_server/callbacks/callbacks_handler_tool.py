@@ -81,7 +81,7 @@ class ToolCallbackHandler(BaseCallbackHandler):
         """Run when tool ends running."""
         if self.verbose:
             aprint(f"TOOL on_tool_end: {output}")
-        if 'Exception' in output or 'Failure' in output:
+        if output.startswith('Error:') or 'Failure' in output:
             resp = ChatResponse(sender="agent", message=output, type="error")
             run_async(self.websocket.send_json, resp.dict())
 

@@ -22,6 +22,8 @@ from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 
 def fix_code_given_error_message(code: str,
                                  error: str,
+                                 instructions: str = '',
+                                 viewer: 'napari.Viewer' = None,
                                  llm: BaseLLM = None,
                                  verbose: bool = False) -> Tuple[str, bool]:
 
@@ -45,7 +47,12 @@ def fix_code_given_error_message(code: str,
 
         try:
 
-            fixed_code = _fix_code_given_error_message(code, error)
+            fixed_code = _fix_code_given_error_message(code=code,
+                                                       error=error,
+                                                       instructions=instructions,
+                                                       viewer=viewer,
+                                                       llm=llm,
+                                                       verbose=verbose)
 
             return fixed_code
 
@@ -70,7 +77,7 @@ I get this error:
 {'{error}'}
 ```
 
-Notes:
+**Notes:**
 - napari's 'Image' object has no attribute 'multichannel'
 
 The current environment is based on Python version {sys.version.split()[0]} and has the following packages/libraries installed:
@@ -84,6 +91,8 @@ Below are the function signatures of all function calls detected in the code abo
 {'{signatures}'}
 ``` 
 
+{'{instructions}'}
+
 **Task:**
 Use these signatures to help you fix the code given the provided error and ensure the fixed code you return is correct and only uses existing classes, methods, fields, functions, and parameters.
 Please make only minimal alterations to the code: only change what is absolutely required to fix the code given the provided error.
@@ -95,6 +104,7 @@ Make sure that the code is correct!
 
 def _fix_code_given_error_message(code: str,
                                   error: str,
+                                  instructions: str = None,
                                   viewer: 'napari.Viewer' = None,
                                   llm: BaseLLM = None,
                                   verbose: bool = False):
@@ -108,7 +118,8 @@ def _fix_code_given_error_message(code: str,
                                                       'error',
                                                       'signatures',
                                                       'package_list',
-                                                      'layers_info'])
+                                                      'layers_info',
+                                                      'instructions'])
 
     # Instantiate chain:
     chain = LLMChain(
@@ -149,7 +160,8 @@ def _fix_code_given_error_message(code: str,
                  'error': error,
                  'signatures':signatures_str,
                  'package_list': package_list_str,
-                 'layers_info': layers_info}
+                 'layers_info': layers_info,
+                 'instructions': instructions}
 
     # call LLM:
     fixed_code = chain(variables)['text']

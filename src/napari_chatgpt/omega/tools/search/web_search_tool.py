@@ -1,3 +1,5 @@
+import traceback
+
 from arbol import asection, aprint
 
 from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
@@ -14,12 +16,17 @@ class WebSearchTool(AsyncBaseTool):
 
     def _run(query: str, self) -> str:
         """Use the tool."""
+        try:
 
-        with asection(f"WebSearchTool: query= {query} "):
-            # Run metasearch query:
-            result = metasearch(query=query)
+            with asection(f"WebSearchTool: query= {query} "):
+                # Run metasearch query:
+                result = metasearch(query=query)
 
-            with asection(f"Search result:"):
-                aprint(result)
+                with asection(f"Search result:"):
+                    aprint(result)
 
-            return result
+                return result
+
+        except Exception as e:
+            traceback.print_exc()
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to search the web for: '{query}'."

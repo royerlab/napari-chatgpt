@@ -3,6 +3,7 @@ import sys
 from queue import Queue
 from typing import Union, Optional
 
+import napari
 import numpy
 from arbol import aprint, asection
 from langchain import LLMChain, PromptTemplate
@@ -11,31 +12,21 @@ from langchain.llms.base import LLM
 from napari import Viewer
 from pydantic import Field
 
-
-import napari
-import numpy as np
 from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
-from napari_chatgpt.utils.python.fix_bad_fun_calls import fix_all_bad_function_calls
+from napari_chatgpt.utils.python.fix_bad_fun_calls import \
+    fix_all_bad_function_calls
 from napari_chatgpt.utils.python.installed_packages import \
     installed_package_list
-from napari_chatgpt.utils.python.missing_packages import required_packages, \
-    pip_install
+from napari_chatgpt.omega.tools.instructions import \
+    omega_generic_codegen_instructions
+from napari_chatgpt.utils.python.missing_packages import required_packages
+from napari_chatgpt.utils.python.pip_utils import pip_install
 from napari_chatgpt.utils.python.required_imports import required_imports
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
 
-_generic_codegen_instructions = """
-**PYTHON CODE INSTRUCTIONS:**
-- Ensure that the code is complete and functional without any missing code, data, or calculations.
-- Utilize functions exclusively from the standard Python {python_version} library.
-- Utilize functions exclusively from the installed libraries mentioned in this list: "{packages}". Write your code based on the installed version of these libraries.
-- ONLY USE parameters or arguments of functions that you are certain exist in the corresponding package or library version!
-- Import any necessary libraries. For example, if you use the function scipy.signal.convolve2d(), include the statement: import scipy
-- The response should consist solely of Python code with minimal comments, and no explanations before or after the Python code.
-- When creating a copy of an array, avoid using this format: array_like.copy(). Instead, use np.copy(array_like).
-- NEVER utilize the input() function to request additional information from me!
-"""
+
 
 
 class NapariBaseTool(AsyncBaseTool):
@@ -48,7 +39,7 @@ class NapariBaseTool(AsyncBaseTool):
         "Here"
     )
     code_prefix: str = ''
-    generic_codegen_instructions: str = _generic_codegen_instructions
+    instructions: str = omega_generic_codegen_instructions
     prompt: str = None
     to_napari_queue: Queue = Field(default=None)
     from_napari_queue: Queue = Field(default=None)
@@ -82,10 +73,6 @@ class NapariBaseTool(AsyncBaseTool):
             # List of installed packages:
             package_list = installed_package_list()
 
-            generic_codegen_instructions = self.generic_codegen_instructions.format(
-                python_version=str(sys.version.split()[0]),
-                packages=', '.join(package_list))
-
             if self.last_generated_code:
                 last_generated_code = "**Previously Generated Code:**\n",
                 last_generated_code += ("Use this code for reference, usefull if you need to modify or fix the code. ",
@@ -98,9 +85,17 @@ class NapariBaseTool(AsyncBaseTool):
             else:
                 last_generated_code = ''
 
+            # Adding information about packages and Python version to instructions:
+            filled_generic_instructions = omega_generic_codegen_instructions.format(
+                python_version=str(sys.version.split()[0]),
+                packages=', '.join(package_list))
+
+            # Prepend generic instructions to tool specific instructions:
+            instructions = filled_generic_instructions + self.instructions
+
             # Variable for prompt:
             variables = {"input": query,
-                         "generic_codegen_instructions": generic_codegen_instructions,
+                         "instructions": instructions,
                          "last_generated_code": last_generated_code,
                          }
 
@@ -128,17 +123,7 @@ class NapariBaseTool(AsyncBaseTool):
         if isinstance(response, ExceptionGuard):
             exception_guard = response
             # raise exception_guard.exception
-            return f"Tool {self.__class__.__name__} failed because of the following exception: "+exception_guard.exception_description
-        else:
-            return response
-
-
-
-        # The response should always contained 'Success' if things went well!
-        # if 'Success' in response:
-        #     return response
-        # else:
-        #     return f"Failure: tool {type(self).__name__} failed to satisfy request: '{query}' because: '{response}'\n"
+            return f"Error: {exception_guard.exception_type_name} with message: '{str(exception_guard.exception)}' while using tool: {self.__class__.__name__} ."
 
         return response
 
@@ -154,7 +139,7 @@ class NapariBaseTool(AsyncBaseTool):
         prompt_template = PromptTemplate(template=self.prompt,
                                          input_variables=["input",
                                                           "last_generated_code",
-                                                          "generic_codegen_instructions"])
+                                                          "instructions"])
 
         return prompt_template
 

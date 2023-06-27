@@ -2,7 +2,9 @@ from typing import Sequence, Optional
 
 
 from napari.types import ArrayLike
+from numpy import ndarray
 
+from napari_chatgpt.omega.tools.napari.classic import classic_segmentation
 
 
 ### SIGNATURE
@@ -11,8 +13,9 @@ def cellpose_segmentation(image: ArrayLike,
                           normalize: Optional[bool] = True,
                           norm_range_low: Optional[float] = 1.0,
                           norm_range_high: Optional[float] = 99.8,
+                          min_segment_size: int = 32,
                           channel: Optional[Sequence[int]] = None,
-                          diameter: Optional[float] = None) -> ArrayLike:
+                          diameter: Optional[float] = None) -> ndarray:
     """
     CP cell segmentation function.
 
@@ -38,6 +41,9 @@ def cellpose_segmentation(image: ArrayLike,
     norm_range_high: Optional[float]
             Higher percentile for normalization
 
+    min_segment_size: Optional[int]
+            Minimum number of pixels in a segment. Segments smaller than this are removed.
+
     channel: Optional[Sequence[int]]
             Default is None.
             list of channels, either of length 2 or of length number of images by 2.
@@ -60,17 +66,28 @@ def cellpose_segmentation(image: ArrayLike,
     """
     ### SIGNATURE
 
+    # Falling back to classic segmentation if image is 3D or more:
+    if len(image.shape) > 2:
+        return classic_segmentation(image,
+                             normalize=normalize,
+                             norm_range_low=norm_range_low,
+                             norm_range_high=norm_range_high)
+
+
+    # Convert image to float
+    image = image.astype(float, copy=False)
+
+    # If normalize is True, normalize the image:
+    if normalize:
+        from napari_chatgpt.utils.images.normalize import normalize_img
+        image = normalize_img(image, norm_range_low, norm_range_high)
+
     if channel is None:
         channel = [0, 0]
 
     # Load cellpose models:
     from cellpose import models
     model = models.Cellpose(model_type=model_type)
-
-    # If normalize is True, normalize the image:
-    if normalize:
-        from napari_chatgpt.utils.images.normalize import normalize_img
-        image = normalize_img(image, norm_range_low, norm_range_high)
 
     # Run cellpose:
     labels, flows, styles, diams = model.eval([image],

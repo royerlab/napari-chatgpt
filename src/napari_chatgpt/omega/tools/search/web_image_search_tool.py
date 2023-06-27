@@ -25,57 +25,63 @@ class WebImageSearchTool(NapariBaseTool):
     prompt: str = None
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
+        try:
 
-        with asection(f"WebImageSearchTool: query= {query} "):
+            with asection(f"WebImageSearchTool: query= {query} "):
 
-            # Parse the number of images to search
-            result = find_integer_in_parenthesis(query)
+                # Parse the number of images to search
+                result = find_integer_in_parenthesis(query)
 
-            # Identify search query from nb of images:
-            if result:
-                search_query, nb_images = result
-            else:
-                search_query, nb_images = query, 1
+                # Identify search query from nb of images:
+                if result:
+                    search_query, nb_images = result
+                else:
+                    search_query, nb_images = query, 1
 
-            # Basic Cleanup:
-            search_query = search_query.strip()
-            nb_images = max(1, nb_images)
+                # Basic Cleanup:
+                search_query = search_query.strip()
+                nb_images = max(1, nb_images)
 
-            # Search for image:
-            results = search_images_ddg(query=search_query)
+                # Search for image:
+                results = search_images_ddg(query=search_query)
 
-            aprint(f'Found {len(results)} images.')
+                aprint(f'Found {len(results)} images.')
 
-            # Extract URLs:
-            urls = [r['image'] for r in results]
+                # Extract URLs:
+                urls = [r['image'] for r in results]
 
-            # Limit the number of images to open to the number found:
-            nb_images = min(len(urls), nb_images)
+                # Limit the number of images to open to the number found:
+                nb_images = min(len(urls), nb_images)
 
-            # Keep only the required number of urls:
-            urls = urls[:nb_images]
+                # Keep only the required number of urls:
+                urls = urls[:nb_images]
 
-            # open each image:
-            number_of_opened_images = 0
-            for i, url in enumerate(urls):
-                try:
-                    aprint(f'Trying to open image {i} from URL: {url}.')
-                    image = imread(url)
-                    image_array = numpy.array(image)
-                    viewer.add_image(image_array, name=f'image_{i}')
-                    number_of_opened_images += 1
-                    aprint(f'Image {i} opened!')
-                except Exception as e:
-                    # We ignore single failures:
-                    aprint(f'Image {i} failed to open!')
-                    traceback.print_exc()
+                # open each image:
+                number_of_opened_images = 0
+                for i, url in enumerate(urls):
+                    try:
+                        aprint(f'Trying to open image {i} from URL: {url}.')
+                        image = imread(url)
+                        image_array = numpy.array(image)
+                        viewer.add_image(image_array, name=f'image_{i}')
+                        number_of_opened_images += 1
+                        aprint(f'Image {i} opened!')
+                    except Exception as e:
+                        # We ignore single failures:
+                        aprint(f'Image {i} failed to open!')
+                        traceback.print_exc()
 
-            if number_of_opened_images > 0:
-                message = f"Opened {number_of_opened_images} images in napari out of {len(urls)} found."
-            else:
-                message = f"Found {len(urls)} images, but could not open any! Probably because of a file format issue."
+                if number_of_opened_images > 0:
+                    message = f"Opened {number_of_opened_images} images in napari out of {len(urls)} found."
+                else:
+                    message = f"Found {len(urls)} images, but could not open any! Probably because of a file format issue."
 
-            with asection(f"Message:"):
-                aprint(message)
+                with asection(f"Message:"):
+                    aprint(message)
 
-            return message
+                return message
+
+        except Exception as e:
+            traceback.print_exc()
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to search the web for images with this query: '{query}'."
+

@@ -6,15 +6,38 @@ from napari import Viewer
 
 from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
+from napari_chatgpt.omega.tools.instructions import \
+    omega_generic_codegen_instructions
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
 from napari_chatgpt.utils.strings.find_function_name import find_function_name
 
 _napari_widget_maker_prompt = """
+**Context**
+You are an expert python programmer with deep expertise in image processing and analysis.
+
 **Task:**
 Your task is to competently write image processing and image analysis functions in Python based on a plain text request. The functions should meet the following criteria:
 - The functions should be pure, self-contained, effective, well-written, and syntactically correct.
 - The functions should work on 2D and 3D images, and ideally on images of any number of dimensions (nD), unless the request explicitly specifies the number of dimensions.
 - The functions should perform all the required tasks precisely as requested, without adding any extra or unnecessary functionality.
+
+{instructions}
+
+{last_generated_code}
+
+**Request:**
+{input}
+
+Make sure that the code is correct!
+
+**Answer in markdown:**
+"""
+#
+# Important: all import statements must be inside of the function except for those needed for magicgui and for type hints.
+# All import statements required by function calls within the function must be within the function.
+
+_instructions = \
+"""
 
 **Instructions for manipulating arrays from Image layers:**
 - Convert arrays to the float type before processing.
@@ -40,7 +63,11 @@ Your task is to competently write image processing and image analysis functions 
 - Do NOT expose *args and **kwargs as widget function parameters.
 - Pay attention to the data types required by the library functions you use, for example: convert a float to an int before passing to a function that requires an int.
 
-**There are two mutually exclusive options for passing data:**
+** Instructions for usage of delegated functions:**
+- If you need to write and call an auxiliary function, then this auxiliary function MUST be defined within the widget function.
+
+**Instructions on how to choose the function parameter types:**
+There are two mutually exclusive options for passing data:
 
 (i) The first kind of function signature should be typed with any of the following type hints:
     - napari layer data types: ImageData, LabelsData, PointsData, ShapesData, SurfaceData, TracksData, VectorsData.
@@ -54,20 +81,7 @@ The function code must be consistent: if you use layers, access the data via 'la
 Do not mix these two options for the function parameters.
 The function signature should include a type hint for the return value, such as '-> ImageData' or '-> Image'.
 
-{generic_codegen_instructions}
-
-{last_generated_code}
-
-**Request:**
-{input}
-
-Make sure that the code is correct!
-
-**Answer in markdown:**
 """
-#
-# Important: all import statements must be inside of the function except for those needed for magicgui and for type hints.
-# All import statements required by function calls within the function must be within the function.
 
 
 _code_prefix = """
@@ -98,28 +112,30 @@ class NapariWidgetMakerTool(NapariBaseTool):
         "Only use this tool when you need to make, modify, or fix a widget, not to answer questions! "
         "Do NOT include code in the input."
     )
+
     code_prefix = _code_prefix
     prompt = _napari_widget_maker_prompt
+    instructions = _instructions
     save_last_generated_code = False
     return_direct: bool = True
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
 
-        with asection(f"NapariWidgetMakerTool: query= {query} "):
+        try:
 
-            # Prepare code:
-            code = super()._prepare_code(code)
+            with asection(f"NapariWidgetMakerTool: query= {query} "):
 
-            # Extracts function name:
-            function_name = find_function_name(code)
+                # Prepare code:
+                code = super()._prepare_code(code)
 
-            # If the function exists:
-            if function_name:
+                # Extracts function name:
+                function_name = find_function_name(code)
 
-                # Remove any viewer add_dock_widget code:
-                code = filter_lines(code, ['viewer = napari.Viewer(', 'viewer.window.add_dock_widget(', 'napari.run(', 'viewer.add_image('])
+                # If the function exists:
+                if function_name:
 
-                try:
+                    # Remove any viewer add_dock_widget code:
+                    code = filter_lines(code, ['viewer = napari.Viewer(', 'viewer.window.add_dock_widget(', 'napari.run(', 'viewer.add_image('])
 
                     # Load the code as module:
                     loaded_module = dynamic_import(code)
@@ -132,14 +148,16 @@ class NapariWidgetMakerTool(NapariBaseTool):
 
                     message = f"The requested widget has been successfully created and registered to the viewer."
 
-                except Exception as e:
-                    traceback.print_exc()
-                    raise e
+                # If the function does not exist:
+                else:
+                    message = f"Could not find a function for the requested widget."
 
-            else:
-                message = f"Could not create or register the requested widget to the viewer."
+                with asection(f"Message:"):
+                    aprint(message)
 
-            with asection(f"Message:"):
-                aprint(message)
+                return message
 
-            return message
+        except Exception as e:
+            traceback.print_exc()
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to create the requested widget. " #with code:\n```python\n{code}\n```\n.
+

@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 from arbol import aprint, asection
 
 _creativity_mapping = {}
-_creativity_mapping['normal'] = 0.0
+_creativity_mapping['normal'] = 0.01
 _creativity_mapping['slightly creative'] = 0.05
 _creativity_mapping['moderately creative'] = 0.1
 _creativity_mapping['creative'] = 0.2
@@ -305,7 +305,7 @@ class OmegaQWidget(QWidget):
         # Temperature:
         temperature = float(_creativity_mapping[
                                 self.creativity_combo_box.currentText()])
-        tool_temperature = 0.5*temperature
+        tool_temperature = 0.1*temperature
 
         from napari_chatgpt.chat_server.chat_server import start_chat_server
         self.server = start_chat_server(self.viewer,

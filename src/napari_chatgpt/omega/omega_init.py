@@ -31,6 +31,7 @@ from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
 from napari_chatgpt.omega.tools.special.functions_info_tool import \
     PythonFunctionsInfoTool
 from napari_chatgpt.omega.tools.special.human_input_tool import HumanInputTool
+from napari_chatgpt.omega.tools.special.python_repl import PythonCodeExecutionTool
 from napari_chatgpt.utils.omega_plugins.discover_omega_plugins import \
     discover_omega_tools
 
@@ -55,6 +56,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                            autofix_widget: bool = False,
                            verbose: bool = False
                            ) -> OmegaAgentExecutor:
+
     chat_callback_manager = (AsyncCallbackManager(
         [chat_callback_handler]) if is_async else CallbackManager(
         [chat_callback_handler])) if chat_callback_handler else None
@@ -65,9 +67,9 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
     tools = [WikipediaQueryTool(callback_manager=tool_callback_manager),
              WebSearchTool(callback_manager=tool_callback_manager),
              PythonFunctionsInfoTool(callback_manager=tool_callback_manager),
-             ExceptionCatcherTool(callback_manager=tool_callback_manager)
+             ExceptionCatcherTool(callback_manager=tool_callback_manager),
              # FileDownloadTool(),
-             # PythonREPLTool()
+             PythonCodeExecutionTool(callback_manager=tool_callback_manager)
              ]
 
     if has_human_input_tool:
