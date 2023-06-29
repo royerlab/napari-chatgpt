@@ -3,8 +3,7 @@ import traceback
 from duckduckgo_search import ddg, ddg_images
 
 from napari_chatgpt.utils.llm.summarizer import summarize
-from napari_chatgpt.utils.python.missing_packages import \
-    pip_install_single_package
+from napari_chatgpt.utils.python.pip_utils import pip_install_single_package
 
 # Make sure we have the latest version installed:
 try:

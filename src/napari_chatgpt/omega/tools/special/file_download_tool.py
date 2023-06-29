@@ -15,21 +15,25 @@ class FileDownloadTool(AsyncBaseTool):
 
     def _run(self, query: str) -> str:
         """Use the tool."""
+        try:
 
-        with asection(f"FileDownloadTool: query= {query} "):
-            # extract urls from query
-            urls = extract_urls(query)
+            with asection(f"FileDownloadTool: query= {query} "):
+                # extract urls from query
+                urls = extract_urls(query)
 
-            # Download files:
-            filenames = download_files(urls)
+                # Download files:
+                filenames = download_files(urls)
 
-            # Filename as string:
-            filenames_str = ', '.join(filenames)
+                # Filename as string:
+                filenames_str = ', '.join(filenames)
 
-            # message:
-            message = f"Successfully downloaded {len(urls)} files: {filenames_str}"
+                # message:
+                message = f"Successfully downloaded {len(urls)} files: {filenames_str}"
 
-            aprint(message)
+                aprint(message)
 
-            # Respond:
-            return message
+                # Respond:
+                return message
+
+        except Exception as e:
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to download files from: '{query}'."

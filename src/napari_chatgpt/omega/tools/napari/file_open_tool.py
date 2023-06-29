@@ -16,10 +16,12 @@ class NapariFileOpenTool(NapariBaseTool):
         "Use this tool when you need to open image files in napari. "
         "Input must be a plain text list of local file paths or URLs to be opened. "
         "The list must be \\n delimited, i.e one entry per line. "
-        "This tool can open image files with these extensions: .tif, .png, .jpg, .zarr, and more..."
-
+        "This tool can only open image files with these extensions: .tif, .png, .jpg, .zarr, and more... "
+        "For example, if the input is: 'file1.tif\\nfile2.tif\\nfile3.tif' then this tool will open three images in napari. "
+        "This tool cannot open text files or other non-image files. "
     )
     prompt: str = None
+    instructions: str = None
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
 
@@ -51,7 +53,7 @@ class NapariFileOpenTool(NapariBaseTool):
 
                 except Exception as e:
                     traceback.print_exc()
-                    error_info = f"Exception: '{type(e).__name__}' with message: '{str(e)}' occurred while trying to open: '{line}'."
+                    error_info = f"Error: '{type(e).__name__}' with message: '{str(e)}' occurred while trying to open: '{line}'."
                     encountered_errors.append(error_info)
 
             # Encountered errors string:

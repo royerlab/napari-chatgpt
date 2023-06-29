@@ -10,7 +10,7 @@ _Omega_, a napari-aware autonomous LLM-based agent specialised in image processi
 [![codecov](https://codecov.io/gh/royerlab/napari-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/royerlab/napari-chatgpt)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
 
-A [napari](napari.org) plugin that levegares OpenAI's Large Language Model
+A [napari](napari.org) plugin that leverages OpenAI's Large Language Model
 ChatGPT to implement _Omega_
 a napari-aware agent capable of performing image processing and analysis tasks
 in a conversational manner.
@@ -133,7 +133,7 @@ Install napari in the environment using conda-forge: (important on Apple M1/M2)
 
     conda install -c conda-forge napari     
 
-Install the repo in enbvironment:
+Install the repo in the environment:
 
     pip install napari-chatgpt
 
@@ -151,8 +151,8 @@ or:
 
 ## Requirements:
 
-You need an OpenAI key, there is no way around this, I have been experimentaing with 
-other models, but right now the best results, by far are obained with ChatGPT 4 (and to
+You need an OpenAI key, there is no way around this, I have been experimenting with 
+other models, but right now the best results, by far are obtained with ChatGPT 4 (and to
 a lesser extent 3.5). You can get your OpenAI key by signing up [here](https://openai.com/blog/openai-api).
 Developing Omega cost me $13.97, hardly a fortune. OpenAI pricing on ChatGPT 3.5
 is very reasonable at 0.002 dollars per 1K tokens, which means $2 per 750000 words. A
@@ -160,7 +160,7 @@ bargain. Now, ChatGPT 4.0 is about 10x more expensive... But that could eventual
 hopefully.
 
 Note: you can limit the burn-rate to a certain amount of dollars per month, just
-in case you let Omega thinking over the week end and forget to stop it (don't worry, 
+in case you let Omega thinking over the weekend and forget to stop it (don't worry, 
 this is actually not possible).
 
 ## Usage:
@@ -284,9 +284,9 @@ containing just the largest segment. The script that Omega writes as another
 rookie mistake: it confuses layers and images. The error message then confuses
 Omega into thinking that it got the name of the layer wrong, setting it off in a
 quest
-to find the name of the labels layer. It succeeds at writting code that searches
+to find the name of the labels layer. It succeeds at writing code that searches
 for the labels layer, and uses that name to write a script that then does
-extracts te largest segment into its own layer. Not bad:
+extract the largest segment into its own layer. Not bad:
 
 https://user-images.githubusercontent.com/1870994/235770741-d8905afd-0a9b-4eb7-a075-481979ab7b01.mp4
 
@@ -430,14 +430,14 @@ https://user-images.githubusercontent.com/1870994/235771146-ced45353-4886-42cb-b
 
 ## Disclaimer:
 
-Do not use this software lightly, it will download libaries by its own volition,
-write any code that it deems nescessary, it might actually do what you ask, even
+Do not use this software lightly, it will download libraries by its own volition,
+write any code that it deems necessary, it might actually do what you ask, even
 if
-it is a bad idea. Also, beware that it might _misundertand_ what you ask and
+it is a bad idea. Also, beware that it might _misunderstand_ what you ask and
 then do
 something bad. For example, it is unwise to use Omega to delete 'some' files
 from your system,
-it might end up deleteing more than that if you are unclear in your request.  
+it might end up deleting more than that if you are unclear in your request.  
 To be 100% safe, we recommend that you use this software from within a sandboxed
 virtual machine.
 

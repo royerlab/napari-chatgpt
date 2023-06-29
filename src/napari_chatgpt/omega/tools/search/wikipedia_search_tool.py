@@ -1,3 +1,5 @@
+import traceback
+
 from arbol import asection, aprint
 
 from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
@@ -15,12 +17,17 @@ class WikipediaSearchTool(AsyncBaseTool):
 
     def _run(self, query: str) -> str:
         """Use the tool."""
+        try:
 
-        with asection(f"WikipediaSearchTool: query= {query} "):
-            # Run wikipedia search:
-            result = search_wikipedia(query=query)
+            with asection(f"WikipediaSearchTool: query= {query} "):
+                # Run wikipedia search:
+                result = search_wikipedia(query=query)
 
-            with asection(f"Result:"):
-                aprint(result)
+                with asection(f"Result:"):
+                    aprint(result)
 
-            return result
+                return result
+
+        except Exception as e:
+            traceback.print_exc()
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to search wikipedia for: '{query}'."

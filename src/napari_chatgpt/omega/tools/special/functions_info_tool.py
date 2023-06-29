@@ -42,8 +42,9 @@ class PythonFunctionsInfoTool(AsyncBaseTool):
 
                     if len(function_info) > 512:
                         function_info = summarize(function_info)
-
-                    result = f"Here is the information you requested about function {function_path_and_name}:\n{function_info}\n"
+                        result = f"Here is the summarised information you requested about function {function_path_and_name}:\n{function_info}\n"
+                    else:
+                        result = f"Here is the full information including docstrings you requested about function {function_path_and_name}:\n{function_info}\n"
 
                 else:
                     result = "Error: there is no qualified function name in the request!"

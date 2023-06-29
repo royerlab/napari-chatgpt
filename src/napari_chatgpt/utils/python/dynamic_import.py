@@ -1,7 +1,12 @@
 import importlib.util
+import importlib.util
 import tempfile
+from contextlib import redirect_stdout
+from io import StringIO
 from random import randint
 from typing import Optional, Any
+
+from arbol import asection, aprint
 
 
 def dynamic_import(module_code: str, name: str = None) -> Optional[Any]:
@@ -25,3 +30,48 @@ def dynamic_import(module_code: str, name: str = None) -> Optional[Any]:
     spec.loader.exec_module(loaded_module)
 
     return loaded_module
+
+
+
+
+
+def execute_as_module(code_str, name: str = None, **kwargs) -> str:
+
+    with asection(f"Executing code as module (length={code_str})"):
+
+        # Create a function in the new module that will receive the variables
+        # as arguments, and will contain the code_str
+        module_code = \
+"""
+def execute_code({}):
+{}
+""".format(
+    ', '.join(kwargs.keys()) if kwargs else "",
+    '\n'.join('\t' + i for i in code_str.split('\n'))
+    # indent the code_str
+            )
+
+        with asection(f"Module code:"):
+            aprint(module_code)
+
+        # Load the code as module:
+        module = dynamic_import(module_code, name)
+
+        # get the function from module:
+        execute_code = getattr(module, 'execute_code')
+
+        f = StringIO()
+        with redirect_stdout(f):
+            # Call the execute_code function with the global variables as arguments
+            if kwargs:
+                execute_code(**kwargs)
+            else:
+                execute_code()
+
+        # Get captured stdout:
+        captured_output = f.getvalue().strip()
+
+        return captured_output
+
+
+
