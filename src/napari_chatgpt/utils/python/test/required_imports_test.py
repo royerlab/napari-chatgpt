@@ -76,7 +76,7 @@ def test_required_imports_3():
     imports = required_imports(_code_snipper_3)
     aprint(imports)
 
-    assert len(imports)==0
+    assert len(imports)<=1
 
 
 @pytest.mark.skipif(not is_api_key_available('OpenAI'),

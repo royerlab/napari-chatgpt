@@ -159,6 +159,7 @@ def get_signature(method):
 def get_function_info(function_path: str,
                       add_docstrings: bool = False):
 
+
     splitted_function_path = function_path.split('.')
 
     function_name = splitted_function_path[-1]
@@ -175,29 +176,34 @@ def get_function_info(function_path: str,
 
 
 def find_functions_in_package(pkg_name: str, function_name: str):
-    try:
-        pkg = importlib.import_module(pkg_name)
-    except ModuleNotFoundError:
-        return []
+    import warnings # to ignore deprecation warnings
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-    functions = []
-    for name, obj in inspect.getmembers(pkg):
-        if name.startswith('_'):
-            continue
-        if inspect.ismodule(obj):
-            recursive_functions = find_functions_in_package(
-                pkg_name + '.' + name, function_name)
-            if recursive_functions:
-                functions += recursive_functions
-        elif inspect.isfunction(obj) and obj.__name__ == function_name:
-            functions.append((pkg_name, obj))
+        try:
+            pkg = importlib.import_module(pkg_name)
+        except ModuleNotFoundError:
+            return []
 
-    return functions
+        functions = []
+        for name, obj in inspect.getmembers(pkg):
+            if name.startswith('_'):
+                continue
+            if inspect.ismodule(obj):
+                recursive_functions = find_functions_in_package(
+                    pkg_name + '.' + name, function_name)
+                if recursive_functions:
+                    functions += recursive_functions
+            elif inspect.isfunction(obj) and obj.__name__ == function_name:
+                functions.append((pkg_name, obj))
+
+        return functions
 
 
 def find_function_info_in_package(pkg_name: str,
                                   function_name: str,
                                   add_docstrings: bool = True):
+
     functions = find_functions_in_package(pkg_name, function_name)
 
     info_list = []

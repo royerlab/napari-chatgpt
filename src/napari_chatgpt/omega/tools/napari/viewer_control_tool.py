@@ -7,6 +7,8 @@ from arbol import asection, aprint
 from napari import Viewer
 
 from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
+from napari_chatgpt.utils.python.dynamic_import import dynamic_import, \
+    execute_as_module
 from napari_chatgpt.utils.python.exception_description import \
     exception_description
 from napari_chatgpt.utils.python.fix_code_given_error import \
@@ -123,14 +125,11 @@ class NapariViewerControlTool(NapariBaseTool):
                                                  nb_tries: int = 3) -> str:
 
         try:
-            # Redirect output:
-            f = StringIO()
-            with redirect_stdout(f):
-                # Running code:
-                exec(code, globals(), {**locals(), 'viewer': viewer})
+            with asection(f"Running code:"):
+                aprint(f"Code:\n{code}")
+                captured_output = execute_as_module(code, viewer=viewer)
+                aprint(f"This is what the code returned:\n{captured_output}")
 
-            # Get captured stdout:
-            captured_output = f.getvalue().strip()
         except Exception as e:
             if nb_tries >= 1:
                 traceback.print_exc()

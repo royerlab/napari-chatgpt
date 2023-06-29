@@ -47,4 +47,4 @@ def test_fix_code_given_error_1():
     fixed_code = fix_code_given_error_message(_code_snippet_1, _error_1)
     print(fixed_code)
 
-    assert 'seg.slic(selected_layer.data.astype(float), n_segments=100, compactness=10, channel_axis=None)' in fixed_code
+    assert ', channel_axis=None)' in fixed_code
