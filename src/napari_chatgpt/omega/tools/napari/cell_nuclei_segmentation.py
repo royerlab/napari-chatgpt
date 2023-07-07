@@ -7,11 +7,10 @@ from pathlib import Path
 from arbol import asection, aprint
 from napari import Viewer
 
-from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
+from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool, \
+    _get_delegated_code
 from napari_chatgpt.utils.python.conda_utils import conda_uninstall
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
-from napari_chatgpt.omega.tools.instructions import \
-    omega_generic_codegen_instructions
 from napari_chatgpt.utils.python.pip_utils import pip_install, pip_uninstall
 
 _cell_segmentation_prompt = """
@@ -21,17 +20,18 @@ You are an expert python programmer with deep expertise in bioimage processing a
 You are working on a project that requires you to segment cells and/or nuclei in 2D or 3D images.
 
 **Task:**
-Given a plain text request, you competently write a python function segment(viewer) that calls the cellpose_segmentation(), stardist_segmentation() or classic_segmentation() functions.
+Given a plain text request, you competently write a python function segment(viewer) that calls the 'cellpose_segmentation()', 'stardist_segmentation()' or 'classic_segmentation()' functions.
 Segmentation is performed on images present as layers of the instantiated napari viewer.
 The napari viewer instance is immediately available by using the variable: 'viewer'. 
-For example, you can directly write: viewer.add_image(np.zeros((10,10))) without preamble. 
+For example, you can directly write: 'viewer.add_image(np.zeros((10,10)))' without preamble. 
 Therefore, DO NOT use 'napari.Viewer()' or 'with napari.gui_qt():' in your code. 
 DO NOT CREATE A NEW INSTANCE OF A NAPARI VIEWER, use the one provided in the variable: 'viewer'.
 Make sure the calls to the viewer are correct.
 
 **ONLY AVAILABLE SEGMENTATION FUNCTIONS:**
-The only segmentation functions that you can use is cellpose_segmentation(), stardist_segmentation() and classic_segmentation():
+The only segmentation functions that you can use are 'cellpose_segmentation()', 'stardist_segmentation()' and 'classic_segmentation()':
 
+```python
 def cellpose_segmentation( image: ArrayLike,
                            model_type: str = 'cyto',
                            normalize: Optional[bool] = True,
@@ -60,13 +60,16 @@ def classic_segmentation(image: ArrayLike,
                           opening_steps: int = 0,
                           apply_watershed: bool = False,
                           min_distance: int = 10) -> ArrayLike:
+```
 
 StarDist is better for segmenting nearly convex nuclei whereas Cellpose is better for segmenting non-convex cells, in particular their cytoplasm. 
 StarDist and Cellpose are deep learning based methods that only work in 2D and are better for small images. 
 Classic segmentation is a simple thresholding method that can be used as a baseline and works in 3D and more dimensions.
 
 Here is an explanation of the parameters:
- 
+
+```docstring_fragment
+
     image: ArrayLike, 
             Valid parameter for both StarDist and Cellpose. 
             Image for which to segment cells
@@ -138,11 +141,11 @@ Here is an explanation of the parameters:
             Parameter ONLY valid for Classic.
             If True, applies the watershed algorithm to the distance transform of the thresholded image.
             This is useful for separating cells that are touching.
+```
 
 All functions provided above return the segmented image as a labels array.
 When calling these functions, do not set optional parameters unless you have a good reason to change them.
-Use either cellpose_segmentation(), stardist_segmentation() or classic_segmentation() directly without importing or implementing these functions,
-they will be provided to you by the system.
+Use either 'cellpose_segmentation()', 'stardist_segmentation()' or 'classic_segmentation()' directly without importing or implementing these functions, they will be provided to you by the system.
 
 {instructions}
 
@@ -151,43 +154,24 @@ they will be provided to you by the system.
 Request: 
 {input}
 
-Answer in markdown with a single function segment(viewer)->ArrayLike that takes the viewer and returns the segmented image.
+Answer in markdown with a single function 'segment(viewer)->ArrayLike' that takes the viewer and returns the segmented image.
 """
 
 _instructions = \
 """
 
 **Instructions specific to calling the segmentation functions:**
-- DO NOT include code for the function 'cellpose_segmentation()', 'stardist_segmentation()', or 'classic_segmentation()' in your answer.
+- DO NOT include code for the functions 'cellpose_segmentation()', 'stardist_segmentation()', or 'classic_segmentation()' in your answer.
 - INSTEAD, DIRECTLY call the segmentation functions 'cellpose_segmentation()', 'stardist_segmentation()', or 'classic_segmentation()'  provided above after import.
 - Assume that the functions 'cellpose_segmentation()', 'stardist_segmentation()', and 'classic_segmentation()' are available and within scope of your code.
 - DO NOT add the segmentation to the napari viewer, this is done automatically by the system.
-- DO NOT directly use the Cellpose or StarDist APIs: models.cellpose(... model.predict_instances(..., etc.
-- Response must be only the python function: segment(viewer)->ArrayLike.
+- DO NOT directly use the Cellpose or StarDist APIs: 'models.cellpose(...', 'model.predict_instances(...', etc.
+- Response must be only the python function: 'segment(viewer)->ArrayLike'.
 - Convert arrays to float type before processing. Intermediate or local arrays should be of type float. Constants for: np.full(), np.ones(), np.zeros(), ... should be floats (for example 1.0).
 - If the request mentions 'this/that/the image/layer' then most likely it refers to the last added image or layer.
-- Convert the segmented image to np.uint32 before returning the segmentation.
+- Convert the segmented image to 'np.uint32' before returning the segmentation.
 """
 
-def _get_seg_code(name: str, signature: bool = False):
-    # Get package folder:
-    package_folder = Path(__file__).parent
-
-    # cellpose file path:
-    file_path = Path.joinpath(package_folder, f"{name}.py")
-
-    # code:
-    code = file_path.read_text()
-
-    # extract signature:
-    if signature:
-        splitted_code = code.split('### SIGNATURE')
-        code = splitted_code[1]
-
-    return code
-
-
-# _cell_segmentation_prompt = _cell_segmentation_prompt.replace('*cellpose*', _get_seg_code('cellpose', signature=True))
 
 class CellNucleiSegmentationTool(NapariBaseTool):
     """A tool for segmenting cells in images using different algorithms."""
@@ -218,13 +202,13 @@ class CellNucleiSegmentationTool(NapariBaseTool):
 
                 # Pick the right segmentation code:
                 if 'cellpose_segmentation(' in code_lower:
-                    segmentation_code = _get_seg_code('cellpose')
+                    segmentation_code = _get_delegated_code('cellpose')
                 elif 'stardist_segmentation(' in code_lower:
-                    segmentation_code = _get_seg_code('stardist')
+                    segmentation_code = _get_delegated_code('stardist')
                     # Check if we are on M1:
                     stardist_package_massaging()
                 elif 'classic_segmentation(' in code_lower:
-                    segmentation_code = _get_seg_code('cellpose')
+                    segmentation_code = _get_delegated_code('cellpose')
                 else:
                     raise ValueError(f"Could not determine the segmentation function used!")
 
@@ -249,7 +233,7 @@ class CellNucleiSegmentationTool(NapariBaseTool):
                 viewer.add_labels(segmented_image, name='segmented')
 
                 # Message:
-                message = f"Success: segmentation succeeded!"
+                message = f"Success: image segmented and added to the viewer as a labels layer named 'denoised'."
 
                 aprint(f"Message: {message}")
 

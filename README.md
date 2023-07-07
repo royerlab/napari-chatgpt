@@ -33,8 +33,8 @@ Omega is a LLM-based and tool-armed autonomous agent that demonstrates the
 potential for Large Language Models (LLMs) to be applied to image processing,
 analysis and visualisation.
 Can LLM-based agents write image processing code and napari widgets, correct its
-coding mistakes, perform
-follow-up analysis, and control the napari viewer? The answer appears to be yes.
+coding mistakes, perform follow-up analysis, and control the napari viewer? 
+The answer appears to be yes.
 
 #### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image, but fails because of an inexistant 'multichannel' parameter. Realising that, Omega tries again, and this time, succeeds:
 
@@ -118,8 +118,8 @@ latest one!
 
 ## Installation in an new conda environment (RECOMMENDED):
 
-Make sure you have an anaocnda/miniconda installation on your system.
-Ask ChatGPT what is that all about if you are unsure ;-)
+Make sure you have an [miniconda](https://docs.conda.io/en/latest/miniconda.html) installation on your system.
+Ask [ChatGPT](https://chat.openai.com/auth/login) what is that all about if you are unsure ;-)
 
 Create environment:
 
@@ -129,7 +129,7 @@ Activate environment:
 
     conda activate napari-chatgpt 
 
-Install napari in the environment using conda-forge: (important on Apple M1/M2)
+Install [napari](napari.org) in the environment using conda-forge: (very important on Apple M1/M2)
 
     conda install -c conda-forge napari     
 
@@ -139,7 +139,7 @@ Install the repo in the environment:
 
 ## Installation variations:
 
-To install latest development version :
+To install latest development version (not recommended for end-users):
 
     git clone https://github.com/royerlab/napari-chatgpt.git
     cd napari-chatgpt
@@ -161,7 +161,7 @@ hopefully.
 
 Note: you can limit the burn-rate to a certain amount of dollars per month, just
 in case you let Omega thinking over the weekend and forget to stop it (don't worry, 
-this is actually not possible).
+this is actually **not** possible).
 
 ## Usage:
 
@@ -178,7 +178,7 @@ You just opened the plugin as a widget, this widget will appear:
 
 <img width="267" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/fdbde938-548d-4104-9241-d87c46c76dcf">
 
-I recomend that initially you stick to the defaults values, which work well.
+I recommend that initially you stick to the defaults values, which work well.
 The best memory is 'hybrid'.
 The 'autofix' features only make sense if you are choosing a ChatGPT 4 model, 
 ChatGPT might get confused... 
@@ -228,7 +228,7 @@ Here are example prompts/questions/requests to try:
 - Downscale by a factor 3x the image on layer named 'img'
 - Rename selected layer to 'downscaled_image'
 - Upscale image 'downscaled_image' by a factor 3 using some smart interpolation
-  scheme of your choice (not nearest-neighboor)
+  scheme of your choice (not nearest-neighbor)
 - Caveat: makes a plugin instead of actually doing teh job
 - How many channels has the image on layer 0
 - Make a image sharpening filter widget, expose relevant parameters
@@ -240,7 +240,7 @@ Here are example prompts/questions/requests to try:
 - Create a napari widget for a function that takes two image layers and returns
   a 3D image stack of n images where each 2D image corresponds to a linear
   blending of the two layer images between 0 and 1.
-- [Loaded the ‘cell’ sample image] there is one cell in the image on the first
+- Loaded the ‘cell’ sample image. there is one cell in the image on the first
   layer, it is roughly circular and brighter than its surroundings, ca you write
   segmentation code that returns a labels layer for it?
 - Can you create a widget to blend two images?
