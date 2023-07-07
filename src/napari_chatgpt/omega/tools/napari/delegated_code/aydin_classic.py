@@ -1,5 +1,5 @@
 ### SIGNATURE
-def aydin_denoising(image, batch_axes=None, chan_axes=None, variant=None):
+def aydin_classic_denoising(image, batch_axes=None, chan_axes=None, variant=None):
     """Method to denoise an image with  Aydin's Classic denoising restoration algorithms.
 
 
