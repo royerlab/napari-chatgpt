@@ -131,9 +131,13 @@ Activate environment:
 
 Install [napari](napari.org) in the environment using conda-forge: (very important on Apple M1/M2)
 
-    conda install -c conda-forge napari     
+    conda install -c conda-forge napari
 
-Install the repo in the environment:
+**Or**, with pip:
+
+    pip install napari
+
+Install napari-chatgpt in the environment:
 
     pip install napari-chatgpt
 
@@ -141,13 +145,27 @@ Install the repo in the environment:
 
 To install latest development version (not recommended for end-users):
 
+    conda create -y -n napari-chatgpt -c conda-forge python=3.9
+    conda activate napari-chatgpt
+    pip install napari  
     git clone https://github.com/royerlab/napari-chatgpt.git
     cd napari-chatgpt
     pip install -e .
 
 or:
-
+    
+    # same steps as above and then:
     pip install git+https://github.com/royerlab/napari-chatgpt.git
+
+## System specific tweaks:
+
+On Ubuntu systems, I recommend setting changing the UI timeout, 
+otherwise whenever Omega is thinking, the UI will freeze, and a popup will block
+everything which is very annoying:
+
+    gsettings set org.gnome.mutter check-alive-timeout 60000
+    
+
 
 ## Requirements:
 

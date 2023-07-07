@@ -1,4 +1,8 @@
+
+
 ### SIGNATURE
+
+
 def aydin_classic_denoising(image, batch_axes=None, chan_axes=None, variant=None):
     """Method to denoise an image with  Aydin's Classic denoising restoration algorithms.
 
@@ -19,6 +23,11 @@ def aydin_classic_denoising(image, batch_axes=None, chan_axes=None, variant=None
     Denoised image : numpy.ndarray
 
     """
+
+    # Turn on Aydin's logging:
+    from aydin.util.log.log import Log
+    Log.enable_output = True
+
     # Import Aydin:
     from aydin import Classic
 
@@ -30,6 +39,9 @@ def aydin_classic_denoising(image, batch_axes=None, chan_axes=None, variant=None
 
     # Denoise
     denoised = classic.denoise(image, batch_axes=batch_axes, chan_axes=chan_axes)
+
+    # Turn off Aydin's logging:
+    Log.enable_output = False
 
     return denoised
 

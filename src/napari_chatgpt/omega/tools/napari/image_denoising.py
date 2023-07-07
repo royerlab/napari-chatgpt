@@ -27,8 +27,8 @@ Therefore, DO NOT use 'napari.Viewer()' or 'with napari.gui_qt():' in your code.
 DO NOT CREATE A NEW INSTANCE OF A NAPARI VIEWER, use the one provided in the variable: 'viewer'.
 Make sure the calls to the viewer are correct.
 
-**CURRENTLY AVAILABLE SEGMENTATION FUNCTION(S):**
-The only segmentation function that you can use are 'aydin_classic_denoise()' or 'aydin_fgr_denoise()':
+**CURRENTLY AVAILABLE DENOISING FUNCTION(S):**
+The only denoising function that you can use are 'aydin_classic_denoise()' or 'aydin_fgr_denoise()':
 
 ```python
 def aydin_classic_denoising(   image: ArrayLike,
@@ -38,14 +38,17 @@ def aydin_classic_denoising(   image: ArrayLike,
                                
 def aydin_fgr_denoising(       image: ArrayLike,
                                batch_axes: Tuple[int] = None, 
-                               chan_axes: Tuple[int] = None ) -> ArrayLike                             
+                               chan_axes: Tuple[int] = None,
+                               variant: str = None) -> ArrayLike                             
 ```
 
-
+In general, first try to denoise images with 'aydin_classic_denoising()' with Butterworth variant, 
+and if that does not work well, try 'aydin_fgr_denoising()' with cb variant.
 
 Here is an explanation of the parameters:
  
 ```docstring_fragment
+
     image : numpy.ndarray
         Image to denoise
     batch_axes : array_like, optional
@@ -53,9 +56,9 @@ Here is an explanation of the parameters:
     chan_axes : array_like, optional
         Indices of channel axes. This is the dimensions/axis of the numpy array that corresponds to the channel dimension of the image. Dimensions/axes that are not batch or channel dimensions are your standard X,Y,Z or T dimensions over which the data exhibits some spatiotemporal correlation.
     variant : str
-        Parameter ONLY valid for 'aydin_classic_denoising()'.
-        Algorithm variant. Can be: 'bilateral', 'butterworth', 'gaussian', 'gm', 'harmonic', 'nlm', 'pca', 'spectral', 'tv', 'wavelet'.
-        
+        Algorithm variant: 
+        For 'aydin_classic_denoising()' may be:  'butterworth'(best combination of speed and denoising performance), 'bilateral', 'gaussian', 'gm', 'harmonic', 'nlm', 'pca', 'spectral', 'tv', 'wavelet'.
+        For 'aydin_fgr_denoising()' may be: 'cb'(best), 'lgbm'(slower than cb), 'linear'(very fast but poor denoising performance), or 'random_forest'(fast and ok denoising).
 
 ```
   
@@ -76,15 +79,15 @@ Answer in markdown with a single function 'denoise(viewer)->ArrayLike' that take
 _instructions = \
 """
 
-**Instructions specific to calling the segmentation functions:**
+**Instructions specific to calling the denoising functions:**
 - DO NOT include code for the functions 'aydin_classic_denoising()' and 'aydin_fgr_denoising()' in your answer.
-- INSTEAD, DIRECTLY call the segmentation functions 'aydin_classic_denoising()' or 'aydin_fgr_denoising()' provided above after import.
-- Assume that the functions 'aydin_classic_denoising()' and 'aydin_fgr_denoising()' are available and within scope of your code.
-- DO NOT add the segmentation to the napari viewer, this is done automatically by the system.
+- INSTEAD, DIRECTLY call the denoising functions 'aydin_classic_denoising()' or 'aydin_fgr_denoising()' provided above after import.
+- Assume that the denoising functions 'aydin_classic_denoising()' and 'aydin_fgr_denoising()' are available and within scope of your code.
+- DO NOT add the denoised image to the napari viewer, this is done automatically by the system.
 - DO NOT directly use the Aydin API, only use the 'aydin_classic_denoising()' or 'aydin_fgr_denoising()' functions!
-- Response must be only the python function: 'segment(viewer)->ArrayLike'.
+- DO NOT use functions from skimage.restoration or any other denoising library, only use the 'aydin_classic_denoising()' or 'aydin_fgr_denoising()' functions!
+- Response must be only the python function: 'denoise(viewer)->ArrayLike'.
 - If the request mentions 'this/that/the image/layer' then most likely it refers to the last added image or layer.
-- Convert the segmented image to 'np.uint32' before returning the segmentation.
 """
 
 class ImageDenoisingTool(NapariBaseTool):
@@ -114,7 +117,7 @@ class ImageDenoisingTool(NapariBaseTool):
                 # lower case code:
                 code_lower = code.lower()
 
-                # Pick the right segmentation code:
+                # Pick the right denoising code:
                 if 'aydin_classic_denoising(' in code_lower:
                     install_aydin()
                     denoising_code = _get_delegated_code('aydin_classic')
@@ -122,7 +125,7 @@ class ImageDenoisingTool(NapariBaseTool):
                     install_aydin()
                     denoising_code = _get_delegated_code('aydin_fgr')
                 else:
-                    raise ValueError(f"Could not determine the segmentation function used!")
+                    raise ValueError(f"Could not determine the denoising function used!")
 
                 # combine generated code and functions:
                 code = denoising_code + '\n\n' + code
@@ -134,14 +137,14 @@ class ImageDenoisingTool(NapariBaseTool):
                 loaded_module = dynamic_import(code)
 
                 # get the function:
-                segment = getattr(loaded_module, 'denoise')
+                denoise = getattr(loaded_module, 'denoise')
 
-                # Run segmentation:
+                # Run denoising:
                 with asection(f"Running image denoising..."):
-                    segmented_image = segment(viewer)
+                    denoised_image = denoise(viewer)
 
                 # Add to viewer:
-                viewer.add_labels(segmented_image, name='denoised')
+                viewer.add_image(denoised_image, name='denoised')
 
                 # Message:
                 message = f"Success: image denoised and added to the viewer as layer 'denoised'. "
