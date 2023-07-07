@@ -6,10 +6,8 @@ from io import StringIO
 from arbol import asection, aprint
 from napari import Viewer
 
-from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
+from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
-from napari_chatgpt.omega.tools.instructions import \
-    omega_generic_codegen_instructions
 
 _napari_viewer_query_prompt = """
 "

@@ -1,20 +1,15 @@
 """A tool for controlling a napari instance."""
 import traceback
-from contextlib import redirect_stdout
-from io import StringIO
 
 from arbol import asection, aprint
 from napari import Viewer
 
-from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
-from napari_chatgpt.utils.python.dynamic_import import dynamic_import, \
-    execute_as_module
+from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
+from napari_chatgpt.utils.python.dynamic_import import execute_as_module
 from napari_chatgpt.utils.python.exception_description import \
     exception_description
 from napari_chatgpt.utils.python.fix_code_given_error import \
     fix_code_given_error_message
-from napari_chatgpt.omega.tools.instructions import \
-    omega_generic_codegen_instructions
 
 _napari_viewer_control_prompt = """
 "

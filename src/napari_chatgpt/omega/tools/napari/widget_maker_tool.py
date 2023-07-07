@@ -4,10 +4,8 @@ import traceback
 from arbol import asection, aprint
 from napari import Viewer
 
-from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
+from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
-from napari_chatgpt.omega.tools.instructions import \
-    omega_generic_codegen_instructions
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
 from napari_chatgpt.utils.strings.find_function_name import find_function_name
 

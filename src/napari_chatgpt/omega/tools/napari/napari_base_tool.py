@@ -1,5 +1,6 @@
 """A tool for running python code in a REPL."""
 import sys
+from pathlib import Path
 from queue import Queue
 from typing import Union, Optional
 
@@ -27,7 +28,28 @@ from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
 
 
+def _get_delegated_code(name: str, signature: bool = False):
+    with asection(f"Getting delegated code: '{name}' (signature={signature})"):
+        # Get current package folder:
+        current_package_folder = Path(__file__).parent
 
+        # Get package folder:
+        package_folder = Path.joinpath(current_package_folder, f"delegated_code")
+
+        # file path:
+        file_path = Path.joinpath(package_folder, f"{name}.py")
+        aprint(f'Filepath: {file_path}')
+
+        # code:
+        code = file_path.read_text()
+
+        # extract signature:
+        if signature:
+            aprint('Extracting signature!')
+            splitted_code = code.split('### SIGNATURE')
+            code = splitted_code[1]
+
+        return code
 
 class NapariBaseTool(AsyncBaseTool):
     """A base tool for that delegates to execution to a sub-LLM and communicates with napari via queues."""

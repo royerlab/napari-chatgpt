@@ -5,7 +5,7 @@ from arbol import asection, aprint
 from imageio.v3 import imread
 from napari import Viewer
 
-from napari_chatgpt.omega.tools.napari_base_tool import NapariBaseTool
+from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.strings.find_integer_in_parenthesis import \
     find_integer_in_parenthesis
 from napari_chatgpt.utils.web.duckduckgo import search_images_ddg

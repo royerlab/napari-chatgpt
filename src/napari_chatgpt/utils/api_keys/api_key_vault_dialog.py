@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QVBoxLayout
 from arbol import aprint
 
 from napari_chatgpt.utils.api_keys.api_key_vault import KeyVault
@@ -14,43 +14,37 @@ class APIKeyDialog(QDialog):
 
         self.setWindowTitle(f'{api_key_name} API Key Vault')
 
-        height = 10
+        layout = QVBoxLayout()
 
         enter_new_key = not self.key_vault.is_key_present()
 
         if enter_new_key:
             # Create the label, text field, and button
             self.api_key_label = QLabel(f'Enter {api_key_name} API key:', self)
-            self.api_key_label.move(10, height)
-            height += 25
-
             self.api_key_textbox = QLineEdit(self)
-            self.api_key_textbox.move(10, height)
-            height += 25
-            self.api_key_textbox.resize(200, 20)
-
-            height += 25
+            layout.addWidget(self.api_key_label)
+            layout.addWidget(self.api_key_textbox)
 
         # Create the label, text field, and button
         passsword_label_text = 'Enter password to unlock key:' if self.key_vault.is_key_present() else 'Enter password to secure key:'
         self.password_label = QLabel(passsword_label_text, self)
-        self.password_label.move(10, height)
-        height += 25
-
         self.password_textbox = QLineEdit(self)
-        self.password_textbox.move(10, height)
-        height += 25
-        self.password_textbox.resize(200, 20)
-
         if not enter_new_key:
             self.password_textbox.setEchoMode(QLineEdit.Password)
 
-        self.button = QPushButton('Enter', self)
-        height += 25
-        self.button.move(10, height)
+        # Add to layout:
+        layout.addWidget(self.password_label)
+        layout.addWidget(self.password_textbox)
 
+
+
+        self.button = QPushButton('Enter', self)
         # Connect the button to a slot
         self.button.clicked.connect(self.button_clicked)
+        # Add to layout:
+        layout.addWidget(self.button)
+
+        self.setLayout(layout)
 
     def button_clicked(self):
 

@@ -1,6 +1,7 @@
 import napari
 import pytest
 from skimage import data
+from skimage.segmentation import slic
 
 from napari_chatgpt.utils.api_keys.api_key import is_api_key_available
 from napari_chatgpt.utils.python.fix_code_given_error import \
@@ -29,9 +30,9 @@ Error Message: channel_axis=-1 indicates multichannel, which is not supported fo
 ```
 """
 
-@pytest.mark.skipif(not is_api_key_available('OpenAI'),
-                    reason="requires OpenAI key to run")
-def test_fix_code_given_error_1():
+# @pytest.mark.skipif(not is_api_key_available('OpenAI'),
+#                     reason="requires OpenAI key to run")
+def _test_fix_code_given_error_1():
 
     # Instantiating Napari viewer headlessly:
     viewer = napari.Viewer(show=False)

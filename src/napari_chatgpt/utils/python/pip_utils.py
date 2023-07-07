@@ -1,6 +1,7 @@
 from typing import List
 
 from arbol import aprint, asection
+from napari_chatgpt.utils.python.conda_utils import conda_install
 
 from napari_chatgpt.utils.python.installed_packages import is_package_installed
 
@@ -24,7 +25,11 @@ def pip_install(packages: List[str],
         if 'opencv' in all_packages_str:
             packages.append('opencv-contrib-python')
 
-    # TODO: special rules for CUPY and dependencies: https://docs.cupy.dev/en/stable/install.html
+        if 'cupy' in all_packages_str:
+            packages.remove('cupy')
+            # Special rules for CUPY and dependencies: https://docs.cupy.dev/en/stable/install.html
+            conda_install(['cupy'], channel='conda-forge')
+
     # TODO: use conda to install some packages.
 
     try:

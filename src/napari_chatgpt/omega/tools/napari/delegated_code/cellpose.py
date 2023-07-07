@@ -4,7 +4,8 @@ from typing import Sequence, Optional
 from napari.types import ArrayLike
 from numpy import ndarray
 
-from napari_chatgpt.omega.tools.napari.classic import classic_segmentation
+from napari_chatgpt.omega.tools.napari.delegated_code.classic import \
+    classic_segmentation
 
 
 ### SIGNATURE

@@ -13,6 +13,7 @@ from napari_chatgpt.omega.omega_agent.prompts import PREFIX, SUFFIX, PERSONALITY
 from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation import \
     CellNucleiSegmentationTool
 from napari_chatgpt.omega.tools.napari.file_open_tool import NapariFileOpenTool
+from napari_chatgpt.omega.tools.napari.image_denoising import ImageDenoisingTool
 from napari_chatgpt.omega.tools.napari.viewer_control_tool import \
     NapariViewerControlTool
 from napari_chatgpt.omega.tools.napari.viewer_query_tool import \
@@ -93,6 +94,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         tools.append(NapariFileOpenTool(**kwargs))
         tools.append(WebImageSearchTool(**kwargs))
         tools.append(CellNucleiSegmentationTool(**kwargs))
+        tools.append(ImageDenoisingTool(**kwargs))
 
 
         tool_classes = discover_omega_tools()

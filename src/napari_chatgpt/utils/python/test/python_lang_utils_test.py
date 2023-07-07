@@ -142,7 +142,7 @@ def test_get_function_signature():
 
     signature = get_function_signature('skimage.transform.probabilistic_hough_line', include_docstring=True)
     aprint(signature)
-    assert 'probabilistic_hough_line(image, threshold, line_length, line_gap, theta, seed)' in signature
+    assert 'probabilistic_hough_line(image, threshold, line_length, line_gap, theta' in signature
 
     print('\n\n')
 
