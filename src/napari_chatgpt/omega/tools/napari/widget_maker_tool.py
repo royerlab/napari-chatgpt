@@ -124,7 +124,7 @@ class NapariWidgetMakerTool(NapariBaseTool):
             with asection(f"NapariWidgetMakerTool: query= {query} "):
 
                 # Prepare code:
-                code = super()._prepare_code(code)
+                code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)
 
                 # Extracts function name:
                 function_name = find_function_name(code)

@@ -88,7 +88,7 @@ class NapariViewerControlTool(NapariBaseTool):
             with asection(f"NapariViewerControlTool: request= {request} "):
 
                 # Prepare code:
-                code = super()._prepare_code(code, do_fix_bad_calls=True)
+                code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)
 
                 captured_output = self._run_code_catch_errors_fix_and_try_again(code,
                                                                            viewer=viewer,

@@ -102,14 +102,8 @@ class OmegaQWidget(QWidget):
 
         if is_package_installed('anthropic'):
             # Add Anthropic models to the combo box:
-            self.model_combo_box.addItem('claude-v1')
-            self.model_combo_box.addItem('claude-v1-100k')
-            self.model_combo_box.addItem('claude-instant-v1')
-            self.model_combo_box.addItem('claude-instant-v1-100k')
-            self.model_combo_box.addItem('claude-v1.3')
-            self.model_combo_box.addItem('claude-v1.3-100k')
-            self.model_combo_box.addItem('claude-instant-v1.1')
-            self.model_combo_box.addItem('claude-instant-v1.1-100k')
+            self.model_combo_box.addItem('claude-2')
+            self.model_combo_box.addItem('claude-instant-1')
 
         if is_package_installed('pygpt4all'):
             self.model_combo_box.addItem('ggml-mpt-7b-chat')

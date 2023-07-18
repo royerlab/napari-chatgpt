@@ -112,7 +112,7 @@ class ImageDenoisingTool(NapariBaseTool):
         try:
             with asection(f"ImageDenoisingTool: query= {request} "):
                 # prepare code:
-                code = super()._prepare_code(code)
+                code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)
 
                 # lower case code:
                 code_lower = code.lower()
