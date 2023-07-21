@@ -48,7 +48,7 @@ _instructions = \
 """
 **Instructions specific to controlling the viewer:**
 - If you need to add images, labels, points, shapes, surfaces, tracks, vectors, or any other type of layer that is not stored as an array, you may need additional code to read files from disk or download from a URL.
-- Unless explicitly stated in the request, the result of operations on layers should be a new layer in napari and not modify the existing layers.
+- Unless explicitly stated in the request, the result of operations on layers should be a new layer in napari and should not modify the existing layers.
 - Convert image arrays to the float type before processing. Intermediate or local image arrays should be of type float. Constants like `np.full()`, `np.ones()`, `np.zeros()`, etc., should be floats (e.g., 1.0).
 - If the request mentions "this," "that," or "the image/layer," it most likely refers to the last added image/layer.
 - If you are unsure about the layer being referred to, assume it is the last layer of the type most appropriate for the request.
