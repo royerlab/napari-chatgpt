@@ -72,7 +72,7 @@ class NapariViewerQueryTool(NapariBaseTool):
         try:
             with asection(f"NapariViewerQueryTool: query= {query} "):
                 # prepare code:
-                code = super()._prepare_code(code, do_fix_bad_calls=True)
+                code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)
 
                 # Load the code as module:
                 loaded_module = dynamic_import(code)
