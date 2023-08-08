@@ -7,7 +7,7 @@ see: https://napari.org/stable/plugins/guides.html?#widgets
 Replace code below according to your needs.
 """
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from napari_chatgpt.chat_server.chat_server import NapariChatServer
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
@@ -85,7 +85,12 @@ class OmegaQWidget(QWidget):
         self.model_combo_box.setToolTip(
             "Choose an LLM model. Best models are GPT4 and GPT3.5, \n"
             "with Claude a bit behind, other models are experimental\n"
-            "and unfortunately barely usable.")
+            "and unfortunately barely usable. WARNING: recent GPT models\n"
+            "have poor coding performance (0613), avoid them!\n"
+            "Models at the top of list are better!")
+
+        # Model list:
+        model_list: List[str] = []
 
         # Add OpenAI models to the combo box:
         with asection(f"Enumerating all OpenAI ChatGPT models:"):
@@ -95,20 +100,39 @@ class OmegaQWidget(QWidget):
                 model_id = model.openai_id
                 if 'gpt' in model_id:
                     aprint(model_id)
-                    self.model_combo_box.addItem(model_id)
+                    model_list.append(model_id)
 
         # if is_package_installed('googlebard'):
-        self.model_combo_box.addItem('bard')
+        model_list.append('bard')
 
         if is_package_installed('anthropic'):
             # Add Anthropic models to the combo box:
-            self.model_combo_box.addItem('claude-2')
-            self.model_combo_box.addItem('claude-instant-1')
+            model_list.append('claude-2')
+            model_list.append('claude-instant-1')
 
         if is_package_installed('pygpt4all'):
-            self.model_combo_box.addItem('ggml-mpt-7b-chat')
-            self.model_combo_box.addItem('ggml-gpt4all-j-v1.3-groovy')
-            self.model_combo_box.addItem('ggml-gpt4all-l13b-snoozy')
+            model_list.append('ggml-mpt-7b-chat')
+            model_list.append('ggml-gpt4all-j-v1.3-groovy')
+            model_list.append('ggml-gpt4all-l13b-snoozy')
+
+        # Postprocess list:
+        # Ensure that some 'bad' models are at the end of the list:
+        bad_models = [m for m in model_list if '0613' in m] + ['bard']
+        for bad_model in bad_models:
+            if bad_model in model_list:
+                model_list.remove(bad_model)
+                model_list.append(bad_model)
+
+        # Ensure that the best models are at the top of the list:
+        best_models = [m for m in model_list if '0314' in m or '0301' in m]
+        model_list = best_models + [m for m in model_list if m not in best_models]
+
+        # normalise list:
+        model_list = list(model_list)
+
+        # Add models to combo box:
+        for model in model_list:
+            self.model_combo_box.addItem(model)
 
         # Connect the activated signal to a slot
         # self.model_combo_box.activated[str].connect(self.onActivated)
