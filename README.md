@@ -9,6 +9,8 @@ _Omega_, a napari-aware autonomous LLM-based agent specialised in image processi
 [![tests](https://github.com/royerlab/napari-chatgpt/workflows/tests/badge.svg)](https://github.com/royerlab/napari-chatgpt/actions)
 [![codecov](https://codecov.io/gh/royerlab/napari-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/royerlab/napari-chatgpt)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8240289.svg)](https://doi.org/10.5281/zenodo.8240289)
+
 
 A [napari](napari.org) plugin that leverages OpenAI's Large Language Model
 ChatGPT to implement _Omega_
@@ -36,6 +38,9 @@ Can LLM-based agents write image processing code and napari widgets, correct its
 coding mistakes, perform follow-up analysis, and control the napari viewer? 
 The answer appears to be yes.
 
+The preprint can be downloaded here: [10.5281/zenodo.8240289](10.5281/zenodo.8240289)
+
+
 #### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image, but fails because of an inexistant 'multichannel' parameter. Realising that, Omega tries again, and this time, succeeds:
 
 https://user-images.githubusercontent.com/1870994/235768559-ca8bfa84-21f5-47b6-b2bd-7fcc07cedd92.mp4
@@ -56,7 +61,7 @@ that it is quite capable. While ChatGPT 4.0 is a significant upgrade, it is not
 yet widely
 available.
 
-Omega could eventually help non-experts process and analyse images, especially
+Omega could eventually help non-experts process and analyze images, especially
 in the bioimage domain.
 It is also potentially valuable for educative purposes as it could
 assist in teaching image processing and analysis, making it more accessible.
@@ -64,7 +69,7 @@ Although ChatGPT, which powers Omega, may not be yet on par with an expert image
 analyst or computer vision
 expert, it is just a matter of time...
 
-Omega holds a conversation with the user and uses the following tools to acheive
+Omega holds a conversation with the user and uses the following tools to achieve
 answer questions,
 download and operate on images, write widgets for napari, and more:
 
@@ -75,7 +80,7 @@ download and operate on images, write widgets for napari, and more:
 
 - napari query:
   Gives Omega the ability to query information about the state of the viewer, of
-  its layers, and their contents.
+  its layer, and their contents.
 
 - napari widget maker:
   Gives Omega the ability to make napari functional widgets that take layers as
@@ -84,25 +89,25 @@ download and operate on images, write widgets for napari, and more:
 ### cell segmentation tools:
 
 - cell and nuclei segmentation:
-  This tool specialises in segmenting cells and nuclei in images using some
-  predefined segmentation algorithms. Right now only cellpose is implemented.
+  This tool specializes in segmenting cells and nuclei in images using some
+  predefined segmentation algorithms. Right no,w only cellpose is implemented.
 
-### Generic python installation queries:
+### Generic Python installation queries:
 
 - python function signature query:
-  Lets Omega query the signature of function when it is unsure how to call a
+  Lets Omega query the signature of a function when it is unsure how to call a
   function and what the names and type of the parameters are.
 
-### web search related tools:
+### web search-related tools:
 
 - web search:
   Usefull to give Omega access to the knowledge accessible through the web
 
-- web image serach:
+- web image search:
   Streamlined path to search the web for images and open them in napari
 
-- wikipedia search:
-  Gives Omega access to the whole wikipedia
+- Wikipedia search:
+  Gives Omega access to the whole Wikipediaa
 
 ----------------------------------
 
@@ -110,16 +115,16 @@ download and operate on images, write widgets for napari, and more:
 
 You can install `napari-chatgpt` directly from within napari in the Plugins>
 Install/Uninstall Plugins menu.
-(Please note that the Omega agent will hapilly install packages in the
+(Please note that the Omega agent will happily install packages in the
 corresponding environment).
 
-IMPORTANT NOTE: Makre sure you have a recent version of napari! Ideally the
+IMPORTANT NOTE: Make sure you have a recent version of napari! Ideally, the
 latest one!
 
-## Installation in an new conda environment (RECOMMENDED):
+## Installation in a new conda environment (RECOMMENDED):
 
 Make sure you have an [miniconda](https://docs.conda.io/en/latest/miniconda.html) installation on your system.
-Ask [ChatGPT](https://chat.openai.com/auth/login) what is that all about if you are unsure ;-)
+Ask [ChatGPT](https://chat.openai.com/auth/login) what that is all about if you are unsure ;-)
 
 Create environment:
 
@@ -143,7 +148,7 @@ Install napari-chatgpt in the environment:
 
 ## Installation variations:
 
-To install latest development version (not recommended for end-users):
+To install the latest development version (not recommended for end-users):
 
     conda create -y -n napari-chatgpt -c conda-forge python=3.9
     conda activate napari-chatgpt
@@ -157,10 +162,10 @@ or:
     # same steps as above and then:
     pip install git+https://github.com/royerlab/napari-chatgpt.git
 
-## System specific tweaks:
+## System-specific tweaks:
 
 On Ubuntu systems, I recommend setting changing the UI timeout, 
-otherwise whenever Omega is thinking, the UI will freeze, and a popup will block
+otherwise, whenever Omega is thinking, the UI will freeze, and a popup will block
 everything which is very annoying:
 
     gsettings set org.gnome.mutter check-alive-timeout 60000
@@ -169,16 +174,16 @@ everything which is very annoying:
 
 ## Requirements:
 
-You need an OpenAI key, there is no way around this, I have been experimenting with 
-other models, but right now the best results, by far are obtained with ChatGPT 4 (and to
+You need an OpenAI key; there is no way around this, I have been experimenting with 
+other models, but right now, the best results, by far, are obtained with ChatGPT 4 (and to
 a lesser extent 3.5). You can get your OpenAI key by signing up [here](https://openai.com/blog/openai-api).
 Developing Omega cost me $13.97, hardly a fortune. OpenAI pricing on ChatGPT 3.5
 is very reasonable at 0.002 dollars per 1K tokens, which means $2 per 750000 words. A
 bargain. Now, ChatGPT 4.0 is about 10x more expensive... But that could eventually drop,
 hopefully.
 
-Note: you can limit the burn-rate to a certain amount of dollars per month, just
-in case you let Omega thinking over the weekend and forget to stop it (don't worry, 
+Note: you can limit the burn rate to a certain amount of dollars per month, just
+in case you let Omega think over the weekend and forget to stop it (don't worry, 
 this is actually **not** possible).
 
 ## Usage:
@@ -196,31 +201,31 @@ You just opened the plugin as a widget, this widget will appear:
 
 <img width="267" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/fdbde938-548d-4104-9241-d87c46c76dcf">
 
-I recommend that initially you stick to the defaults values, which work well.
+I recommend that initially, you stick to the default values, which work well.
 The best memory is 'hybrid'.
-The 'autofix' features only make sense if you are choosing a ChatGPT 4 model, 
+The 'auto-fix' features only make sense if you are choosing a ChatGPT 4 model, 
 ChatGPT might get confused... 
 Increasing creativity also decreases 'attention to detail'; the models will make more
 coding mistakes, but might try more original solutions...
 
-You then need to actually start Omega:
+You then need to start Omega:
 
 <img width="104" alt="image" src="https://user-images.githubusercontent.com/1870994/235811111-9e468785-9562-410a-8e9a-c63cb03fb765.png">
 
 
 If you have not set the 'OPENAI_API_KEY' environment variable as is typically
-done, Omega will ask you for your OpenAI API key, and will store it _safely_ in an
+done, Omega will ask you for your OpenAI API key and will store it _safely_ in an
 _encrypted_ way on your machine (~/.omega_api_keys/OpenAI.json):
 
 <img width="293" alt="image" src="https://user-images.githubusercontent.com/1870994/235793528-9e892c5e-d8ca-43e1-9020-f2dfab45b32d.png">
 
 
 Just enter an encryption/decryption key, your OpenAI key, and
-everytime you start Omega it will just ask for the decryption key:
+everytime you start Omega, it will just ask for the decryption key:
 
 <img width="300" alt="image" src="https://user-images.githubusercontent.com/1870994/235794262-4c0eff4d-1c81-47b0-a097-f34e3d5c93b8.png">
 
-(The idea is that you might not be able to remember your openAI key by heart, obviously,
+(The idea is that you might not be able to remember your OpenAI key by heart, obviously,
 but you might be able to do so with your own password or passphrase)
 
 You can then direct your browser
@@ -448,27 +453,22 @@ https://user-images.githubusercontent.com/1870994/235771146-ced45353-4886-42cb-b
 
 ## Disclaimer:
 
-Do not use this software lightly, it will download libraries by its own volition,
-write any code that it deems necessary, it might actually do what you ask, even
-if
-it is a bad idea. Also, beware that it might _misunderstand_ what you ask and
-then do
-something bad. For example, it is unwise to use Omega to delete 'some' files
-from your system,
-it might end up deleting more than that if you are unclear in your request.  
-To be 100% safe, we recommend that you use this software from within a sandboxed
-virtual machine.
+Do not use this software lightly; it will download libraries of its own volition
+and write any code that it deems necessary; it might actually do what you ask, even
+if it is a very bad idea. Also, beware that it might _misunderstand_ what you ask and
+then do something bad in ways that elude you. For example, it is unwise to use Omega to delete 
+'some' files from your system; it might end up deleting more than that if you are unclear in 
+your request.  
+Omega is generally safe as long as you do not make dangerous requests. To be 100% safe, and
+if your experiments with Omega could be potentially problematic, I recommend using this 
+software from within a sandboxed virtual machine.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED,
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-BE LIABLE
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-THE
-USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## Contributing
 
