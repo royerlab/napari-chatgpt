@@ -7,7 +7,9 @@ from langchain.chat_models import ChatOpenAI, ChatAnthropic
 
 from napari_chatgpt.llm.bard import ChatBard
 from napari_chatgpt.llm.gpt4all import GPT4AllFixed
+from napari_chatgpt.llm.ollama import OllamaFixed
 from napari_chatgpt.utils.download.gpt4all import get_gpt4all_model
+from napari_chatgpt.utils.ollama.ollama import start_ollama
 
 
 def instantiate_LLMs(llm_model_name: str,
@@ -18,6 +20,9 @@ def instantiate_LLMs(llm_model_name: str,
                      memory_callback_handler,
                      verbose: bool = False
                      ):
+
+
+
     aprint(f"Instantiating LLMs with model: '{llm_model_name}', t={temperature}, t_tool={tool_temperature}. ")
     if 'gpt-' in llm_model_name:
         # Instantiates Main LLM:
@@ -140,5 +145,44 @@ def instantiate_LLMs(llm_model_name: str,
         tool_llm = main_llm
 
         max_token_limit = n_ctx
+    elif 'ollama' in llm_model_name:
+        from langchain.llms import Ollama
+
+        # Remove ollama prefix:
+        llm_model_name = llm_model_name.removeprefix('ollama_')
+
+        # start Ollama server:
+        start_ollama()
+
+        # Instantiates Main LLM:
+        main_llm = OllamaFixed(
+            base_url="http://localhost:11434",
+            model=llm_model_name,
+            verbose=verbose,
+            temperature=temperature,
+            callback_manager=AsyncCallbackManager(
+                [chat_callback_handler])
+        )
+
+        # Instantiates Tool LLM:
+        tool_llm = OllamaFixed(
+            base_url="http://localhost:11434",
+            model=llm_model_name,
+            verbose=verbose,
+            temperature=tool_temperature,
+
+            callback_manager=AsyncCallbackManager([tool_callback_handler])
+        )
+
+        # Instantiates Memory LLM:
+        memory_llm = OllamaFixed(
+            base_url="http://localhost:11434",
+            model=llm_model_name,
+            verbose=False,
+            temperature=temperature,
+            callback_manager=AsyncCallbackManager([memory_callback_handler])
+        )
+
+        max_token_limit = 4096
 
     return main_llm, memory_llm, tool_llm, max_token_limit
