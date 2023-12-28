@@ -1,5 +1,7 @@
-import openai
+from openai import OpenAI
 
-model_lst = openai.Model.list()
+client = OpenAI()
+
+model_lst = client.models.list()
 
 print(model_lst)

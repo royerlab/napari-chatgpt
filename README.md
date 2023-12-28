@@ -136,7 +136,7 @@ Activate environment:
 
 Install [napari](napari.org) in the environment using conda-forge: (very important on Apple M1/M2)
 
-    conda install -c conda-forge napari
+    conda install -c conda-forge napari pyqt
 
 **Or**, with pip:
 

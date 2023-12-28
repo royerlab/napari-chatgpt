@@ -35,9 +35,6 @@ def set_api_key(api_name: str) -> bool:
         # API KEY:
         if api_key:
             os.environ[api_key_name] = api_key
-            if api_key_name == 'OPENAI_API_KEY':
-                import openai
-                openai.api_key = api_key
         else:
             return False
 
