@@ -94,16 +94,17 @@ class OmegaQWidget(QWidget):
 
         # Add OpenAI models to the combo box:
         with asection(f"Enumerating all OpenAI ChatGPT models:"):
-            import openai
             set_api_key('OpenAI')
-            for model in openai.Model.list().data:
-                model_id = model.openai_id
+
+            from openai import OpenAI
+            client = OpenAI()
+
+            for model in client.models.list().data:
+                model_id = model.id
                 if 'gpt' in model_id:
                     aprint(model_id)
                     model_list.append(model_id)
 
-        # if is_package_installed('googlebard'):
-        model_list.append('bard')
 
         if is_package_installed('anthropic'):
             # Add Anthropic models to the combo box:
