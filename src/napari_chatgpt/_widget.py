@@ -28,10 +28,10 @@ if TYPE_CHECKING:
 from arbol import aprint, asection
 
 _creativity_mapping = {}
-_creativity_mapping['normal'] = 0.01
-_creativity_mapping['slightly creative'] = 0.05
-_creativity_mapping['moderately creative'] = 0.1
-_creativity_mapping['creative'] = 0.2
+_creativity_mapping['normal'] = 0.0
+_creativity_mapping['slightly creative'] = 0.01
+_creativity_mapping['moderately creative'] = 0.05
+_creativity_mapping['creative'] = 0.1
 
 
 class OmegaQWidget(QWidget):
@@ -94,37 +94,34 @@ class OmegaQWidget(QWidget):
 
         # Add OpenAI models to the combo box:
         with asection(f"Enumerating all OpenAI ChatGPT models:"):
-            import openai
             set_api_key('OpenAI')
-            for model in openai.Model.list().data:
-                model_id = model.openai_id
+
+            from openai import OpenAI
+            client = OpenAI()
+
+            for model in client.models.list().data:
+                model_id = model.id
                 if 'gpt' in model_id:
                     aprint(model_id)
                     model_list.append(model_id)
 
-        # if is_package_installed('googlebard'):
-        model_list.append('bard')
 
         if is_package_installed('anthropic'):
             # Add Anthropic models to the combo box:
             model_list.append('claude-2')
             model_list.append('claude-instant-1')
 
-        if is_package_installed('pygpt4all'):
-            model_list.append('ggml-mpt-7b-chat')
-            model_list.append('ggml-gpt4all-j-v1.3-groovy')
-            model_list.append('ggml-gpt4all-l13b-snoozy')
 
         # Postprocess list:
         # Ensure that some 'bad' models are at the end of the list:
-        bad_models = [m for m in model_list if '0613' in m] + ['bard']
+        bad_models = [m for m in model_list if '0613' in m]
         for bad_model in bad_models:
             if bad_model in model_list:
                 model_list.remove(bad_model)
                 model_list.append(bad_model)
 
         # Ensure that the best models are at the top of the list:
-        best_models = [m for m in model_list if '0314' in m or '0301' in m]
+        best_models = [m for m in model_list if '0314' in m or '0301' in m or '1106' in m]
         model_list = best_models + [m for m in model_list if m not in best_models]
 
         # normalise list:
