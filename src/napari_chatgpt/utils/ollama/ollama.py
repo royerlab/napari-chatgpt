@@ -9,25 +9,25 @@ from arbol import asection, aprint
 __ollama_process = None
 
 def start_ollama():
-    with asection("Starting Ollama server!"):
-        process = subprocess.Popen('ollama serve', shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        sleep(1)
-        aprint(process.stdout.readline())
-        aprint(process.stdout.readline())
+    if is_ollama_running():
+        aprint("Ollama is already running!")
+    else:
+        with asection("Starting Ollama server!"):
+            process = subprocess.Popen('ollama serve', shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            sleep(1)
+            aprint(process.stdout.readline())
+            aprint(process.stdout.readline())
 
-        global __ollama_process
-        __ollama_process = process
+            global __ollama_process
+            __ollama_process = process
 
-
-
-        return process
+            return process
 
 def stop_ollama():
-    global __ollama_process
-    if __ollama_process:
-        __ollama_process.terminate()
-
-
+    with asection("Stopping Ollama server."):
+        global __ollama_process
+        if __ollama_process:
+            __ollama_process.terminate()
 
 
 

@@ -1,6 +1,7 @@
 from arbol import aprint
 from langchain.callbacks.manager import AsyncCallbackManager
 from langchain.chat_models import ChatOpenAI, ChatAnthropic
+
 from napari_chatgpt.llm.ollama import OllamaFixed
 from napari_chatgpt.utils.ollama.ollama import start_ollama
 
@@ -12,8 +13,6 @@ def instantiate_LLMs(llm_model_name: str,
                      memory_callback_handler,
                      verbose: bool = False
                      ):
-
-
 
     aprint(f"Instantiating LLMs with model: '{llm_model_name}', t={temperature}, t_tool={tool_temperature}. ")
     if 'gpt-' in llm_model_name:
@@ -108,7 +107,6 @@ def instantiate_LLMs(llm_model_name: str,
             model=llm_model_name,
             verbose=verbose,
             temperature=tool_temperature,
-
             callback_manager=AsyncCallbackManager([tool_callback_handler])
         )
 
