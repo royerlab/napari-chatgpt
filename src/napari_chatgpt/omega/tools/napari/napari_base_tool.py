@@ -10,6 +10,7 @@ from arbol import aprint, asection
 from langchain import LLMChain, PromptTemplate
 from langchain.chat_models.base import BaseChatModel
 from langchain.llms.base import LLM
+from langchain.schema.language_model import BaseLanguageModel
 from napari import Viewer
 from pydantic import Field
 
@@ -65,7 +66,7 @@ class NapariBaseTool(AsyncBaseTool):
     prompt: str = None
     to_napari_queue: Queue = Field(default=None)
     from_napari_queue: Queue = Field(default=None)
-    llm: Union[BaseChatModel, LLM] = Field(default=None)
+    llm: Union[BaseChatModel, LLM, BaseLanguageModel] = Field(default=None)
     return_direct: bool = False
     save_last_generated_code: bool = True
 

@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING, List
 
 from napari_chatgpt.chat_server.chat_server import NapariChatServer
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
+from napari_chatgpt.utils.ollama.ollama import is_ollama_running, \
+    get_ollama_models
 from napari_chatgpt.utils.python.installed_packages import \
     is_package_installed
 from PyQt5.QtCore import Qt
@@ -111,6 +113,11 @@ class OmegaQWidget(QWidget):
             model_list.append('claude-2')
             model_list.append('claude-instant-1')
 
+
+        if is_ollama_running():
+            ollama_models = get_ollama_models()
+            for ollama_model in ollama_models:
+                model_list.append('ollama_'+ollama_model)
 
         # Postprocess list:
         # Ensure that some 'bad' models are at the end of the list:
