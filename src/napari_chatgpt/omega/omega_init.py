@@ -10,14 +10,16 @@ from napari_chatgpt.omega.omega_agent.agent import OmegaAgent
 from napari_chatgpt.omega.omega_agent.agent_executor import \
     OmegaAgentExecutor
 from napari_chatgpt.omega.omega_agent.prompts import PREFIX, SUFFIX, PERSONALITY
-from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation import \
+from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation_tool import \
     CellNucleiSegmentationTool
 from napari_chatgpt.omega.tools.napari.file_open_tool import NapariFileOpenTool
-from napari_chatgpt.omega.tools.napari.image_denoising import ImageDenoisingTool
+from napari_chatgpt.omega.tools.napari.image_denoising_tool import ImageDenoisingTool
 from napari_chatgpt.omega.tools.napari.viewer_control_tool import \
     NapariViewerControlTool
 from napari_chatgpt.omega.tools.napari.viewer_query_tool import \
     NapariViewerQueryTool
+from napari_chatgpt.omega.tools.napari.viewer_vision_tool import \
+    NapariViewerVisionTool
 from napari_chatgpt.omega.tools.napari.widget_maker_tool import \
     NapariWidgetMakerTool
 from napari_chatgpt.omega.tools.napari_plugin_tool import \
@@ -35,6 +37,7 @@ from napari_chatgpt.omega.tools.special.human_input_tool import HumanInputTool
 from napari_chatgpt.omega.tools.special.python_repl import PythonCodeExecutionTool
 from napari_chatgpt.utils.omega_plugins.discover_omega_plugins import \
     discover_omega_tools
+from napari_chatgpt.utils.openai.gpt_vision import is_gpt_vision_available
 
 # Default verbosity to False:
 langchain.verbose = False
@@ -90,6 +93,8 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
 
         tools.append(NapariViewerControlTool(**kwargs, return_direct=not autofix_mistakes))
         tools.append(NapariViewerQueryTool(**kwargs, return_direct=not autofix_mistakes))
+        if is_gpt_vision_available():
+            tools.append(NapariViewerVisionTool(**kwargs, return_direct=not autofix_mistakes))
         tools.append(NapariWidgetMakerTool(**kwargs, return_direct=not autofix_widget))
         tools.append(NapariFileOpenTool(**kwargs))
         tools.append(WebImageSearchTool(**kwargs))

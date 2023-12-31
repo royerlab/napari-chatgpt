@@ -13,6 +13,7 @@ from napari_chatgpt.chat_server.chat_server import NapariChatServer
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
 from napari_chatgpt.utils.ollama.ollama import is_ollama_running, \
     get_ollama_models
+from napari_chatgpt.utils.openai.model_list import get_openai_model_list
 from napari_chatgpt.utils.python.installed_packages import \
     is_package_installed
 from PyQt5.QtCore import Qt
@@ -95,18 +96,7 @@ class OmegaQWidget(QWidget):
         model_list: List[str] = []
 
         # Add OpenAI models to the combo box:
-        with asection(f"Enumerating all OpenAI ChatGPT models:"):
-            set_api_key('OpenAI')
-
-            from openai import OpenAI
-            client = OpenAI()
-
-            for model in client.models.list().data:
-                model_id = model.id
-                if 'gpt' in model_id:
-                    aprint(model_id)
-                    model_list.append(model_id)
-
+        model_list = get_openai_model_list(verbose=True)
 
         if is_package_installed('anthropic'):
             # Add Anthropic models to the combo box:
@@ -142,6 +132,8 @@ class OmegaQWidget(QWidget):
         # self.model_combo_box.activated[str].connect(self.onActivated)
         # Add the combo box to the layout
         self.layout.addWidget(self.model_combo_box)
+
+
 
     def _creativity_level(self):
         aprint("Setting up creativity level UI.")

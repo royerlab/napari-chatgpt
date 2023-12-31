@@ -65,7 +65,9 @@ import napari
 """
 
 class NapariViewerControlTool(NapariBaseTool):
-    """A tool for running python code in a REPL."""
+    """
+    A tool for controlling a napari viewer instance.
+    """
 
     name = "NapariViewerControlTool"
     description = (
