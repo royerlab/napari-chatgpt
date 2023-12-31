@@ -10,16 +10,13 @@ from langchain.schema import BaseMemory
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import MessagesPlaceholder
 
-from napari_chatgpt.omega.omega_agent.agent import OmegaAgent
-from napari_chatgpt.omega.omega_agent.agent_executor import \
-    OmegaAgentExecutor
-from napari_chatgpt.omega.omega_agent.prompts import PREFIX, SUFFIX, PERSONALITY
-from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation_tool import \
 from napari_chatgpt.omega.omega_agent.prompts import SYSTEM, PERSONALITY
-from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation import \
+from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation_tool import \
     CellNucleiSegmentationTool
-from napari_chatgpt.omega.tools.napari.file_open_tool import NapariFileOpenTool
-from napari_chatgpt.omega.tools.napari.image_denoising_tool import ImageDenoisingTool
+from napari_chatgpt.omega.tools.napari.file_open_tool import \
+        NapariFileOpenTool
+from napari_chatgpt.omega.tools.napari.image_denoising_tool import \
+    ImageDenoisingTool
 from napari_chatgpt.omega.tools.napari.viewer_control_tool import \
     NapariViewerControlTool
 from napari_chatgpt.omega.tools.napari.viewer_query_tool import \
@@ -105,13 +102,11 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                   'verbose': verbose
                   }
 
-        tools.append(NapariViewerControlTool(**kwargs, return_direct=not autofix_mistakes))
-        tools.append(NapariViewerQueryTool(**kwargs, return_direct=not autofix_mistakes))
-        if is_gpt_vision_available():
-            tools.append(NapariViewerVisionTool(**kwargs, return_direct=not autofix_mistakes))
         # Adding all napari tools:
         tools.append(NapariViewerControlTool(**kwargs, return_direct=False))
         tools.append(NapariViewerQueryTool(**kwargs, return_direct=False))
+        if is_gpt_vision_available():
+            tools.append(NapariViewerVisionTool(**kwargs, return_direct=False))
         tools.append(NapariWidgetMakerTool(**kwargs, return_direct=not autofix_widget))
         tools.append(NapariFileOpenTool(**kwargs))
         tools.append(WebImageSearchTool(**kwargs))
