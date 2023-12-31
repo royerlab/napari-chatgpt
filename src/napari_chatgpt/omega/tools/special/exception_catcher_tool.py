@@ -44,7 +44,7 @@ class ExceptionCatcherTool(AsyncBaseTool):
     description = (
         "This tool is usefull when the user is having problems with a widget ."
         "This tool returns information about the exception and traceback that happened."
-        "No input needed for this tool."
+        #"No input needed for this tool."
 
     )
     prompt: str = None

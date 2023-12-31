@@ -24,13 +24,17 @@ def set_api_key(api_name: str) -> bool:
             return True
 
         # Something technical required for Qt to be happy:
-        get_or_create_qt_app()
+        app = get_or_create_qt_app()
 
-        # Get the key from vault or via user, password protected:
-        from napari_chatgpt.utils.api_keys.api_key_vault_dialog import \
-            request_if_needed_api_key_dialog
-        aprint(f"Requesting key from user via user interface...")
-        api_key = request_if_needed_api_key_dialog(api_name)
+        if app:
+            # Get the key from vault or via user, password protected:
+            from napari_chatgpt.utils.api_keys.api_key_vault_dialog import \
+                request_if_needed_api_key_dialog
+            aprint(f"Requesting key from user via user interface...")
+            api_key = request_if_needed_api_key_dialog(api_name)
+
+        # Potentially releases the Qt app, MUST BE KEPT!:
+        app = None
 
         # API KEY:
         if api_key:

@@ -121,15 +121,19 @@ class OmegaQWidget(QWidget):
 
         # Postprocess list:
         # Ensure that some 'bad' models are at the end of the list:
-        bad_models = [m for m in model_list if '0613' in m]
+        bad_models = [m for m in model_list if '0613' in m or 'vision' in m]
         for bad_model in bad_models:
             if bad_model in model_list:
                 model_list.remove(bad_model)
                 model_list.append(bad_model)
 
         # Ensure that the best models are at the top of the list:
-        best_models = [m for m in model_list if '0314' in m or '0301' in m or '1106' in m]
+        best_models = [m for m in model_list if '0314' in m or '0301' in m or '1106' in m or 'gpt-4' in m]
         model_list = best_models + [m for m in model_list if m not in best_models]
+
+        # Ensure that the very best models are at the top of the list:
+        very_best_models = [m for m in model_list if ('1106' in m and 'gpt-4' in m) ]
+        model_list = very_best_models + [m for m in model_list if m not in very_best_models]
 
         # normalise list:
         model_list = list(model_list)

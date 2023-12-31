@@ -8,7 +8,6 @@ from langchain.callbacks.base import AsyncCallbackHandler
 from langchain.schema import AgentFinish, AgentAction, LLMResult, BaseMessage
 
 from napari_chatgpt.chat_server.chat_response import ChatResponse
-from napari_chatgpt.omega.omega_agent.agent_output_parser import parse_command
 from napari_chatgpt.utils.strings.camel_case_to_normal import \
     camel_case_to_lower_case
 
@@ -116,8 +115,8 @@ class ChatCallbackHandler(AsyncCallbackHandler):
         self.last_tool_used = tool
         self.last_tool_input = action.tool_input
 
-        if not parse_command([action.tool],action.log):
-            message += f"\n {action.log}"
+        # if not parse_command([action.tool],action.log):
+        #     message += f"\n {action.log}"
 
         resp = ChatResponse(sender="agent", message=message, type="action")
         await self.websocket.send_json(resp.dict())

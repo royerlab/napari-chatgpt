@@ -1,15 +1,16 @@
 from queue import Queue
 
 import langchain
+from langchain.agents import AgentExecutor
+from langchain.agents.conversational_chat.prompt import SUFFIX
 from langchain.base_language import BaseLanguageModel
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.callbacks.manager import AsyncCallbackManager, CallbackManager
 from langchain.schema import BaseMemory
+from langchain_core.messages import SystemMessage
+from langchain_core.prompts import MessagesPlaceholder
 
-from napari_chatgpt.omega.omega_agent.agent import OmegaAgent
-from napari_chatgpt.omega.omega_agent.agent_executor import \
-    OmegaAgentExecutor
-from napari_chatgpt.omega.omega_agent.prompts import PREFIX, SUFFIX, PERSONALITY
+from napari_chatgpt.omega.omega_agent.prompts import SYSTEM, PERSONALITY
 from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation import \
     CellNucleiSegmentationTool
 from napari_chatgpt.omega.tools.napari.file_open_tool import NapariFileOpenTool
@@ -32,16 +33,18 @@ from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
 from napari_chatgpt.omega.tools.special.functions_info_tool import \
     PythonFunctionsInfoTool
 from napari_chatgpt.omega.tools.special.human_input_tool import HumanInputTool
-from napari_chatgpt.omega.tools.special.python_repl import PythonCodeExecutionTool
+from napari_chatgpt.omega.tools.special.python_repl import \
+    PythonCodeExecutionTool
 from napari_chatgpt.utils.omega_plugins.discover_omega_plugins import \
     discover_omega_tools
+from napari_chatgpt.utils.system.is_apple_silicon import is_apple_silicon
 
 # Default verbosity to False:
 langchain.verbose = False
 
-
 def initialize_omega_agent(to_napari_queue: Queue = None,
                            from_napari_queue: Queue = None,
+                           llm_model_name: str = None,
                            main_llm: BaseLanguageModel = None,
                            tool_llm: BaseLanguageModel = None,
                            is_async: bool = False,
@@ -56,15 +59,18 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                            autofix_mistakes: bool = False,
                            autofix_widget: bool = False,
                            verbose: bool = False
-                           ) -> OmegaAgentExecutor:
+                           ) -> AgentExecutor:
 
+    # Chat callback manager:
     chat_callback_manager = (AsyncCallbackManager(
         [chat_callback_handler]) if is_async else CallbackManager(
         [chat_callback_handler])) if chat_callback_handler else None
 
+    # Tool callback manager:
     tool_callback_manager = (CallbackManager(
         [tool_callback_handler])) if chat_callback_handler else None
 
+    # Basic list of tools:
     tools = [WikipediaQueryTool(callback_manager=tool_callback_manager),
              WebSearchTool(callback_manager=tool_callback_manager),
              PythonFunctionsInfoTool(callback_manager=tool_callback_manager),
@@ -73,11 +79,14 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
              PythonCodeExecutionTool(callback_manager=tool_callback_manager)
              ]
 
+    # Adding the human input tool if required:
     if has_human_input_tool:
         tools.append(HumanInputTool(callback_manager=tool_callback_manager))
 
+    # Adding napari tools if required:
     if to_napari_queue:
 
+        # Napari tool shared parameters:
         kwargs = {'llm': tool_llm,
                   'to_napari_queue': to_napari_queue,
                   'from_napari_queue': from_napari_queue,
@@ -88,17 +97,22 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                   'verbose': verbose
                   }
 
-        tools.append(NapariViewerControlTool(**kwargs, return_direct=not autofix_mistakes))
-        tools.append(NapariViewerQueryTool(**kwargs, return_direct=not autofix_mistakes))
+        # Adding all napari tools:
+        tools.append(NapariViewerControlTool(**kwargs, return_direct=False))
+        tools.append(NapariViewerQueryTool(**kwargs, return_direct=False))
         tools.append(NapariWidgetMakerTool(**kwargs, return_direct=not autofix_widget))
         tools.append(NapariFileOpenTool(**kwargs))
         tools.append(WebImageSearchTool(**kwargs))
         tools.append(CellNucleiSegmentationTool(**kwargs))
-        tools.append(ImageDenoisingTool(**kwargs))
 
+        # Future task: remove if once Aydin supports Apple Silicon:
+        if not is_apple_silicon():
+            tools.append(ImageDenoisingTool(**kwargs))
 
+        # Adding all napari plugin tools:
         tool_classes = discover_omega_tools()
 
+        # Filter out the example tool:
         for tool_class in tool_classes:
             if 'ExampleOmegaTool' in tool_class.__name__:
                 # This is just an example/tempate!
@@ -117,24 +131,60 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                 from_napari_queue=from_napari_queue,
                 callback_manager=tool_callback_manager))
 
+
+    # Do this so we can see exactly what's going on under the hood
+    from langchain.globals import set_debug
+    set_debug(True)
+
+
     # prepend the personality:
-    PREFIX_ = PREFIX + PERSONALITY[agent_personality]
+    PREFIX_ = SYSTEM + PERSONALITY[agent_personality]
 
-    agent = OmegaAgent.from_llm_and_tools(
-        llm=main_llm,
-        tools=tools,
-        system_message=PREFIX_,
-        human_message=SUFFIX,
-        verbose=verbose,
-        callback_manager=chat_callback_manager,
-    )
+    # Create the agent:
+    if 'gpt-' in llm_model_name:
 
-    executor = OmegaAgentExecutor.from_agent_and_tools(
+        # Import OpenAI's functions agent class:
+        from langchain.agents import OpenAIFunctionsAgent
+
+        extra_prompt_messages = [MessagesPlaceholder(variable_name="chat_history")]
+
+        # Instantiate the agent:
+        agent = OpenAIFunctionsAgent.from_llm_and_tools(
+            llm=main_llm,
+            tools=tools,
+            system_message=SystemMessage(
+                content=PREFIX_
+            ),
+            # human_message=SUFFIX,
+            verbose=verbose,
+            callback_manager=chat_callback_manager,
+            extra_prompt_messages=extra_prompt_messages
+        )
+    else:
+
+        # Import default ReAct Agent class:
+        from langchain.agents import ConversationalChatAgent
+
+        # Instantiate the agent:
+        agent = ConversationalChatAgent.from_llm_and_tools(
+            llm=main_llm,
+            tools=tools,
+            PREFIX=PREFIX_,
+            SUFFIX=SUFFIX,
+            verbose=verbose,
+            callback_manager=chat_callback_manager,
+        )
+
+
+    # Create the executor:
+    agent_executor = AgentExecutor.from_agent_and_tools(
         agent=agent,
         tools=tools,
         memory=memory,
         verbose=verbose,
-        callback_manager=chat_callback_manager
+        callback_manager=chat_callback_manager,
+        max_iterations=5,
+        early_stopping_method='generate',
     )
 
-    return executor
+    return agent_executor

@@ -95,15 +95,15 @@ class NapariWidgetMakerTool(NapariBaseTool):
 
     name = "NapariWidgetMakerTool"
     description = (
-        "Use this tool to make a napari widget. " # from the plain text description of a function, ""or to modify a previously generated widget
+        "Use this tool to make a napari widget. "
         "Input must be a plain text description of the requested function and its parameters. "
         "The input must not assume knowledge of our conversation. "
         "For instance, if the input is for a 'Gaussian filter with a sigma parameter', "
-        "this tool will make the corresponding widget. "
-        "Another example: if the input is to 'add a mean parameter to the Gaussian filter with a sigma parameter widget', "
+        "this tool will make a napari widget that can apply a Gaussian filter to an image. "
+        "Another example: if the input is to 'add a mean parameter to the previous widget', "
         "this tool will make a new version of the previosuly generated widget, but with mean parameter. "
-        "Another example: if the input is to 'remove the inexistent parameter num_cores from the Gaussian filter with a sigma parameter widget', "
-        "this tool will make a new version of the previosuly generated widget, but without the offending parameter. "
+        # "Another example: if the input is to 'remove the inexistent parameter num_cores from the Gaussian filter with a sigma parameter widget', "
+        # "this tool will make a new version of the previously generated widget, but without the offending parameter. "
         "Important: The input must fully describe the widget every time, and in addition describe the modifications or fixes. "
         "This tool only makes widgets from function descriptions, "
         "it does not directly process or analyse images or other napari layers. "
