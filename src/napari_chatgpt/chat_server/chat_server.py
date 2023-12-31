@@ -131,6 +131,7 @@ class NapariChatServer:
             agent_chain = initialize_omega_agent(
                 to_napari_queue=napari_bridge.to_napari_queue,
                 from_napari_queue=napari_bridge.from_napari_queue,
+                llm_model_name=llm_model_name,
                 main_llm=main_llm,
                 tool_llm=tool_llm,
                 is_async=True,

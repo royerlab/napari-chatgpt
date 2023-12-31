@@ -11,3 +11,5 @@ def get_or_create_qt_app():
     else:
         # If there is, use the existing QApplication instance
         app = QApplication.instance()
+
+    return app

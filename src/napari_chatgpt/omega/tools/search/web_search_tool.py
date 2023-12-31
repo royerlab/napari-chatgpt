@@ -14,7 +14,7 @@ class WebSearchTool(AsyncBaseTool):
         "For example, if the input is: 'What year is it?', the tool will return information about this question."
         "Use it sparingly and refrain from using it if you already know the answer!")
 
-    def _run(query: str, self) -> str:
+    def _run(self, query: str) -> str:
         """Use the tool."""
         try:
 

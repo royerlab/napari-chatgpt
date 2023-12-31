@@ -1,6 +1,6 @@
 import traceback
 
-from duckduckgo_search import ddg, ddg_images
+from duckduckgo_search import ddg, ddg_images, DDGS
 
 from napari_chatgpt.utils.llm.summarizer import summarize
 from napari_chatgpt.utils.python.pip_utils import pip_install_single_package
@@ -48,11 +48,11 @@ def search_ddg(query: str,
                lang: str = "en",
                safesearch: str = 'moderate'
                ) -> str:
+
     lang = 'en-us' if lang == 'en' else lang
 
-    results = ddg(query,
+    results = DDGS().text(keywords=query,
                   region=lang,
-                  time='h_',
                   safesearch=safesearch,
                   max_results=num_results)
 
