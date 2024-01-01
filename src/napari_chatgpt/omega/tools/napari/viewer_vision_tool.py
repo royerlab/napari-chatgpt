@@ -2,6 +2,7 @@
 import re
 import tempfile
 import traceback
+from typing import Optional
 
 from arbol import asection, aprint
 from napari import Viewer
@@ -18,14 +19,16 @@ class NapariViewerVisionTool(NapariBaseTool):
 
     name = "NapariViewerVisionTool"
     description = (
-        "Use this tool when you want a visual description of a specific layer present in the napari viewer. "
-        "Input must be a request about what to focus on or pay attention to in the image, and must contain the emphasised name of the layer (*layer_name*). "
-        "For instance, you can request to 'Describe the contents of image *some_layer_name*'. "
-        "Please use the term 'image' in your request instead of 'layer' to avoid confusion. "
-        "The result will be a detailed description of the visual contents of the image of the layer which can be usefull for deciding how to use, process, or analyse the contents of the layer."
+        "Use this tool when you want a description of what is currently visible on the viewer's canvas. "
+        "This tool is usefull for deciding how to next use, process, or analyse the contents of the viewer and its layers. "
+        "Input must be a request about what to focus on or pay attention to. "
+        "If the input contains the emphasised name of a layer (*layer_name*) the other layers are hidden from view and only the mentioned layer is visible. "
+        "For instance, you can request to 'Describe the image', where 'image' refers to the snapshot image of the layers displayed on the canvas. "
+        "Or request to 'Describe the contents of image *some_layer_name*', where 'image' refers to the snapshot of layer 'some_layer_name'.  "
+        "Please use the term 'image' in your input instead of 'layer' to avoid confusion. "
+        "The result will be a detailed description of the visual contents of the canvas or layer. "
         "If you want to refer to the selected layer, you can refer to the *selected* layer in the input. "
-        
-        "Do NOT include code in your input."
+        "Do NOT include code in your input. "
     )
     prompt: str = None
     instructions: str = None
@@ -33,7 +36,7 @@ class NapariViewerVisionTool(NapariBaseTool):
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
 
         try:
-            with asection(f"NapariViewerVisionTool: layer= {query} "):
+            with asection(f"NapariViewerVisionTool: query= '{query}' "):
 
                 import napari
                 from PIL import Image
@@ -44,6 +47,7 @@ class NapariViewerVisionTool(NapariBaseTool):
                 # Regex search for layer name:
                 match = re.search(r'\*(.*?)\*', query)
 
+                # Check if the layer name is present in the input:
                 if match:
 
                     # Extract the layer name from match:
@@ -52,16 +56,27 @@ class NapariViewerVisionTool(NapariBaseTool):
 
                     # Does the layer exist in the viewer?
                     if layer_name in present_layer_names:
+                        # Augmented query:
+                        augmented_query = f"Here is a snapshot image of the napari viewer canvas showing the contents of layer '{layer_name}'. \n" + query
+
+                        # Get the description of the image of the layer:
                         message = _get_layer_image_description(viewer=viewer,
-                                                               query=query,
+                                                               query=augmented_query,
                                                                layer_name=layer_name)
                     elif 'selected' in layer_name or 'active' in layer_name or 'current' in layer_name:
-                        message = _get_description_for_selected_layer(query=query, viewer=viewer)
+                        # Augmented query:
+                        augmented_query = f"Here is a snapshot image of the napari viewer canvas showing only the selected layer. \n" + query
+
+                        # Get the description of the image of the selected layer:
+                        message = _get_description_for_selected_layer(query=augmented_query, viewer=viewer)
                     else:
-                        message = f"Tool did not succeed because the layer name: '{layer_name}' is not present in the viewer."
+                        message = f"Tool did not succeed because no layer '{layer_name}' exists or no layer is selected."
 
                 else:
-                    message = _get_description_for_selected_layer(query=query,
+                    # Augmented query:
+                    augmented_query = f"Here is a snapshot image of the napari viewer canvas. \n" + query
+
+                    message = _get_description_for_selected_layer(query=augmented_query,
                                                                   viewer=viewer)
 
                 with asection(f"Message:"):
@@ -110,24 +125,32 @@ def _get_description_for_selected_layer(query, viewer):
         if current_layer is not None:
             current_layer_name = current_layer.name
             aprint(
-                f"Multiple layers are selected, defaulting to current layer: '{current_layer_name}'")
+                f"Multiple layers are selected, defaulting to current layer: '{current_layer_name}'. ")
 
             message = _get_layer_image_description(
                 viewer=viewer,
                 query=query,
                 layer_name=current_layer_name)
         else:
-            message = f"Tool did not succeed because multiple layers are selected and no layer is current."
+            aprint(
+                f"Multiple layers are selected, looking at what is currently visible in the viewer's canvas. ")
+
+            message = _get_layer_image_description(
+                viewer=viewer,
+                query=query)
+
+
     return message
 
 
-def _get_layer_image_description(viewer, query, layer_name) -> str:
+def _get_layer_image_description(viewer, query, layer_name: Optional[str] =None, delete: bool = False) -> str:
     # Capture the image of the specific layer
 
     from PIL import Image
     snapshot_image: Image = capture_canvas_snapshot(viewer=viewer,
-                                                    layer_name=layer_name)
-    with tempfile.NamedTemporaryFile(delete=True,
+                                                    layer_name=layer_name,
+                                                    reset_view=False)
+    with tempfile.NamedTemporaryFile(delete=delete,
                                      suffix=".png") as tmpfile:
         # Save the image to a temporary file:
         snapshot_image.save(tmpfile.name)
@@ -136,6 +159,9 @@ def _get_layer_image_description(viewer, query, layer_name) -> str:
         description = describe_image(image_path=tmpfile.name,
                                      query=query)
 
-        message = f"Tool completed successfully, layer '{layer_name}' description: '{description}'"
+        if layer_name:
+            message = f"Tool completed successfully, layer '{layer_name}' description: '{description}'"
+        else:
+            message = f"Tool completed successfully, description: '{description}'"
     return message
 

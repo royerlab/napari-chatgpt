@@ -37,9 +37,7 @@ def capture_canvas_snapshot(viewer: Viewer,
         }
 
         # Reset the view
-        viewer.camera.zoom = 1  # Reset zoom
-        viewer.camera.center = (0, 0, 0)  # Reset center
-        viewer.camera.angles = (0, 0, 90.0)  # Reset rotation
+        viewer.reset_view()
 
     # If no layer name is given, use all layers:
     if layer_name:

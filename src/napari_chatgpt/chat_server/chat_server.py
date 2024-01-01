@@ -20,7 +20,7 @@ from napari_chatgpt.chat_server.callbacks.callbacks_handle_chat import \
     ChatCallbackHandler
 from napari_chatgpt.chat_server.callbacks.callbacks_handler_tool import \
     ToolCallbackHandler
-from napari_chatgpt.chat_server.callbacks.callbacks_stdout import \
+from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
     ArbolCallbackHandler
 from napari_chatgpt.chat_server.chat_response import ChatResponse
 from napari_chatgpt.llm.llms import instantiate_LLMs
