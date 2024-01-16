@@ -11,6 +11,9 @@ from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.napari.layer_snapshot import capture_canvas_snapshot
 from napari_chatgpt.utils.openai.gpt_vision import describe_image
 
+_openai_gpt4_vision_prefix = ("You are the latest OpenAI model that can describe images provided by the user in extreme detail. "
+                             "The user has attached an image to this message for you to analyse, there is MOST DEFINITELY an image attached. "
+                             "You will never reply saying that you cannot see the image because the image is absolutely and always attached to this message.")
 
 class NapariViewerVisionTool(NapariBaseTool):
     """
@@ -19,16 +22,24 @@ class NapariViewerVisionTool(NapariBaseTool):
 
     name = "NapariViewerVisionTool"
     description = (
-        "Use this tool when you want a description of what is currently visible on the viewer's canvas. "
-        "This tool is usefull for deciding how to next use, process, or analyse the contents of the viewer and its layers. "
-        "Input must be a request about what to focus on or pay attention to. "
-        "If the input contains the emphasised name of a layer (*layer_name*) the other layers are hidden from view and only the mentioned layer is visible. "
-        "For instance, you can request to 'Describe the image', where 'image' refers to the snapshot image of the layers displayed on the canvas. "
-        "Or request to 'Describe the contents of image *some_layer_name*', where 'image' refers to the snapshot of layer 'some_layer_name'.  "
-        "Please use the term 'image' in your input instead of 'layer' to avoid confusion. "
-        "The result will be a detailed description of the visual contents of the canvas or layer. "
-        "If you want to refer to the selected layer, you can refer to the *selected* layer in the input. "
-        "Do NOT include code in your input. "
+        "Utilize this tool for descriptions of the current visuals on the viewer's canvas or a specific layer. "
+        "It helps in determining the next steps for using, processing, or analyzing layer contents. "
+        "Requests should specify the focus, like 'Describe the geometric objects on the viewer' for a canvas description. "
+        "For layer-specific queries, highlight the layer name (*layer_name*), making only that layer visible. "
+        "Examples include requests like 'What is the background color on image some_layer_name' or 'how crowded are the objects on image *some_layer_name*'. "
+        "Use 'image' instead of 'layer' to prevent confusion. Responses will describe the visual content of the canvas or the specified layer. "
+        "Refer to the selected layer if needed. Do not include code in your input."
+
+        # "Use this tool when you need a description of what is currently visible on the viewer's canvas or on one of the layers. "
+        # "This tool is usefull for deciding how to next use, process, or analyse the contents of layers. "
+        # "The input must be a request about what to focus on or pay attention to. "
+        # "For instance, if the input is 'Describe the geometric objects shown on the viewer' a description of the geometric object present on the canvas will be given. "
+        # "If the input contains the emphasised name of a layer (*layer_name*) the other layers are hidden from view and only the mentioned layer is visible. "
+        # "For example, you can request: 'What is the background color on image *some_layer_name*', or 'how crowded are the objects on image *some_layer_name*'. "
+        # "Please use the term 'image' in your input instead of 'layer' to avoid confusion. "
+        # "The response to the input will be based on a description of the visual contents of the canvas or layer. "
+        # "If you want to refer to the selected layer, you can refer to the *selected* layer in the input. "
+        # "Do NOT include code in your input. "
     )
     prompt: str = None
     instructions: str = None
@@ -36,7 +47,7 @@ class NapariViewerVisionTool(NapariBaseTool):
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
 
         try:
-            with asection(f"NapariViewerVisionTool: query= '{query}' "):
+            with (((asection(f"NapariViewerVisionTool: query= '{query}' ")))):
 
                 import napari
                 from PIL import Image
@@ -57,7 +68,9 @@ class NapariViewerVisionTool(NapariBaseTool):
                     # Does the layer exist in the viewer?
                     if layer_name in present_layer_names:
                         # Augmented query:
-                        augmented_query = f"Here is a snapshot image of the napari viewer canvas showing the contents of layer '{layer_name}'. \n" + query
+                        augmented_query = _openai_gpt4_vision_prefix + '\n\n' + \
+                        f"Attached is an image of the napari viewer canvas showing the contents of layer '{layer_name}', " + \
+                        f"and here is the user's specific question or query about the image: '{query}'. \n"
 
                         # Get the description of the image of the layer:
                         message = _get_layer_image_description(viewer=viewer,
