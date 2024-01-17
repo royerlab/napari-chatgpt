@@ -192,6 +192,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         callback_manager=chat_callback_manager,
         max_iterations=5,
         early_stopping_method='generate',
+        handle_parsing_errors=True
     )
 
     return agent_executor
