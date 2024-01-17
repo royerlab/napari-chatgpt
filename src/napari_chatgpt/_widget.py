@@ -120,12 +120,15 @@ class OmegaQWidget(QWidget):
                 model_list.append('ollama_'+ollama_model)
 
         # Postprocess list:
-        # Ensure that some 'bad' models are at the end of the list:
+
+        # Ensure that some 'bad' or unsuported models are excluded:
         bad_models = [m for m in model_list if '0613' in m or 'vision' in m]
         for bad_model in bad_models:
             if bad_model in model_list:
                 model_list.remove(bad_model)
-                model_list.append(bad_model)
+                # model_list.append(bad_model)
+
+
 
         # Ensure that the best models are at the top of the list:
         best_models = [m for m in model_list if '0314' in m or '0301' in m or '1106' in m or 'gpt-4' in m]
@@ -331,7 +334,7 @@ class OmegaQWidget(QWidget):
         # Temperature:
         temperature = float(_creativity_mapping[
                                 self.creativity_combo_box.currentText()])
-        tool_temperature = 0.1*temperature
+        tool_temperature = 0.01*temperature
 
         from napari_chatgpt.chat_server.chat_server import start_chat_server
         self.server = start_chat_server(self.viewer,

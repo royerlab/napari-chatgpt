@@ -35,7 +35,8 @@ class PythonCodeExecutionTool(AsyncBaseTool):
     name = "PythonCodeExecutionTool"
     description = (
         "Use this tool to execute python code and commands that do not involve to the napari. "
-        "This tool does not have access to napari or its viewer and does is not suitable for image processing, analysis or visualisation. "
+        "Do not use this tool to have access to napari or its viewer. "
+        "This tool is not suitable for image processing, analysis or visualisation. "
         "Input should be a valid python command. "
         "For example, send: `print(3**1+1)` to get the result of this calculation thescipy.ndimage.convolve and this tool will returns the full signature of this function "
         "If you want to see the output of a value, you should print it out with `print(...)`."
