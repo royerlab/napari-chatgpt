@@ -167,6 +167,9 @@ class NapariChatServer:
                                                   type="start")
                         await websocket.send_json(start_resp.dict())
 
+                        # get napari viewer state and description:
+                        # viewer_description = self.napari_bridge.get_viewer_description()
+
                         # call LLM:
                         result = await agent_chain.acall(inputs=question)
 
