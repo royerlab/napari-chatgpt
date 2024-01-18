@@ -10,6 +10,7 @@ from langchain.schema import BaseMemory
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import MessagesPlaceholder
 
+
 from napari_chatgpt.omega.omega_agent.prompts import SYSTEM, PERSONALITY
 from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation_tool import \
     CellNucleiSegmentationTool
@@ -151,12 +152,13 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
     if 'gpt-' in llm_model_name:
 
         # Import OpenAI's functions agent class:
-        from langchain.agents import OpenAIFunctionsAgent
+        from napari_chatgpt.omega.omega_agent.OpenAIFunctionsOmegaAgent import \
+            OpenAIFunctionsOmegaAgent
 
         extra_prompt_messages = [MessagesPlaceholder(variable_name="chat_history")]
 
         # Instantiate the agent:
-        agent = OpenAIFunctionsAgent.from_llm_and_tools(
+        agent = OpenAIFunctionsOmegaAgent.from_llm_and_tools(
             llm=main_llm,
             tools=tools,
             system_message=SystemMessage(
@@ -170,10 +172,11 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
     else:
 
         # Import default ReAct Agent class:
-        from langchain.agents import ConversationalChatAgent
+        from napari_chatgpt.omega.omega_agent.ConversationalChatOmegaAgent import \
+            ConversationalChatOmegaAgent
 
         # Instantiate the agent:
-        agent = ConversationalChatAgent.from_llm_and_tools(
+        agent = ConversationalChatOmegaAgent.from_llm_and_tools(
             llm=main_llm,
             tools=tools,
             PREFIX=PREFIX_,

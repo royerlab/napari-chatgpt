@@ -11,9 +11,9 @@ from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.napari.layer_snapshot import capture_canvas_snapshot
 from napari_chatgpt.utils.openai.gpt_vision import describe_image
 
-_openai_gpt4_vision_prefix = ("You are the latest OpenAI model that can describe images provided by the user in extreme detail. "
-                             "The user has attached an image to this message for you to analyse, there is MOST DEFINITELY an image attached. "
-                             "You will never reply saying that you cannot see the image because the image is absolutely and always attached to this message.")
+# _openai_gpt4_vision_prefix = ("You are the latest OpenAI model that can describe images provided by the user in extreme detail. "
+#                              "The user has attached an image to this message for you to analyse, there is MOST DEFINITELY an image attached. "
+#                              "You will never reply saying that you cannot see the image because the image is absolutely and always attached to this message.")
 
 class NapariViewerVisionTool(NapariBaseTool):
     """
@@ -22,13 +22,16 @@ class NapariViewerVisionTool(NapariBaseTool):
 
     name = "NapariViewerVisionTool"
     description = (
-        "Utilize this tool for descriptions of the current visuals on the viewer's canvas or a specific layer. "
-        "It helps in determining the next steps for using, processing, or analyzing layer contents. "
-        "Requests should specify the focus, like 'Describe the geometric objects on the viewer' for a canvas description. "
-        "For layer-specific queries, highlight the layer name (*layer_name*), making only that layer visible. "
-        "Examples include requests like 'What is the background color on image some_layer_name' or 'how crowded are the objects on image *some_layer_name*'. "
-        "Use 'image' instead of 'layer' to prevent confusion. Responses will describe the visual content of the canvas or the specified layer. "
-        "Refer to the selected layer if needed. Do not include code in your input."
+        "Utilize this tool for answering questions about what is visible on the viewer's canvas or on a specific layer. "
+        "It helps in determining the next steps for using, processing, or analyzing napari layer contents. "
+        "The input should specify what you want to know about what is visible on the canvas or layer. "
+        "This tool is not aware of our conversation history therefore keep your requests simple and generic. " 
+        "In your imputs do not: (i) include code, (ii) mention layers, canvas, or viewer, (iii) refer to the layer indices (first, second, ... ). "
+        "For example: 'Describe what you see' if you want a description of what is shown. "
+        "Start with the highlighted *layer_name* for layer-specific queries. "
+        "For example: '*some_layer_name* What is the background color?' or '*another_layer_name* How crowded are the objects on image?'. "
+        "Refer to the *selected* layer if needed: '*selected* What is the background color?'. "
+
 
         # "Use this tool when you need a description of what is currently visible on the viewer's canvas or on one of the layers. "
         # "This tool is usefull for deciding how to next use, process, or analyse the contents of layers. "
@@ -59,38 +62,42 @@ class NapariViewerVisionTool(NapariBaseTool):
                 match = re.search(r'\*(.*?)\*', query)
 
                 # Check if the layer name is present in the input:
-                if match:
+                if match or '*selected*' in query or '*active*' in query or '*current*' in query:
 
                     # Extract the layer name from match:
                     layer_name = match.group(1)
                     aprint("Found layer name in input:", layer_name)
 
+                    # Remove layer name from input:
+                    query = query.replace(f"*{layer_name}*", "")
+
                     # Does the layer exist in the viewer?
                     if layer_name in present_layer_names:
                         # Augmented query:
-                        augmented_query = _openai_gpt4_vision_prefix + '\n\n' + \
-                        f"Attached is an image of the napari viewer canvas showing the contents of layer '{layer_name}', " + \
-                        f"and here is the user's specific question or query about the image: '{query}'. \n"
+                        augmented_query = f"Here is an image. {query}"
 
                         # Get the description of the image of the layer:
                         message = _get_layer_image_description(viewer=viewer,
                                                                query=augmented_query,
-                                                               layer_name=layer_name)
+                                                               layer_name=layer_name,
+                                                               reset_view=True)
                     elif 'selected' in layer_name or 'active' in layer_name or 'current' in layer_name:
                         # Augmented query:
-                        augmented_query = f"Here is a snapshot image of the napari viewer canvas showing only the selected layer. \n" + query
+                        augmented_query = f"Here is an image. {query}"
 
                         # Get the description of the image of the selected layer:
-                        message = _get_description_for_selected_layer(query=augmented_query, viewer=viewer)
+                        message = _get_description_for_selected_layer(query=augmented_query, viewer=viewer, reset_view=True)
                     else:
                         message = f"Tool did not succeed because no layer '{layer_name}' exists or no layer is selected."
 
                 else:
                     # Augmented query:
-                    augmented_query = f"Here is a snapshot image of the napari viewer canvas. \n" + query
+                    augmented_query = f"Here is an image. {query}"
 
-                    message = _get_description_for_selected_layer(query=augmented_query,
-                                                                  viewer=viewer)
+                    message = _get_description_for_whole_canvas(query=augmented_query,
+                                                                viewer=viewer)
+
+                    message = f"The following is the description of the contents of the whole canvas: '{message}'"
 
                 with asection(f"Message:"):
                     aprint(message)
@@ -101,68 +108,85 @@ class NapariViewerVisionTool(NapariBaseTool):
             traceback.print_exc()
             return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to query the napari viewer."  #with code:\n```python\n{code}\n```\n.
 
-def _get_description_for_selected_layer(query, viewer):
-    aprint(
-        "Could not find layer name in input defaulting to selected layer")
-    # Get the selected layers
-    selected_layers = viewer.layers.selection
-    # Check if there is exactly one selected layer
-    if len(selected_layers) == 0:
+def _get_description_for_selected_layer(query, viewer, reset_view:bool = False):
+    with asection(f"Getting description for selected layer. "):
+        aprint(f"Query: '{query}'")
 
-        # In this case we default to the first layer if there is at least one layer:
-        if len(viewer.layers) > 0:
-            first_layer = viewer.layers[0]
-            first_layer_name = first_layer.name
-            aprint(
-                f"No layer is selected, defaulting to first layer: '{first_layer_name}'")
+        # Get the selected layers
+        selected_layers = viewer.layers.selection
+        # Check if there is exactly one selected layer
+        if len(selected_layers) == 0:
+
+            # In this case we default to the first layer if there is at least one layer:
+            if len(viewer.layers) > 0:
+                first_layer = viewer.layers[0]
+                first_layer_name = first_layer.name
+                aprint(
+                    f"No layer is selected, defaulting to first layer: '{first_layer_name}'")
+
+                message = _get_layer_image_description(
+                    viewer=viewer,
+                    query=query,
+                    layer_name=first_layer_name,
+                    reset_view=reset_view)
+            else:
+                message = f"Tool did not succeed because no layer is selected and there are no layers in the viewer."
+
+        elif len(selected_layers) == 1:
+            selected_layer = selected_layers.active
+            selected_layer_name = selected_layer.name
+            aprint(f"Only one selected layer: '{selected_layer_name}'")
 
             message = _get_layer_image_description(
                 viewer=viewer,
                 query=query,
-                layer_name=first_layer_name)
-        else:
-            message = f"Tool did not succeed because no layer is selected and there are no layers in the viewer."
+                layer_name=selected_layer_name,
+                reset_view=reset_view)
 
-    elif len(selected_layers) == 1:
-        selected_layer = selected_layers.active
-        selected_layer_name = selected_layer.name
-        aprint(f"Only one selected layer: '{selected_layer_name}'")
+        else:
+            current_layer = selected_layers._current
+            if current_layer is not None:
+                current_layer_name = current_layer.name
+                aprint(
+                    f"Multiple layers are selected, defaulting to current layer: '{current_layer_name}'. ")
+
+                message = _get_layer_image_description(
+                    viewer=viewer,
+                    query=query,
+                    layer_name=current_layer_name,
+                    reset_view=reset_view)
+            else:
+                aprint(
+                    f"Multiple layers are selected, looking at what is currently visible in the viewer's canvas. ")
+
+                message = _get_layer_image_description(
+                    viewer=viewer,
+                    query=query)
+
+
+        return message
+
+
+def _get_description_for_whole_canvas(query, viewer):
+    with asection(f"Getting description for whole canvas.'"):
+        aprint(f"Query: '{query}'")
 
         message = _get_layer_image_description(
-            viewer=viewer,
-            query=query,
-            layer_name=selected_layer_name)
+                    viewer=viewer,
+                    query=query,
+                    layer_name=None)
 
-    else:
-        current_layer = selected_layers._current
-        if current_layer is not None:
-            current_layer_name = current_layer.name
-            aprint(
-                f"Multiple layers are selected, defaulting to current layer: '{current_layer_name}'. ")
-
-            message = _get_layer_image_description(
-                viewer=viewer,
-                query=query,
-                layer_name=current_layer_name)
-        else:
-            aprint(
-                f"Multiple layers are selected, looking at what is currently visible in the viewer's canvas. ")
-
-            message = _get_layer_image_description(
-                viewer=viewer,
-                query=query)
+        return message
 
 
-    return message
 
-
-def _get_layer_image_description(viewer, query, layer_name: Optional[str] =None, delete: bool = False) -> str:
+def _get_layer_image_description(viewer, query, layer_name: Optional[str] =None, delete: bool = False, reset_view:bool = False) -> str:
     # Capture the image of the specific layer
 
     from PIL import Image
     snapshot_image: Image = capture_canvas_snapshot(viewer=viewer,
                                                     layer_name=layer_name,
-                                                    reset_view=False)
+                                                    reset_view=reset_view)
     with tempfile.NamedTemporaryFile(delete=delete,
                                      suffix=".png") as tmpfile:
         # Save the image to a temporary file:

@@ -66,7 +66,6 @@ def describe_image(image_path: str,
             raise NotImplementedError(f"Image format not supported: '{image_path}' (only .png and .jpg are supported)")
 
         import base64
-        import os
 
         # Read and encode the image in base64
         with open(image_path, "rb") as image_file:
@@ -97,7 +96,7 @@ def describe_image(image_path: str,
             # Ensure that the OpenAI API key is set:
             set_api_key('OpenAI')
 
-            # Instanciate API entry points:
+            # Instantiate API entry points:
             client = OpenAI()
             completions = Completions(client)
 
@@ -108,6 +107,8 @@ def describe_image(image_path: str,
 
             # Actual response:
             response = result.choices[0].message.content
+
+            aprint(f"Response: '{response}'")
 
             return response
 

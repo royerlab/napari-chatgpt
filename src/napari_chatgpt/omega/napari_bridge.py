@@ -9,6 +9,8 @@ from napari.qt.threading import thread_worker
 
 from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
     enqueue_exception
+from napari_chatgpt.utils.napari.napari_viewer_info import \
+    get_viewer_layers_info
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 
 
@@ -48,3 +50,24 @@ class NapariBridge():
         # create the worker:
         self.worker = omega_napari_worker(self.to_napari_queue,
                                           self.from_napari_queue)
+
+
+    def get_viewer_description(self) -> str:
+
+        # Setting up delegated fuction:
+        delegated_function = lambda v: get_viewer_layers_info(v)
+
+        # Send code to napari:
+        self.to_napari_queue.put(delegated_function)
+
+        # Get response:
+        response = self.from_napari_queue.get()
+
+        if isinstance(response, ExceptionGuard):
+            exception_guard = response
+            # raise exception_guard.exception
+            return f"Error: {exception_guard.exception_type_name} with message: '{str(exception_guard.exception)}' while using tool: {self.__class__.__name__} ."
+
+        return response
+
+
