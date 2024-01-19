@@ -28,12 +28,14 @@ from napari_chatgpt.omega.memory.memory import OmegaMemory
 from napari_chatgpt.omega.napari_bridge import NapariBridge
 from napari_chatgpt.omega.omega_init import initialize_omega_agent
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
+from napari_chatgpt.utils.openai.default_model import \
+    get_default_openai_model_name
 from napari_chatgpt.utils.python.installed_packages import is_package_installed
 
 class NapariChatServer:
     def __init__(self,
                  napari_bridge: NapariBridge,
-                 llm_model_name: str = 'gpt-3.5-turbo',
+                 llm_model_name: str = get_default_openai_model_name(),
                  temperature: float = 0.01,
                  tool_temperature: float = 0.01,
                  memory_type: str = 'standard',
@@ -218,7 +220,7 @@ class NapariChatServer:
 
 
 def start_chat_server(viewer: napari.Viewer = None,
-                      llm_model_name: str = 'gpt-3.5-turbo',
+                      llm_model_name: str = get_default_openai_model_name(),
                       temperature: float = 0.01,
                       tool_temperature: float = 0.01,
                       memory_type: str = 'standard',

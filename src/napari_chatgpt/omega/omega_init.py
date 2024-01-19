@@ -20,6 +20,8 @@ from napari_chatgpt.omega.tools.napari.image_denoising_tool import \
     ImageDenoisingTool
 from napari_chatgpt.omega.tools.napari.viewer_control_tool import \
     NapariViewerControlTool
+from napari_chatgpt.omega.tools.napari.viewer_execution_tool import \
+    NapariViewerExecutionTool
 from napari_chatgpt.omega.tools.napari.viewer_query_tool import \
     NapariViewerQueryTool
 from napari_chatgpt.omega.tools.napari.viewer_vision_tool import \
@@ -106,6 +108,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         # Adding all napari tools:
         tools.append(NapariViewerControlTool(**kwargs, return_direct=False))
         tools.append(NapariViewerQueryTool(**kwargs, return_direct=False))
+        tools.append(NapariViewerExecutionTool(**kwargs, return_direct=False))
         if is_gpt_vision_available():
             tools.append(NapariViewerVisionTool(**kwargs, return_direct=False))
         tools.append(NapariWidgetMakerTool(**kwargs, return_direct=not autofix_widget))

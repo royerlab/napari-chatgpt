@@ -13,6 +13,8 @@ from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
     ArbolCallbackHandler
 from napari_chatgpt.utils.napari.napari_viewer_info import \
     get_viewer_layers_info
+from napari_chatgpt.utils.openai.default_model import \
+    get_default_openai_model_name
 from napari_chatgpt.utils.python.installed_packages import \
     installed_package_list
 from napari_chatgpt.utils.python.python_lang_utils import \
@@ -110,7 +112,7 @@ def _fix_code_given_error_message(code: str,
                                   verbose: bool = False):
 
     # Instantiates LLM if needed:
-    llm = llm or ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0)
+    llm = llm or ChatOpenAI(model_name=get_default_openai_model_name(), temperature=0)
 
     # Make prompt template:
     prompt_template = PromptTemplate(template=_fix_bad_fun_calls_prompt,

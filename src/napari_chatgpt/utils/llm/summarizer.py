@@ -3,6 +3,9 @@ from langchain.docstore.document import Document
 from langchain.llms import BaseLLM
 from langchain.text_splitter import CharacterTextSplitter
 
+from napari_chatgpt.utils.openai.default_model import \
+    get_default_openai_model_name
+
 
 def summarize(text: str, llm: BaseLLM = None):
     # Clean up text:
@@ -14,7 +17,7 @@ def summarize(text: str, llm: BaseLLM = None):
 
     # Instantiates LLM if needed:
     from langchain.chat_models import ChatOpenAI
-    llm = llm or ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0)
+    llm = llm or ChatOpenAI(model_name=get_default_openai_model_name(), temperature=0)
 
     # Splits the text:
     text_splitter = CharacterTextSplitter()
