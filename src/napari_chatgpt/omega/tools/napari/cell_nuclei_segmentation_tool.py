@@ -233,7 +233,7 @@ class CellNucleiSegmentationTool(NapariBaseTool):
                 viewer.add_labels(segmented_image, name='segmented')
 
                 # Message:
-                message = f"Success: image segmented and added to the viewer as a labels layer named 'denoised'."
+                message = f"Success: image segmented and added to the viewer as a labels layer named 'segmented'."
 
                 aprint(f"Message: {message}")
 

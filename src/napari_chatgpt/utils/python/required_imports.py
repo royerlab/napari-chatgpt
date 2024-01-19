@@ -8,7 +8,7 @@ from langchain.callbacks.manager import CallbackManager
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import BaseLLM
 
-from napari_chatgpt.chat_server.callbacks.callbacks_stdout import \
+from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
     ArbolCallbackHandler
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 
@@ -79,7 +79,6 @@ def required_imports(code: str,
 
         # Filter the list of imports for bad ones:
         list_of_imports = list([i for i in list_of_imports if check_import_statement(i)])
-
 
         aprint(f'List of missing imports:\n{list_of_imports}')
 

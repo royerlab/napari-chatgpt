@@ -13,6 +13,7 @@ from napari_chatgpt.chat_server.chat_server import NapariChatServer
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
 from napari_chatgpt.utils.ollama.ollama import is_ollama_running, \
     get_ollama_models
+from napari_chatgpt.utils.openai.model_list import get_openai_model_list
 from napari_chatgpt.utils.python.installed_packages import \
     is_package_installed
 from PyQt5.QtCore import Qt
@@ -95,18 +96,7 @@ class OmegaQWidget(QWidget):
         model_list: List[str] = []
 
         # Add OpenAI models to the combo box:
-        with asection(f"Enumerating all OpenAI ChatGPT models:"):
-            set_api_key('OpenAI')
-
-            from openai import OpenAI
-            client = OpenAI()
-
-            for model in client.models.list().data:
-                model_id = model.id
-                if 'gpt' in model_id:
-                    aprint(model_id)
-                    model_list.append(model_id)
-
+        model_list = get_openai_model_list(verbose=True)
 
         if is_package_installed('anthropic'):
             # Add Anthropic models to the combo box:
@@ -120,12 +110,15 @@ class OmegaQWidget(QWidget):
                 model_list.append('ollama_'+ollama_model)
 
         # Postprocess list:
-        # Ensure that some 'bad' models are at the end of the list:
+
+        # Ensure that some 'bad' or unsuported models are excluded:
         bad_models = [m for m in model_list if '0613' in m or 'vision' in m]
         for bad_model in bad_models:
             if bad_model in model_list:
                 model_list.remove(bad_model)
-                model_list.append(bad_model)
+                # model_list.append(bad_model)
+
+
 
         # Ensure that the best models are at the top of the list:
         best_models = [m for m in model_list if '0314' in m or '0301' in m or '1106' in m or 'gpt-4' in m]
@@ -146,6 +139,8 @@ class OmegaQWidget(QWidget):
         # self.model_combo_box.activated[str].connect(self.onActivated)
         # Add the combo box to the layout
         self.layout.addWidget(self.model_combo_box)
+
+
 
     def _creativity_level(self):
         aprint("Setting up creativity level UI.")
@@ -331,7 +326,7 @@ class OmegaQWidget(QWidget):
         # Temperature:
         temperature = float(_creativity_mapping[
                                 self.creativity_combo_box.currentText()])
-        tool_temperature = 0.1*temperature
+        tool_temperature = 0.01*temperature
 
         from napari_chatgpt.chat_server.chat_server import start_chat_server
         self.server = start_chat_server(self.viewer,

@@ -53,7 +53,9 @@ _instructions =\
 
 
 class NapariViewerQueryTool(NapariBaseTool):
-    """A tool for running python code in a REPL."""
+    """
+    A tool for querying the state of a napari viewer instance.
+    """
 
     name = "NapariViewerQueryTool"
     description = (

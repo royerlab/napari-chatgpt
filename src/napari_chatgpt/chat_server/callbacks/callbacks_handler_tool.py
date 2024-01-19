@@ -84,6 +84,10 @@ class ToolCallbackHandler(BaseCallbackHandler):
         if output.startswith('Error:') or 'Failure' in output:
             resp = ChatResponse(sender="agent", message=output, type="error")
             run_async(self.websocket.send_json, resp.dict())
+        else:
+            resp = ChatResponse(sender="agent", message=output, type="tool_result")
+            run_async(self.websocket.send_json, resp.dict())
+
 
     def on_tool_error(
             self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any

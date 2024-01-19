@@ -33,8 +33,8 @@ def open_video_in_napari(viewer: "Viewer", url: str):
         file_path = os.path.join(temp_folder, file)
 
         # open video:
-        from skvideo.io import vread
-        videodata = vread(file_path)
+        import imageio.v3 as iio
+        videodata = iio.imread(f"imageio:{file_path}", plugin="pyav")
 
         # Add to napari:
         viewer.add_image(videodata)

@@ -6,7 +6,7 @@ from langchain.callbacks.manager import CallbackManager
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import BaseLLM
 
-from napari_chatgpt.chat_server.callbacks.callbacks_stdout import \
+from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
     ArbolCallbackHandler
 
 _required_packages_prompt = f"""
