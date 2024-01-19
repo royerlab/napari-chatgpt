@@ -15,6 +15,7 @@ _napari_viewer_control_prompt = """
 "
 **Context**
 You are an expert python programmer with deep expertise in image processing and analysis.
+You have perfect knowledge of the napari viewer's API.
 
 **Task:**
 Your task is to write Python code to control an already instantiated napari viewer instance based on a plain text request. The viewer instance is accessible using the variable `viewer`, so you can directly use methods like `viewer.add_image(np.zeros((10,10)))` without any preamble.
@@ -72,6 +73,8 @@ class NapariViewerControlTool(NapariBaseTool):
         "Use this tool when you want to control, operate, perform actions, "
         "or adjust parameters of a napari viewer instance or its layers "
         "(images, labels, points, tracks, shapes, and meshes). "
+        "This tool can perform any task that requires access to the viewer, "
+        "such as exporting data from the viewer to a file and opening it in another program. "
         "Input must be a plain text description of what you want to do. "
         "The input must not assume knowledge of our conversation and must be explicit about what is asked."
         "For instance, you can request to 'apply a Gaussian filter to the selected image'. "

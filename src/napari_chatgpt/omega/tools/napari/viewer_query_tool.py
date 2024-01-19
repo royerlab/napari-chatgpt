@@ -13,6 +13,7 @@ _napari_viewer_query_prompt = """
 "
 **Context**
 You are an expert python programmer with deep expertise in image processing and analysis.
+You have perfect knowledge of the napari viewer's API.
 
 **Task:**
 Your task is to write Python code that can query an already instantiated napari viewer instance based on a plain text request. The code should be able to perform various operations such as returning information about the state of the viewer, the layers present, the dtype or shape of an image, and analyzing the content of different layers. For example, you can count the number of segments in a labels layer using the np.unique function, retrieve characteristics of individual segments like centroid coordinates, area/volume, or return statistics about the shape, area/volume, and positions of segments. You may also collect diverse measurements and statistics about segments in a labels layer.
@@ -61,6 +62,7 @@ class NapariViewerQueryTool(NapariBaseTool):
         "Input must be a clear plain text description of what you want to know. "
         "The input must not assume knowledge of our conversation and must be explicit about what is asked. "
         "For instance, you can request to 'list all layers in the viewer'. "
+        "This tool is best suited for requests that allow for a short answer. "
         "Do NOT include code in your input."
     )
     prompt = _napari_viewer_query_prompt
