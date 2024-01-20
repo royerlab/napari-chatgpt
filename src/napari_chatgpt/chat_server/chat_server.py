@@ -16,21 +16,24 @@ from langchain.schema import get_buffer_string, BaseMemory
 from starlette.staticfiles import StaticFiles
 from uvicorn import Config, Server
 
+from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
+    ArbolCallbackHandler
 from napari_chatgpt.chat_server.callbacks.callbacks_handle_chat import \
     ChatCallbackHandler
 from napari_chatgpt.chat_server.callbacks.callbacks_handler_tool import \
     ToolCallbackHandler
-from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
-    ArbolCallbackHandler
 from napari_chatgpt.chat_server.chat_response import ChatResponse
 from napari_chatgpt.llm.llms import instantiate_LLMs
 from napari_chatgpt.omega.memory.memory import OmegaMemory
 from napari_chatgpt.omega.napari_bridge import NapariBridge
+from napari_chatgpt.omega.omega_agent.OpenAIFunctionsOmegaAgent import \
+    set_viewer_info
 from napari_chatgpt.omega.omega_init import initialize_omega_agent
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
 from napari_chatgpt.utils.openai.default_model import \
     get_default_openai_model_name
 from napari_chatgpt.utils.python.installed_packages import is_package_installed
+
 
 class NapariChatServer:
     def __init__(self,
@@ -167,11 +170,12 @@ class NapariChatServer:
                                                   type="start")
                         await websocket.send_json(start_resp.dict())
 
-                        # get napari viewer state and description:
-                        # viewer_description = self.napari_bridge.get_viewer_description()
+                        # get napari viewer info::
+                        viewer_info = self.napari_bridge.get_viewer_info()
+                        set_viewer_info(viewer_info)
 
                         # call LLM:
-                        result = await agent_chain.acall(inputs=question)
+                        result = await agent_chain.acall(question)
 
                         aprint(
                             f"Agent response:\n{result['chat_history'][-1]}\n\n")

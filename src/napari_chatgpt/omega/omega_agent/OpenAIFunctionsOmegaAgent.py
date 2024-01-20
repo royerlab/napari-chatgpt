@@ -1,67 +1,70 @@
 """Module implements an agent that uses OpenAI's APIs function enabled API."""
-from typing import Any, List, Optional, Sequence, Tuple, Union
+from typing import Any, List, Tuple, Union
 
-from langchain_core.agents import AgentAction, AgentFinish
-from langchain_core.language_models import BaseLanguageModel
-from langchain_core.messages import (
-    BaseMessage,
-    SystemMessage,
-)
-from langchain_core.prompts import BasePromptTemplate
-from langchain_core.prompts.chat import (
-    BaseMessagePromptTemplate,
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    MessagesPlaceholder,
-)
-from langchain_core.pydantic_v1 import root_validator
-from langchain_core.tools import BaseTool
-
-from langchain.agents import BaseSingleActionAgent, OpenAIFunctionsAgent
+from langchain.agents import OpenAIFunctionsAgent
 from langchain.agents.format_scratchpad.openai_functions import (
     format_to_openai_function_messages,
 )
 from langchain.agents.output_parsers.openai_functions import (
     OpenAIFunctionsAgentOutputParser,
 )
-from langchain.callbacks.base import BaseCallbackManager
 from langchain.callbacks.manager import Callbacks
-from langchain.tools.render import format_tool_to_openai_function
+from langchain_core.agents import AgentAction, AgentFinish
+from langchain_core.messages import (
+    SystemMessage,
+)
 
+# global Variable to exchange information with the viewer:
+_viewer_info = None
+
+def set_viewer_info(viewer_info):
+    global _viewer_info
+    _viewer_info = viewer_info
 
 class OpenAIFunctionsOmegaAgent(OpenAIFunctionsAgent):
 
-    @classmethod
-    def create_prompt(
-        cls,
-        system_message: Optional[SystemMessage] = SystemMessage(
-            content="You are a helpful AI assistant."
-        ),
-        extra_prompt_messages: Optional[List[BaseMessagePromptTemplate]] = None,
-    ) -> BasePromptTemplate:
-        """Create prompt for this agent.
+    # Convenience class to override some features of the OpenAIFunctionsAgent
+
+    async def aplan(
+            self,
+            intermediate_steps: List[Tuple[AgentAction, str]],
+            callbacks: Callbacks = None,
+            **kwargs: Any,
+    ) -> Union[AgentAction, AgentFinish]:
+        """Given input, decided what to do.
 
         Args:
-            system_message: Message to use as the system message that will be the
-                first in the prompt.
-            extra_prompt_messages: Prompt messages that will be placed between the
-                system message and the new human input.
+            intermediate_steps: Steps the LLM has taken to date,
+                along with observations
+            **kwargs: User inputs.
 
         Returns:
-            A prompt template to pass into this agent.
+            Action specifying what tool to use.
         """
-        _prompts = extra_prompt_messages or []
-        messages: List[Union[BaseMessagePromptTemplate, BaseMessage]]
-        if system_message:
-            messages = [system_message]
-        else:
-            messages = []
+        agent_scratchpad = format_to_openai_function_messages(
+            intermediate_steps)
+        selected_inputs = {
+            k: kwargs[k] for k in self.prompt.input_variables if
+            k != "agent_scratchpad"
+        }
+        full_inputs = dict(**selected_inputs, agent_scratchpad=agent_scratchpad)
+        prompt = self.prompt.format_prompt(**full_inputs)
+        messages = prompt.to_messages()
 
-        messages.extend(
-            [
-                *_prompts,
-                HumanMessagePromptTemplate.from_template("{input}"),
-                MessagesPlaceholder(variable_name="agent_scratchpad"),
-            ]
+        # Add viewer info to the messages:
+        global _viewer_info
+        if _viewer_info:
+            messages.insert(-1, SystemMessage(
+                content="For reference, below is information about the napari viewer instance that is available to some of the tools: \n" + _viewer_info,
+                additional_kwargs=dict(
+                    system_message_type="viewer_info"
+                )
+            ))
+
+        predicted_message = await self.llm.apredict_messages(
+            messages, functions=self.functions, callbacks=callbacks
         )
-        return ChatPromptTemplate(messages=messages)
+        agent_decision = OpenAIFunctionsAgentOutputParser._parse_ai_message(
+            predicted_message
+        )
+        return agent_decision

@@ -172,6 +172,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
             callback_manager=chat_callback_manager,
             extra_prompt_messages=extra_prompt_messages
         )
+
     else:
 
         # Import default ReAct Agent class:

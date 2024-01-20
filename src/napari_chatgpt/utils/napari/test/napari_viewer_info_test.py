@@ -2,15 +2,14 @@ import napari
 import numpy
 from arbol import aprint
 from skimage import data
-
-from napari_chatgpt.utils.napari.napari_viewer_info import \
-    get_viewer_layers_info
-import napari
-from skimage import data
 from skimage.filters import threshold_otsu
-from skimage.segmentation import clear_border
 from skimage.measure import label
 from skimage.morphology import closing, square, remove_small_objects
+from skimage.segmentation import clear_border
+
+from napari_chatgpt.utils.napari.napari_viewer_info import \
+    get_viewer_info
+
 
 def test_napari_viewer_info():
 
@@ -99,7 +98,7 @@ def test_napari_viewer_info():
     vectors_layer = viewer.add_vectors(vectors, edge_width=3)
 
     # GET LAYER INFO FROM VIEWER:
-    layers_info = get_viewer_layers_info(viewer)
+    layers_info = get_viewer_info(viewer)
 
     aprint(layers_info)
 
