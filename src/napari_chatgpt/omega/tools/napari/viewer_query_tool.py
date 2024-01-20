@@ -19,15 +19,19 @@ You have perfect knowledge of the napari viewer's API.
 Your task is to write Python code that can query an already instantiated napari viewer instance based on a plain text request. The code should be able to perform various operations such as returning information about the state of the viewer, the layers present, the dtype or shape of an image, and analyzing the content of different layers. For example, you can count the number of segments in a labels layer using the np.unique function, retrieve characteristics of individual segments like centroid coordinates, area/volume, or return statistics about the shape, area/volume, and positions of segments. You may also collect diverse measurements and statistics about segments in a labels layer.
 To answer the request, you need to implement a Python function called `query(viewer)` which takes the napari viewer as a parameter and returns a string. This string will be the answer to the request.
 
-**Request:**
-{input}
-
+**Instructions:**
 {instructions}
+
+- Make sure we have the right answer!
+- Write the `query(viewer) -> str` function that takes the viewer as a parameter and returns the response.
 
 {last_generated_code}
 
-Make sure we have the right answer!
-Write the `query(viewer) -> str` function that takes the viewer as a parameter and returns the response.
+**ViewerInformation:**
+{viewer_information}
+
+**Request:**
+{input}
 
 **Answer in markdown:**
 """

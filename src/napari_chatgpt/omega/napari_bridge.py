@@ -12,6 +12,16 @@ from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
 from napari_chatgpt.utils.napari.napari_viewer_info import get_viewer_info
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 
+# global Variable to exchange information with the viewer:
+_viewer_info = None
+
+def _set_viewer_info(viewer_info):
+    global _viewer_info
+    _viewer_info = viewer_info
+
+def _get_viewer_info():
+    global _viewer_info
+    return _viewer_info
 
 class NapariBridge():
 

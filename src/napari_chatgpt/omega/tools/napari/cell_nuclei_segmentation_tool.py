@@ -2,7 +2,6 @@
 import sys
 import traceback
 from functools import cache
-from pathlib import Path
 
 from arbol import asection, aprint
 from napari import Viewer
@@ -66,6 +65,7 @@ StarDist is better for segmenting nearly convex nuclei whereas Cellpose is bette
 StarDist and Cellpose are deep learning based methods that only work in 2D and are better for small images. 
 Classic segmentation is a simple thresholding method that can be used as a baseline and works in 3D and more dimensions.
 
+**Parameters:**
 Here is an explanation of the parameters:
 
 ```docstring_fragment
@@ -147,14 +147,20 @@ All functions provided above return the segmented image as a labels array.
 When calling these functions, do not set optional parameters unless you have a good reason to change them.
 Use either 'cellpose_segmentation()', 'stardist_segmentation()' or 'classic_segmentation()' directly without importing or implementing these functions, they will be provided to you by the system.
 
+**Instructions:**
 {instructions}
+
+- Answer with a single function 'segment(viewer)->ArrayLike' that takes the viewer and returns the segmented image.
 
 {last_generated_code}
 
-Request: 
+**ViewerInformation:**
+{viewer_information}
+
+**Request:** 
 {input}
 
-Answer in markdown with a single function 'segment(viewer)->ArrayLike' that takes the viewer and returns the segmented image.
+**Answer in markdown:**
 """
 
 _instructions = \

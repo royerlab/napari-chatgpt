@@ -21,14 +21,18 @@ You have perfect knowledge of the napari viewer's API.
 Your task is to write arbitrary safe Python code that uses an already instantiated napari viewer instance based on a plain text request. 
 The viewer instance is accessible using the variable `viewer`, so you can directly use methods like `viewer.add_image(np.zeros((10,10)))` without any preamble.
 
-**Request:**
-{input}
-
+**Instructions:**
 {instructions}
+
+- Make sure that the code is correct!
 
 {last_generated_code}
 
-Make sure that the code is correct!
+**ViewerInformation:**
+{viewer_information}
+
+**Request:**
+{input}
 
 **Answer in markdown:**
 """

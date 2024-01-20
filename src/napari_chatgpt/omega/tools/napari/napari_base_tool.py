@@ -14,6 +14,7 @@ from langchain.schema.language_model import BaseLanguageModel
 from napari import Viewer
 from pydantic import Field
 
+from napari_chatgpt.omega.napari_bridge import _get_viewer_info
 from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 from napari_chatgpt.utils.python.fix_bad_fun_calls import \
@@ -120,6 +121,7 @@ class NapariBaseTool(AsyncBaseTool):
             variables = {"input": query,
                          "instructions": instructions,
                          "last_generated_code": last_generated_code,
+                         "viewer_information": "For reference, below is information about the current state of the napari viewer: \n"+_get_viewer_info()
                          }
 
             # call LLM:
@@ -162,7 +164,8 @@ class NapariBaseTool(AsyncBaseTool):
         prompt_template = PromptTemplate(template=self.prompt,
                                          input_variables=["input",
                                                           "last_generated_code",
-                                                          "instructions"])
+                                                          "instructions",
+                                                          "viewer_information"])
 
         return prompt_template
 
@@ -217,34 +220,4 @@ class NapariBaseTool(AsyncBaseTool):
 
 
 
-def _generate_viewer_info(viewer):
-    layer_info = '**Napari viewer information:**'
-    layer_info += "| Layer Type | Properties |\n| --- | --- |\n"
-
-    for layer in viewer.layers:
-        properties = ""
-
-        # Layer type
-        properties += f"| {layer.__class__.__name__} | "
-
-        # Image layer
-        if isinstance(layer, napari.layers.Image):
-            properties += f"dtype: {layer.data.dtype}, "
-            properties += f"shape: {layer.data.shape}, "
-            properties += f"min: {numpy.min(layer.data)}, "
-            properties += f"max: {numpy.max(layer.data)} "
-
-        # Label layer
-        elif isinstance(layer, napari.layers.Labels):
-            properties += f"Number of labels: {len(layer.data)} "
-
-        # # Other layer types
-        # else:
-        #     # Add relevant and similarly useful information for other layer types
-        #     properties += "Additional information goes here "
-
-        properties += "|\n"
-        layer_info += properties
-
-    return layer_info
 

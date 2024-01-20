@@ -25,9 +25,8 @@ from napari_chatgpt.chat_server.callbacks.callbacks_handler_tool import \
 from napari_chatgpt.chat_server.chat_response import ChatResponse
 from napari_chatgpt.llm.llms import instantiate_LLMs
 from napari_chatgpt.omega.memory.memory import OmegaMemory
-from napari_chatgpt.omega.napari_bridge import NapariBridge
-from napari_chatgpt.omega.omega_agent.OpenAIFunctionsOmegaAgent import \
-    set_viewer_info
+from napari_chatgpt.omega.napari_bridge import NapariBridge, _set_viewer_info
+
 from napari_chatgpt.omega.omega_init import initialize_omega_agent
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
 from napari_chatgpt.utils.openai.default_model import \
@@ -172,7 +171,7 @@ class NapariChatServer:
 
                         # get napari viewer info::
                         viewer_info = self.napari_bridge.get_viewer_info()
-                        set_viewer_info(viewer_info)
+                        _set_viewer_info(viewer_info)
 
                         # call LLM:
                         result = await agent_chain.acall(question)

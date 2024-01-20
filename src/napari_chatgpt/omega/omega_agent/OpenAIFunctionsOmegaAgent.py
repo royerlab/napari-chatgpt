@@ -14,12 +14,8 @@ from langchain_core.messages import (
     SystemMessage,
 )
 
-# global Variable to exchange information with the viewer:
-_viewer_info = None
+from napari_chatgpt.omega.napari_bridge import _get_viewer_info
 
-def set_viewer_info(viewer_info):
-    global _viewer_info
-    _viewer_info = viewer_info
 
 class OpenAIFunctionsOmegaAgent(OpenAIFunctionsAgent):
 
@@ -52,10 +48,10 @@ class OpenAIFunctionsOmegaAgent(OpenAIFunctionsAgent):
         messages = prompt.to_messages()
 
         # Add viewer info to the messages:
-        global _viewer_info
-        if _viewer_info:
+        viewer_info = _get_viewer_info()
+        if viewer_info:
             messages.insert(-1, SystemMessage(
-                content="For reference, below is information about the napari viewer instance that is available to some of the tools: \n" + _viewer_info,
+                content="For reference, below is information about the napari viewer instance that is available to some of the tools: \n" + viewer_info,
                 additional_kwargs=dict(
                     system_message_type="viewer_info"
                 )

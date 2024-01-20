@@ -19,14 +19,17 @@ Your task is to competently write image processing and image analysis functions 
 - The functions should work on 2D and 3D images, and ideally on images of any number of dimensions (nD), unless the request explicitly specifies the number of dimensions.
 - The functions should perform all the required tasks precisely as requested, without adding any extra or unnecessary functionality.
 
+**Instructions:**
 {instructions}
 
+- Make sure that the code is correct! 
 {last_generated_code}
+
+**ViewerInformation:**
+{viewer_information}
 
 **Request:**
 {input}
-
-Make sure that the code is correct!
 
 **Answer in markdown:**
 """
