@@ -1,11 +1,9 @@
-"""A tool for running python code in a REPL."""
+
 import sys
 from pathlib import Path
 from queue import Queue
 from typing import Union, Optional
 
-import napari
-import numpy
 from arbol import aprint, asection
 from langchain import LLMChain, PromptTemplate
 from langchain.chat_models.base import BaseChatModel
@@ -16,13 +14,13 @@ from pydantic import Field
 
 from napari_chatgpt.omega.napari_bridge import _get_viewer_info
 from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
+from napari_chatgpt.omega.tools.instructions import \
+    omega_generic_codegen_instructions
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 from napari_chatgpt.utils.python.fix_bad_fun_calls import \
     fix_all_bad_function_calls
 from napari_chatgpt.utils.python.installed_packages import \
     installed_package_list
-from napari_chatgpt.omega.tools.instructions import \
-    omega_generic_codegen_instructions
 from napari_chatgpt.utils.python.missing_packages import required_packages
 from napari_chatgpt.utils.python.pip_utils import pip_install
 from napari_chatgpt.utils.python.required_imports import required_imports

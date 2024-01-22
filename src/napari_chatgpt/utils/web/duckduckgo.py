@@ -1,5 +1,6 @@
 import traceback
 
+from arbol import asection, aprint
 from duckduckgo_search import DDGS
 
 from napari_chatgpt.utils.llm.summarizer import summarize
@@ -7,7 +8,8 @@ from napari_chatgpt.utils.python.pip_utils import pip_install_single_package
 
 # Make sure we have the latest version installed:
 try:
-    pip_install_single_package('duckduckgo_search', upgrade=True)
+    with asection("Installing the latest version of duckduckgo_search:"):
+        aprint(pip_install_single_package('duckduckgo_search', upgrade=True))
 except Exception as e:
     traceback.print_exc()
 

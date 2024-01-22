@@ -14,7 +14,8 @@ from napari_chatgpt.utils.python.fix_code_given_error import \
 _napari_viewer_control_prompt = """
 "
 **Context**
-You are an expert python programmer with deep expertise in image processing and analysis.
+You are an expert python programmer strong coding skills and deep expertise in image processing and analysis.
+You can solve all kinds of programming problems by writing high-quality python code.
 You have perfect knowledge of the napari viewer's API.
 
 **Task:**
@@ -22,8 +23,6 @@ Your task is to write Python code to control an already instantiated napari view
 
 **Instructions:**
 {instructions}
-
-- Make sure that the code is correct!
 
 {last_generated_code}
 
@@ -64,6 +63,7 @@ _instructions = \
 - Important: At the end of your code add a print statement that states clearly and concisely what has been, or not, achieved. 
 - Do not create a new instance of `napari.Viewer()`. Use the existing instance provided in the variable `viewer`.
 - Ensure that your calls to the viewer's methods are correct.
+- Make sure that the code is correct!
 """
 
 _code_prefix = \

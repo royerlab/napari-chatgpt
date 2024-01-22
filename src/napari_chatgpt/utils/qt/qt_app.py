@@ -1,7 +1,8 @@
 import sys
+from typing import Callable
 
 from PyQt5.QtWidgets import QApplication
-
+from PyQt5.QtCore import QTimer
 
 def get_or_create_qt_app():
     # Check if there is already a QApplication instance running
@@ -13,3 +14,9 @@ def get_or_create_qt_app():
         app = QApplication.instance()
 
     return app
+
+
+
+
+def run_on_main_thread(func: Callable):
+    QTimer.singleShot(0, func)

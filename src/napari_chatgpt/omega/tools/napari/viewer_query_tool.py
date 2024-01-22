@@ -22,9 +22,6 @@ To answer the request, you need to implement a Python function called `query(vie
 **Instructions:**
 {instructions}
 
-- Make sure we have the right answer!
-- Write the `query(viewer) -> str` function that takes the viewer as a parameter and returns the response.
-
 {last_generated_code}
 
 **ViewerInformation:**
@@ -53,6 +50,10 @@ _instructions =\
 - Therefore, DO NOT use 'napari.Viewer()' or 'gui_qt():' in your code.
 - It is important NOT to create a new instance of a napari viewer. Use the one provided in the variable 'viewer'.
 - Ensure that your calls to the viewer are correct.
+- Make sure we have the right answer!
+
+**Important Instructions:**
+- Write the `query(viewer) -> str` function that takes the viewer as a parameter and returns the response.
 """
 
 

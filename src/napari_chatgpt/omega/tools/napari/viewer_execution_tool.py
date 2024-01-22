@@ -24,8 +24,6 @@ The viewer instance is accessible using the variable `viewer`, so you can direct
 **Instructions:**
 {instructions}
 
-- Make sure that the code is correct!
-
 {last_generated_code}
 
 **ViewerInformation:**
@@ -65,6 +63,7 @@ _instructions = \
 - Important: At the end of your code add a print statement that states clearly and concisely what has been, or not, achieved. 
 - Do not create a new instance of `napari.Viewer()`. Use the existing instance provided in the variable `viewer`.
 - Ensure that your calls to the viewer's methods are correct.
+- Make sure that the code is correct!
 """
 
 _code_prefix = \

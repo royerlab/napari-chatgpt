@@ -170,12 +170,13 @@ class ImageDenoisingTool(NapariBaseTool):
 @cache
 def install_aydin():
     with asection(f"Installing Aydin if not already present."):
+        message = ''
         if platform.system() == 'Darwin':
             if 'arm64' in sys.platform.uname():
                 aprint('Cannot install Aydin on M1/M2 macs!')
                 raise NotImplementedError('Cannot install Aydin on M1/M2 macs!')
 
-        pip_install(['aydin'])
+        message += pip_install(['aydin'])
 
 
 

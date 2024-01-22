@@ -252,16 +252,20 @@ class CellNucleiSegmentationTool(NapariBaseTool):
 
 
 @cache
-def stardist_package_massaging():
+def stardist_package_massaging() -> str:
+    message = ''
     if sys.platform == 'darwin':
         with asection(f"Stardist requires special treatment on M1"):
             # purge_tensorflow()
             # conda_uninstall(['numpy', 'stardist'])
             # pip_uninstall(['numpy', 'stardist'])
             # conda_install(['tensorflow-deps'], channel='apple')
-            pip_install(['tensorflow-macos', 'tensorflow-metal'])
-            pip_install(['stardist'])
+            message += pip_install(['tensorflow-macos', 'tensorflow-metal'])
+            message += pip_install(['stardist'])
             #  and 'arm64' in sys.version.lower()
+
+            return message
+
 
 
 def purge_tensorflow():

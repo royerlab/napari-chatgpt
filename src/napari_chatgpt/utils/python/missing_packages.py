@@ -26,7 +26,7 @@ Make sure we have the right answer.
 
 ```python
 {'{code}'}
-```python
+```
 
 
 **Answer:**

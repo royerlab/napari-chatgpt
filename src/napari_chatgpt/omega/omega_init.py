@@ -40,6 +40,7 @@ from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
 from napari_chatgpt.omega.tools.special.functions_info_tool import \
     PythonFunctionsInfoTool
 from napari_chatgpt.omega.tools.special.human_input_tool import HumanInputTool
+from napari_chatgpt.omega.tools.special.pip_install_tool import PipInstallTool
 from napari_chatgpt.omega.tools.special.python_repl import \
     PythonCodeExecutionTool
 from napari_chatgpt.utils.omega_plugins.discover_omega_plugins import \
@@ -84,8 +85,8 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
              PythonFunctionsInfoTool(callback_manager=tool_callback_manager),
              ExceptionCatcherTool(callback_manager=tool_callback_manager),
              # FileDownloadTool(),
-             PythonCodeExecutionTool(callback_manager=tool_callback_manager)
-             ]
+             PythonCodeExecutionTool(callback_manager=tool_callback_manager),
+             PipInstallTool(callback_manager=tool_callback_manager)]
 
     # Adding the human input tool if required:
     if has_human_input_tool:
