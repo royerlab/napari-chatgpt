@@ -29,6 +29,7 @@ from napari_chatgpt.omega.napari_bridge import NapariBridge, _set_viewer_info
 
 from napari_chatgpt.omega.omega_init import initialize_omega_agent
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
+from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
 from napari_chatgpt.utils.openai.default_model import \
     get_default_openai_model_name
 from napari_chatgpt.utils.python.installed_packages import is_package_installed
@@ -89,12 +90,17 @@ class NapariChatServer:
         async def websocket_endpoint(websocket: WebSocket):
             await websocket.accept()
 
+            # Notebook recording:
+            notebook = JupyterNotebookFile()
+
             # Chat callback handler:
-            chat_callback_handler = ChatCallbackHandler(websocket,
+            chat_callback_handler = ChatCallbackHandler(websocket=websocket,
+                                                        notebook=notebook,
                                                         verbose=verbose)
 
             # Tool callback handler:
-            tool_callback_handler = ToolCallbackHandler(websocket,
+            tool_callback_handler = ToolCallbackHandler(websocket=websocket,
+                                                        notebook=notebook,
                                                         verbose=verbose)
 
             # Memory callback handler:
@@ -161,6 +167,7 @@ class NapariChatServer:
                         resp = ChatResponse(sender="user",
                                             message=question)
                         await websocket.send_json(resp.dict())
+                        notebook.add_markdown_cell("### User:\n" + question)
 
                         aprint(f"Human Question/Request:\n{question}\n\n")
 
@@ -184,6 +191,9 @@ class NapariChatServer:
                                                 message=result['output'],
                                                 type="final")
                         await websocket.send_json(end_resp.dict())
+                        notebook.add_markdown_cell("### Agent:\n" + result['output'])
+
+                        notebook.write(file_path='notebook.ipynb')
 
                         current_chat_history = get_buffer_string(
                             result['chat_history'])

@@ -5,10 +5,11 @@ from queue import Queue
 from typing import Union, Optional
 
 from arbol import aprint, asection
-from langchain import LLMChain, PromptTemplate
+from langchain.chains import LLMChain
 from langchain.chat_models.base import BaseChatModel
 from langchain.llms.base import LLM
 from langchain.schema.language_model import BaseLanguageModel
+from langchain_core.prompts import PromptTemplate
 from napari import Viewer
 from pydantic import Field
 
