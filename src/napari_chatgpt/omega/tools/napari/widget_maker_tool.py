@@ -19,14 +19,17 @@ Your task is to competently write image processing and image analysis functions 
 - The functions should work on 2D and 3D images, and ideally on images of any number of dimensions (nD), unless the request explicitly specifies the number of dimensions.
 - The functions should perform all the required tasks precisely as requested, without adding any extra or unnecessary functionality.
 
+**Instructions:**
 {instructions}
 
+- Make sure that the code is correct! 
 {last_generated_code}
+
+**ViewerInformation:**
+{viewer_information}
 
 **Request:**
 {input}
-
-Make sure that the code is correct!
 
 **Answer in markdown:**
 """
@@ -61,7 +64,7 @@ _instructions = \
 - Do NOT expose *args and **kwargs as widget function parameters.
 - Pay attention to the data types required by the library functions you use, for example: convert a float to an int before passing to a function that requires an int.
 
-** Instructions for usage of delegated functions:**
+**Instructions for usage of delegated functions:**
 - If you need to write and call an auxiliary function, then this auxiliary function MUST be defined within the widget function.
 
 **Instructions on how to choose the function parameter types:**

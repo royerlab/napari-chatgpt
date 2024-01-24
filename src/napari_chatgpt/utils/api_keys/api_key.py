@@ -11,6 +11,19 @@ __api_key_names['GoogleBard'] = 'BARD_KEY'
 
 
 def set_api_key(api_name: str) -> bool:
+    """
+    Set an API key as an environment variable.
+
+    Parameters
+    ----------
+    api_name : str
+        Name of the API key to set.
+
+    Returns
+    -------
+    bool
+        True if the API key was set, False otherwise.
+    """
 
     with asection(f"Setting API key: '{api_name}': "):
 
@@ -18,7 +31,7 @@ def set_api_key(api_name: str) -> bool:
         api_key_name = __api_key_names[api_name]
         aprint(f"API key name: '{api_key_name}'")
 
-        # If key is already present, no need to do anthing:
+        # If key is already present, no need to do anything:
         if is_api_key_available(api_name):
             aprint(f"API key is already set as an environment variable!")
             return True

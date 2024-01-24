@@ -9,7 +9,7 @@ from napari_chatgpt.utils.napari.open_in_napari import open_in_napari
 
 
 class NapariFileOpenTool(NapariBaseTool):
-    """A tool for running python code in a REPL."""
+    """A tool for opening image files in napari."""
 
     name = "NapariFileOpenTool"
     description = (

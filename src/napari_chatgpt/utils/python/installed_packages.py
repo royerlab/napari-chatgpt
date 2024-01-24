@@ -72,12 +72,33 @@ def conda_list(version: bool = False):
         return []
 
 
+
+import traceback
+from pkgutil import find_loader
+from importlib.metadata import version, PackageNotFoundError
+
 def is_package_installed(package_name: str):
     try:
-        from pkgutil import find_loader
+        # Extract package name and version if provided
+        version_required = None
+        if '==' in package_name:
+            package_name, version_required = package_name.split('==')
+
+        # Check if the package is installed
         loader = find_loader(package_name)
-        return loader is not None
+        if loader is None:
+            return False
+
+        # If a version was provided, check it
+        if version_required:
+            installed_version = version(package_name)
+            return installed_version == version_required
+
+        return True
+
+    except PackageNotFoundError:
+        # The package is not installed
+        return False
     except Exception as e:
         traceback.print_exc()
-        # If for whatever reason the above fails, we just return false:
         return False

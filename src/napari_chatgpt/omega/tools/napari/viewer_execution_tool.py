@@ -11,15 +11,15 @@ from napari_chatgpt.utils.python.exception_description import \
 from napari_chatgpt.utils.python.fix_code_given_error import \
     fix_code_given_error_message
 
-_napari_viewer_control_prompt = """
+_napari_viewer_execution_prompt = """
 "
 **Context**
-You are an expert python programmer strong coding skills and deep expertise in image processing and analysis.
-You can solve all kinds of programming problems by writing high-quality python code.
+You are an expert python programmer with deep expertise in image processing and analysis.
 You have perfect knowledge of the napari viewer's API.
 
 **Task:**
-Your task is to write Python code to control an already instantiated napari viewer instance based on a plain text request. The viewer instance is accessible using the variable `viewer`, so you can directly use methods like `viewer.add_image(np.zeros((10,10)))` without any preamble.
+Your task is to write arbitrary safe Python code that uses an already instantiated napari viewer instance based on a plain text request. 
+The viewer instance is accessible using the variable `viewer`, so you can directly use methods like `viewer.add_image(np.zeros((10,10)))` without any preamble.
 
 **Instructions:**
 {instructions}
@@ -50,17 +50,17 @@ Your task is to write Python code to control an already instantiated napari view
 
 _instructions = \
 """
-**Instructions specific to controlling the viewer:**
+**Instructions specific to executing code that uses the viewer:**
 - If you need to add images, labels, points, shapes, surfaces, tracks, vectors, or any other type of layer that is not stored as an array, you may need additional code to read files from disk or download from a URL.
 - Unless explicitly stated in the request, the result of operations on layers should be a new layer in napari and should not modify the existing layers.
 - Convert image arrays to the float type before processing when necessary. 
 - Intermediate or local image arrays should be of type float. Constants like `np.full()`, `np.ones()`, `np.zeros()`, etc., should be floats (e.g., 1.0).
 - Resulting images should be of type float except for RGB images and labels layers.
-- For RGB images check the range of the R, G, and B values: if the max value is 255 use that in your calculations.
 - If the request mentions "this," "that," or "the image/layer," it most likely refers to the last added image/layer.
 - If you are unsure about the layer being referred to, assume it is the last layer of the type most appropriate for the request.
-- If the input mentions the 'selected image', it most likely refers to the active or selected image layer.
+- If the request mentions the 'selected image', it most likely refers to the active or selected image layer.
 - To get the selected layer use: viewer.layers.selection.active
+- If you are asked to write a file to disk and no location or filename is specified, you can use the system's desktop and a default filename.
 - Only write safe code that is not likely to cause damage to the computer or its existing files, avoid deleting files.
 - Important: At the end of your code add a print statement that states clearly and concisely what has been, or not, achieved. 
 - Do not create a new instance of `napari.Viewer()`. Use the existing instance provided in the variable `viewer`.
@@ -73,21 +73,18 @@ _code_prefix = \
 import napari
 """
 
-class NapariViewerControlTool(NapariBaseTool):
-    """
-    A tool for controlling a napari viewer instance.
-    """
+class NapariViewerExecutionTool(NapariBaseTool):
+    """A tool for running python code in a REPL."""
 
-    name = "NapariViewerControlTool"
+    name = "NapariViewerExecutionTool"
     description = (
-        "Use this tool when you want to control or adjust parameters or settings of the napari viewer, perform actions on its layers "
-        "(images, labels, points, tracks, shapes, and meshes). "
+        "Use this tool when you need to perform tasks that require access to the napari viewer instance and its layers. "
         "This tool can perform any task that requires access to the viewer, its layers, and data contained in the layers. "
         "The input must be a plain text description of what you want to do, it should not contain code, it must not assume knowledge of our conversation, and it must be explicit about what is asked."
-        "For instance, you can request to 'apply a Gaussian filter to the selected image', or 'max project the image layer `volume` along the 3rd dimension'. "
+        "For example, you can ask to 'save the selected image to a file', or 'write in a CSV file the list of segments in layer `segmented` ', or 'open a saved image with teh system viewer'. "
         "This tool returns a message that summarises what was done. "
     )
-    prompt = _napari_viewer_control_prompt
+    prompt = _napari_viewer_execution_prompt
     instructions = _instructions
     code_prefix = _code_prefix
     save_last_generated_code = False

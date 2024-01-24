@@ -16,26 +16,28 @@ from langchain.schema import get_buffer_string, BaseMemory
 from starlette.staticfiles import StaticFiles
 from uvicorn import Config, Server
 
+from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
+    ArbolCallbackHandler
 from napari_chatgpt.chat_server.callbacks.callbacks_handle_chat import \
     ChatCallbackHandler
 from napari_chatgpt.chat_server.callbacks.callbacks_handler_tool import \
     ToolCallbackHandler
-from napari_chatgpt.chat_server.callbacks.callbacks_stdout import \
-    ArbolCallbackHandler
 from napari_chatgpt.chat_server.chat_response import ChatResponse
 from napari_chatgpt.llm.llms import instantiate_LLMs
 from napari_chatgpt.omega.memory.memory import OmegaMemory
-from napari_chatgpt.omega.napari_bridge import NapariBridge
+from napari_chatgpt.omega.napari_bridge import NapariBridge, _set_viewer_info
+
 from napari_chatgpt.omega.omega_init import initialize_omega_agent
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
-from napari_chatgpt.utils.download.gpt4all import get_gpt4all_model
+from napari_chatgpt.utils.openai.default_model import \
+    get_default_openai_model_name
 from napari_chatgpt.utils.python.installed_packages import is_package_installed
 
 
 class NapariChatServer:
     def __init__(self,
                  napari_bridge: NapariBridge,
-                 llm_model_name: str = 'gpt-3.5-turbo',
+                 llm_model_name: str = get_default_openai_model_name(),
                  temperature: float = 0.01,
                  tool_temperature: float = 0.01,
                  memory_type: str = 'standard',
@@ -167,8 +169,12 @@ class NapariChatServer:
                                                   type="start")
                         await websocket.send_json(start_resp.dict())
 
+                        # get napari viewer info::
+                        viewer_info = self.napari_bridge.get_viewer_info()
+                        _set_viewer_info(viewer_info)
+
                         # call LLM:
-                        result = await agent_chain.acall(inputs=question)
+                        result = await agent_chain.acall(question)
 
                         aprint(
                             f"Agent response:\n{result['chat_history'][-1]}\n\n")
@@ -217,7 +223,7 @@ class NapariChatServer:
 
 
 def start_chat_server(viewer: napari.Viewer = None,
-                      llm_model_name: str = 'gpt-3.5-turbo',
+                      llm_model_name: str = get_default_openai_model_name(),
                       temperature: float = 0.01,
                       tool_temperature: float = 0.01,
                       memory_type: str = 'standard',
@@ -238,12 +244,6 @@ def start_chat_server(viewer: napari.Viewer = None,
     # Set Anthropic key if necessary:
     if 'claude' in llm_model_name and is_package_installed('anthropic'):
         set_api_key('Anthropic')
-
-    # Download GPT4All model if necessary:
-    if 'ggml' in llm_model_name and is_package_installed('pygpt4all'):
-        # The first this is run it will download the file, afterwards
-        # it uses the downloaded file in ~/.gpt4all
-        get_gpt4all_model(llm_model_name)
 
     # Instantiates napari viewer:
     if not viewer:

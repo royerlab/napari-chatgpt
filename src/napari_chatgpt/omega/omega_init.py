@@ -10,15 +10,22 @@ from langchain.schema import BaseMemory
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import MessagesPlaceholder
 
+
 from napari_chatgpt.omega.omega_agent.prompts import SYSTEM, PERSONALITY
-from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation import \
+from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation_tool import \
     CellNucleiSegmentationTool
-from napari_chatgpt.omega.tools.napari.file_open_tool import NapariFileOpenTool
-from napari_chatgpt.omega.tools.napari.image_denoising import ImageDenoisingTool
+from napari_chatgpt.omega.tools.napari.file_open_tool import \
+        NapariFileOpenTool
+from napari_chatgpt.omega.tools.napari.image_denoising_tool import \
+    ImageDenoisingTool
 from napari_chatgpt.omega.tools.napari.viewer_control_tool import \
     NapariViewerControlTool
+from napari_chatgpt.omega.tools.napari.viewer_execution_tool import \
+    NapariViewerExecutionTool
 from napari_chatgpt.omega.tools.napari.viewer_query_tool import \
     NapariViewerQueryTool
+from napari_chatgpt.omega.tools.napari.viewer_vision_tool import \
+    NapariViewerVisionTool
 from napari_chatgpt.omega.tools.napari.widget_maker_tool import \
     NapariWidgetMakerTool
 from napari_chatgpt.omega.tools.napari_plugin_tool import \
@@ -33,10 +40,12 @@ from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
 from napari_chatgpt.omega.tools.special.functions_info_tool import \
     PythonFunctionsInfoTool
 from napari_chatgpt.omega.tools.special.human_input_tool import HumanInputTool
+from napari_chatgpt.omega.tools.special.pip_install_tool import PipInstallTool
 from napari_chatgpt.omega.tools.special.python_repl import \
     PythonCodeExecutionTool
 from napari_chatgpt.utils.omega_plugins.discover_omega_plugins import \
     discover_omega_tools
+from napari_chatgpt.utils.openai.gpt_vision import is_gpt_vision_available
 from napari_chatgpt.utils.system.is_apple_silicon import is_apple_silicon
 
 # Default verbosity to False:
@@ -76,8 +85,8 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
              PythonFunctionsInfoTool(callback_manager=tool_callback_manager),
              ExceptionCatcherTool(callback_manager=tool_callback_manager),
              # FileDownloadTool(),
-             PythonCodeExecutionTool(callback_manager=tool_callback_manager)
-             ]
+             PythonCodeExecutionTool(callback_manager=tool_callback_manager),
+             PipInstallTool(callback_manager=tool_callback_manager)]
 
     # Adding the human input tool if required:
     if has_human_input_tool:
@@ -100,6 +109,9 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         # Adding all napari tools:
         tools.append(NapariViewerControlTool(**kwargs, return_direct=False))
         tools.append(NapariViewerQueryTool(**kwargs, return_direct=False))
+        tools.append(NapariViewerExecutionTool(**kwargs, return_direct=False))
+        if is_gpt_vision_available():
+            tools.append(NapariViewerVisionTool(**kwargs, return_direct=False))
         tools.append(NapariWidgetMakerTool(**kwargs, return_direct=not autofix_widget))
         tools.append(NapariFileOpenTool(**kwargs))
         tools.append(WebImageSearchTool(**kwargs))
@@ -144,12 +156,13 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
     if 'gpt-' in llm_model_name:
 
         # Import OpenAI's functions agent class:
-        from langchain.agents import OpenAIFunctionsAgent
+        from napari_chatgpt.omega.omega_agent.OpenAIFunctionsOmegaAgent import \
+            OpenAIFunctionsOmegaAgent
 
         extra_prompt_messages = [MessagesPlaceholder(variable_name="chat_history")]
 
         # Instantiate the agent:
-        agent = OpenAIFunctionsAgent.from_llm_and_tools(
+        agent = OpenAIFunctionsOmegaAgent.from_llm_and_tools(
             llm=main_llm,
             tools=tools,
             system_message=SystemMessage(
@@ -160,13 +173,15 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
             callback_manager=chat_callback_manager,
             extra_prompt_messages=extra_prompt_messages
         )
+
     else:
 
         # Import default ReAct Agent class:
-        from langchain.agents import ConversationalChatAgent
+        from napari_chatgpt.omega.omega_agent.ConversationalChatOmegaAgent import \
+            ConversationalChatOmegaAgent
 
         # Instantiate the agent:
-        agent = ConversationalChatAgent.from_llm_and_tools(
+        agent = ConversationalChatOmegaAgent.from_llm_and_tools(
             llm=main_llm,
             tools=tools,
             PREFIX=PREFIX_,
@@ -185,6 +200,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         callback_manager=chat_callback_manager,
         max_iterations=5,
         early_stopping_method='generate',
+        handle_parsing_errors=True
     )
 
     return agent_executor

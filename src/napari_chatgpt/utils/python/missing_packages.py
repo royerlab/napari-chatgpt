@@ -6,8 +6,10 @@ from langchain.callbacks.manager import CallbackManager
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import BaseLLM
 
-from napari_chatgpt.chat_server.callbacks.callbacks_stdout import \
+from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
     ArbolCallbackHandler
+from napari_chatgpt.utils.openai.default_model import \
+    get_default_openai_model_name
 
 _required_packages_prompt = f"""
 **Context:**
@@ -24,7 +26,7 @@ Make sure we have the right answer.
 
 ```python
 {'{code}'}
-```python
+```
 
 
 **Answer:**
@@ -46,7 +48,7 @@ def required_packages(code: str,
         aprint(f'Input code:\n{code}')
 
         # Instantiates LLM if needed:
-        llm = llm or ChatOpenAI(model_name='gpt-3.5-turbo',
+        llm = llm or ChatOpenAI(model_name=get_default_openai_model_name(),
                                 temperature=0)
 
         # Make prompt template:

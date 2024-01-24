@@ -2,8 +2,6 @@ from arbol import aprint
 from langchain.callbacks.manager import AsyncCallbackManager
 
 
-
-
 def instantiate_LLMs(llm_model_name: str,
                      temperature: float,
                      tool_temperature: float,
@@ -54,7 +52,7 @@ def instantiate_LLMs(llm_model_name: str,
         elif '16k' in llm_model_name:
             max_token_limit = 16385
         elif 'gpt-4' in llm_model_name:
-            max_token_limit = 8,192
+            max_token_limit = 8192
         elif 'gpt-3.5-turbo-1106' in llm_model_name:
             max_token_limit = 16385
         elif 'gpt-3.5' in llm_model_name:

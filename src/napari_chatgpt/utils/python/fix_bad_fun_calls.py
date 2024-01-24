@@ -10,8 +10,10 @@ from langchain.callbacks.manager import CallbackManager
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import BaseLLM
 
-from napari_chatgpt.chat_server.callbacks.callbacks_stdout import \
+from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
     ArbolCallbackHandler
+from napari_chatgpt.utils.openai.default_model import \
+    get_default_openai_model_name
 from napari_chatgpt.utils.python.installed_packages import \
     installed_package_list
 from napari_chatgpt.utils.python.python_lang_utils import \
@@ -65,7 +67,11 @@ def fix_all_bad_function_calls(code: str,
                     if not function_exists(fully_qual_fun_name):
 
                         # get the fix:
-                        fixed_function_call = fix_function_call(original_function_call, fully_qual_fun_name)
+                        fixed_function_call = fix_function_call(original_function_call,
+                                                                fully_qual_fun_name,
+                                                                llm=llm,
+                                                                verbose=verbose)
+
                         aprint(f"LLM proposes this '{fixed_function_call}' as fix for '{fully_qual_fun_name}' (original: '{original_function_call}')")
 
                         # Apply fix:
@@ -129,7 +135,7 @@ def fix_function_call(original_function_call:str,
                       ):
 
     # Instantiates LLM if needed:
-    llm = llm or ChatOpenAI(model_name='gpt-3.5-turbo', temperature=0)
+    llm = llm or ChatOpenAI(model_name=get_default_openai_model_name(), temperature=0)
 
     # Make prompt template:
     prompt_template = PromptTemplate(template=_fix_bad_fun_calls_prompt,

@@ -27,7 +27,7 @@ Therefore, DO NOT use 'napari.Viewer()' or 'with napari.gui_qt():' in your code.
 DO NOT CREATE A NEW INSTANCE OF A NAPARI VIEWER, use the one provided in the variable: 'viewer'.
 Make sure the calls to the viewer are correct.
 
-**CURRENTLY AVAILABLE DENOISING FUNCTION(S):**
+**ONLY AVAILABLE DENOISING FUNCTION(S):**
 The only denoising function that you can use are 'aydin_classic_denoise()' or 'aydin_fgr_denoise()':
 
 ```python
@@ -45,6 +45,7 @@ def aydin_fgr_denoising(       image: ArrayLike,
 In general, first try to denoise images with 'aydin_classic_denoising()' with Butterworth variant, 
 and if that does not work well, try 'aydin_fgr_denoising()' with cb variant.
 
+**Parameters:**
 Here is an explanation of the parameters:
  
 ```docstring_fragment
@@ -61,19 +62,26 @@ Here is an explanation of the parameters:
         For 'aydin_fgr_denoising()' may be: 'cb'(best), 'lgbm'(slower than cb), 'linear'(very fast but poor denoising performance), or 'random_forest'(fast and ok denoising).
 
 ```
-  
-The function provided above returns the denoised image.
-When calling these functions, do not set optional parameters unless you have a good reason to change them.
-Use 'aydin_classic_denoising()' or 'aydin_fgr_denoising()' directly without importing or implementing that function, it is provided to you by the system.
+
+**Instructions:**
+- The function provided above returns the denoised image.
+- When calling these functions, do not set optional parameters unless you have a good reason to change them.
+- Use 'aydin_classic_denoising()' or 'aydin_fgr_denoising()' directly without importing or implementing that function, it is provided to you by the system.
 
 {instructions}
 
+- Answer in markdown with a single function 'denoise(viewer)->ArrayLike' that takes the viewer and returns the denoised image.
+- Make sure that the code is correct!
+
 {last_generated_code}
 
-Request: 
+**ViewerInformation:**
+{viewer_information}
+
+**Request:** 
 {input}
 
-Answer in markdown with a single function 'denoise(viewer)->ArrayLike' that takes the viewer and returns the denoised image.
+**Answer in markdown:**
 """
 
 _instructions = \
@@ -162,12 +170,13 @@ class ImageDenoisingTool(NapariBaseTool):
 @cache
 def install_aydin():
     with asection(f"Installing Aydin if not already present."):
+        message = ''
         if platform.system() == 'Darwin':
             if 'arm64' in sys.platform.uname():
                 aprint('Cannot install Aydin on M1/M2 macs!')
                 raise NotImplementedError('Cannot install Aydin on M1/M2 macs!')
 
-        pip_install(['aydin'])
+        message += pip_install(['aydin'])
 
 
 

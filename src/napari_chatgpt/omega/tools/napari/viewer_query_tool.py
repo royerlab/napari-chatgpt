@@ -13,20 +13,22 @@ _napari_viewer_query_prompt = """
 "
 **Context**
 You are an expert python programmer with deep expertise in image processing and analysis.
+You have perfect knowledge of the napari viewer's API.
 
 **Task:**
 Your task is to write Python code that can query an already instantiated napari viewer instance based on a plain text request. The code should be able to perform various operations such as returning information about the state of the viewer, the layers present, the dtype or shape of an image, and analyzing the content of different layers. For example, you can count the number of segments in a labels layer using the np.unique function, retrieve characteristics of individual segments like centroid coordinates, area/volume, or return statistics about the shape, area/volume, and positions of segments. You may also collect diverse measurements and statistics about segments in a labels layer.
 To answer the request, you need to implement a Python function called `query(viewer)` which takes the napari viewer as a parameter and returns a string. This string will be the answer to the request.
 
-**Request:**
-{input}
-
+**Instructions:**
 {instructions}
 
 {last_generated_code}
 
-Make sure we have the right answer!
-Write the `query(viewer) -> str` function that takes the viewer as a parameter and returns the response.
+**ViewerInformation:**
+{viewer_information}
+
+**Request:**
+{input}
 
 **Answer in markdown:**
 """
@@ -48,20 +50,27 @@ _instructions =\
 - Therefore, DO NOT use 'napari.Viewer()' or 'gui_qt():' in your code.
 - It is important NOT to create a new instance of a napari viewer. Use the one provided in the variable 'viewer'.
 - Ensure that your calls to the viewer are correct.
+- Make sure we have the right answer!
+
+**Important Instructions:**
+- Write the `query(viewer) -> str` function that takes the viewer as a parameter and returns the response.
 """
 
 
 class NapariViewerQueryTool(NapariBaseTool):
-    """A tool for running python code in a REPL."""
+    """
+    A tool for querying the state of a napari viewer instance.
+    """
 
     name = "NapariViewerQueryTool"
     description = (
-        "Use this tool when you require information about the napari viewer, "
+        "Use this tool when you need to a short answer to a question about the napari viewer, "
         "its state, or its layers (images, labels, points, tracks, shapes, and meshes). "
-        "Input must be a clear plain text description of what you want to know. "
-        "The input must not assume knowledge of our conversation and must be explicit about what is asked. "
-        "For instance, you can request to 'list all layers in the viewer'. "
-        "Do NOT include code in your input."
+        "The input must be a plain text description of what you want to do, it should not contain code, it must not assume knowledge of our conversation, and it must be explicit about what is asked."
+        "For instance, you can request to 'return the number of segments in the selected labels layer', 'return the total number of pixels/voxels in all image layers', or 'the number of unique colors' (selected layer is assumed by default). "
+        "Important: this tool should not be used for requests that are expected to return large ampounts of data, entire files, large tables or arrays (>60 entries). "
+        "For instance, do not use this tool to list pixels of an image, to return the coordinates of all points in a points layer, or to list segments in a labels layer. "
+        "This tool returns a short answer to the request. "
     )
     prompt = _napari_viewer_query_prompt
     instructions = _instructions
