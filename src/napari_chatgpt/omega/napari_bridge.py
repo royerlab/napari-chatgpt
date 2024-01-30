@@ -3,6 +3,7 @@ from typing import Callable
 
 import napari
 import napari.viewer
+from PIL.Image import fromarray
 from arbol import aprint, asection
 from napari import Viewer
 from napari.qt.threading import thread_worker
@@ -74,12 +75,21 @@ class NapariBridge():
         return self._execute_in_napari_context(delegated_function)
 
 
-    def add_snapshot_to_notebook(self, notebook: JupyterNotebookFile):
+    def take_snapshot(self):
 
-        # Setting up delegated function:
-        delegated_function = lambda v: notebook.add_napari_viewer_snapshot(v)
+        # Delegated function:
+        def _delegated_snapshot_function(viewer: Viewer):
 
-        return self._execute_in_napari_context(delegated_function)
+            # Take a screenshot of the whole Napari viewer
+            screenshot = self.viewer.screenshot(canvas_only=False, flash=False)
+
+            # Convert the screenshot (NumPy array) to a PIL image
+            pil_image = fromarray(screenshot)
+
+            return pil_image
+
+        # Execute delegated function in napari context and return result:
+        return self._execute_in_napari_context(_delegated_snapshot_function)
 
 
     def _execute_in_napari_context(self, delegated_function):

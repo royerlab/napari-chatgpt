@@ -3,7 +3,7 @@ from datetime import datetime
 from io import BytesIO
 from mimetypes import guess_type
 from os import path, makedirs
-from typing import Optional
+from typing import Optional, Callable
 
 from PIL import Image
 from napari import Viewer
@@ -133,12 +133,13 @@ class JupyterNotebookFile:
         # Mark as modified:
         self._modified = True
 
-    def add_napari_viewer_snapshot(self, viewer: Viewer, text: str = ""):
-        # Take a screenshot of the Napari viewer
-        screenshot = viewer.screenshot(canvas_only=False, flash=False)
+    def register_snapshot_function(self, snapshot_function: Callable):
+        self._snapshot_function = snapshot_function
 
-        # Convert the screenshot (NumPy array) to a PIL image
-        pil_image = Image.fromarray(screenshot)
+    def take_snapshot(self, text: str = ""):
+
+        # Call the snapshot function:
+        pil_image = self._snapshot_function()
 
         # Add this image to the notebook
         self.add_image_cell_from_PIL_image(pil_image, text)

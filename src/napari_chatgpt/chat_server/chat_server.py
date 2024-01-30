@@ -67,6 +67,12 @@ class NapariChatServer:
         # Instantiate FastAPI:
         self.app = FastAPI()
 
+        # get configuration
+        config = AppConfiguration('omega')
+
+        # port:
+        self.port = config.get('port', 9000)
+
         # Mount static files:
         static_files_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -206,11 +212,12 @@ class NapariChatServer:
                             self.notebook.add_markdown_cell("### Omega:\n" + result['output'])
 
                             # Add snapshot to notebook:
-                            self.napari_bridge.add_snapshot_to_notebook(self.notebook)
+                            self.notebook.take_snapshot()
 
                             # write notebook:
                             self.notebook.write()
 
+                        # Current chat history:
                         current_chat_history = get_buffer_string(
                             result['chat_history'])
 
@@ -234,7 +241,7 @@ class NapariChatServer:
                 dialog_counter += 1
 
     def _start_uvicorn_server(self, app):
-        config = Config(app, port=9000)
+        config = Config(app, port=self.port)
         self.uvicorn_server = Server(config=config)
         self.uvicorn_server.run()
 
@@ -286,6 +293,9 @@ def start_chat_server(viewer: napari.Viewer = None,
     # Instantiates a napari bridge:
     bridge = NapariBridge(viewer=viewer)
 
+    # Register snapshot function:
+    notebook.register_snapshot_function(bridge.take_snapshot)
+
     # Instantiates server:
     chat_server = NapariChatServer(notebook=notebook,
                                    napari_bridge=bridge,
@@ -311,12 +321,9 @@ def start_chat_server(viewer: napari.Viewer = None,
     server_thread = Thread(target=server_thread_function, args=())
     server_thread.start()
 
-    # get configuration
-    config = AppConfiguration('omega')
-
     # function to open browser on page:
     def _open_browser():
-        url = f"http://127.0.0.1:{config.get('port', 9000)}"
+        url = f"http://127.0.0.1:{chat_server.port}"
         webbrowser.open(url, new=0, autoraise=True)
 
     # open browser after delay of a few seconds:
@@ -328,6 +335,8 @@ def start_chat_server(viewer: napari.Viewer = None,
 
 
 if __name__ == "__main__":
+
+    # Start chat server:
     start_chat_server()
 
     # Start qt event loop and wait for it to stop:
