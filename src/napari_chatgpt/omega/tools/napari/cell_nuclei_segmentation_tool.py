@@ -235,6 +235,11 @@ class CellNucleiSegmentationTool(NapariBaseTool):
                 with asection(f"Running segmentation..."):
                     segmented_image = segment(viewer)
 
+                # At this point we assume the code ran successfully and we add it to the notebook:
+                if self.notebook:
+                    self.notebook.add_code_cell(code)
+
+
                 # Add to viewer:
                 viewer.add_labels(segmented_image, name='segmented')
 

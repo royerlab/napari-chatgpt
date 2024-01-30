@@ -43,6 +43,7 @@ from napari_chatgpt.omega.tools.special.human_input_tool import HumanInputTool
 from napari_chatgpt.omega.tools.special.pip_install_tool import PipInstallTool
 from napari_chatgpt.omega.tools.special.python_repl import \
     PythonCodeExecutionTool
+from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
 from napari_chatgpt.utils.omega_plugins.discover_omega_plugins import \
     discover_omega_tools
 from napari_chatgpt.utils.openai.gpt_vision import is_gpt_vision_available
@@ -59,6 +60,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                            is_async: bool = False,
                            chat_callback_handler: BaseCallbackHandler = None,
                            tool_callback_handler: BaseCallbackHandler = None,
+                           notebook: JupyterNotebookFile = None,
                            has_human_input_tool: bool = True,
                            memory: BaseMemory = None,
                            agent_personality: str = 'neutral',
@@ -99,6 +101,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         kwargs = {'llm': tool_llm,
                   'to_napari_queue': to_napari_queue,
                   'from_napari_queue': from_napari_queue,
+                  'notebook': notebook,
                   'callback_manager': tool_callback_manager,
                   'fix_imports': fix_imports,
                   'install_missing_packages': install_missing_packages,
@@ -107,9 +110,9 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                   }
 
         # Adding all napari tools:
-        tools.append(NapariViewerControlTool(**kwargs, return_direct=False))
-        tools.append(NapariViewerQueryTool(**kwargs, return_direct=False))
-        tools.append(NapariViewerExecutionTool(**kwargs, return_direct=False))
+        tools.append(NapariViewerControlTool(**kwargs, return_direct=not autofix_mistakes))
+        tools.append(NapariViewerQueryTool(**kwargs, return_direct=not autofix_mistakes))
+        tools.append(NapariViewerExecutionTool(**kwargs, return_direct=not autofix_mistakes))
         if is_gpt_vision_available():
             tools.append(NapariViewerVisionTool(**kwargs, return_direct=False))
         tools.append(NapariWidgetMakerTool(**kwargs, return_direct=not autofix_widget))
@@ -117,7 +120,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         tools.append(WebImageSearchTool(**kwargs))
         tools.append(CellNucleiSegmentationTool(**kwargs))
 
-        # Future task: remove if once Aydin supports Apple Silicon:
+        # Future task: remove once Aydin supports Apple Silicon:
         if not is_apple_silicon():
             tools.append(ImageDenoisingTool(**kwargs))
 

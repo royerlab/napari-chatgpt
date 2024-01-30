@@ -73,7 +73,7 @@ def search_images_ddg(query: str,
                       ) -> str:
     lang = 'en-us' if lang == 'en' else lang
 
-    results = DDGS.images(query,
+    results = DDGS().images(keywords=query,
                          region=lang,
                          safesearch=safesearch,
                          size=None,

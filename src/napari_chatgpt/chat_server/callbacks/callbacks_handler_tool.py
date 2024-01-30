@@ -62,9 +62,10 @@ class ToolCallbackHandler(BaseCallbackHandler):
                             type="tool_result")
         run_async(self.websocket.send_json, resp.dict())
 
-        self.notebook.add_markdown_cell("###Agent:\n"+
-                                        "Tool response:\n"+
-                                        tool_response)
+        if self.notebook:
+            self.notebook.add_markdown_cell("### Omega:\n"+
+                                            "Tool response:\n"+
+                                            tool_response)
 
 
     def on_chain_error(
@@ -96,15 +97,17 @@ class ToolCallbackHandler(BaseCallbackHandler):
         if output.startswith('Error:') or 'Failure' in output:
             resp = ChatResponse(sender="agent", message=output, type="error")
             run_async(self.websocket.send_json, resp.dict())
-            self.notebook.add_markdown_cell("###Agent:\n" +
-                                            "Error:\n" +
-                                            output)
+            if self.notebook:
+                self.notebook.add_markdown_cell("### Omega:\n" +
+                                                "Error:\n" +
+                                                output)
         else:
             resp = ChatResponse(sender="agent", message=output, type="tool_result")
             run_async(self.websocket.send_json, resp.dict())
-            self.notebook.add_markdown_cell("###Agent:\n" +
-                                            "Tool result:\n" +
-                                            output)
+            if self.notebook:
+                self.notebook.add_markdown_cell("### Omega:\n" +
+                                                "Tool result:\n" +
+                                                output)
 
 
     def on_tool_error(
@@ -118,9 +121,10 @@ class ToolCallbackHandler(BaseCallbackHandler):
         message = f"Failed because:\n'{error_message}'\nException: '{error_type}'\n"
         resp = ChatResponse(sender="agent", message=message, type="error")
         run_async(self.websocket.send_json, resp.dict())
-        self.notebook.add_markdown_cell("###Agent:\n" +
-                                        "Error:\n" +
-                                        message)
+        if self.notebook:
+            self.notebook.add_markdown_cell("### Omega:\n" +
+                                            "Error:\n" +
+                                            message)
 
     def on_text(self, text: str, **kwargs: Any) -> Any:
         """Run on arbitrary text."""

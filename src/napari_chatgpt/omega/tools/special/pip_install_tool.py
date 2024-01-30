@@ -43,7 +43,7 @@ class PipInstallTool(AsyncBaseTool):
                 # Remove already installed packages from the list of packages to be installed:
                 packages = [p for p in packages if p not in already_installed_packages]
 
-                # If no packages ned to be installed, return:
+                # If no packages need to be installed, return:
                 if len(packages)==0:
                     message = f"No packages need to be installed, all packages are already installed: '{','.join(already_installed_packages)}'.\n"
                     aprint(message)
@@ -54,6 +54,9 @@ class PipInstallTool(AsyncBaseTool):
                                       skip_if_installed=True,
                                       ask_permission=False,
                                       included=False)
+
+                if self.notebook:
+                    self.notebook.add_code_cell(f"!pip install {' '.join(packages)}")
 
                 aprint(message)
                 return message

@@ -106,9 +106,10 @@ class ChatCallbackHandler(AsyncCallbackHandler):
         resp = ChatResponse(sender="agent", message=message, type="error")
         asyncio.run(self.websocket.send_json(resp.dict()))
 
-        self.notebook.add_markdown_cell("###Agent:\n"+
-                                        "Error:\n"+
-                                        message)
+        if self.notebook:
+            self.notebook.add_markdown_cell("### Omega:\n"+
+                                            "Error:\n"+
+                                            message)
 
     async def on_text(self, text: str, **kwargs: Any) -> Any:
         """Run on arbitrary text."""
@@ -131,8 +132,9 @@ class ChatCallbackHandler(AsyncCallbackHandler):
         resp = ChatResponse(sender="agent", message=message, type="action")
         await self.websocket.send_json(resp.dict())
 
-        self.notebook.add_markdown_cell("###Agent:\n"+
-                                        message)
+        if self.notebook:
+            self.notebook.add_markdown_cell("### Omega:\n"+
+                                            message)
 
     async def on_agent_finish(self, finish: AgentFinish, **kwargs: Any) -> Any:
         """Run on agent end."""

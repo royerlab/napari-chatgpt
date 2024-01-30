@@ -29,6 +29,8 @@ from napari_chatgpt.omega.napari_bridge import NapariBridge, _set_viewer_info
 
 from napari_chatgpt.omega.omega_init import initialize_omega_agent
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
+from napari_chatgpt.utils.configuration.app_configuration import \
+    AppConfiguration
 from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
 from napari_chatgpt.utils.openai.default_model import \
     get_default_openai_model_name
@@ -37,6 +39,7 @@ from napari_chatgpt.utils.python.installed_packages import is_package_installed
 
 class NapariChatServer:
     def __init__(self,
+                 notebook: JupyterNotebookFile,
                  napari_bridge: NapariBridge,
                  llm_model_name: str = get_default_openai_model_name(),
                  temperature: float = 0.01,
@@ -55,8 +58,11 @@ class NapariChatServer:
         self.running = True
         self.uvicorn_server = None
 
+        # Notebook:
+        self.notebook: JupyterNotebookFile = notebook
+
         # Napari bridge:
-        self.napari_bridge = napari_bridge
+        self.napari_bridge: NapariBridge = napari_bridge
 
         # Instantiate FastAPI:
         self.app = FastAPI()
@@ -90,17 +96,18 @@ class NapariChatServer:
         async def websocket_endpoint(websocket: WebSocket):
             await websocket.accept()
 
-            # Notebook recording:
-            notebook = JupyterNotebookFile()
+            # restart a notebook:
+            if self.notebook:
+                self.notebook.restart()
 
             # Chat callback handler:
             chat_callback_handler = ChatCallbackHandler(websocket=websocket,
-                                                        notebook=notebook,
+                                                        notebook=self.notebook,
                                                         verbose=verbose)
 
             # Tool callback handler:
             tool_callback_handler = ToolCallbackHandler(websocket=websocket,
-                                                        notebook=notebook,
+                                                        notebook=self.notebook,
                                                         verbose=verbose)
 
             # Memory callback handler:
@@ -145,6 +152,7 @@ class NapariChatServer:
                 is_async=True,
                 chat_callback_handler=chat_callback_handler,
                 tool_callback_handler=tool_callback_handler,
+                notebook=self.notebook,
                 has_human_input_tool=False,
                 memory=memory,
                 agent_personality=agent_personality,
@@ -167,7 +175,8 @@ class NapariChatServer:
                         resp = ChatResponse(sender="user",
                                             message=question)
                         await websocket.send_json(resp.dict())
-                        notebook.add_markdown_cell("### User:\n" + question)
+                        if self.notebook:
+                            self.notebook.add_markdown_cell("### User:\n" + question)
 
                         aprint(f"Human Question/Request:\n{question}\n\n")
 
@@ -191,9 +200,16 @@ class NapariChatServer:
                                                 message=result['output'],
                                                 type="final")
                         await websocket.send_json(end_resp.dict())
-                        notebook.add_markdown_cell("### Agent:\n" + result['output'])
 
-                        notebook.write(file_path='notebook.ipynb')
+                        if self.notebook:
+                            # Add agent response to notebook:
+                            self.notebook.add_markdown_cell("### Omega:\n" + result['output'])
+
+                            # Add snapshot to notebook:
+                            self.napari_bridge.add_snapshot_to_notebook(self.notebook)
+
+                            # write notebook:
+                            self.notebook.write()
 
                         current_chat_history = get_buffer_string(
                             result['chat_history'])
@@ -243,10 +259,15 @@ def start_chat_server(viewer: napari.Viewer = None,
                       fix_bad_calls: bool = True,
                       autofix_mistakes: bool = False,
                       autofix_widget: bool = False,
+                      save_chats_as_notebooks: bool = False,
                       verbose: bool = False
                       ):
+
+    # get configuration:
+    config = AppConfiguration('omega')
+
     # Set OpenAI key if necessary:
-    if 'gpt' in llm_model_name and '4all' not in llm_model_name and is_package_installed(
+    if 'gpt' in llm_model_name and is_package_installed(
             'openai'):
         set_api_key('OpenAI')
 
@@ -259,11 +280,15 @@ def start_chat_server(viewer: napari.Viewer = None,
     if not viewer:
         viewer = napari.Viewer()
 
+    # Instantiates a notebook:
+    notebook = JupyterNotebookFile(notebook_folder_path=config.get('notebook_path')) if save_chats_as_notebooks else None
+
     # Instantiates a napari bridge:
-    bridge = NapariBridge(viewer)
+    bridge = NapariBridge(viewer=viewer)
 
     # Instantiates server:
-    chat_server = NapariChatServer(bridge,
+    chat_server = NapariChatServer(notebook=notebook,
+                                   napari_bridge=bridge,
                                    llm_model_name=llm_model_name,
                                    temperature=temperature,
                                    tool_temperature=tool_temperature,
@@ -286,13 +311,17 @@ def start_chat_server(viewer: napari.Viewer = None,
     server_thread = Thread(target=server_thread_function, args=())
     server_thread.start()
 
+    # get configuration
+    config = AppConfiguration('omega')
+
     # function to open browser on page:
     def _open_browser():
-        url = "http://127.0.0.1:9000"
+        url = f"http://127.0.0.1:{config.get('port', 9000)}"
         webbrowser.open(url, new=0, autoraise=True)
 
     # open browser after delay of a few seconds:
-    QTimer.singleShot(2000, _open_browser)
+    if config.get('open_browser', True):
+        QTimer.singleShot(2000, _open_browser)
 
     # Return the server:
     return chat_server

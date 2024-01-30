@@ -22,7 +22,7 @@ from napari_chatgpt.utils.python.python_lang_utils import \
 
 def fix_all_bad_function_calls(code: str,
                                llm: BaseLLM = None,
-                               verbose: bool = False) -> Tuple[str, bool]:
+                               verbose: bool = False) -> Tuple[str, bool, str]:
     with(asection(f'Automatically fix bad function calls for code of length: {len(code)}')):
 
         # Cleanup code:
@@ -30,7 +30,7 @@ def fix_all_bad_function_calls(code: str,
 
         # If code is empty, nothing needs to be fixed!
         if len(code) == 0:
-            return code, False
+            return code, False, ''
 
         with asection(f'Code to fix:'):
             aprint(code)
@@ -97,17 +97,17 @@ def fix_all_bad_function_calls(code: str,
                 with asection(f'Differences between original code and fixed code:'):
                     aprint(differences_text)
 
-                return fixed_code, True
+                return fixed_code, True, function_calls_report
             else:
                 aprint(f"No bad function calls detected, no need to fix anything!")
 
-                return fixed_code, False
+                return fixed_code, False, ''
 
         except Exception as e:
             traceback.print_exc()
             aprint(f"Encoutered exception: {str(e)} while trying to fix code! Returning code unchanged!")
             # TOODOO: if code does not compile maybe use LLM to fix it?
-            return code, False
+            return code, False, ''
 
 
 _fix_bad_fun_calls_prompt = f"""

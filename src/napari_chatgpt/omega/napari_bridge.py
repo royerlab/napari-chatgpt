@@ -10,6 +10,7 @@ from napari.qt.threading import thread_worker
 from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
     enqueue_exception
 from napari_chatgpt.utils.napari.napari_viewer_info import get_viewer_info
+from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 
 # global Variable to exchange information with the viewer:
@@ -50,10 +51,14 @@ class NapariBridge():
         def omega_napari_worker(to_napari_queue: Queue,
                                 from_napari_queue: Queue):
             while True:
+
+                # get code from the queue:
                 code = to_napari_queue.get()
+
+                # execute code on napari's QT thread:
                 if code is None:
                     break  # stops.
-                # aprint(f"omega_napari_worker received: '{code}' from the queue.")
+
                 yield code
 
         # create the worker:
@@ -63,9 +68,22 @@ class NapariBridge():
 
     def get_viewer_info(self) -> str:
 
+        # Setting up delegated function:
+        delegated_function = lambda v: get_viewer_info(v)
+
+        return self._execute_in_napari_context(delegated_function)
+
+
+    def add_snapshot_to_notebook(self, notebook: JupyterNotebookFile):
+
+        # Setting up delegated function:
+        delegated_function = lambda v: notebook.add_napari_viewer_snapshot(v)
+
+        return self._execute_in_napari_context(delegated_function)
+
+
+    def _execute_in_napari_context(self, delegated_function):
         try:
-            # Setting up delegated function:
-            delegated_function = lambda v: get_viewer_info(v)
 
             # Send code to napari:
             self.to_napari_queue.put(delegated_function)
@@ -75,8 +93,11 @@ class NapariBridge():
 
             if isinstance(response, ExceptionGuard):
                 exception_guard = response
+                # print stack trace:
+                import traceback
+                traceback.print_exc()
                 # raise exception_guard.exception
-                return f"Error: {exception_guard.exception_type_name} with message: '{str(exception_guard.exception)}' while using tool: {self.__class__.__name__} ."
+                return f"Error: {exception_guard.exception_type_name} with message: '{str(exception_guard.exception)}' ."
 
             return response
 
@@ -86,6 +107,7 @@ class NapariBridge():
             traceback.print_exc()
 
             return None
+
 
 
 

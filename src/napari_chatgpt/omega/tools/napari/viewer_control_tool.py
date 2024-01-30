@@ -56,7 +56,7 @@ _instructions = \
 - Convert image arrays to the float type before processing when necessary. 
 - Intermediate or local image arrays should be of type float. Constants like `np.full()`, `np.ones()`, `np.zeros()`, etc., should be floats (e.g., 1.0).
 - Resulting images should be of type float except for RGB images and labels layers.
-- For RGB images check the range of the R, G, and B values: if the max value is 255 use that in your calculations.
+- The dtype of a RGB or RGBA image must be uint8 within the range [0, 255] to be viewable in napari.
 - If the request mentions "this," "that," or "the image/layer," it most likely refers to the last added image/layer.
 - If you are unsure about the layer being referred to, assume it is the last layer of the type most appropriate for the request.
 - If the input mentions the 'selected image', it most likely refers to the active or selected image layer.
@@ -122,38 +122,4 @@ class NapariViewerControlTool(NapariBaseTool):
 
 
 
-    def _run_code_catch_errors_fix_and_try_again(self,
-                                                 code,
-                                                 viewer,
-                                                 error:str = '',
-                                                 instructions:str = '',
-                                                 nb_tries: int = 3) -> str:
 
-        try:
-            with asection(f"Running code:"):
-                aprint(f"Code:\n{code}")
-                captured_output = execute_as_module(code, viewer=viewer)
-                aprint(f"This is what the code returned:\n{captured_output}")
-
-        except Exception as e:
-            if nb_tries >= 1:
-                traceback.print_exc()
-                description = error+'\n\n'+exception_description(e)
-                description = description.strip()
-                fixed_code = fix_code_given_error_message(code=code,
-                                                          error=description,
-                                                          instructions=instructions,
-                                                          viewer=viewer,
-                                                          llm=self.llm,
-                                                          verbose=self.verbose)
-                # We try again:
-                return self._run_code_catch_errors_fix_and_try_again(fixed_code,
-                                                                viewer=viewer,
-                                                                error=error,
-                                                                nb_tries = nb_tries-1)
-            else:
-                # No more tries available, we give up!
-                raise e
-
-
-        return captured_output

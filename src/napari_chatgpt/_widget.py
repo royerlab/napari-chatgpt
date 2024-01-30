@@ -9,26 +9,25 @@ Replace code below according to your needs.
 import sys
 from typing import TYPE_CHECKING, List
 
-from napari_chatgpt.chat_server.chat_server import NapariChatServer
-from napari_chatgpt.utils.api_keys.api_key import set_api_key
-from napari_chatgpt.utils.ollama.ollama import is_ollama_running, \
-    get_ollama_models
-from napari_chatgpt.utils.openai.model_list import get_openai_model_list
-from napari_chatgpt.utils.python.installed_packages import \
-    is_package_installed
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QLabel, QCheckBox
 from PyQt5.QtWidgets import QVBoxLayout, QComboBox
 from napari.viewer import Viewer
 from qtpy.QtWidgets import QPushButton, QWidget
 
-
-
+from napari_chatgpt.chat_server.chat_server import NapariChatServer
+from napari_chatgpt.utils.configuration.app_configuration import \
+    AppConfiguration
+from napari_chatgpt.utils.ollama.ollama import is_ollama_running, \
+    get_ollama_models
+from napari_chatgpt.utils.openai.model_list import get_openai_model_list
+from napari_chatgpt.utils.python.installed_packages import \
+    is_package_installed
 
 if TYPE_CHECKING:
     pass
 
-from arbol import aprint, asection
+from arbol import aprint
 
 _creativity_mapping = {}
 _creativity_mapping['normal'] = 0.0
@@ -68,6 +67,7 @@ class OmegaQWidget(QWidget):
         self._install_missing_packages()
         self._autofix_mistakes()
         self._autofix_widgets()
+        self._save_chats_as_notebooks()
         self._verbose()
 
         self._start_omega_button()
@@ -76,7 +76,11 @@ class OmegaQWidget(QWidget):
         self.setLayout(self.layout)
 
     def _model_selection(self):
+
         aprint("Setting up model selection UI.")
+
+        # Get app configuration:
+        config = AppConfiguration('omega')
 
         # Create a QLabel instance
         self.model_label = QLabel("Select a model:")
@@ -111,17 +115,21 @@ class OmegaQWidget(QWidget):
 
         # Postprocess list:
 
-        # Ensure that some 'bad' or unsuported models are excluded:
-        bad_models = [m for m in model_list if '0613' in m or 'vision' in m]
+        # get list of bad models for main LLM:
+        bad_models_filters = config.get('bad_models_filters', ['0613', 'vision'])
+
+        # get list of best models for main LLM:
+        best_models_filters = config.get('best_models_filters', ['0314', '0301', '1106', 'gpt-4'])
+
+        # Ensure that some 'bad' or unsupported models are excluded:
+        bad_models = [m for m in model_list if any(bm in m for bm in bad_models_filters)]
         for bad_model in bad_models:
             if bad_model in model_list:
                 model_list.remove(bad_model)
                 # model_list.append(bad_model)
 
-
-
         # Ensure that the best models are at the top of the list:
-        best_models = [m for m in model_list if '0314' in m or '0301' in m or '1106' in m or 'gpt-4' in m]
+        best_models = [m for m in model_list if any(bm in m for bm in best_models_filters)]
         model_list = best_models + [m for m in model_list if m not in best_models]
 
         # Ensure that the very best models are at the top of the list:
@@ -211,9 +219,12 @@ class OmegaQWidget(QWidget):
     def _fix_imports(self):
         aprint("Setting up fix imports UI.")
 
+        # Get app configuration:
+        config = AppConfiguration('omega')
+
         # Create a QLabel instance
         self.fix_imports_checkbox = QCheckBox("Fix missing imports")
-        self.fix_imports_checkbox.setChecked(True)
+        self.fix_imports_checkbox.setChecked(config.get('fix_missing_imports', True))
         self.fix_imports_checkbox.setToolTip(
             "Uses LLM to check for missing imports.\n"
             "This involves a LLM call which can incur additional\n"
@@ -225,9 +236,12 @@ class OmegaQWidget(QWidget):
     def _fix_bad_version_calls(self):
         aprint("Setting up bad version imports UI.")
 
+        # Get app configuration:
+        config = AppConfiguration('omega')
+
         # Create a QLabel instance
         self.fix_bad_calls_checkbox = QCheckBox("Fix bad function calls")
-        self.fix_bad_calls_checkbox.setChecked(True)
+        self.fix_bad_calls_checkbox.setChecked(config.get('fix_bad_calls', True))
         self.fix_bad_calls_checkbox.setToolTip("Uses LLM to fix function calls.\n"
                                               "When turned on, this detects wrong function calls, \n"
                                               "possibly because of library version mismatch and fixes,"
@@ -241,10 +255,13 @@ class OmegaQWidget(QWidget):
     def _install_missing_packages(self):
         aprint("Setting up install missing packages UI.")
 
+        # Get app configuration:
+        config = AppConfiguration('omega')
+
         # Create a QLabel instance
         self.install_missing_packages_checkbox = QCheckBox(
             "Install missing packages")
-        self.install_missing_packages_checkbox.setChecked(True)
+        self.install_missing_packages_checkbox.setChecked(config.get('install_missing_packages', True))
         self.install_missing_packages_checkbox.setToolTip(
             "Uses LLM to figure out which packages to install.\n"
             "This involves a LLM call which can incur additional\n"
@@ -255,10 +272,13 @@ class OmegaQWidget(QWidget):
     def _autofix_mistakes(self):
         aprint("Setting up autofix mistakes UI.")
 
+        # Get app configuration:
+        config = AppConfiguration('omega')
+
         # Create a QLabel instance
         self.autofix_mistakes_checkbox = QCheckBox(
             "Autofix coding mistakes")
-        self.autofix_mistakes_checkbox.setChecked(False)
+        self.autofix_mistakes_checkbox.setChecked(config.get('autofix_mistakes', True))
         self.autofix_mistakes_checkbox.setToolTip(
             "When checked Omega will try to fix on its own coding mistakes\n"
             "when processing data and interacting with the napari viewer.\n"
@@ -272,10 +292,13 @@ class OmegaQWidget(QWidget):
     def _autofix_widgets(self):
         aprint("Setting up autofix widgets UI.")
 
+        # Get app configuration:
+        config = AppConfiguration('omega')
+
         # Create a QLabel instance
         self.autofix_widgets_checkbox = QCheckBox(
             "Autofix widget coding mistakes")
-        self.autofix_widgets_checkbox.setChecked(False)
+        self.autofix_widgets_checkbox.setChecked(config.get('autofix_widgets', True))
         self.autofix_widgets_checkbox.setToolTip(
             "When checked Omega will try to fix its own \n"
             "coding mistakes when making widgets. \n"
@@ -285,13 +308,32 @@ class OmegaQWidget(QWidget):
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.autofix_widgets_checkbox)
 
+    def _save_chats_as_notebooks(self):
+        aprint("Setting up save notebooks UI.")
+
+        # Get app configuration:
+        config = AppConfiguration('omega')
+
+        # Create a QLabel instance
+        self.save_chats_as_notebooks = QCheckBox(
+            "Save chats as Jupyter notebooks")
+        self.save_chats_as_notebooks.setChecked(config.get('save_chats_as_notebooks', True))
+        self.save_chats_as_notebooks.setToolTip(
+            "When checked Omega will save the chats as Jupyter notebooks \n"
+            "by default in a folder on the user's desktop.")
+        # Add the install_missing_packages checkbox to the layout:
+        self.layout.addWidget(self.save_chats_as_notebooks)
+
     def _verbose(self):
         aprint("Setting up verbose UI.")
+
+        # Get app configuration:
+        config = AppConfiguration('omega')
 
         # Create a QLabel instance
         self.verbose_checkbox = QCheckBox(
             "High console verbosity")
-        self.verbose_checkbox.setChecked(False)
+        self.verbose_checkbox.setChecked(config.get('verbose', False))
         self.verbose_checkbox.setToolTip(
             "High level of verbosity in the console\n"
             "This includes a lot of internal logging\n"
@@ -340,6 +382,7 @@ class OmegaQWidget(QWidget):
                                         fix_bad_calls=self.fix_bad_calls_checkbox.isChecked(),
                                         autofix_mistakes=self.autofix_mistakes_checkbox.isChecked(),
                                         autofix_widget=self.autofix_widgets_checkbox.isChecked(),
+                                        save_chats_as_notebooks=self.save_chats_as_notebooks.isChecked(),
                                         verbose=self.verbose_checkbox.isChecked()
                                         )
 

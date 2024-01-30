@@ -156,6 +156,7 @@ To install the latest development version (not recommended for end-users):
     git clone https://github.com/royerlab/napari-chatgpt.git
     cd napari-chatgpt
     pip install -e .
+    pip install -e ".[testing]"
 
 or:
     

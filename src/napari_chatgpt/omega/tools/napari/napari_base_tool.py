@@ -1,5 +1,6 @@
 
 import sys
+import traceback
 from pathlib import Path
 from queue import Queue
 from typing import Union, Optional
@@ -17,9 +18,15 @@ from napari_chatgpt.omega.napari_bridge import _get_viewer_info
 from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 from napari_chatgpt.omega.tools.instructions import \
     omega_generic_codegen_instructions
+from napari_chatgpt.utils.python.consolidate_imports import consolidate_imports
+from napari_chatgpt.utils.python.dynamic_import import execute_as_module
+from napari_chatgpt.utils.python.exception_description import \
+    exception_description
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 from napari_chatgpt.utils.python.fix_bad_fun_calls import \
     fix_all_bad_function_calls
+from napari_chatgpt.utils.python.fix_code_given_error import \
+    fix_code_given_error_message
 from napari_chatgpt.utils.python.installed_packages import \
     installed_package_list
 from napari_chatgpt.utils.python.missing_packages import required_packages
@@ -28,29 +35,6 @@ from napari_chatgpt.utils.python.required_imports import required_imports
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
 
-
-def _get_delegated_code(name: str, signature: bool = False):
-    with asection(f"Getting delegated code: '{name}' (signature={signature})"):
-        # Get current package folder:
-        current_package_folder = Path(__file__).parent
-
-        # Get package folder:
-        package_folder = Path.joinpath(current_package_folder, f"delegated_code")
-
-        # file path:
-        file_path = Path.joinpath(package_folder, f"{name}.py")
-        aprint(f'Filepath: {file_path}')
-
-        # code:
-        code = file_path.read_text()
-
-        # extract signature:
-        if signature:
-            aprint('Extracting signature!')
-            splitted_code = code.split('### SIGNATURE')
-            code = splitted_code[1]
-
-        return code
 
 class NapariBaseTool(AsyncBaseTool):
     """A base tool for that delegates to execution to a sub-LLM and communicates with napari via queues."""
@@ -195,9 +179,21 @@ class NapariBaseTool(AsyncBaseTool):
                 # prepend missing imports:
                 code = '\n'.join(imports) + '\n\n' + code
 
+                # consolidate imports:
+                code = consolidate_imports(code)
+
+                # notify that code was modified for missing imports:
+                code = "# Note: code was modified to add missing imports:\n" + code
+
             # Fix code, this takes care of wrong function calls and more:
             if self.fix_bad_calls and do_fix_bad_calls:
-                code, _ = fix_all_bad_function_calls(code)
+                code, fixed, _ = fix_all_bad_function_calls(code)
+
+                if fixed:
+                    # notify that code was fixed for bad calls:
+                    code = "# Note: code was modified to fix bad function calls.\n" + code
+
+
 
             # Remove any offending lines:
             code = filter_lines(code,
@@ -213,10 +209,73 @@ class NapariBaseTool(AsyncBaseTool):
                 # Install them:
                 pip_install(packages)
 
+                # Notify that some packages might be missing and that Omega attempted to install them:
+                code = f"# Note: some packages ({','.join(packages)}) might be missing and Omega attempted to install them.\n" + code
+
             # Return fully prepared and fixed code:
             return code
 
+    def _run_code_catch_errors_fix_and_try_again(self,
+                                                 code,
+                                                 viewer,
+                                                 error:str = '',
+                                                 instructions:str = '',
+                                                 nb_tries: int = 3) -> str:
+
+        try:
+            with asection(f"Running code:"):
+
+                # Run the code:
+                aprint(f"Code:\n{code}")
+                captured_output = execute_as_module(code, viewer=viewer)
+
+                # Add successfully run code to notebook:
+                if self.notebook:
+                    self.notebook.add_code_cell(code)
+                aprint(f"This is what the code returned:\n{captured_output}")
+
+        except Exception as e:
+            if nb_tries >= 1:
+                traceback.print_exc()
+                description = error+'\n\n'+exception_description(e)
+                description = description.strip()
+                fixed_code = fix_code_given_error_message(code=code,
+                                                          error=description,
+                                                          instructions=instructions,
+                                                          viewer=viewer,
+                                                          llm=self.llm,
+                                                          verbose=self.verbose)
+                # We try again:
+                return self._run_code_catch_errors_fix_and_try_again(fixed_code,
+                                                                viewer=viewer,
+                                                                error=error,
+                                                                nb_tries = nb_tries-1)
+            else:
+                # No more tries available, we give up!
+                raise e
+
+        return captured_output
 
 
+def _get_delegated_code(name: str, signature: bool = False):
+    with asection(f"Getting delegated code: '{name}' (signature={signature})"):
+        # Get current package folder:
+        current_package_folder = Path(__file__).parent
 
+        # Get package folder:
+        package_folder = Path.joinpath(current_package_folder, f"delegated_code")
 
+        # file path:
+        file_path = Path.joinpath(package_folder, f"{name}.py")
+        aprint(f'Filepath: {file_path}')
+
+        # code:
+        code = file_path.read_text()
+
+        # extract signature:
+        if signature:
+            aprint('Extracting signature!')
+            splitted_code = code.split('### SIGNATURE')
+            code = splitted_code[1]
+
+        return code

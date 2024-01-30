@@ -6,6 +6,7 @@ from imageio.v3 import imread
 from napari import Viewer
 
 from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
+from napari_chatgpt.utils.download.download_files import download_file_stealth
 from napari_chatgpt.utils.strings.find_integer_in_parenthesis import \
     find_integer_in_parenthesis
 from napari_chatgpt.utils.web.duckduckgo import search_images_ddg
@@ -43,29 +44,46 @@ class WebImageSearchTool(NapariBaseTool):
                 nb_images = max(1, nb_images)
 
                 # Search for image:
-                results = search_images_ddg(query=search_query)
+                results = search_images_ddg(query=search_query, num_results=2*nb_images)
 
                 aprint(f'Found {len(results)} images.')
 
                 # Extract URLs:
                 urls = [r['image'] for r in results]
+                with asection(f'All URLs found:'):
+                    for url in urls:
+                        aprint(url)
 
                 # Limit the number of images to open to the number found:
                 nb_images = min(len(urls), nb_images)
 
-                # Keep only the required number of urls:
-                urls = urls[:nb_images]
 
                 # open each image:
                 number_of_opened_images = 0
                 for i, url in enumerate(urls):
                     try:
                         aprint(f'Trying to open image {i} from URL: {url}.')
-                        image = imread(url)
+
+                        # Download the image:
+                        file_path = download_file_stealth(url)
+
+                        # Open the image:
+                        image = imread(file_path)
+
+                        # convert to array:
                         image_array = numpy.array(image)
+
+                        # Add to napari:
                         viewer.add_image(image_array, name=f'image_{i}')
+
+                        # Increment counter:
                         number_of_opened_images += 1
                         aprint(f'Image {i} opened!')
+
+                        # Stop if we have opened enough images:
+                        if number_of_opened_images >= nb_images:
+                            break
+
                     except Exception as e:
                         # We ignore single failures:
                         aprint(f'Image {i} failed to open!')
