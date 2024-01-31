@@ -278,7 +278,6 @@ def start_chat_server(viewer: napari.Viewer = None,
             'openai'):
         set_api_key('OpenAI')
 
-
     # Set Anthropic key if necessary:
     if 'claude' in llm_model_name and is_package_installed('anthropic'):
         set_api_key('Anthropic')

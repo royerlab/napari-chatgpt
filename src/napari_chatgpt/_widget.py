@@ -23,6 +23,7 @@ from napari_chatgpt.utils.ollama.ollama import is_ollama_running, \
 from napari_chatgpt.utils.openai.model_list import get_openai_model_list
 from napari_chatgpt.utils.python.installed_packages import \
     is_package_installed
+from napari_chatgpt.utils.qt.warning_dialog import show_warning_dialog
 
 if TYPE_CHECKING:
     pass
@@ -370,9 +371,20 @@ class OmegaQWidget(QWidget):
                                 self.creativity_combo_box.currentText()])
         tool_temperature = 0.01*temperature
 
+        # Model selected:
+        model = self.model_combo_box.currentText()
+
+        # Warn users with a modal window that the selected model might be sub-optimal:
+        if 'gpt-4' not in model:
+            show_warning_dialog(f"You have selected this model: "
+                                f"'{model}'This is not a GPT4-level model. "
+                                f"Omega's cognitive and coding abilities will be degraded. "
+                                f"Please visit <a href='https://github.com/royerlab/napari-chatgpt/wiki/OpenAIKey'>our wiki</a> "
+                                f"for information on how to gain access to GPT4.")
+
         from napari_chatgpt.chat_server.chat_server import start_chat_server
         self.server = start_chat_server(self.viewer,
-                                        llm_model_name=self.model_combo_box.currentText(),
+                                        llm_model_name=model,
                                         temperature=temperature,
                                         tool_temperature=tool_temperature,
                                         memory_type=self.memory_type_combo_box.currentText(),
