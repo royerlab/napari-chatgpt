@@ -138,7 +138,7 @@ Install [napari](napari.org) in the environment using conda-forge: (very importa
 
     conda install -c conda-forge napari pyqt
 
-**Or**, with pip:
+**Or**, with pip (linux, windows, or Intel Macs, not recommended on Apple M1/M2!):
 
     pip install napari
 

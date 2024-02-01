@@ -41,7 +41,8 @@ class NapariChatServer:
     def __init__(self,
                  notebook: JupyterNotebookFile,
                  napari_bridge: NapariBridge,
-                 llm_model_name: str = get_default_openai_model_name(),
+                 main_llm_model_name: str = get_default_openai_model_name(),
+                 tool_llm_model_name: str = None,
                  temperature: float = 0.01,
                  tool_temperature: float = 0.01,
                  memory_type: str = 'standard',
@@ -51,6 +52,7 @@ class NapariChatServer:
                  fix_bad_calls: bool = True,
                  autofix_mistakes: bool = False,
                  autofix_widget: bool = False,
+                 be_didactic: bool = False,
                  verbose: bool = False
                  ):
 
@@ -120,7 +122,8 @@ class NapariChatServer:
             memory_callback_handler = ArbolCallbackHandler('Memory')
 
             main_llm, memory_llm, tool_llm, max_token_limit = instantiate_LLMs(
-                llm_model_name=llm_model_name,
+                main_llm_model_name=main_llm_model_name,
+                tool_llm_model_name=tool_llm_model_name,
                 temperature=temperature,
                 tool_temperature=tool_temperature,
                 chat_callback_handler=chat_callback_handler,
@@ -152,7 +155,7 @@ class NapariChatServer:
             agent_chain = initialize_omega_agent(
                 to_napari_queue=napari_bridge.to_napari_queue,
                 from_napari_queue=napari_bridge.from_napari_queue,
-                llm_model_name=llm_model_name,
+                main_llm_model_name=main_llm_model_name,
                 main_llm=main_llm,
                 tool_llm=tool_llm,
                 is_async=True,
@@ -167,6 +170,7 @@ class NapariChatServer:
                 fix_bad_calls=fix_bad_calls,
                 autofix_mistakes=autofix_mistakes,
                 autofix_widget=autofix_widget,
+                be_didactic=be_didactic,
                 verbose=verbose
             )
 
@@ -256,7 +260,8 @@ class NapariChatServer:
 
 
 def start_chat_server(viewer: napari.Viewer = None,
-                      llm_model_name: str = get_default_openai_model_name(),
+                      main_llm_model_name: str = get_default_openai_model_name(),
+                      tool_llm_model_name: str = None,
                       temperature: float = 0.01,
                       tool_temperature: float = 0.01,
                       memory_type: str = 'standard',
@@ -266,6 +271,7 @@ def start_chat_server(viewer: napari.Viewer = None,
                       fix_bad_calls: bool = True,
                       autofix_mistakes: bool = False,
                       autofix_widget: bool = False,
+                      be_didactic: bool = False,
                       save_chats_as_notebooks: bool = False,
                       verbose: bool = False
                       ):
@@ -274,12 +280,12 @@ def start_chat_server(viewer: napari.Viewer = None,
     config = AppConfiguration('omega')
 
     # Set OpenAI key if necessary:
-    if 'gpt' in llm_model_name and is_package_installed(
+    if ('gpt' in main_llm_model_name or 'gpt' in tool_llm_model_name )and is_package_installed(
             'openai'):
         set_api_key('OpenAI')
 
     # Set Anthropic key if necessary:
-    if 'claude' in llm_model_name and is_package_installed('anthropic'):
+    if ('claude' in main_llm_model_name or 'claude' in tool_llm_model_name) and is_package_installed('anthropic'):
         set_api_key('Anthropic')
 
     # Instantiates napari viewer:
@@ -298,7 +304,8 @@ def start_chat_server(viewer: napari.Viewer = None,
     # Instantiates server:
     chat_server = NapariChatServer(notebook=notebook,
                                    napari_bridge=bridge,
-                                   llm_model_name=llm_model_name,
+                                   main_llm_model_name=main_llm_model_name,
+                                   tool_llm_model_name=tool_llm_model_name,
                                    temperature=temperature,
                                    tool_temperature=tool_temperature,
                                    memory_type=memory_type,
@@ -308,6 +315,7 @@ def start_chat_server(viewer: napari.Viewer = None,
                                    fix_bad_calls=fix_bad_calls,
                                    autofix_mistakes=autofix_mistakes,
                                    autofix_widget=autofix_widget,
+                                   be_didactic=be_didactic,
                                    verbose=verbose
                                    )
 

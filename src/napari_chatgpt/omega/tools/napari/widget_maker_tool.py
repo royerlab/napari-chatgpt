@@ -7,7 +7,7 @@ from napari import Viewer
 from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
-from napari_chatgpt.utils.strings.find_function_name import find_function_name
+from napari_chatgpt.utils.strings.find_function_name import find_magicgui_decorated_function_name
 
 _napari_widget_maker_prompt = """
 **Context**
@@ -141,7 +141,7 @@ class NapariWidgetMakerTool(NapariBaseTool):
                 code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)
 
                 # Extracts function name:
-                function_name = find_function_name(code)
+                function_name = find_magicgui_decorated_function_name(code)
 
                 # If the function exists:
                 if function_name:

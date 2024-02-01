@@ -69,8 +69,9 @@ def find_straight_lines(image: ImageData) -> LabelsData:
 @pytest.mark.skipif(not is_api_key_available('OpenAI'),
                     reason="requires OpenAI key to run")
 def test_fix_bad_call_1():
-    fixed_code, did_something = fix_all_bad_function_calls(_code_snippet_1)
+    fixed_code, did_something, report = fix_all_bad_function_calls(_code_snippet_1)
     aprint(fixed_code)
+    aprint(report)
 
     assert not did_something
 
@@ -78,16 +79,18 @@ def test_fix_bad_call_1():
 @pytest.mark.skipif(not is_api_key_available('OpenAI'),
                     reason="requires OpenAI key to run")
 def test_fix_bad_call_2():
-    fixed_code, did_something  = fix_all_bad_function_calls(_code_snippet_2)
+    fixed_code, did_something, report  = fix_all_bad_function_calls(_code_snippet_2)
     aprint(fixed_code)
+    aprint(report)
 
     assert not did_something
 
 @pytest.mark.skipif(not is_api_key_available('OpenAI'),
                     reason="requires OpenAI key to run")
 def test_fix_bad_call_3():
-    fixed_code, did_something  = fix_all_bad_function_calls(_code_snippet_3)
+    fixed_code, did_something, report  = fix_all_bad_function_calls(_code_snippet_3)
     aprint(fixed_code)
+    aprint(report)
 
     assert did_something
     assert 'skimage.draw.line' in fixed_code

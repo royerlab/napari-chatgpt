@@ -46,6 +46,9 @@ class OmegaQWidget(QWidget):
         super().__init__()
         aprint("OmegaQWidget instantiated!")
 
+        # Get app configuration:
+        self.config = AppConfiguration('omega')
+
         # Napari viewer instance:
         self.viewer = napari_viewer
 
@@ -68,6 +71,7 @@ class OmegaQWidget(QWidget):
         self._install_missing_packages()
         self._autofix_mistakes()
         self._autofix_widgets()
+        self._tutorial_mode()
         self._save_chats_as_notebooks()
         self._verbose()
 
@@ -79,9 +83,6 @@ class OmegaQWidget(QWidget):
     def _model_selection(self):
 
         aprint("Setting up model selection UI.")
-
-        # Get app configuration:
-        config = AppConfiguration('omega')
 
         # Create a QLabel instance
         self.model_label = QLabel("Select a model:")
@@ -97,11 +98,8 @@ class OmegaQWidget(QWidget):
             "have poor coding performance (0613), avoid them!\n"
             "Models at the top of list are better!")
 
-        # Model list:
-        model_list: List[str] = []
-
         # Add OpenAI models to the combo box:
-        model_list = get_openai_model_list(verbose=True)
+        model_list: List[str] = list(get_openai_model_list(verbose=True))
 
         if is_package_installed('anthropic'):
             # Add Anthropic models to the combo box:
@@ -117,10 +115,10 @@ class OmegaQWidget(QWidget):
         # Postprocess list:
 
         # get list of bad models for main LLM:
-        bad_models_filters = config.get('bad_models_filters', ['0613', 'vision'])
+        bad_models_filters = self.config.get('bad_models_filters', ['0613', 'vision'])
 
         # get list of best models for main LLM:
-        best_models_filters = config.get('best_models_filters', ['0314', '0301', '1106', 'gpt-4'])
+        best_models_filters = self.config.get('best_models_filters', ['0314', '0301', '1106', 'gpt-4'])
 
         # Ensure that some 'bad' or unsupported models are excluded:
         bad_models = [m for m in model_list if any(bm in m for bm in bad_models_filters)]
@@ -309,6 +307,23 @@ class OmegaQWidget(QWidget):
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.autofix_widgets_checkbox)
 
+    def _tutorial_mode(self):
+        aprint("Setting up tutorial mode UI.")
+
+        # Get app configuration:
+        config = AppConfiguration('omega')
+
+        # Create a QLabel instance
+        self.tutorial_mode_checkbox = QCheckBox(
+            "Tutorial/Didactic mode")
+        self.tutorial_mode_checkbox.setChecked(config.get('tutorial_mode_checkbox', False))
+        self.tutorial_mode_checkbox.setToolTip(
+            "When checked Omega will actively asks questions \n"
+            "to clarify and disambiguate the request, and  \n"
+            "will propose multiple options and be didactic. ")
+        # Add the install_missing_packages checkbox to the layout:
+        self.layout.addWidget(self.tutorial_mode_checkbox)
+
     def _save_chats_as_notebooks(self):
         aprint("Setting up save notebooks UI.")
 
@@ -372,19 +387,25 @@ class OmegaQWidget(QWidget):
         tool_temperature = 0.01*temperature
 
         # Model selected:
-        model = self.model_combo_box.currentText()
+        main_llm_model_name = self.model_combo_box.currentText()
 
         # Warn users with a modal window that the selected model might be sub-optimal:
-        if 'gpt-4' not in model:
+        if 'gpt-4' not in main_llm_model_name:
             show_warning_dialog(f"You have selected this model: "
-                                f"'{model}'This is not a GPT4-level model. "
+                                f"'{main_llm_model_name}'This is not a GPT4-level model. "
                                 f"Omega's cognitive and coding abilities will be degraded. "
                                 f"Please visit <a href='https://github.com/royerlab/napari-chatgpt/wiki/OpenAIKey'>our wiki</a> "
                                 f"for information on how to gain access to GPT4.")
 
+        # Set tool LLM model name via configuration file.
+        tool_llm_model_name = self.config.get('tool_llm_model_name', 'same')
+        if tool_llm_model_name.strip() == 'same':
+            tool_llm_model_name = main_llm_model_name
+
         from napari_chatgpt.chat_server.chat_server import start_chat_server
         self.server = start_chat_server(self.viewer,
-                                        llm_model_name=model,
+                                        main_llm_model_name=main_llm_model_name,
+                                        tool_llm_model_name=tool_llm_model_name,
                                         temperature=temperature,
                                         tool_temperature=tool_temperature,
                                         memory_type=self.memory_type_combo_box.currentText(),
@@ -394,6 +415,7 @@ class OmegaQWidget(QWidget):
                                         fix_bad_calls=self.fix_bad_calls_checkbox.isChecked(),
                                         autofix_mistakes=self.autofix_mistakes_checkbox.isChecked(),
                                         autofix_widget=self.autofix_widgets_checkbox.isChecked(),
+                                        be_didactic=self.tutorial_mode_checkbox.isChecked(),
                                         save_chats_as_notebooks=self.save_chats_as_notebooks.isChecked(),
                                         verbose=self.verbose_checkbox.isChecked()
                                         )

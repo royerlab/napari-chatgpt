@@ -1,6 +1,7 @@
 from queue import Queue
 
 import langchain
+from arbol import aprint
 from langchain.agents import AgentExecutor
 from langchain.agents.conversational_chat.prompt import SUFFIX
 from langchain.base_language import BaseLanguageModel
@@ -43,6 +44,8 @@ from napari_chatgpt.omega.tools.special.human_input_tool import HumanInputTool
 from napari_chatgpt.omega.tools.special.pip_install_tool import PipInstallTool
 from napari_chatgpt.omega.tools.special.python_repl import \
     PythonCodeExecutionTool
+from napari_chatgpt.utils.configuration.app_configuration import \
+    AppConfiguration
 from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
 from napari_chatgpt.utils.omega_plugins.discover_omega_plugins import \
     discover_omega_tools
@@ -54,7 +57,7 @@ langchain.verbose = False
 
 def initialize_omega_agent(to_napari_queue: Queue = None,
                            from_napari_queue: Queue = None,
-                           llm_model_name: str = None,
+                           main_llm_model_name: str = None,
                            main_llm: BaseLanguageModel = None,
                            tool_llm: BaseLanguageModel = None,
                            is_async: bool = False,
@@ -69,8 +72,12 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                            fix_bad_calls: bool = True,
                            autofix_mistakes: bool = False,
                            autofix_widget: bool = False,
+                           be_didactic: bool = False,
                            verbose: bool = False
                            ) -> AgentExecutor:
+
+    # Get app configuration:
+    config = AppConfiguration('omega')
 
     # Chat callback manager:
     chat_callback_manager = (AsyncCallbackManager(
@@ -151,12 +158,11 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
     from langchain.globals import set_debug
     set_debug(True)
 
-
     # prepend the personality:
     PREFIX_ = SYSTEM + PERSONALITY[agent_personality]
 
     # Create the agent:
-    if 'gpt-' in llm_model_name:
+    if 'gpt-' in main_llm_model_name:
 
         # Import OpenAI's functions agent class:
         from napari_chatgpt.omega.omega_agent.OpenAIFunctionsOmegaAgent import \
@@ -174,10 +180,14 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
             # human_message=SUFFIX,
             verbose=verbose,
             callback_manager=chat_callback_manager,
-            extra_prompt_messages=extra_prompt_messages
+            extra_prompt_messages=extra_prompt_messages,
+            be_didactic=be_didactic
         )
 
     else:
+
+        if be_didactic:
+            aprint("Didactic mode not yet supported for non-OpenAI agents. Ignoring.")
 
         # Import default ReAct Agent class:
         from napari_chatgpt.omega.omega_agent.ConversationalChatOmegaAgent import \
@@ -193,7 +203,6 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
             callback_manager=chat_callback_manager,
         )
 
-
     # Create the executor:
     agent_executor = AgentExecutor.from_agent_and_tools(
         agent=agent,
@@ -201,9 +210,9 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         memory=memory,
         verbose=verbose,
         callback_manager=chat_callback_manager,
-        max_iterations=5,
+        max_iterations=config.get('agent_max_iterations', 5),
         early_stopping_method='generate',
-        handle_parsing_errors=True
+        handle_parsing_errors=config.get('agent_handle_parsing_errors', True),
     )
 
     return agent_executor

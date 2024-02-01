@@ -15,11 +15,14 @@ from langchain_core.messages import (
 )
 
 from napari_chatgpt.omega.napari_bridge import _get_viewer_info
+from napari_chatgpt.omega.omega_agent.prompts import DIDACTICS
 
 
 class OpenAIFunctionsOmegaAgent(OpenAIFunctionsAgent):
 
     # Convenience class to override some features of the OpenAIFunctionsAgent
+
+    be_didactic: bool = False
 
     async def aplan(
             self,
@@ -54,6 +57,14 @@ class OpenAIFunctionsOmegaAgent(OpenAIFunctionsAgent):
                 content="For reference, below is information about the napari viewer instance that is available to some of the tools: \n" + viewer_info,
                 additional_kwargs=dict(
                     system_message_type="viewer_info"
+                )
+            ))
+
+        if self.be_didactic:
+            messages.insert(-1, SystemMessage(
+                content=DIDACTICS,
+                additional_kwargs=dict(
+                    system_message_type="didactics"
                 )
             ))
 
