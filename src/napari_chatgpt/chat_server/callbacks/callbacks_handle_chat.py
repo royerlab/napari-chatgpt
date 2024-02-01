@@ -6,8 +6,10 @@ from uuid import UUID
 from arbol import aprint
 from langchain.callbacks.base import AsyncCallbackHandler
 from langchain.schema import AgentFinish, AgentAction, LLMResult, BaseMessage
+from starlette.websockets import WebSocket
 
 from napari_chatgpt.chat_server.chat_response import ChatResponse
+from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
 from napari_chatgpt.utils.strings.camel_case_to_normal import \
     camel_case_to_lower_case
 
@@ -15,8 +17,12 @@ from napari_chatgpt.utils.strings.camel_case_to_normal import \
 class ChatCallbackHandler(AsyncCallbackHandler):
     """Callback handler for chat responses."""
 
-    def __init__(self, websocket, verbose: bool = False):
-        self.websocket = websocket
+    def __init__(self,
+                 websocket: WebSocket,
+                 notebook: JupyterNotebookFile,
+                 verbose: bool = False):
+        self.websocket: WebSocket = websocket
+        self.notebook: JupyterNotebookFile = notebook
         self.verbose = verbose
         self.last_tool_used = ''
         self.last_tool_input = ''
@@ -100,6 +106,11 @@ class ChatCallbackHandler(AsyncCallbackHandler):
         resp = ChatResponse(sender="agent", message=message, type="error")
         asyncio.run(self.websocket.send_json(resp.dict()))
 
+        if self.notebook:
+            self.notebook.add_markdown_cell("### Omega:\n"+
+                                            "Error:\n"+
+                                            message)
+
     async def on_text(self, text: str, **kwargs: Any) -> Any:
         """Run on arbitrary text."""
         if self.verbose:
@@ -120,6 +131,10 @@ class ChatCallbackHandler(AsyncCallbackHandler):
 
         resp = ChatResponse(sender="agent", message=message, type="action")
         await self.websocket.send_json(resp.dict())
+
+        if self.notebook:
+            self.notebook.add_markdown_cell("### Omega:\n"+
+                                            message)
 
     async def on_agent_finish(self, finish: AgentFinish, **kwargs: Any) -> Any:
         """Run on agent end."""

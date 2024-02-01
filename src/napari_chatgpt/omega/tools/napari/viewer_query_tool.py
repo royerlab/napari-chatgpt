@@ -95,6 +95,10 @@ class NapariViewerQueryTool(NapariBaseTool):
                     # Run query code:
                     response = query(viewer)
 
+                    # Add successfully run code to notebook:
+                    if self.notebook:
+                        self.notebook.add_code_cell(code+'\n\nquery(viewer)')
+
                 # Get captured stdout:
                 captured_output = f.getvalue()
 

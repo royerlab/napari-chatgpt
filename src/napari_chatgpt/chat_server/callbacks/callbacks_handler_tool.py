@@ -3,16 +3,22 @@ from typing import Any, Dict, Union, List
 from arbol import aprint
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.schema import AgentFinish, AgentAction, LLMResult
+from starlette.websockets import WebSocket
 
 from napari_chatgpt.chat_server.chat_response import ChatResponse
 from napari_chatgpt.utils.async_utils.run_async import run_async
+from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
 
 
 class ToolCallbackHandler(BaseCallbackHandler):
     """Callback handler for tool responses."""
 
-    def __init__(self, websocket, verbose: bool = False):
+    def __init__(self,
+                 websocket: WebSocket,
+                 notebook: JupyterNotebookFile,
+                 verbose: bool = False):
         self.websocket = websocket
+        self.notebook = notebook
         self.verbose = verbose
         self.last_internal_tool_response = None
 
@@ -47,13 +53,20 @@ class ToolCallbackHandler(BaseCallbackHandler):
 
     def on_chain_end(self, outputs: Dict[str, Any], **kwargs: Any) -> Any:
         """Run when chain ends running."""
-        self.last_internal_tool_response = outputs['text']
+        tool_response = outputs['text']
+        self.last_internal_tool_response = tool_response
         if self.verbose:
-            aprint(f"TOOL on_chain_end: {self.last_internal_tool_response}")
+            aprint(f"TOOL on_chain_end: {tool_response}")
         resp = ChatResponse(sender="agent",
-                            message=self.last_internal_tool_response,
+                            message=tool_response,
                             type="tool_result")
         run_async(self.websocket.send_json, resp.dict())
+
+        if self.notebook:
+            self.notebook.add_markdown_cell("### Omega:\n"+
+                                            "Tool response:\n"+
+                                            tool_response)
+
 
     def on_chain_error(
             self, error: Union[Exception, KeyboardInterrupt], **kwargs: Any
@@ -84,9 +97,17 @@ class ToolCallbackHandler(BaseCallbackHandler):
         if output.startswith('Error:') or 'Failure' in output:
             resp = ChatResponse(sender="agent", message=output, type="error")
             run_async(self.websocket.send_json, resp.dict())
+            if self.notebook:
+                self.notebook.add_markdown_cell("### Omega:\n" +
+                                                "Error:\n" +
+                                                output)
         else:
             resp = ChatResponse(sender="agent", message=output, type="tool_result")
             run_async(self.websocket.send_json, resp.dict())
+            if self.notebook:
+                self.notebook.add_markdown_cell("### Omega:\n" +
+                                                "Tool result:\n" +
+                                                output)
 
 
     def on_tool_error(
@@ -100,6 +121,10 @@ class ToolCallbackHandler(BaseCallbackHandler):
         message = f"Failed because:\n'{error_message}'\nException: '{error_type}'\n"
         resp = ChatResponse(sender="agent", message=message, type="error")
         run_async(self.websocket.send_json, resp.dict())
+        if self.notebook:
+            self.notebook.add_markdown_cell("### Omega:\n" +
+                                            "Error:\n" +
+                                            message)
 
     def on_text(self, text: str, **kwargs: Any) -> Any:
         """Run on arbitrary text."""

@@ -32,17 +32,6 @@ class NapariViewerVisionTool(NapariBaseTool):
         "For example: '*some_layer_name* What is the background color?' or '*another_layer_name* How crowded are the objects on image?'. "
         "Refer to the *selected* layer if needed: '*selected* What is the background color?'. "
 
-
-        # "Use this tool when you need a description of what is currently visible on the viewer's canvas or on one of the layers. "
-        # "This tool is usefull for deciding how to next use, process, or analyse the contents of layers. "
-        # "The input must be a request about what to focus on or pay attention to. "
-        # "For instance, if the input is 'Describe the geometric objects shown on the viewer' a description of the geometric object present on the canvas will be given. "
-        # "If the input contains the emphasised name of a layer (*layer_name*) the other layers are hidden from view and only the mentioned layer is visible. "
-        # "For example, you can request: 'What is the background color on image *some_layer_name*', or 'how crowded are the objects on image *some_layer_name*'. "
-        # "Please use the term 'image' in your input instead of 'layer' to avoid confusion. "
-        # "The response to the input will be based on a description of the visual contents of the canvas or layer. "
-        # "If you want to refer to the selected layer, you can refer to the *selected* layer in the input. "
-        # "Do NOT include code in your input. "
     )
     prompt: str = None
     instructions: str = None

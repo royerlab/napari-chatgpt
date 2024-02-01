@@ -66,6 +66,10 @@ class PythonCodeExecutionTool(AsyncBaseTool):
         try:
             if self.sanitize_input:
                 query = sanitize_input(query)
+
+            if self.notebook:
+                self.notebook.add_code_cell(query)
+
             tree = ast.parse(query)
             module = ast.Module(tree.body[:-1], type_ignores=[])
             exec(ast.unparse(module), self.globals, self.locals)  # type: ignore

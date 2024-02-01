@@ -7,7 +7,7 @@ from napari import Viewer
 from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
-from napari_chatgpt.utils.strings.find_function_name import find_function_name
+from napari_chatgpt.utils.strings.find_function_name import find_magicgui_decorated_function_name
 
 _napari_widget_maker_prompt = """
 **Context**
@@ -41,8 +41,9 @@ _instructions = \
 """
 
 **Instructions for manipulating arrays from Image layers:**
-- Convert arrays to the float type before processing.
+- Convert arrays to the float type before processing if necessary.
 - Any intermediate or locally created image array should also be of type float.
+- The dtype of a RGB or RGBA image must be uint8 within the range [0, 255] to be viewable in napari.
 - When creating image arrays using functions like np.full(), np.ones(), np.zeros(), etc., use float parameters (e.g., 1.0).
 - Do NOT clip (np.clip) the resulting image unless explicitly instructed.
 
@@ -57,37 +58,47 @@ _instructions = \
 - Set 'result_widget=False' in the decorator, if the widget function returns an array or a napari layer.
 - To expose a float parameter as a slider, include <parameter_name>={{"widget_type": "FloatSlider", 'min':<min_value>, 'max': <max_value>}} in the decorator.
 - To expose a string parameter as dropdown choice, include <parameter_name>={{"choices": ['first', 'second', 'third']}}.
-- Do NOT create a new instance of a napari viewer. Use the one provided in the variable 'viewer'.
-- Do NOT manually add the widget to the napari window by calling viewer.window.add_dock_widget().
-- Do NOT add layers to the viewer within the function. Instead, use a return statement to return the result.
 - Do NOT use tuples for widget function parameters.
 - Do NOT expose *args and **kwargs as widget function parameters.
 - Pay attention to the data types required by the library functions you use, for example: convert a float to an int before passing to a function that requires an int.
+
+ **Instructions for using provided viewer instance:**
+- Do NOT create a new instance of a napari viewer. Assume one is provided in the variable 'viewer'.
+- Do NOT manually add the widget to the napari window by calling viewer.window.add_dock_widget().
+- Do NOT use the viewer to add layers to the napari window within the function. Instead, use a return statement to return the result.
 
 **Instructions for usage of delegated functions:**
 - If you need to write and call an auxiliary function, then this auxiliary function MUST be defined within the widget function.
 
 **Instructions on how to choose the function parameter types:**
-There are two mutually exclusive options for passing data:
+- There are two mutually exclusive options for passing data:
 
-(i) The first kind of function signature should be typed with any of the following type hints:
-    - napari layer data types: ImageData, LabelsData, PointsData, ShapesData, SurfaceData, TracksData, VectorsData.
-    - Import these types using statements like: 'from napari.types import ImageData'
+    (i) The first kind of function signature should be typed with any of the following type hints:
+        - napari layer data types: ImageData, LabelsData, PointsData, ShapesData, SurfaceData, TracksData, and VectorsData from 'napari.types'.
+    
+    (ii) The second kind of function signature should be typed with any of the following type hints:
+        - napari layer types: Data, Labels, Points, Shapes, Surface, Tracks, and Vectors from 'napari.layers'.
+ 
+- The function code must be consistent: if you use layers, access the data via 'layer.data'. Otherwise, you can directly operate on the arrays.
+- Do not mix these two options for the function parameters.
+- The function signature should include a type hint for the return value, such as '-> ImageData' or '-> Image'.
 
-(ii) The second kind of function signature should be typed with any of the following type hints:
-    - napari layer types: Data, Labels, Points, Shapes, Surface, Tracks, Vectors.
-    - Import these types using statements like: 'from napari.layers import Image'
+**Instructions for imports:**
+- The following imports are already included in the code prefix that is prepended to the code you provide:
+```python
+from napari.types import ImageData, LabelsData, PointsData, ShapesData, SurfaceData, TracksData, VectorsData
+from napari.layers import Image, Labels, Points, Shapes, Surface, Tracks, Vectors
+```
+- If you need to import other libraries, do so outside of the function.
 
-The function code must be consistent: if you use layers, access the data via 'layer.data'. Otherwise, you can directly operate on the arrays.
-Do not mix these two options for the function parameters.
-The function signature should include a type hint for the return value, such as '-> ImageData' or '-> Image'.
+
 
 """
-
 
 _code_prefix = """
 from magicgui import magicgui
 from napari.types import ImageData, LabelsData, PointsData, ShapesData, SurfaceData, TracksData, VectorsData
+from napari.layers import Image, Labels, Points, Shapes, Surface, Tracks, Vectors
 import numpy as np
 from typing import Union
 """
@@ -130,7 +141,7 @@ class NapariWidgetMakerTool(NapariBaseTool):
                 code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)
 
                 # Extracts function name:
-                function_name = find_function_name(code)
+                function_name = find_magicgui_decorated_function_name(code)
 
                 # If the function exists:
                 if function_name:
@@ -146,6 +157,11 @@ class NapariWidgetMakerTool(NapariBaseTool):
 
                     # Load the widget in the viewer:
                     viewer.window.add_dock_widget(function, name=function_name)
+
+                    # At this point we assume the code ran successfully and we add it to the notebook:
+                    if self.notebook:
+                        self.notebook.add_code_cell(code+'\n\n'
+                                                        +f'viewer.window.add_dock_widget(function, name={function_name})')
 
                     message = f"The requested widget has been successfully created and registered to the viewer."
 

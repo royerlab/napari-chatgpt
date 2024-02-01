@@ -3,10 +3,11 @@ import sys
 import traceback
 
 from arbol import asection, aprint
-from langchain import LLMChain, PromptTemplate
 from langchain.callbacks.manager import CallbackManager
+from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import BaseLLM
+from langchain_core.prompts import PromptTemplate
 
 from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
     ArbolCallbackHandler

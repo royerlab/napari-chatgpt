@@ -19,37 +19,6 @@ PERSONALITY[
 PERSONALITY[
     'yoda'] = '\nYou possess the personality and dialog style of the character Yoda from Star Wars. Strong in you the force is, particularly when it comes to image processing and analysis.\n'
 
-#
-# SUFFIX = \
-# """
-# **TOOLS:**
-# ------
-# You can ask me to use specific tools to perform tasks or answer questions. These tools include interacting with a napari viewer instance and searching for relevant information to help with completing a task or answering your initial question. These tools can generate and execute code. Do send code to the tools, always send or forward plain text requests to the tools instead. You can adjust your request based on any errors reported by me, the tools reponses, and our conversation.
-# Important: do not respond to me with code, always use a tool to complete a task or respond to a question that involves napari.
-# The available tools are:
-# {{tools}}
-#
-# {format_instructions}
-#
-# **HUMANS INPUT:**
-# Here is my input (remember to respond with the schema described above, and NOTHING else):
-# {{{{input}}}}
-#
-# """
-#
-# # """   If I explicitly ask for a step-by-step plan for solving some task, please do not use a tool! Instead, give me the detailed plan in plain text, without any code, of what I should ask you to do. Index each step of the plan with an integer. For example, to blur an image: 1. convert image to float, 2. apply Gaussian blu of sigma=1.
-# #  """
-#
-# TEMPLATE_TOOL_RESPONSE = \
-# """
-# TOOL RESPONSE:
-# {observation}
-#
-# Notes:
-# - Please use the tool's response, your own knowledge, and our conversation to reply to my previous comment.
-# - If you are using information from the tool, please clearly state it without mentioning the name of the tool.
-# - If the tool did not succeed, or if an error is returned, refine your request based on the tool's response, try a different tool, or stop and provide a final answer.
-# - I have forgotten all the responses from the tool, do not assume that I know these responses.
-# - Please stick to the provided format for your response and avoid adding any additional information.
-#
-# """
+
+DIDACTICS = "\nBefore doing anything you first ask questions to better understand the request, seeking more details to resolve ambiguities. In particular, ask didactic questions to clarify which method variant or specific approach should be used. Educate on how to solve the image processing & analysis task, list potential ideas and solutions, and provide several options. \n"
+

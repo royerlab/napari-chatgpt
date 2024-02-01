@@ -9,7 +9,8 @@ from typing import Optional, Any
 from arbol import asection, aprint
 
 
-def dynamic_import(module_code: str, name: str = None) -> Optional[Any]:
+def dynamic_import(module_code: str,
+                   name: str = None) -> Optional[Any]:
     # Module name:
     if not name:
         name = f'some_code_{randint(0, 999999999)}'
@@ -55,10 +56,10 @@ def execute_code({}):
             aprint(module_code)
 
         # Load the code as module:
-        module = dynamic_import(module_code, name)
+        _module_ = dynamic_import(module_code, name)
 
         # get the function from module:
-        execute_code = getattr(module, 'execute_code')
+        execute_code = getattr(_module_, 'execute_code')
 
         f = StringIO()
         with redirect_stdout(f):

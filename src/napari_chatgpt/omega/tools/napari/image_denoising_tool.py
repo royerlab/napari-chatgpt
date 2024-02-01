@@ -147,6 +147,10 @@ class ImageDenoisingTool(NapariBaseTool):
                 # get the function:
                 denoise = getattr(loaded_module, 'denoise')
 
+                # At this point we assume the code ran successfully and we add it to the notebook:
+                if self.notebook:
+                    self.notebook.add_code_cell(code)
+
                 # Run denoising:
                 with asection(f"Running image denoising..."):
                     denoised_image = denoise(viewer)
