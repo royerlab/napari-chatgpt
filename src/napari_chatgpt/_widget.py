@@ -92,11 +92,8 @@ class OmegaQWidget(QWidget):
         self.model_combo_box = QComboBox()
         # Set tooltip for the combo box
         self.model_combo_box.setToolTip(
-            "Choose an LLM model. Best models are GPT4 and GPT3.5, \n"
-            "with Claude a bit behind, other models are experimental\n"
-            "and unfortunately barely usable. WARNING: recent GPT models\n"
-            "have poor coding performance (0613), avoid them!\n"
-            "Models at the top of list are better!")
+            "Choose an LLM model. Best models are GPT4s. \n"
+            "other models are less competent. \n")
 
         # Add OpenAI models to the combo box:
         model_list: List[str] = list(get_openai_model_list(verbose=True))
