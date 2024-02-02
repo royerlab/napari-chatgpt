@@ -26,6 +26,21 @@ class WebImageSearchTool(NapariBaseTool):
     prompt: str = None
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
+        """Run the code and return the result.
+        Parameters
+        ----------
+        query : str
+            The query to search for images.
+        code : str
+            The code to run.
+        viewer : Viewer
+            The napari viewer to add the images to.
+        Returns
+        -------
+        str
+            The result of running the code. This will be printed to the user.
+
+        """
         try:
 
             with asection(f"WebImageSearchTool: query= {query} "):

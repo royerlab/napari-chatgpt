@@ -60,10 +60,9 @@ class ArbolCallbackHandler(BaseCallbackHandler):
             **kwargs: Any
     ) -> None:
         """Print out that we are entering a chain."""
-        class_name = serialized["name"]
         if self.verbose:
             aprint(
-                f"{self.prefix} on_chain_start: class_name={class_name}, kwargs={kwargs}")
+                f"{self.prefix} on_chain_start:  kwargs={kwargs}")
 
     def on_chain_end(self, outputs: Dict[str, Any], **kwargs: Any) -> None:
         """Print out that we finished a chain."""

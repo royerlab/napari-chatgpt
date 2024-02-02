@@ -120,6 +120,9 @@ def get_viewer_layers_info(viewer):
         elif isinstance(layer, Image):
             layer_info.update({
                 'Image Shape': layer.data.shape,
+                'Image Data Type': layer.data.dtype,
+                'Image Data Class': layer.data.__class__,
+                'Multiscale': layer.multiscale,
                 'Interpolation': layer.interpolation,
                 'Rendering': layer.rendering,
             })
@@ -132,12 +135,16 @@ def get_viewer_layers_info(viewer):
         elif isinstance(layer, Labels):
             unique_labels = numpy.unique(layer.data)
             layer_info.update({
-                'Number of Labels': len(unique_labels) - (1 if 0 in unique_labels else 0)
+                'Number of Labels': len(unique_labels) - (1 if 0 in unique_labels else 0),
+                'Labels Data Type': layer.data.dtype,
+                'Image Data Class': layer.data.__class__,
             })
 
         elif isinstance(layer, Vectors):
             layer_info.update({
-                'Number of Vectors': len(layer.data)
+                'Number of Vectors': len(layer.data),
+                'Vectors Data Type': layer.data.dtype,
+                'Image Data Class': layer.data.__class__,
             })
 
         elif isinstance(layer, Surface):
