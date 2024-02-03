@@ -1,16 +1,14 @@
 import ast
 import re
-import sys
 from contextlib import redirect_stdout
 from io import StringIO
 from typing import Dict, Optional
 
 from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
     CallbackManagerForToolRun,
 )
 from langchain.utilities import PythonREPL
-from pydantic import Field, root_validator
+from pydantic import Field
 
 from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 
@@ -45,17 +43,6 @@ class PythonCodeExecutionTool(AsyncBaseTool):
     globals: Optional[Dict] = Field(default_factory=dict)
     locals: Optional[Dict] = Field(default_factory=dict)
     sanitize_input: bool = True
-
-    @root_validator(pre=True)
-    def validate_python_version(cls, values: Dict) -> Dict:
-        """Validate valid python version."""
-        if sys.version_info < (3, 9):
-            raise ValueError(
-                "This tool relies on Python 3.9 or higher "
-                "(as it uses new functionality in the `ast` module, "
-                f"you have Python version: {sys.version}"
-            )
-        return values
 
     def _run(
         self,
