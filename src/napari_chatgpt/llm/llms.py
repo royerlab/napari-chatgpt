@@ -101,7 +101,7 @@ def _instantiate_single_llm(llm_model_name: str,
             base_url="http://localhost:11434",
             model=llm_model_name,
             verbose=verbose,
-            streaming=streaming,
+            #streaming=streaming,
             temperature=temperature,
             callback_manager=AsyncCallbackManager(
                 [callback_handler])

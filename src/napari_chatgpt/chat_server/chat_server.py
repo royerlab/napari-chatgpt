@@ -276,69 +276,71 @@ def start_chat_server(viewer: napari.Viewer = None,
                       verbose: bool = False
                       ):
 
-    # get configuration:
-    config = AppConfiguration('omega')
+    with asection("Starting chat server"):
 
-    # Set OpenAI key if necessary:
-    if ('gpt' in main_llm_model_name or 'gpt' in tool_llm_model_name )and is_package_installed(
-            'openai'):
-        set_api_key('OpenAI')
+        # get configuration:
+        config = AppConfiguration('omega')
 
-    # Set Anthropic key if necessary:
-    if ('claude' in main_llm_model_name or 'claude' in tool_llm_model_name) and is_package_installed('anthropic'):
-        set_api_key('Anthropic')
+        # Set OpenAI key if necessary:
+        if ('gpt' in main_llm_model_name or 'gpt' in tool_llm_model_name )and is_package_installed(
+                'openai'):
+            set_api_key('OpenAI')
 
-    # Instantiates napari viewer:
-    if not viewer:
-        viewer = napari.Viewer()
+        # Set Anthropic key if necessary:
+        if ('claude' in main_llm_model_name or 'claude' in tool_llm_model_name) and is_package_installed('anthropic'):
+            set_api_key('Anthropic')
 
-    # Instantiates a notebook:
-    notebook = JupyterNotebookFile(notebook_folder_path=config.get('notebook_path')) if save_chats_as_notebooks else None
+        # Instantiates napari viewer:
+        if not viewer:
+            viewer = napari.Viewer()
 
-    # Instantiates a napari bridge:
-    bridge = NapariBridge(viewer=viewer)
+        # Instantiates a notebook:
+        notebook = JupyterNotebookFile(notebook_folder_path=config.get('notebook_path')) if save_chats_as_notebooks else None
 
-    # Register snapshot function:
-    notebook.register_snapshot_function(bridge.take_snapshot)
+        # Instantiates a napari bridge:
+        bridge = NapariBridge(viewer=viewer)
 
-    # Instantiates server:
-    chat_server = NapariChatServer(notebook=notebook,
-                                   napari_bridge=bridge,
-                                   main_llm_model_name=main_llm_model_name,
-                                   tool_llm_model_name=tool_llm_model_name,
-                                   temperature=temperature,
-                                   tool_temperature=tool_temperature,
-                                   memory_type=memory_type,
-                                   agent_personality=agent_personality,
-                                   fix_imports=fix_imports,
-                                   install_missing_packages=install_missing_packages,
-                                   fix_bad_calls=fix_bad_calls,
-                                   autofix_mistakes=autofix_mistakes,
-                                   autofix_widget=autofix_widget,
-                                   be_didactic=be_didactic,
-                                   verbose=verbose
-                                   )
+        # Register snapshot function:
+        notebook.register_snapshot_function(bridge.take_snapshot)
 
-    # Define server thread code:
-    def server_thread_function():
-        # Start Chat server:
-        chat_server.run()
+        # Instantiates server:
+        chat_server = NapariChatServer(notebook=notebook,
+                                       napari_bridge=bridge,
+                                       main_llm_model_name=main_llm_model_name,
+                                       tool_llm_model_name=tool_llm_model_name,
+                                       temperature=temperature,
+                                       tool_temperature=tool_temperature,
+                                       memory_type=memory_type,
+                                       agent_personality=agent_personality,
+                                       fix_imports=fix_imports,
+                                       install_missing_packages=install_missing_packages,
+                                       fix_bad_calls=fix_bad_calls,
+                                       autofix_mistakes=autofix_mistakes,
+                                       autofix_widget=autofix_widget,
+                                       be_didactic=be_didactic,
+                                       verbose=verbose
+                                       )
 
-    # Create and start the thread that will run Omega:
-    server_thread = Thread(target=server_thread_function, args=())
-    server_thread.start()
+        # Define server thread code:
+        def server_thread_function():
+            # Start Chat server:
+            chat_server.run()
 
-    # function to open browser on page:
-    def _open_browser():
-        url = f"http://127.0.0.1:{chat_server.port}"
-        webbrowser.open(url, new=0, autoraise=True)
+        # Create and start the thread that will run Omega:
+        server_thread = Thread(target=server_thread_function, args=())
+        server_thread.start()
 
-    # open browser after delay of a few seconds:
-    if config.get('open_browser', True):
-        QTimer.singleShot(2000, _open_browser)
+        # function to open browser on page:
+        def _open_browser():
+            url = f"http://127.0.0.1:{chat_server.port}"
+            webbrowser.open(url, new=0, autoraise=True)
 
-    # Return the server:
-    return chat_server
+        # open browser after delay of a few seconds:
+        if config.get('open_browser', True):
+            QTimer.singleShot(2000, _open_browser)
+
+        # Return the server:
+        return chat_server
 
 
 if __name__ == "__main__":

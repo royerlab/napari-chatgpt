@@ -101,8 +101,9 @@ class OmegaQWidget(QWidget):
 
         if is_package_installed('anthropic'):
             # Add Anthropic models to the combo box:
-            model_list.append('claude-2')
-            model_list.append('claude-instant-1')
+            model_list.append('claude-2.1')
+            model_list.append('claude-2.0')
+            model_list.append('claude-instant-1.2')
 
 
         if is_ollama_running():
@@ -110,13 +111,17 @@ class OmegaQWidget(QWidget):
             for ollama_model in ollama_models:
                 model_list.append('ollama_'+ollama_model)
 
-        # Postprocess list:
+        # Postprocess model list:
+
+        # Special cases (common prefix):
+        if 'gpt-3.5-turbo' in model_list:
+            model_list.remove('gpt-3.5-turbo')
 
         # get list of bad models for main LLM:
-        bad_models_filters = self.config.get('bad_models_filters', ['0613', 'vision'])
+        bad_models_filters = ['0613', 'vision', 'turbo-instruct', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo-16k']
 
         # get list of best models for main LLM:
-        best_models_filters = self.config.get('best_models_filters', ['0314', '0301', '1106', 'gpt-4'])
+        best_models_filters = ['0314', '0301', '1106', 'gpt-4']
 
         # Ensure that some 'bad' or unsupported models are excluded:
         bad_models = [m for m in model_list if any(bm in m for bm in bad_models_filters)]
@@ -377,7 +382,6 @@ class OmegaQWidget(QWidget):
             with asection("Starting Omega now!"):
 
                 # Stop previous instance if it exists:
-
                 if self.server:
                     aprint("Server already started")
                     self.server.stop()
@@ -393,9 +397,10 @@ class OmegaQWidget(QWidget):
                 # Warn users with a modal window that the selected model might be sub-optimal:
                 if 'gpt-4' not in main_llm_model_name:
                     aprint("Warning: you did not select a gpt-4 level model. Omega's cognitive and coding abilities will be degraded.")
-                    show_warning_dialog(f"You have selected this model: "
-                                        f"'{main_llm_model_name}'This is not a GPT4-level model. "
+                    show_warning_dialog(f"You have selected this model: '{main_llm_model_name}'. "
+                                        f"This is not a GPT4-level model. "
                                         f"Omega's cognitive and coding abilities will be degraded. "
+                                        f"It might even completely fail or be too slow. "
                                         f"Please visit <a href='https://github.com/royerlab/napari-chatgpt/wiki/OpenAIKey'>our wiki</a> "
                                         f"for information on how to gain access to GPT4.")
 

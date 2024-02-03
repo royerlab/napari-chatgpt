@@ -138,13 +138,13 @@ Install [napari](napari.org) in the environment using conda-forge: (very importa
 
     conda install -c conda-forge napari pyqt
 
-**Or**, with pip (linux, windows, or Intel Macs, not recommended on Apple M1/M2!):
+**Or**, with pip (linux, windows, or Intel Macs, _not_ recommended on Apple M1/M2!):
 
-    pip install napari
+    python -m pip install "napari[all]"
 
 Install napari-chatgpt in the environment:
 
-    pip install napari-chatgpt
+    python -m pip install napari-chatgpt
 
 ## Installation variations:
 
@@ -152,7 +152,7 @@ To install the latest development version (not recommended for end-users):
 
     conda create -y -n napari-chatgpt -c conda-forge python=3.9
     conda activate napari-chatgpt
-    pip install napari  
+    python -m pip install "napari[all]"
     git clone https://github.com/royerlab/napari-chatgpt.git
     cd napari-chatgpt
     pip install -e .

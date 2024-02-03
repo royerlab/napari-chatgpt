@@ -19,7 +19,8 @@ You are an expert Python coder with extensive knowledge of all python libraries,
 **Task:**
 Find the list of "pip installable" packages (packages that can be installed using the 'pip install' command) required to run the Python code provided below. The code is written against Python version {sys.version.split()[0]}.
 Please only include packages that are absolutely necessary for running the code. Do not include any other packages. Exclude any dependencies that are already included in the listed packages.
-The answer should be a space-delimited list of packages (<list_of_packages>), without any additional text or explanations before or after.
+The answer should be a space-delimited list of packages, without any additional text or explanations before or after the list.
+For example, if the code requires the packages 'numpy', 'scipy', and 'magicgui', the answer should be a single line: 'numpy scipy magicgui'.
 If no additional packages are required to run this code, just return an empty string.
 Make sure we have the right answer.
 
@@ -29,8 +30,7 @@ Make sure we have the right answer.
 {'{code}'}
 ```
 
-
-**Answer:**
+**Space Separated List of Packages:**
 """
 
 
@@ -74,10 +74,28 @@ def required_packages(code: str,
         # Cleanup:
         list_of_packages_str = list_of_packages_str.strip()
 
-        if len(list_of_packages_str)>0:
+        # Sometimes some models insist on having some text before:
+        if ':' in list_of_packages_str:
+            list_of_packages_str = list_of_packages_str.split(':')[-1].strip()
+
+        # If the string contains commas:
+        if ',' in list_of_packages_str:
+            list_of_packages_str = list_of_packages_str.replace(',', ' ')
+
+        # If the string contains new lines:
+        if '\n' in list_of_packages_str:
+            list_of_packages_str = list_of_packages_str.replace('\n', ' ')
+
+        if len(list_of_packages_str) > 0:
 
             # Parse the list:
             list_of_packages = list_of_packages_str.split()
+
+            # Strip each package name of white spaces:
+            list_of_packages = [p.strip() for p in list_of_packages]
+
+            # Remove empty strings:
+            list_of_packages = [p for p in list_of_packages if len(p) > 0]
 
             aprint(f'List of required packages:\n{list_of_packages}')
 

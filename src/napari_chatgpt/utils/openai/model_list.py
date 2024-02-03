@@ -1,3 +1,5 @@
+import traceback
+
 from arbol import asection, aprint
 
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
@@ -22,27 +24,36 @@ def get_openai_model_list(filter: str = 'gpt', verbose: bool = False) -> list:
 
     with asection(f"Enumerating all OpenAI ChatGPT models:"):
 
-        # Model list to populate:
-        model_list = []
-
         # Ensure that the OpenAI API key is set:
         set_api_key('OpenAI')
 
-        # Local imports to avoid
+        # Local imports to avoid issues:
         from openai import OpenAI
 
-        # Instanciate API entry point
-        client = OpenAI()
+        try:
+            # Model list to populate:
+            model_list = []
 
-        # Goes through models and populate the list:
-        for model in client.models.list().data:
-            model_id = model.id
+            # Instantiate API entry point
+            client = OpenAI()
 
-            # only keep models that match the filter:
-            if filter in model_id:
-                model_list.append(model_id)
-                if verbose:
-                    aprint(model_id)
+            # Goes through models and populate the list:
+            for model in client.models.list().data:
+                model_id = model.id
 
+                # only keep models that match the filter:
+                if filter in model_id:
+                    model_list.append(model_id)
+                    if verbose:
+                        aprint(model_id)
 
-        return model_list
+            return model_list
+
+        except Exception as e:
+            # Error message:
+            aprint(f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to get the list of OpenAI models. ")
+            # print stacktrace:
+            traceback.print_exc()
+
+            return []
+
