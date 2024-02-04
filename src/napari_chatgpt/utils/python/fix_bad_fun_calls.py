@@ -5,9 +5,8 @@ from difflib import Differ
 from typing import Tuple
 
 from arbol import asection, aprint
-from langchain.callbacks.manager import CallbackManager
 from langchain.chains import LLMChain
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.llms import BaseLLM
 from langchain_core.prompts import PromptTemplate
 
@@ -149,8 +148,7 @@ def fix_function_call(original_function_call:str,
         prompt=prompt_template,
         llm=llm,
         verbose=verbose,
-        callback_manager=CallbackManager(
-            [ArbolCallbackHandler('fix_all_bad_function_calls')])
+        callbacks=[ArbolCallbackHandler('fix_all_bad_function_calls')]
     )
 
     # List of installed packages with their versions:
@@ -165,7 +163,7 @@ def fix_function_call(original_function_call:str,
                  'fully_qual_fun_name': fully_qual_fun_name}
 
     # call LLM:
-    fixed_function_call = chain(variables)['text']
+    fixed_function_call = chain.invoke(variables)['text']
 
     # Cleanup:
     fixed_function_call = fixed_function_call.strip()

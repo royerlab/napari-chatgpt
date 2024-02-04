@@ -19,7 +19,7 @@ from qtpy.QtWidgets import QPushButton, QWidget
 from napari_chatgpt.chat_server.chat_server import NapariChatServer
 from napari_chatgpt.utils.configuration.app_configuration import \
     AppConfiguration
-from napari_chatgpt.utils.ollama.ollama import is_ollama_running, \
+from napari_chatgpt.utils.ollama.ollama_server import is_ollama_running, \
     get_ollama_models
 from napari_chatgpt.utils.openai.model_list import get_openai_model_list
 from napari_chatgpt.utils.python.installed_packages import \

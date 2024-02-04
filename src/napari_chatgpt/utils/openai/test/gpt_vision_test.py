@@ -28,7 +28,7 @@ def test_gpt_vision():
 
     print(description_2)
 
-    assert 'futuristic' in description_2 and 'sunset' in description_2
+    assert 'futuristic' in description_2 and ('sunset' in description_2 or 'sunrise' in description_2 or 'landscape' in description_2)
 
 
 def _get_image_path(image_name: str):

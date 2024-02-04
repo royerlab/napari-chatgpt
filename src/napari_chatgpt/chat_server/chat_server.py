@@ -200,7 +200,7 @@ class NapariChatServer:
                         _set_viewer_info(viewer_info)
 
                         # call LLM:
-                        result = await agent_chain.acall(question)
+                        result = await agent_chain.ainvoke(question)
 
                         aprint(
                             f"Agent response:\n{result['chat_history'][-1]}\n\n")

@@ -4,9 +4,8 @@ from typing import Tuple
 
 import napari
 from arbol import asection, aprint
-from langchain.callbacks.manager import CallbackManager
 from langchain.chains import LLMChain
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.llms import BaseLLM
 from langchain_core.prompts import PromptTemplate
 
@@ -129,8 +128,7 @@ def _fix_code_given_error_message(code: str,
         prompt=prompt_template,
         llm=llm,
         verbose=verbose,
-        callback_manager=CallbackManager(
-            [ArbolCallbackHandler('fix_code_given_error_message')])
+        callbacks=[ArbolCallbackHandler('fix_code_given_error_message')]
     )
 
     # List all function calls in code:

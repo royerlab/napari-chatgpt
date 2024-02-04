@@ -1,8 +1,8 @@
 # start Ollama server:
 from pprint import pprint
 
-from napari_chatgpt.llm.ollama import OllamaFixed
-from napari_chatgpt.utils.ollama.ollama import start_ollama, get_ollama_models
+from napari_chatgpt.utils.ollama.ollama import OllamaFixed
+from napari_chatgpt.utils.ollama.ollama_server import start_ollama, get_ollama_models
 
 model_list = get_ollama_models()
 
@@ -26,7 +26,7 @@ while True:
     input_text = input("Enter input: ")
 
     # run main_llm:
-    result = main_llm(input_text)
+    result = main_llm.invoke(input_text)
 
     # Display result:
     pprint(result)

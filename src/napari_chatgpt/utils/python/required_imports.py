@@ -3,9 +3,8 @@ import sys
 import traceback
 
 from arbol import asection, aprint
-from langchain.callbacks.manager import CallbackManager
 from langchain.chains import LLMChain
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.llms import BaseLLM
 from langchain_core.prompts import PromptTemplate
 
@@ -64,15 +63,14 @@ def required_imports(code: str,
             prompt=prompt_template,
             llm=llm,
             verbose=verbose,
-            callback_manager=CallbackManager(
-                [ArbolCallbackHandler('Required imports')])
+            callbacks=[ArbolCallbackHandler('Required imports')]
         )
 
         # Variable for prompt:
         variables = {'input': code}
 
         # call LLM:
-        list_of_imports_str = chain(variables)['text']
+        list_of_imports_str = chain.invoke(variables)['text']
 
         # Extract code:
         list_of_imports_str = extract_code_from_markdown(list_of_imports_str)

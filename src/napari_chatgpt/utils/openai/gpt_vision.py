@@ -96,19 +96,28 @@ def describe_image(image_path: str,
             # Ensure that the OpenAI API key is set:
             set_api_key('OpenAI')
 
-            # Instantiate API entry points:
-            client = OpenAI()
-            completions = Completions(client)
+            try:
+                # Instantiate API entry points:
+                client = OpenAI()
+                completions = Completions(client)
 
-            # Send a request to GPT:
-            result = completions.create(model=model,
-                                        messages=prompt_messages,
-                                        max_tokens=max_tokens)
+                # Send a request to GPT:
+                result = completions.create(model=model,
+                                            messages=prompt_messages,
+                                            max_tokens=max_tokens)
 
-            # Actual response:
-            response = result.choices[0].message.content
+                # Actual response:
+                response = result.choices[0].message.content
 
-            aprint(f"Response: '{response}'")
+                aprint(f"Response: '{response}'")
 
-            return response
+                return response
+
+            except Exception as e:
+                # Log the error:
+                aprint(f"Error: '{e}'")
+                # print stack trace:
+                import traceback
+                traceback.print_exc()
+                return f"Error: '{e}'"
 

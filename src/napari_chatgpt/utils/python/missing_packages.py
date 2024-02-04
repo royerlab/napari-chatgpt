@@ -1,9 +1,8 @@
 import sys
 
 from arbol import aprint, asection
-from langchain.callbacks.manager import CallbackManager
 from langchain.chains import LLMChain
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.llms import BaseLLM
 from langchain_core.prompts import PromptTemplate
 
@@ -61,15 +60,14 @@ def required_packages(code: str,
             prompt=prompt_template,
             llm=llm,
             verbose=verbose,
-            callback_manager=CallbackManager(
-                [ArbolCallbackHandler('Required libraries')])
+            callbacks=[ArbolCallbackHandler('Required libraries')]
         )
 
         # Variable for prompt:
         variables = {"code": code}
 
         # call LLM:
-        list_of_packages_str = chain(variables)['text']
+        list_of_packages_str = chain.invoke(variables)['text']
 
         # Cleanup:
         list_of_packages_str = list_of_packages_str.strip()

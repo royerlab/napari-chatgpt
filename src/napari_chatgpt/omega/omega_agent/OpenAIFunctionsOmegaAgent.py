@@ -8,8 +8,8 @@ from langchain.agents.format_scratchpad.openai_functions import (
 from langchain.agents.output_parsers.openai_functions import (
     OpenAIFunctionsAgentOutputParser,
 )
-from langchain.callbacks.manager import Callbacks
 from langchain_core.agents import AgentAction, AgentFinish
+from langchain_core.callbacks import Callbacks
 from langchain_core.messages import (
     SystemMessage,
 )
