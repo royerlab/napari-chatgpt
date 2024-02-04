@@ -7,6 +7,7 @@ see: https://napari.org/stable/plugins/guides.html?#widgets
 Replace code below according to your needs.
 """
 import sys
+import traceback
 from typing import TYPE_CHECKING, List
 
 from PyQt5.QtCore import Qt
@@ -18,7 +19,7 @@ from qtpy.QtWidgets import QPushButton, QWidget
 from napari_chatgpt.chat_server.chat_server import NapariChatServer
 from napari_chatgpt.utils.configuration.app_configuration import \
     AppConfiguration
-from napari_chatgpt.utils.ollama.ollama import is_ollama_running, \
+from napari_chatgpt.utils.ollama.ollama_server import is_ollama_running, \
     get_ollama_models
 from napari_chatgpt.utils.openai.model_list import get_openai_model_list
 from napari_chatgpt.utils.python.installed_packages import \
@@ -28,7 +29,7 @@ from napari_chatgpt.utils.qt.warning_dialog import show_warning_dialog
 if TYPE_CHECKING:
     pass
 
-from arbol import aprint
+from arbol import aprint, asection
 
 _creativity_mapping = {}
 _creativity_mapping['normal'] = 0.0
@@ -100,8 +101,9 @@ class OmegaQWidget(QWidget):
 
         if is_package_installed('anthropic'):
             # Add Anthropic models to the combo box:
-            model_list.append('claude-2')
-            model_list.append('claude-instant-1')
+            model_list.append('claude-2.1')
+            model_list.append('claude-2.0')
+            model_list.append('claude-instant-1.2')
 
 
         if is_ollama_running():
@@ -109,13 +111,17 @@ class OmegaQWidget(QWidget):
             for ollama_model in ollama_models:
                 model_list.append('ollama_'+ollama_model)
 
-        # Postprocess list:
+        # Postprocess model list:
+
+        # Special cases (common prefix):
+        if 'gpt-3.5-turbo' in model_list:
+            model_list.remove('gpt-3.5-turbo')
 
         # get list of bad models for main LLM:
-        bad_models_filters = self.config.get('bad_models_filters', ['0613', 'vision'])
+        bad_models_filters = ['0613', 'vision', 'turbo-instruct', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo-16k']
 
         # get list of best models for main LLM:
-        best_models_filters = self.config.get('best_models_filters', ['0314', '0301', '1106', 'gpt-4'])
+        best_models_filters = ['0314', '0301', '1106', 'gpt-4']
 
         # Ensure that some 'bad' or unsupported models are excluded:
         bad_models = [m for m in model_list if any(bm in m for bm in bad_models_filters)]
@@ -372,50 +378,60 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.start_omega_button)
 
     def _on_click(self):
-        aprint("Starting Omega now!")
+        try:
+            with asection("Starting Omega now!"):
 
-        # Stop previous instance if it exists:
-        if self.server:
-            self.server.stop()
+                # Stop previous instance if it exists:
+                if self.server:
+                    aprint("Server already started")
+                    self.server.stop()
 
-        # Temperature:
-        temperature = float(_creativity_mapping[
-                                self.creativity_combo_box.currentText()])
-        tool_temperature = 0.01*temperature
+                # Temperature:
+                temperature = float(_creativity_mapping[
+                                        self.creativity_combo_box.currentText()])
+                tool_temperature = 0.01*temperature
 
-        # Model selected:
-        main_llm_model_name = self.model_combo_box.currentText()
+                # Model selected:
+                main_llm_model_name = self.model_combo_box.currentText()
 
-        # Warn users with a modal window that the selected model might be sub-optimal:
-        if 'gpt-4' not in main_llm_model_name:
-            show_warning_dialog(f"You have selected this model: "
-                                f"'{main_llm_model_name}'This is not a GPT4-level model. "
-                                f"Omega's cognitive and coding abilities will be degraded. "
-                                f"Please visit <a href='https://github.com/royerlab/napari-chatgpt/wiki/OpenAIKey'>our wiki</a> "
-                                f"for information on how to gain access to GPT4.")
+                # Warn users with a modal window that the selected model might be sub-optimal:
+                if 'gpt-4' not in main_llm_model_name:
+                    aprint("Warning: you did not select a gpt-4 level model. Omega's cognitive and coding abilities will be degraded.")
+                    show_warning_dialog(f"You have selected this model: '{main_llm_model_name}'. "
+                                        f"This is not a GPT4-level model. "
+                                        f"Omega's cognitive and coding abilities will be degraded. "
+                                        f"It might even completely fail or be too slow. "
+                                        f"Please visit <a href='https://github.com/royerlab/napari-chatgpt/wiki/OpenAIKey'>our wiki</a> "
+                                        f"for information on how to gain access to GPT4.")
 
-        # Set tool LLM model name via configuration file.
-        tool_llm_model_name = self.config.get('tool_llm_model_name', 'same')
-        if tool_llm_model_name.strip() == 'same':
-            tool_llm_model_name = main_llm_model_name
+                # Set tool LLM model name via configuration file.
+                tool_llm_model_name = self.config.get('tool_llm_model_name', 'same')
+                if tool_llm_model_name.strip() == 'same':
+                    aprint(f"Using the same model {main_llm_model_name} for the main and tool's LLM.")
+                    tool_llm_model_name = main_llm_model_name
 
-        from napari_chatgpt.chat_server.chat_server import start_chat_server
-        self.server = start_chat_server(self.viewer,
-                                        main_llm_model_name=main_llm_model_name,
-                                        tool_llm_model_name=tool_llm_model_name,
-                                        temperature=temperature,
-                                        tool_temperature=tool_temperature,
-                                        memory_type=self.memory_type_combo_box.currentText(),
-                                        agent_personality=self.agent_personality_combo_box.currentText(),
-                                        fix_imports=self.fix_imports_checkbox.isChecked(),
-                                        install_missing_packages=self.install_missing_packages_checkbox.isChecked(),
-                                        fix_bad_calls=self.fix_bad_calls_checkbox.isChecked(),
-                                        autofix_mistakes=self.autofix_mistakes_checkbox.isChecked(),
-                                        autofix_widget=self.autofix_widgets_checkbox.isChecked(),
-                                        be_didactic=self.tutorial_mode_checkbox.isChecked(),
-                                        save_chats_as_notebooks=self.save_chats_as_notebooks.isChecked(),
-                                        verbose=self.verbose_checkbox.isChecked()
-                                        )
+                from napari_chatgpt.chat_server.chat_server import start_chat_server
+                self.server = start_chat_server(self.viewer,
+                                                main_llm_model_name=main_llm_model_name,
+                                                tool_llm_model_name=tool_llm_model_name,
+                                                temperature=temperature,
+                                                tool_temperature=tool_temperature,
+                                                memory_type=self.memory_type_combo_box.currentText(),
+                                                agent_personality=self.agent_personality_combo_box.currentText(),
+                                                fix_imports=self.fix_imports_checkbox.isChecked(),
+                                                install_missing_packages=self.install_missing_packages_checkbox.isChecked(),
+                                                fix_bad_calls=self.fix_bad_calls_checkbox.isChecked(),
+                                                autofix_mistakes=self.autofix_mistakes_checkbox.isChecked(),
+                                                autofix_widget=self.autofix_widgets_checkbox.isChecked(),
+                                                be_didactic=self.tutorial_mode_checkbox.isChecked(),
+                                                save_chats_as_notebooks=self.save_chats_as_notebooks.isChecked(),
+                                                verbose=self.verbose_checkbox.isChecked()
+                                                )
+
+        except Exception as e:
+            aprint(f"Error: {e}")
+            aprint("Omega failed to start. Please check the console for more information.")
+            traceback.print_exc()
 
 
 def main():

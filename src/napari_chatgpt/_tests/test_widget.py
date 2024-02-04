@@ -10,14 +10,13 @@ def test_omega_q_widget(make_napari_viewer, capsys):
     viewer = make_napari_viewer()
     viewer.add_image(np.random.random((100, 100)))
 
-    # No testing of UI elements yet!
+
+    # create our widget, passing in the viewer
+    my_widget = OmegaQWidget(viewer)
+
+    # # call our widget method
+    # my_widget._on_click()
     #
-    # # create our widget, passing in the viewer
-    # my_widget = OmegaQWidget(viewer)
-    #
-    # # # call our widget method
-    # # my_widget._on_click()
-    # #
-    # # # read captured output and check that it's as we expected
-    # # captured = capsys.readouterr()
-    # # assert 'Omega' in captured.out
+    # # read captured output and check that it's as we expected
+    # captured = capsys.readouterr()
+    # assert 'Omega' in captured.out

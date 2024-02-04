@@ -108,7 +108,7 @@ class NapariBaseTool(AsyncBaseTool):
                          }
 
             # call LLM:
-            code = chain(variables)['text']
+            code = chain.invoke(variables)['text']
 
             aprint(f"code:\n{code}")
         else:

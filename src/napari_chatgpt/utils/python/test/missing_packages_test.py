@@ -3,7 +3,7 @@ import pytest
 from napari_chatgpt.utils.api_keys.api_key import is_api_key_available
 from napari_chatgpt.utils.python.missing_packages import required_packages
 
-generated_python_code = """
+___generated_python_code = """
 
 from magicgui import magicgui
 from napari.types import ImageData, LabelsData, PointsData, ShapesData, SurfaceData, TracksData, VectorsData
@@ -25,8 +25,8 @@ def denoise_bilateral(image: ImageData, d: int = 15, sigmaColor: float = 75, sig
 
 @pytest.mark.skipif(not is_api_key_available('OpenAI'),
                     reason="requires OpenAI key to run")
-def test_missing_libraries():
-    packages = required_packages(generated_python_code)
+def test_missing_packages():
+    packages = required_packages(___generated_python_code)
     print(packages)
     assert packages
     assert 'magicgui' in packages

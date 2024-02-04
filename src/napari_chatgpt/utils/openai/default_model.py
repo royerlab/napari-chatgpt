@@ -14,6 +14,10 @@ def get_default_openai_model_name() -> str:
         return _default_openai_model_name
     else:
         model_list = get_openai_model_list()
+
+        if len(model_list) == 0:
+            return None
+
         def model_key(model):
             # Split the model name into parts
             parts = model.split('-')

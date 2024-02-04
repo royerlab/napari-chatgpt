@@ -16,7 +16,7 @@ def summarize(text: str, llm: BaseLLM = None):
         return text
 
     # Instantiates LLM if needed:
-    from langchain.chat_models import ChatOpenAI
+    from langchain_openai import ChatOpenAI
     llm = llm or ChatOpenAI(model_name=get_default_openai_model_name(), temperature=0)
 
     # Splits the text:
@@ -30,6 +30,6 @@ def summarize(text: str, llm: BaseLLM = None):
     chain = load_summarize_chain(llm, chain_type="map_reduce")
 
     # Summarize:
-    summary = chain.run(docs)
+    summary = chain.invoke(docs)['output_text']
 
     return summary

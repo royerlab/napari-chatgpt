@@ -2,7 +2,8 @@ from pprint import pprint
 
 import pytest
 
-from napari_chatgpt.utils.ollama.ollama import start_ollama, stop_ollama, \
+from napari_chatgpt.utils.ollama.ollama import OllamaFixed
+from napari_chatgpt.utils.ollama.ollama_server import start_ollama, stop_ollama, \
     is_ollama_running, get_ollama_models
 
 @pytest.mark.skipif(not is_ollama_running(),
@@ -20,16 +21,13 @@ def test_ollama():
 
         selected_model = models[0]
 
-        from langchain.llms import Ollama
-        from langchain.callbacks.manager import CallbackManager
         from langchain.callbacks.streaming_stdout import \
             StreamingStdOutCallbackHandler
-        llm = Ollama(base_url="http://localhost:11434",
+        llm = OllamaFixed(base_url="http://localhost:11434",
                      model=selected_model,
-                     callback_manager=CallbackManager(
-                         [StreamingStdOutCallbackHandler()]))
+                     callbacks=[StreamingStdOutCallbackHandler()])
 
-        result = llm("Tell me about the history of AI")
+        result = llm.invoke("Tell me about the history of AI")
 
         pprint(result)
 
