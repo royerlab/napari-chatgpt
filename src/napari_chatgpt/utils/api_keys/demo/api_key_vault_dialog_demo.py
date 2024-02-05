@@ -18,7 +18,7 @@ class MainWindow(QMainWindow):
 
     def button_clicked(self, s):
         api_key = request_if_needed_api_key_dialog('OpenAI')
-        print(f"OpenAI API KEY {api_key}")
+        print(f"OpenAI API KEY: {api_key}")
 
 
 app = QApplication(sys.argv)
