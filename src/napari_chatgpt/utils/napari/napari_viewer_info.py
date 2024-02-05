@@ -82,7 +82,7 @@ def get_viewer_state(viewer):
     return description
 
 
-def get_viewer_layers_info(viewer):
+def get_viewer_layers_info(viewer, max_layers: int = 20, max_layers_with_details: int = 4):
     """
     Lists all layers in a given Napari viewer and provides detailed information about each layer.
 
@@ -95,60 +95,14 @@ def get_viewer_layers_info(viewer):
 
     layer_descriptions = []
 
-    for index, layer in enumerate(viewer.layers):
-        layer_info = {
-            'Type': type(layer).__name__,
-            'Name': layer.name,
-            'Visible': layer.visible,
-            'Opacity': layer.opacity,
-            'Blending': layer.blending,
-            'Scale': layer.scale,
-            'Translate': layer.translate,
-            'Rotation': array_to_single_line_string(layer.rotate),
-            'Shear':  array_to_single_line_string(layer.shear),
-            'Affine': affine_to_single_line_string(layer.affine),
-        }
+    layers = viewer.layers[len(viewer.layers)-max_layers:]
 
-        # Handling specific attributes based on layer type
-        if isinstance(layer, Points):
-            layer_info.update({
-                'Number of points': len(layer.data),
-                'Symbol': layer.symbol,
-                'Size': layer.size,
-            })
+    number_of_layers = len(layers)
 
-        elif isinstance(layer, Image):
-            layer_info.update({
-                'Image Shape': layer.data.shape,
-                'Interpolation': layer.interpolation,
-                'Rendering': layer.rendering,
-            })
+    for index, layer in enumerate(layers):
+        layer_info = layer_description(viewer, layer, details=index >= number_of_layers-max_layers_with_details)
 
-        elif isinstance(layer, Tracks):
-            layer_info.update({
-                'Number of Tracks': len(layer.data)
-            })
 
-        elif isinstance(layer, Labels):
-            unique_labels = numpy.unique(layer.data)
-            layer_info.update({
-                'Number of Labels': len(unique_labels) - (1 if 0 in unique_labels else 0)
-            })
-
-        elif isinstance(layer, Vectors):
-            layer_info.update({
-                'Number of Vectors': len(layer.data)
-            })
-
-        elif isinstance(layer, Surface):
-            vertices, faces, values = layer.data
-            layer_info.update({
-                'Number of Vertices': len(vertices),
-                'Number of Faces': len(faces),
-                'Number of Values': len(values)
-            })
-
-        # Add more elif statements for other layer types as needed
 
         # Formatting the layer information
         description = f"  Layer {index}: {layer.name} (Type: {layer_info['Type']})\n"
@@ -166,6 +120,101 @@ def get_viewer_layers_info(viewer):
     return info_text
 
 
+def layer_description(viewer, layer, details: bool = True):
+    layer_info = {
+        'Type': type(layer).__name__,
+        'Name': layer.name,
+        'Visible': layer.visible,
+    }
+
+    if details:
+        layer_info |= {
+            'Opacity': layer.opacity,
+            'Blending': layer.blending,
+            'Scale': layer.scale,
+            'Translate': layer.translate,
+            'Rotation': array_to_single_line_string(layer.rotate),
+            'Shear': array_to_single_line_string(layer.shear),
+            'Affine': affine_to_single_line_string(layer.affine),
+        }
+
+    # Handling specific attributes based on layer type
+    if isinstance(layer, Points):
+        layer_info |= {
+            'Number of points': len(layer.data),
+            'Point Data Type': layer.data.dtype,}
+
+        if details:
+            layer_info |= {
+                'Point Data Class': layer.data.__class__,
+                'Symbol': layer.symbol,
+                'Size': layer.size,
+            }
+
+
+    elif isinstance(layer, Image):
+        layer_info |= {
+            'Image Shape': layer.data.shape,
+            'Image Data Type': layer.data.dtype,
+        }
+
+        if details:
+            layer_info |= {
+                'Image Data Class': layer.data.__class__,
+                'Multiscale': layer.multiscale,
+                'Interpolation': layer.interpolation2d if viewer.dims.ndisplay == 2 else layer.interpolation3d,
+                'Rendering': layer.rendering,
+            }
+
+
+
+    elif isinstance(layer, Tracks):
+        layer_info |= {
+            'Number of Tracks': len(layer.data),
+            'Track Data Type': layer.data.dtype,
+        }
+
+        if details:
+            layer_info |= {
+                'Track Data Class': layer.data.__class__,
+            }
+
+    elif isinstance(layer, Labels):
+        unique_labels = numpy.unique(layer.data)
+        layer_info |= {
+            'Number of Labels': len(unique_labels) - (
+                1 if 0 in unique_labels else 0),
+            'Labels Data Type': layer.data.dtype,
+        }
+
+        if details:
+            layer_info |= {
+                'Labels Data Class': layer.data.__class__,
+            }
+
+    elif isinstance(layer, Vectors):
+        layer_info |= {
+            'Number of Vectors': len(layer.data),
+            'Vectors Data Type': layer.data.dtype,
+        }
+
+        if details:
+            layer_info |= {
+                'Vectors Data Class': layer.data.__class__,
+            }
+
+    elif isinstance(layer, Surface):
+        vertices, faces, values = layer.data
+        layer_info |= {
+            'Number of Vertices': len(vertices),
+            'Number of Faces': len(faces),
+            'Number of Values': len(values)
+        }
+
+        if details:
+            pass
+
+    return layer_info
 
 
 def affine_to_single_line_string(affine):

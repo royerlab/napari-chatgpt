@@ -17,5 +17,8 @@ omega_generic_codegen_instructions = """
 - NEVER utilize the input() function to request additional information from me!
 - Avoid long lines of code. If a line of code is too long, break it up into multiple lines, and align items such as named parameters.
 - Remember that OpenCV requires uint8 BGR color channels, do not convert images to float before passing to OpenCV.
+- When and if you use PyTorch functions make sure to pass tensors with the right dtype and number of dimensions in order to match PyTorch's functions parameter requirements. For instance, add and remove batch dimensions and convert to a compatible dtype before and after a series of calls to PyTorch functions.
+- The only data types supported by PyTorch are: float32, float64, float16, bfloat16, uint8, int8, int16, int32, int64, and bool. Make sure to convert the input to one of these types before passing it to a PyTorch function.
+- When using Numba to write image processing code make sure to avoid high-level numpy functions and instead implement the algorithms with loops and low-level numpy functions. Also, make sure to use the right data types for the input and output arrays.
 """
 

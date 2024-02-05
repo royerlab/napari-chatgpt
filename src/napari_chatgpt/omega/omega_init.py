@@ -6,7 +6,6 @@ from langchain.agents import AgentExecutor
 from langchain.agents.conversational_chat.prompt import SUFFIX
 from langchain.base_language import BaseLanguageModel
 from langchain.callbacks.base import BaseCallbackHandler
-from langchain.callbacks.manager import AsyncCallbackManager, CallbackManager
 from langchain.schema import BaseMemory
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import MessagesPlaceholder
@@ -80,26 +79,23 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
     config = AppConfiguration('omega')
 
     # Chat callback manager:
-    chat_callback_manager = (AsyncCallbackManager(
-        [chat_callback_handler]) if is_async else CallbackManager(
-        [chat_callback_handler])) if chat_callback_handler else None
+    chat_callbacks = [chat_callback_handler] if chat_callback_handler else None
 
     # Tool callback manager:
-    tool_callback_manager = (CallbackManager(
-        [tool_callback_handler])) if chat_callback_handler else None
+    tool_callbacks = [tool_callback_handler] if chat_callback_handler else None
 
     # Basic list of tools:
-    tools = [WikipediaQueryTool(callback_manager=tool_callback_manager),
-             WebSearchTool(callback_manager=tool_callback_manager),
-             PythonFunctionsInfoTool(callback_manager=tool_callback_manager),
-             ExceptionCatcherTool(callback_manager=tool_callback_manager),
+    tools = [WikipediaQueryTool(callbacks=tool_callbacks),
+             WebSearchTool(callbacks=tool_callbacks),
+             PythonFunctionsInfoTool(callbacks=tool_callbacks),
+             ExceptionCatcherTool(callbacks=tool_callbacks),
              # FileDownloadTool(),
-             PythonCodeExecutionTool(callback_manager=tool_callback_manager),
-             PipInstallTool(callback_manager=tool_callback_manager)]
+             PythonCodeExecutionTool(callbacks=tool_callbacks),
+             PipInstallTool(callbacks=tool_callbacks)]
 
     # Adding the human input tool if required:
     if has_human_input_tool:
-        tools.append(HumanInputTool(callback_manager=tool_callback_manager))
+        tools.append(HumanInputTool(callbacks=tool_callbacks))
 
     # Adding napari tools if required:
     if to_napari_queue:
@@ -109,7 +105,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                   'to_napari_queue': to_napari_queue,
                   'from_napari_queue': from_napari_queue,
                   'notebook': notebook,
-                  'callback_manager': tool_callback_manager,
+                  'callbacks': tool_callbacks,
                   'fix_imports': fix_imports,
                   'install_missing_packages': install_missing_packages,
                   'fix_bad_calls': fix_bad_calls,
@@ -151,7 +147,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
                 lm=tool_llm,
                 to_napari_queue=to_napari_queue,
                 from_napari_queue=from_napari_queue,
-                callback_manager=tool_callback_manager))
+                callbacks=tool_callbacks))
 
 
     # Do this so we can see exactly what's going on under the hood
@@ -179,7 +175,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
             ),
             # human_message=SUFFIX,
             verbose=verbose,
-            callback_manager=chat_callback_manager,
+            callbacks=chat_callbacks,
             extra_prompt_messages=extra_prompt_messages,
             be_didactic=be_didactic
         )
@@ -200,7 +196,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
             PREFIX=PREFIX_,
             SUFFIX=SUFFIX,
             verbose=verbose,
-            callback_manager=chat_callback_manager,
+            callbacks=chat_callbacks,
         )
 
     # Create the executor:
@@ -209,7 +205,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
         tools=tools,
         memory=memory,
         verbose=verbose,
-        callback_manager=chat_callback_manager,
+        callbacks=chat_callbacks,
         max_iterations=config.get('agent_max_iterations', 5),
         early_stopping_method='generate',
         handle_parsing_errors=config.get('agent_handle_parsing_errors', True),

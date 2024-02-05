@@ -20,7 +20,9 @@ jobs:
   test:
     name: ${{ matrix.platform }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
+    timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         platform: [ ubuntu-latest, windows-latest, macos-latest ]
         python-version: [ '3.9', '3.10', '3.11' ]

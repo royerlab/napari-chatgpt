@@ -1,7 +1,7 @@
 import traceback
 
 from arbol import asection, aprint
-from langchain.utilities import WikipediaAPIWrapper
+from langchain_community.utilities import WikipediaAPIWrapper
 
 from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 

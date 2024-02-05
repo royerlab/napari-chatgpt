@@ -8,6 +8,7 @@ from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
 from napari_chatgpt.utils.strings.find_function_name import find_magicgui_decorated_function_name
+from napari_chatgpt.utils.strings.trailing_code import remove_trailing_code
 
 _napari_widget_maker_prompt = """
 **Context**
@@ -103,6 +104,18 @@ import numpy as np
 from typing import Union
 """
 
+_code_lines_to_filter_out = ['viewer = napari.Viewer(',
+                               'viewer = Viewer('
+                               'viewer.window.add_dock_widget(',
+                               'napari.run(',
+                               'viewer.add_image(',
+                               'viewer.add_labels(',
+                               'viewer.add_points(',
+                               'viewer.add_shapes(',
+                               'viewer.add_surface(',
+                               'viewer.add_tracks(',
+                               'viewer.add_vectors(',
+                               'gui_qt(']
 
 class NapariWidgetMakerTool(NapariBaseTool):
     """A tool for making napari widgets"""
@@ -146,8 +159,11 @@ class NapariWidgetMakerTool(NapariBaseTool):
                 # If the function exists:
                 if function_name:
 
-                    # Remove any viewer add_dock_widget code:
-                    code = filter_lines(code, ['viewer = napari.Viewer(', 'viewer.window.add_dock_widget(', 'napari.run(', 'viewer.add_image('])
+                    # Remove any viewer forbidden code:
+                    code = filter_lines(code, _code_lines_to_filter_out)
+
+                    # Remove trailing code:
+                    code = remove_trailing_code(code)
 
                     # Load the code as module:
                     loaded_module = dynamic_import(code)
