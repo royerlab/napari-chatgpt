@@ -1,13 +1,7 @@
-import tempfile
-import threading
 from time import sleep
 
-import requests
-
-from napari_chatgpt.utils.network.code_drop import CodeDropClient, \
+from microplugins.network._old.code_drop import CodeDropClient, \
     CodeDropServer
-from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
-
 
 if __name__ == "__main__":
 

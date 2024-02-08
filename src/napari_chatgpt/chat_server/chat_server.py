@@ -69,7 +69,7 @@ class NapariChatServer:
         # Instantiate FastAPI:
         self.app = FastAPI()
 
-        # get configuration
+        # Get configuration
         config = AppConfiguration('omega')
 
         # port:
