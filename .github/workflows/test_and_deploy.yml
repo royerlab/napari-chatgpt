@@ -16,6 +16,9 @@ on:
       - npe2
   workflow_dispatch:
 
+env:
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
 jobs:
   test:
     name: ${{ matrix.platform }} py${{ matrix.python-version }}
