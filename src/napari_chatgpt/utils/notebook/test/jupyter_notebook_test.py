@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 import requests
@@ -42,6 +43,9 @@ def test_add_image_cell():
     with tempfile.NamedTemporaryFile(delete=True, suffix=".png") as temp_image:
         # Download the image into the temporary file
         download_image(image_url, temp_image)
+
+        # Change the permissions of the file to allow reading
+        os.chmod(temp_image.name, 0o777)
 
         # Create an instance of JupyterNotebookFile
         notebook = JupyterNotebookFile()
