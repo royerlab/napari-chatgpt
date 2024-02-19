@@ -1,7 +1,4 @@
-# napari-chatgpt
-
-## Home of
-_Omega_, a napari-aware autonomous LLM-based agent specialised in image processing and analysis.
+## Home of _Omega_, a napari-aware autonomous LLM-based agent specialized in image processing and analysis.
 
 [![License BSD-3](https://img.shields.io/pypi/l/napari-chatgpt.svg?color=green)](https://github.com/royerlab/napari-chatgpt/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-chatgpt.svg?color=green)](https://pypi.org/project/napari-chatgpt)
@@ -11,17 +8,20 @@ _Omega_, a napari-aware autonomous LLM-based agent specialised in image processi
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8240289.svg)](https://doi.org/10.5281/zenodo.8240289)
 
+<img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/c85185d2-6d16-472d-a2c8-5680ea869bf2' height='340'>
+<img height="340" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/f3ea245e-dd86-4ff2-802e-48c2073cb6f9">
+
 
 A [napari](napari.org) plugin that leverages OpenAI's Large Language Model
 ChatGPT to implement _Omega_
 a napari-aware agent capable of performing image processing and analysis tasks
 in a conversational manner.
 
-This repository was created as a 'week-end project'
+This repository started as a 'week-end project'
 by [Loic A. Royer](https://twitter.com/loicaroyer)
 who leads a [research group](https://royerlab.org) at
 the [Chan Zuckerberg Biohub](https://czbiohub.org/sf/). It
-levegages [OpenAI](https://openai.com)'s ChatGPT API via
+leverages [OpenAI](https://openai.com)'s ChatGPT API via
 the [LangChain](https://python.langchain.com/en/latest/index.html) Python
 library, as well as [napari](https://napari.org), a fast, interactive,
 multi-dimensional
@@ -31,23 +31,27 @@ of Loic's week-end projects.
 
 # What is Omega?
 
-Omega is a LLM-based and tool-armed autonomous agent that demonstrates the
+Omega is an LLM-based and tool-armed autonomous agent that demonstrates the
 potential for Large Language Models (LLMs) to be applied to image processing,
-analysis and visualisation.
+analysis and visualization.
 Can LLM-based agents write image processing code and napari widgets, correct its
-coding mistakes, perform follow-up analysis, and control the napari viewer? 
+coding mistakes, performing follow-up analysis, and controlling the napari viewer? 
 The answer appears to be yes.
 
 The preprint can be downloaded here: [10.5281/zenodo.8240289](10.5281/zenodo.8240289)
 
 
-#### In this video I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image, but fails because of an inexistant 'multichannel' parameter. Realising that, Omega tries again, and this time, succeeds:
+#### In this video, I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image but fails because of an inexistent 'multichannel' parameter. Realizing that, Omega tries again, and this time succeeds:
 
 https://user-images.githubusercontent.com/1870994/235768559-ca8bfa84-21f5-47b6-b2bd-7fcc07cedd92.mp4
 
-#### After loading in napari a sample 3D image of cell nuclei, I ask Omega to segment the nuclei using the Otsu method. My first request was very vague, so it just segmented foreground versus background. I then ask to segment the foreground into distinct segments for each connected component. Omega does a rookie mistake by forgetting to 'import np'. No problem, it notices, tries again, and succeeds:
+#### After loading in napari a sample 3D image of cell nuclei, I ask Omega to segment the nuclei using the Otsu method. My first request was very vague, so it just segmented foreground versus background. I then ask to segment the foreground into distinct segments for each connected component. Omega does a rookie mistake by forgetting to 'import np'. No problem; it notices, tries again, and succeeds:
 
 https://user-images.githubusercontent.com/1870994/235769990-a281a118-1369-47aa-834a-b491f706bd48.mp4
+
+#### In this video, one of my favorites, I ask Omega to make a 'Max color projection widget.' It is not a trivial task, but it manages!
+
+https://github.com/royerlab/napari-chatgpt/assets/1870994/bb9b35a4-d0aa-4f82-9e7c-696ef5859a2f
 
 As LLMs continue to improve, Omega will become even more adept at handling complex
 image processing and analysis tasks. The current version of ChatGPT, 3.5,
@@ -79,14 +83,14 @@ For detailed instructions and variations, check [this page](http://github.com/ro
 ## Requirements:
 
 You need an OpenAI key; there is no way around this, I have been experimenting with 
-other models, inclding open-source models, but right now, the best results, by far, are obtained with ChatGPT 4 (and to
+other models, including open-source models, but right now, the best results, by far, are obtained with ChatGPT 4 (and to
 a lesser extent 3.5). Check [here](https://github.com/royerlab/napari-chatgpt/wiki/OpenAIKey) for details on how to get your OpenAI key. In particular, check [this](https://github.com/royerlab/napari-chatgpt/wiki/AccessToGPT4) for how to gain access to GPT-4 models.
 
 ## Usage:
 
 Check this [page](https://github.com/royerlab/napari-chatgpt/wiki/HowToStartOmega) of our [wiki](https://github.com/royerlab/napari-chatgpt/wiki) for details on how to start Omega. 
 
-## Tips, Tricks and examples:
+## Tips, Tricks, and examples:
 
 Check our guide on how to prompt Omega and some examples [here](https://github.com/royerlab/napari-chatgpt/wiki/Tips&Tricks).
 
@@ -131,7 +135,7 @@ the coverage at least stays the same before you submit a pull request.
 ## License
 
 Distributed under the terms of the [BSD-3] license,
-"napari-chatgpt" is free and open source software
+"napari-chatgpt" is free and open-source software
 
 ## Issues
 
