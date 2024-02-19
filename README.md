@@ -8,8 +8,8 @@
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8240289.svg)](https://doi.org/10.5281/zenodo.8240289)
 
-<img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/c85185d2-6d16-472d-a2c8-5680ea869bf2' height='340'>
-<img height="340" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/f3ea245e-dd86-4ff2-802e-48c2073cb6f9">
+<img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/c85185d2-6d16-472d-a2c8-5680ea869bf2' height='330'>
+<img height="330" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/f3ea245e-dd86-4ff2-802e-48c2073cb6f9">
 
 
 A [napari](napari.org) plugin that leverages OpenAI's Large Language Model
@@ -76,7 +76,11 @@ download and operate on images, write widgets for napari, and more.
 
 ## Installation instructions:
 
+Assuming you have a Python environment with a working napari installation, you can simply:
+
     pip install napari-chatgpt
+
+Or just install the plugin from napari's plugin installer.
 
 For detailed instructions and variations, check [this page](http://github.com/royerlab/napari-chatgpt/wiki/InstallOmega) of our wiki.
     
@@ -90,9 +94,14 @@ a lesser extent 3.5). Check [here](https://github.com/royerlab/napari-chatgpt/wi
 
 Check this [page](https://github.com/royerlab/napari-chatgpt/wiki/HowToStartOmega) of our [wiki](https://github.com/royerlab/napari-chatgpt/wiki) for details on how to start Omega. 
 
-## Tips, Tricks, and examples:
+## Tips, Tricks, and Example prompts:
 
 Check our guide on how to prompt Omega and some examples [here](https://github.com/royerlab/napari-chatgpt/wiki/Tips&Tricks).
+
+## Video Demos:
+
+You can check the original release videos [here](https://github.com/royerlab/napari-chatgpt/wiki/VideoDemos).
+You can also find the latest preprint videos on [Vimeo](https://vimeo.com/showcase/10983385).
 
 ## How does Omega work?
 
