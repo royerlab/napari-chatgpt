@@ -27,7 +27,7 @@ library, as well as [napari](https://napari.org), a fast, interactive,
 multi-dimensional
 image viewer for
 Python, [another](https://ilovesymposia.com/2019/10/24/introducing-napari-a-fast-n-dimensional-image-viewer-in-python/)
-of Loic's week-end projects.
+project initially started by Loic and [Juan Nunez-Iglesias](https://github.com/jni).
 
 # What is Omega?
 
