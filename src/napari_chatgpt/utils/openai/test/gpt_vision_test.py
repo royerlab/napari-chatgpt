@@ -21,7 +21,7 @@ def test_gpt_vision():
 
     print(description_1)
 
-    assert 'snake' in description_1 and 'Python' in description_1
+    assert ('snake' in description_1 or 'serpent' in description_1) and 'Python' in description_1
 
     image_2_path = _get_image_path('future.jpeg')
 

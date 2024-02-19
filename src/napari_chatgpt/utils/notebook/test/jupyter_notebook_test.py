@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 import requests
@@ -39,19 +40,26 @@ def test_add_image_cell():
     image_url = 'https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png'
 
     # Use a temporary file
-    with tempfile.NamedTemporaryFile(delete=True, suffix=".png") as temp_image:
-        # Download the image into the temporary file
-        download_image(image_url, temp_image)
+    temp_image = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
 
-        # Create an instance of JupyterNotebookFile
-        notebook = JupyterNotebookFile()
+    # Download the image into the temporary file
+    download_image(image_url, temp_image)
 
-        # Add the image cell with optional text
-        notebook.add_image_cell(temp_image.name, "Example Image")
+    # Close the file to ensure it is flushed and ready to be read
+    temp_image.close()
 
-        # Save the notebook
-        notebook_file_path = 'test_notebook.ipynb'
-        notebook.write(notebook_file_path)
+    # Create an instance of JupyterNotebookFile
+    notebook = JupyterNotebookFile()
+
+    # Add the image cell with optional text
+    notebook.add_image_cell(temp_image.name, "Example Image")
+
+    # Save the notebook
+    notebook_file_path = 'test_notebook.ipynb'
+    notebook.write(notebook_file_path)
+
+    # delete the temporary file
+    os.unlink(temp_image.name)
 
     print(f"Test completed. Notebook saved at {notebook_file_path}. Please open this notebook to verify the image cell.")
 
