@@ -82,15 +82,6 @@ You need an OpenAI key; there is no way around this, I have been experimenting w
 other models, inclding open-source models, but right now, the best results, by far, are obtained with ChatGPT 4 (and to
 a lesser extent 3.5). Check [here](https://github.com/royerlab/napari-chatgpt/wiki/OpenAIKey) for details on how to get your OpenAI key. In particular, check [this](https://github.com/royerlab/napari-chatgpt/wiki/AccessToGPT4) for how to gain access to GPT-4 models.
 
-## Cost:
-
-Developing the initial version of Omega cost me $13.97, hardly a fortune. 
-OpenAI [pricing](https://openai.com/pricing) on ChatGPT 4 is very reasonable at 0.01 dollars per 1K tokens, which means $1 per 750000 words. 
-
-Note: you can limit the burn rate to a certain amount of dollars per month, just
-in case you let Omega think over the weekend and forget to stop it (don't worry, 
-this is actually **not** possible).
-
 ## Usage:
 
 Check this [page](https://github.com/royerlab/napari-chatgpt/wiki/HowToStartOmega) of our [wiki](https://github.com/royerlab/napari-chatgpt/wiki) for details on how to start Omega. 
@@ -103,6 +94,15 @@ Check our guide on how to prompt Omega and some examples [here](https://github.c
 
 Check our preprint here: [10.5281/zenodo.8240289](10.5281/zenodo.8240289)
 and our [wiki page](https://github.com/royerlab/napari-chatgpt/wiki/OmegaDesign) on Omega's design and architecture.
+
+## Cost:
+
+Developing the initial version of Omega cost me $13.97, hardly a fortune. 
+OpenAI [pricing](https://openai.com/pricing) on ChatGPT 4 is very reasonable at 0.01 dollars per 1K tokens, which means $1 per 750000 words. 
+
+Note: you can limit the burn rate to a certain amount of dollars per month, just
+in case you let Omega think over the weekend and forget to stop it (don't worry, 
+this is actually **not** possible).
 
 ## Disclaimer:
 
