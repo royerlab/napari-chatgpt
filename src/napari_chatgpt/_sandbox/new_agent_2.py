@@ -10,7 +10,7 @@ from napari_chatgpt.utils.api_keys.api_key import set_api_key
 
 set_api_key('OpenAI')
 
-from langchain.agents import initialize_agent, AgentType, AgentExecutor
+from langchain.agents import AgentExecutor
 from langchain_community.chat_models import ChatOpenAI
 
 from napari_chatgpt.omega.tools.search.web_search_tool import WebSearchTool
@@ -22,8 +22,6 @@ from napari_chatgpt.omega.tools.special.functions_info_tool import \
     PythonFunctionsInfoTool
 from napari_chatgpt.omega.tools.special.python_repl import \
     PythonCodeExecutionTool
-
-from langchain.tools import BearlyInterpreterTool, DuckDuckGoSearchRun
 
 llm = ChatOpenAI(temperature=0, model="gpt-4-1106-preview")
 

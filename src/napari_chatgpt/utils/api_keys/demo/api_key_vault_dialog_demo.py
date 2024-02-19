@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton
+from qtpy.QtWidgets import QApplication, QMainWindow, QPushButton
 
 from napari_chatgpt.utils.api_keys.api_key_vault_dialog import \
     request_if_needed_api_key_dialog

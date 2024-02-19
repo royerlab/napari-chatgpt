@@ -2,7 +2,8 @@ import pytest
 from arbol import aprint
 
 from napari_chatgpt.utils.api_keys.api_key import is_api_key_available
-from napari_chatgpt.utils.python.fix_bad_fun_calls import fix_all_bad_function_calls
+from napari_chatgpt.utils.python.fix_bad_fun_calls import \
+    fix_all_bad_function_calls
 
 _code_snippet_1 = \
 """

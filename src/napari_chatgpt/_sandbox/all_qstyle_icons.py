@@ -1,9 +1,9 @@
 import sys
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QGridLayout, QPushButton, QStyle, QWidget
-
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QGridLayout, QPushButton, QStyle, QWidget
+
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)  # Enable high-DPI scaling
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)  # Use high-DPI icons
 

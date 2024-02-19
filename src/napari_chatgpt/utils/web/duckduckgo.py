@@ -1,11 +1,12 @@
 import traceback
-from typing import List, Dict, Optional
+from typing import Optional
 
 from arbol import asection, aprint
 from duckduckgo_search import DDGS
 
 from napari_chatgpt.utils.llm.summarizer import summarize
 from napari_chatgpt.utils.python.pip_utils import pip_install_single_package
+
 
 def summary_ddg(query: str,
                 num_results: int = 3,

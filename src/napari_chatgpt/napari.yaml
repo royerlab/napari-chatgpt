@@ -1,11 +1,20 @@
 name: napari-chatgpt
-display_name: chatgpt
+display_name: napari-chatgpt | Omega
 contributions:
   commands:
-    - id: napari-chatgpt.make_qwidget
+    - id: napari-chatgpt.start_omega
       python_name: napari_chatgpt._widget:OmegaQWidget
-      title: Make example QWidget
+      title: Start Omega
+#    - id: napari-chatgpt.start_microplugin
+#      python_name: microplugin.microplugin_window:MicroPluginMainWindow
+#      title: Start Microplugin
   widgets:
-    - command: napari-chatgpt.make_qwidget
+    - command: napari-chatgpt.start_omega
       display_name: Omega -- a ChatGPT-enabled agent
+#    - command: napari-chatgpt.start_microplugin
+#      display_name: Microplugin -- Companion Code Snippet Editor to Omega
+
+
+
+
 

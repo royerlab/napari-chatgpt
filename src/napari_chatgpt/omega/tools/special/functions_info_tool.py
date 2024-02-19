@@ -14,10 +14,10 @@ class PythonFunctionsInfoTool(AsyncBaseTool):
 
     name = "PythonFunctionsInfoTool"
     description = (
-        "Use this tool for querying the signature and docstrings of python functions from their fully qualified name. "
-        "For example, send: scipy.ndimage.convolve and this tool will returns the full signature of this function "
+        "Use this tool for querying the signature and docstrings of python and library functions from their fully qualified name. "
+        "For example, send: 'scipy.ndimage.convolve' and this tool will returns the full signature of this function "
         "with all its parameters and if possible corresponding type hints. "
-        "You can use this tool to check the correct signature of functions before writing python code. "
+        "You can use this tool to check the correct signature of functions before writing python code, or when errors are encoutered. "
         "If you want the whole docstring to get a better understanding of the function, its parameters, "
         "and example usages, please prefix your request with the single star character '*'."
     )

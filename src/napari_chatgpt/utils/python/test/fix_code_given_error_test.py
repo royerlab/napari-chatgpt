@@ -1,9 +1,6 @@
 import napari
-import pytest
 from skimage import data
-from skimage.segmentation import slic
 
-from napari_chatgpt.utils.api_keys.api_key import is_api_key_available
 from napari_chatgpt.utils.python.fix_code_given_error import \
     fix_code_given_error_message
 

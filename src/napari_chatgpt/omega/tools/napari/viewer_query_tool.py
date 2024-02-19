@@ -24,8 +24,11 @@ To answer the request, you need to implement a Python function called `query(vie
 
 {last_generated_code}
 
-**ViewerInformation:**
+**Viewer Information:**
 {viewer_information}
+
+**System Information:**
+{system_information}
 
 **Request:**
 {input}

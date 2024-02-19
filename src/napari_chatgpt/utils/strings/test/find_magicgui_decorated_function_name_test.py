@@ -1,9 +1,8 @@
-from napari_chatgpt.utils.strings.find_function_name import find_function_name, \
+from napari_chatgpt.utils.strings.find_function_name import \
     find_magicgui_decorated_function_name
 
-__some_register = {}
 
-_some_code = """
+_some_code_1 = """
 import numpy as np
 from napari.types import ImageData
 from magicgui import magicgui
@@ -66,8 +65,60 @@ def generate_pattern_widget(pattern_type: str) -> ImageData:
 # viewer.window.add_dock_widget(generate_pattern_widget)
 """
 
+_some_code_2 = """
 
+# Note: code was modified to add missing imports:
+from magicgui import magicgui
+from napari.layers import Image, Labels, Points, Shapes, Surface, Tracks, Vectors
+from napari.types import ImageData
+from napari.types import ImageData, LabelsData, PointsData, ShapesData, SurfaceData, TracksData, VectorsData
+from typing import Union
+import numpy as np
+import pywt
+@magicgui(
+    call_button="Fuse Images",
+    wavelet_type={"choices": pywt.wavelist(kind='discrete')},
+    decomposition_level={"widget_type": "Slider", 'min': 1, 'max': 10},
+    combine_method={"choices": ['average', 'maximum']})
+def wavelet_image_fusion(
+    image1: ImageData, 
+    image2: ImageData, 
+    wavelet_type: str = 'haar', 
+    decomposition_level: int = 1, 
+    combine_method: str = 'average'
+) -> ImageData:
+    # Check if the images have the same shape
+    if image1.shape != image2.shape:
+        return f"Error: Images must have the same dimensions."
+    # Perform wavelet decomposition on both images
+    coeffs1 = pywt.wavedec2(image1, wavelet_type, level=decomposition_level)
+    coeffs2 = pywt.wavedec2(image2, wavelet_type, level=decomposition_level)
+    # Function to combine coefficients
+    def combine_coeffs(c1, c2, method):
+        if method == 'average':
+            return (np.array(c1) + np.array(c2)) / 2
+        elif method == 'maximum':
+            return np.maximum(c1, c2)
+    # Combine the coefficients
+    fused_coeffs = []
+    for c1, c2 in zip(coeffs1, coeffs2):
+        if isinstance(c1, tuple):
+            fused_coeffs.append(tuple(combine_coeffs(subc1, subc2, combine_method) for subc1, subc2 in zip(c1, c2)))
+        else:
+            fused_coeffs.append(combine_coeffs(c1, c2, combine_method))
+    # Reconstruct the image from the combined coefficients
+    fused_image = pywt.waverec2(fused_coeffs, wavelet_type)
+    # Crop the image to the original size
+    fused_image = fused_image[:image1.shape[0], :image1.shape[1]]
+    return fused_image.astype(np.float32)
+# Example usage:
+# fused_image = wavelet_image_fusion(image1, image2, 'haar', 1, 'average')
+"""
 def test_find_magicgui_decorated_function_name():
-    function_name = find_magicgui_decorated_function_name(_some_code)
+    function_name = find_magicgui_decorated_function_name(_some_code_1)
 
     assert function_name == 'generate_pattern_widget'
+
+    function_name = find_magicgui_decorated_function_name(_some_code_2)
+
+    assert function_name == 'wavelet_image_fusion'

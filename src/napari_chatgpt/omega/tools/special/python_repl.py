@@ -11,6 +11,7 @@ from pydantic import Field
 
 from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
 
+
 def sanitize_input(query: str) -> str:
     # Remove whitespace, backtick & python (if llm mistakes python console as terminal)
 
@@ -26,10 +27,10 @@ class PythonCodeExecutionTool(AsyncBaseTool):
 
     name = "PythonCodeExecutionTool"
     description = (
-        "Use this tool to execute short snippets of python code. "
-        "Do not use this tool if you need access to the napari viewer. "
-        "This tool is not suitable for image processing, image analysis or image/data visualisation. "
-        "Input should be a valid python command. "
+        "Use this tool to execute short snippets of python code unrelated to images. "
+        "Do not use this tool if you need access to the napari viewer or its layers: instead use the napari viewer query, control or execution tools. "
+        "This tool is absolutely *not* suitable for generating, processing, analysing or visualising images, videos, large nD arrays, or other large datasets. "
+        "Input should be a short and valid python command. "
         "For example, send: `print(3**3+1)` to get the result of this calculation which is 28. "
         "If you want to see the output, you should print it out with `print(...)`."
     )

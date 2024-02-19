@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication
+from qtpy.QtWidgets import QApplication
 
 from napari_chatgpt.utils.qt.warning_dialog import show_warning_dialog
 

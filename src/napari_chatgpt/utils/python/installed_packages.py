@@ -1,19 +1,13 @@
-import traceback
 from functools import lru_cache
 
-_image_processing_analysis_packages = \
-    ['OpenCV', 'Pillow', 'PyWavelets', 'scipy', 'networkx', 'tifffile',
-     'scikit-image', 'napari', 'psygnal', 'numpy', 'imagecodecs', 'dask',
-     'dask-core',
-     'brotlipy', 'vispy', 'tqdm', 'openai', 'zarr', 'numcodecs', 'blosc',
-     'imagecodecs', 'imageio', 'imagesize', 'scikit-image', 'cupy', 'cucim',
-     'tensorflow', 'pytorch', 'mahotas', 'SimpleITK', 'matplotlib', 'pgmagick',
-     'xarray', 'image', 'magicgui', 'arbol', 'tqdm']
+from napari_chatgpt.utils.python.relevant_libraries import \
+    get_all_signal_processing_related_packages
+
 
 @lru_cache
 def installed_package_list(clean_up: bool = True,
                            version: bool = True,
-                           filter=_image_processing_analysis_packages):
+                           filter=get_all_signal_processing_related_packages()):
     package_list = pip_list(version=version) + conda_list(version=version)
 
     if clean_up:

@@ -5,9 +5,8 @@ from mimetypes import guess_type
 from os import path, makedirs
 from typing import Optional, Callable
 
-from PIL import Image
-from napari import Viewer
 import nbformat
+from PIL import Image
 from nbformat.v4 import new_notebook, new_code_cell, new_markdown_cell
 
 from napari_chatgpt.utils.strings.markdown import extract_markdown_blocks

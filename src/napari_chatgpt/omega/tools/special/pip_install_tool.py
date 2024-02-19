@@ -8,7 +8,6 @@ from napari_chatgpt.utils.python.installed_packages import is_package_installed
 from napari_chatgpt.utils.python.pip_utils import pip_install
 
 
-
 class PipInstallTool(AsyncBaseTool):
     """A tool installing python packages with pip."""
 

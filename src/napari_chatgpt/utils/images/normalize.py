@@ -1,9 +1,12 @@
 import numpy as np
 from napari.types import ArrayLike
-from scipy.ndimage import percentile_filter
+from numba import njit
 
 
-def normalize_img(image: ArrayLike, p_low: float, p_high: float) -> ArrayLike:
+def normalize_img(image: ArrayLike,
+                  p_low: float,
+                  p_high: float,
+                  clip: bool = True) -> ArrayLike:
     """
     Normalize the image to a given percentile range.
 
@@ -18,6 +21,9 @@ def normalize_img(image: ArrayLike, p_low: float, p_high: float) -> ArrayLike:
     p_high: float
         The higher percentile to normalize the image
 
+    clip: bool
+        If True, clip the normalized image between 0 and 1
+
     Returns
     -------
     Normalized image
@@ -27,5 +33,9 @@ def normalize_img(image: ArrayLike, p_low: float, p_high: float) -> ArrayLike:
 
     # rescale the image:
     normalized_image = (image - v_low) / (v_high - v_low + 1e-6)
+
+    # Clip between 0 and 1:
+    if clip:
+        normalized_image = np.clip(normalized_image, 0, 1)
 
     return normalized_image

@@ -2,7 +2,8 @@
 from pprint import pprint
 
 from napari_chatgpt.utils.ollama.ollama import OllamaFixed
-from napari_chatgpt.utils.ollama.ollama_server import start_ollama, get_ollama_models
+from napari_chatgpt.utils.ollama.ollama_server import start_ollama, \
+    get_ollama_models
 
 model_list = get_ollama_models()
 

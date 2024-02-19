@@ -1,9 +1,3 @@
-import pytest
-from arbol import aprint
-
-from napari_chatgpt.utils.api_keys.api_key import is_api_key_available
-from napari_chatgpt.utils.llm.summarizer import summarize
-from napari_chatgpt.utils.web.scrapper import text_from_url
 from napari_chatgpt.utils.configuration.app_configuration import \
     AppConfiguration
 

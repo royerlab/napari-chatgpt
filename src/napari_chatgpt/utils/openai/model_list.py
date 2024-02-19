@@ -4,6 +4,9 @@ from arbol import asection, aprint
 
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
 
+
+
+
 def get_openai_model_list(filter: str = 'gpt', verbose: bool = False) -> list:
     """
     Get the list of all OpenAI ChatGPT models.

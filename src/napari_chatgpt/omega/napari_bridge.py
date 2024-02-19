@@ -11,7 +11,6 @@ from napari.qt.threading import thread_worker
 from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
     enqueue_exception
 from napari_chatgpt.utils.napari.napari_viewer_info import get_viewer_info
-from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 
 # global Variable to exchange information with the viewer:

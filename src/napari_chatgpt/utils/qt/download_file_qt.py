@@ -3,10 +3,10 @@ import sys
 import traceback
 
 import requests
-from PyQt5.QtCore import QThread, QTimer
-from PyQt5.QtWidgets import QApplication, QWidget, QProgressBar, QLabel, \
-    QVBoxLayout, QPushButton, QDialog
 from arbol import aprint
+from qtpy.QtCore import QThread, QTimer
+from qtpy.QtWidgets import QApplication, QWidget, QProgressBar, QLabel, \
+    QVBoxLayout, QPushButton, QDialog
 
 
 def download_file_qt(url: str,
@@ -116,6 +116,9 @@ class DownloadWorker(QThread):
                  ):
 
         super().__init__()
+
+        self.setTerminationEnabled(True)
+        self.setObjectName(f"DownloadWorker({filename})")
 
         self.url = url
         self.filename = filename

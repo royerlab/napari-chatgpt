@@ -10,12 +10,11 @@ from langchain.schema import BaseMemory
 from langchain_core.messages import SystemMessage
 from langchain_core.prompts import MessagesPlaceholder
 
-
 from napari_chatgpt.omega.omega_agent.prompts import SYSTEM, PERSONALITY
 from napari_chatgpt.omega.tools.napari.cell_nuclei_segmentation_tool import \
     CellNucleiSegmentationTool
 from napari_chatgpt.omega.tools.napari.file_open_tool import \
-        NapariFileOpenTool
+    NapariFileOpenTool
 from napari_chatgpt.omega.tools.napari.image_denoising_tool import \
     ImageDenoisingTool
 from napari_chatgpt.omega.tools.napari.viewer_control_tool import \

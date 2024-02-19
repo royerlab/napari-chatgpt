@@ -11,6 +11,7 @@ from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.napari.layer_snapshot import capture_canvas_snapshot
 from napari_chatgpt.utils.openai.gpt_vision import describe_image
 
+
 # _openai_gpt4_vision_prefix = ("You are the latest OpenAI model that can describe images provided by the user in extreme detail. "
 #                              "The user has attached an image to this message for you to analyse, there is MOST DEFINITELY an image attached. "
 #                              "You will never reply saying that you cannot see the image because the image is absolutely and always attached to this message.")

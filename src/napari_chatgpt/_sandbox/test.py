@@ -1,10 +1,12 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget, QSlider, QLabel, QHBoxLayout
-from PyQt5.QtCore import Qt
 import numpy as np
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget, QSlider, QLabel, \
+    QHBoxLayout
 from vispy import scene
 from vispy.scene import visuals
+
 
 class OrthoViewWidget(QWidget):
     def __init__(self, data, parent=None):

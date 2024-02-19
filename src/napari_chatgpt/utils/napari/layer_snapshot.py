@@ -1,7 +1,6 @@
 from typing import Optional
 
 from PIL import Image
-
 from napari import Viewer
 
 
