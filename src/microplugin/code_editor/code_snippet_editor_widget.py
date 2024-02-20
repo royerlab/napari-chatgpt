@@ -685,7 +685,7 @@ class CodeSnippetEditorWidget(QWidget):
             self.text_input_widget.show_input(
                 message="Prompt:",
                 placeholder_text="Explain how you you want to modify the code...",
-                enter_text="Change",
+                enter_text="Modify",
                 cancel_text="Cancel",
                 enter_callback=_modify_code,
                 cancel_callback=None,

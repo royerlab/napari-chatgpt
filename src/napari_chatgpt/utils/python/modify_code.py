@@ -38,6 +38,11 @@ The answer should be the code with the requested changes made. Make sure we have
 - Keep all imports statements at the top of the file and do not add new ones unless requested or necessary.
 - Make sure the code is complete, correct, and runs without errors.
 
+**Instructions for using provided viewer instance:**
+- Do NOT create a new instance of a napari viewer. Assume one is provided in the variable 'viewer'.
+- Do NOT manually add the widget to the napari window by calling viewer.window.add_dock_widget().
+- Do NOT use the viewer to add layers to the napari window within the function. Instead, use a return statement to return the result.
+
 **Context:**
 - The code is written against Python version: {sys.version.split()[0]}.
 - Here is the list of installed packages: {'{installed_packages}'}.

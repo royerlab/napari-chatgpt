@@ -90,13 +90,13 @@ class NapariViewerQueryTool(NapariBaseTool):
                 loaded_module = dynamic_import(code)
 
                 # get the function:
-                query = getattr(loaded_module, 'query')
+                query_function = getattr(loaded_module, 'query')
 
                 # Redirect output:
                 f = StringIO()
                 with redirect_stdout(f):
                     # Run query code:
-                    response = query(viewer)
+                    response = query_function(viewer)
 
                     # Add successfully run code to notebook:
                     if self.notebook:
