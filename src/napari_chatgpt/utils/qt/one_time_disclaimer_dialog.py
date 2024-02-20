@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMessageBox
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QMessageBox
 
 from napari_chatgpt.utils.configuration.app_configuration import \
     AppConfiguration

@@ -34,6 +34,7 @@ from napari_chatgpt.utils.python.pip_utils import pip_install
 from napari_chatgpt.utils.python.required_imports import required_imports
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
+from napari_chatgpt.utils.system.information import system_info
 
 
 class NapariBaseTool(AsyncBaseTool):
@@ -84,7 +85,7 @@ class NapariBaseTool(AsyncBaseTool):
                 last_generated_code = "**Previously Generated Code:**\n",
                 last_generated_code += ("Use this code for reference, usefull if you need to modify or fix the code. ",
                                         "IMPORTANT: This code might not be relevant to the current request or task! "
-                                        "You should ignore it, unless you are  explicitely asked to fix or modify the last generated widget!",
+                                        "You should ignore it, unless you are explicitely asked to fix or modify the last generated widget!",
                                          "```python\n",
                                          self.last_generated_code + '\n',
                                          "```\n"
@@ -104,7 +105,8 @@ class NapariBaseTool(AsyncBaseTool):
             variables = {"input": query,
                          "instructions": instructions,
                          "last_generated_code": last_generated_code,
-                         "viewer_information": "For reference, below is information about the current state of the napari viewer: \n"+_get_viewer_info()
+                         "viewer_information": "For reference, below is information about the current state of the napari viewer: \n"+_get_viewer_info(),
+                         "system_information": "For reference, below is information about the current system: \n"+system_info(add_python_info=False)
                          }
 
             # call LLM:
@@ -155,7 +157,9 @@ class NapariBaseTool(AsyncBaseTool):
     def _prepare_code(self,
                       code: str,
                       markdown: bool = True,
-                      do_fix_bad_calls: bool = True):
+                      do_fix_imports: bool = True,
+                      do_fix_bad_calls: bool = True,
+                      do_install_missing_packages: bool = True) -> str:
 
         with asection(f"NapariBaseTool: _prepare_code(markdown={markdown}) "):
 
@@ -172,7 +176,7 @@ class NapariBaseTool(AsyncBaseTool):
             # Add spaces around code:
             code = '\n\n' + code + '\n\n'
 
-            if self.fix_imports:
+            if self.fix_imports and do_fix_imports:
                 # Are there any missing imports?
                 imports = required_imports(code, llm=self.llm)
 
@@ -202,7 +206,7 @@ class NapariBaseTool(AsyncBaseTool):
             with asection(f"code after all preparations and fixes:"):
                 aprint(code)
 
-            if self.install_missing_packages:
+            if self.install_missing_packages and do_install_missing_packages:
                 # Are there missing libraries that need to be installed?
                 packages = required_packages(code, llm=self.llm)
 
@@ -228,6 +232,14 @@ class NapariBaseTool(AsyncBaseTool):
                 # Run the code:
                 aprint(f"Code:\n{code}")
                 captured_output = execute_as_module(code, viewer=viewer)
+
+                # Come up with a filename:
+                filename = f"generated_code_{self.__class__.__name__}.py"
+
+                # Add the snippet to the code snippet editor:
+                from microplugin.microplugin_window import MicroPluginMainWindow
+                MicroPluginMainWindow.add_snippet(filename=filename,
+                                                  code=code)
 
                 # Add successfully run code to notebook:
                 if self.notebook:

@@ -1,7 +1,5 @@
-import sys
-
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMessageBox
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QMessageBox
 
 def show_warning_dialog(html_message: str) -> int:
     """

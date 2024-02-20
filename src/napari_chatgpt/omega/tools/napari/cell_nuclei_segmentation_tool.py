@@ -12,6 +12,46 @@ from napari_chatgpt.utils.python.conda_utils import conda_uninstall
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 from napari_chatgpt.utils.python.pip_utils import pip_install, pip_uninstall
 
+_cellpose_signature = """
+# Cellpose is better for segmenting non-convex cells, in particular their cytoplasm, it is a deep learning based method that only work in 2D and are better for small images. 
+def cellpose_segmentation( image: ArrayLike,
+                           model_type: str = 'cyto',
+                           normalize: Optional[bool] = True,
+                           norm_range_low: Optional[float] = 1.0,
+                           norm_range_high: Optional[float] = 99.8,
+                           min_segment_size: int = 32,
+                           channel: Optional[Sequence[int]] = None,
+                           diameter: Optional[float] = None) -> ArrayLike
+"""
+
+
+_stardist_signature = """
+# StarDist is better for segmenting nearly convex nuclei, it is a deep learning based method that only work in 2D and are better for small images. 
+def stardist_segmentation(image: ArrayLike,
+                          model_type: str = '2D_versatile_fluo',
+                          normalize: Optional[bool] = True,
+                          norm_range_low: Optional[float] = 1.0,
+                          norm_range_high: Optional[float] = 99.8,
+                          min_segment_size: int = 32,
+                          scale:float = None) -> ArrayLike
+"""
+
+_classic_signature = """
+# Classic segmentation is a simple thresholding method that can be used as a baseline and works in 2D, 3D and more dimensions.
+def classic_segmentation(image: ArrayLike,
+                          threshold_type: str = 'otsu',
+                          normalize: Optional[bool] = True,
+                          norm_range_low: Optional[float] = 1.0,
+                          norm_range_high: Optional[float] = 99.8,
+                          min_segment_size: int = 32,
+                          erosion_steps: int = 1,
+                          closing_steps: int = 1,
+                          opening_steps: int = 0,
+                          apply_watershed: bool = False,
+                          min_distance: int = 10) -> ArrayLike
+```
+"""
+
 _cell_segmentation_prompt = """
 "
 **Context**
@@ -31,39 +71,8 @@ Make sure the calls to the viewer are correct.
 The only segmentation functions that you can use are 'cellpose_segmentation()', 'stardist_segmentation()' and 'classic_segmentation()':
 
 ```python
-def cellpose_segmentation( image: ArrayLike,
-                           model_type: str = 'cyto',
-                           normalize: Optional[bool] = True,
-                           norm_range_low: Optional[float] = 1.0,
-                           norm_range_high: Optional[float] = 99.8,
-                           min_segment_size: int = 32,
-                           channel: Optional[Sequence[int]] = None,
-                           diameter: Optional[float] = None) -> ArrayLike
-                           
-def stardist_segmentation(image: ArrayLike,
-                          model_type: str = '2D_versatile_fluo',
-                          normalize: Optional[bool] = True,
-                          norm_range_low: Optional[float] = 1.0,
-                          norm_range_high: Optional[float] = 99.8,
-                          min_segment_size: int = 32,
-                          scale:float = None) -> ArrayLike
-                          
-def classic_segmentation(image: ArrayLike,
-                          threshold_type: str = 'otsu',
-                          normalize: Optional[bool] = True,
-                          norm_range_low: Optional[float] = 1.0,
-                          norm_range_high: Optional[float] = 99.8,
-                          min_segment_size: int = 32,
-                          erosion_steps: int = 1,
-                          closing_steps: int = 1,
-                          opening_steps: int = 0,
-                          apply_watershed: bool = False,
-                          min_distance: int = 10) -> ArrayLike:
+***SIGNATURES***
 ```
-
-StarDist is better for segmenting nearly convex nuclei whereas Cellpose is better for segmenting non-convex cells, in particular their cytoplasm. 
-StarDist and Cellpose are deep learning based methods that only work in 2D and are better for small images. 
-Classic segmentation is a simple thresholding method that can be used as a baseline and works in 3D and more dimensions.
 
 **Parameters:**
 Here is an explanation of the parameters:
@@ -142,26 +151,130 @@ Here is an explanation of the parameters:
             If True, applies the watershed algorithm to the distance transform of the thresholded image.
             This is useful for separating cells that are touching.
 ```
+Note: some parameters above might refer to functions that are not available.
 
 All functions provided above return the segmented image as a labels array.
 When calling these functions, do not set optional parameters unless you have a good reason to change them.
-Use either 'cellpose_segmentation()', 'stardist_segmentation()' or 'classic_segmentation()' directly without importing or implementing these functions, they will be provided to you by the system.
+Use either ***AVAILABLE_FUNCTIONS*** directly without importing or implementing these functions, they will be provided to you by the system.
 
 **Instructions:**
 {instructions}
 
+- If the request (below) asks for segmentation with a specific algorithm that is not available (above), then .
 - Answer with a single function 'segment(viewer)->ArrayLike' that takes the viewer and returns the segmented image.
 
 {last_generated_code}
 
-**ViewerInformation:**
+**Viewer Information:**
 {viewer_information}
+
+**System Information:**
+{system_information}
 
 **Request:** 
 {input}
 
 **Answer in markdown:**
 """
+
+def _get_segmentation_prompt() -> str:
+
+    function_signatures = ''
+    available_functions = ''
+
+    if check_cellpose_installed():
+        aprint("Cellpose is installed!")
+        function_signatures += _cellpose_signature
+        available_functions += 'cellpose_segmentation() '
+    if check_stardist_installed():
+        aprint("Stardist is installed!")
+        function_signatures += _stardist_signature
+        available_functions += 'stardist_segmentation() '
+
+    function_signatures += _classic_signature
+    available_functions += 'classic_segmentation() '
+
+    prompt = _cell_segmentation_prompt.replace('***SIGNATURES***', function_signatures)
+    prompt = prompt.replace('***AVAILABLE_FUNCTIONS***', available_functions)
+
+    with asection("Segmentation function signatures:"):
+        aprint(function_signatures)
+    with asection("Available functions:"):
+        aprint(available_functions)
+
+    return prompt
+
+
+# Function that checks if the packages stardist or napari-stardist are installed:
+def check_stardist_installed() -> bool:
+    try:
+        import stardist
+        return True
+    except ImportError:
+        return False
+
+# Function that checks if the packages cellpose or cellpose-napari are installed:
+def check_cellpose_installed() -> bool:
+    try:
+        import cellpose
+        return True
+    except ImportError:
+        return False
+
+
+def _get_list_of_algorithms() -> str:
+
+    algos = []
+    if check_cellpose_installed():
+        aprint("Cellpose is installed!")
+        algos.append('cellpose')
+    if check_stardist_installed():
+        aprint("Stardist is installed!")
+        algos.append('stardist')
+
+    algos.append('classic')
+    return algos
+
+def _get_description_of_algorithms() -> str:
+
+    description = ''
+
+    algos = _get_list_of_algorithms()
+
+    description += "For example, you can request to: "
+
+    for algo in algos:
+        if 'cellpose' in algo:
+            description += "'segment cell nuclei in selected layer with StarDist', "
+
+        elif 'stardist' in algo:
+            description += "'segment cell's cytoplams in selected layer with Cellpose', "
+
+        elif 'classic' in algo:
+            description += "'segment cell nuclei in selected 3D image with Classic', "
+
+    # remove last comma:
+    description = description[:-2]
+
+    description += ". Choose: "
+
+    for algo in algos:
+        if 'cellpose' in algo:
+            description += "cellpose for the cell cytoplasm/membrane outline, "
+
+        elif 'stardist' in algo:
+            description += "stardist for segmenting nuclei, "
+
+        elif 'classic' in algo:
+            description += "classic for 3D images, "
+
+    # remove last comma:
+    description = description[:-2]
+
+    description += ". "
+
+    return description
+
 
 _instructions = \
 """
@@ -179,18 +292,19 @@ _instructions = \
 """
 
 
+
+
 class CellNucleiSegmentationTool(NapariBaseTool):
     """A tool for segmenting cells in images using different algorithms."""
 
     name = "CellAndNucleiSegmentationTool"
     description = (
         "Use this tool when you need to segment cells or nuclei in images (or layers). "
-        "Input must be a plain text request that must mention 'cellpose', 'stardist' or 'classic'. "
-        "For example, you can request to: 'segment cell nuclei in selected layer with StarDist', 'segment cell's cytoplams in selected layer with Cellpose', or 'segment cell nuclei in selected 3D image with Classic'. "
-        "Choose StarDist for nuclei, cellpose for teh cell cytoplasm/membrane outline, and Classic for 3D images. "
+        f"Input must be a plain text request that must mention one of the following: {', '.join(_get_list_of_algorithms())}. "
+        f"{_get_description_of_algorithms()}"
         "This tool operates on image layers present in the already instantiated napari viewer. "
     )
-    prompt = _cell_segmentation_prompt
+    prompt = _get_segmentation_prompt()
     instructions = _instructions
     save_last_generated_code = False
 
@@ -201,7 +315,10 @@ class CellNucleiSegmentationTool(NapariBaseTool):
         try:
             with asection(f"CellNucleiSegmentationTool: query= {request} "):
                 # prepare code:
-                code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)
+                code = super()._prepare_code(code,
+                                             do_fix_bad_calls=self.fix_bad_calls,
+                                             do_install_missing_packages=False
+                                             )
 
                 # lower case code:
                 code_lower = code.lower()
@@ -211,10 +328,8 @@ class CellNucleiSegmentationTool(NapariBaseTool):
                     segmentation_code = _get_delegated_code('cellpose')
                 elif 'stardist_segmentation(' in code_lower:
                     segmentation_code = _get_delegated_code('stardist')
-                    # Check if we are on M1:
-                    stardist_package_massaging()
                 elif 'classic_segmentation(' in code_lower:
-                    segmentation_code = _get_delegated_code('cellpose')
+                    segmentation_code = _get_delegated_code('classic')
                 else:
                     raise ValueError(f"Could not determine the segmentation function used!")
 

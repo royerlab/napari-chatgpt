@@ -1,7 +1,6 @@
 import pytest
 
 from napari_chatgpt.utils.api_keys.api_key import is_api_key_available
-from napari_chatgpt.utils.openai.gpt_vision import is_gpt_vision_available
 from napari_chatgpt.utils.openai.model_list import get_openai_model_list
 
 

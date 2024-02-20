@@ -1,9 +1,4 @@
-from pprint import pprint
-
 from napari_chatgpt.utils.python.consolidate_imports import consolidate_imports
-from napari_chatgpt.utils.python.dynamic_import import dynamic_import, \
-    execute_as_module
-
 
 code_to_consolidate_imports = \
 """

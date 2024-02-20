@@ -1,7 +1,7 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication
 from arbol import aprint
+from qtpy.QtWidgets import QApplication
 
 from napari_chatgpt.utils.qt.one_time_disclaimer_dialog import \
     show_one_time_disclaimer_dialog

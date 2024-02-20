@@ -1,4 +1,3 @@
-import os
 import urllib.request
 from typing import List
 
@@ -27,8 +26,6 @@ def download_files(urls, path=None) -> List[str]:
 
     return filenames
 
-
-import requests
 
 import requests
 import tempfile

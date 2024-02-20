@@ -5,11 +5,6 @@ from arbol import asection, aprint
 from napari import Viewer
 
 from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
-from napari_chatgpt.utils.python.dynamic_import import execute_as_module
-from napari_chatgpt.utils.python.exception_description import \
-    exception_description
-from napari_chatgpt.utils.python.fix_code_given_error import \
-    fix_code_given_error_message
 
 _napari_viewer_execution_prompt = """
 "
@@ -26,8 +21,11 @@ The viewer instance is accessible using the variable `viewer`, so you can direct
 
 {last_generated_code}
 
-**ViewerInformation:**
+**Viewer Information:**
 {viewer_information}
+
+**System Information:**
+{system_information}
 
 **Request:**
 {input}

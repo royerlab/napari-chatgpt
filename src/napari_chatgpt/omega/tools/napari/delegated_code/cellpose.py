@@ -1,6 +1,5 @@
 from typing import Sequence, Optional
 
-
 from napari.types import ArrayLike
 from numpy import ndarray
 
@@ -67,13 +66,9 @@ def cellpose_segmentation(image: ArrayLike,
     """
     ### SIGNATURE
 
-    # Falling back to classic segmentation if image is 3D or more:
-    if len(image.shape) > 2:
-        return classic_segmentation(image,
-                             normalize=normalize,
-                             norm_range_low=norm_range_low,
-                             norm_range_high=norm_range_high)
-
+    # Raise an error if the image is not 2D or 3D:
+    if len(image.shape) > 3:
+        raise ValueError("The input image must be 2D or 3D.")
 
     # Convert image to float
     image = image.astype(float, copy=False)

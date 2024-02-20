@@ -6,8 +6,6 @@ import traceback
 from functools import lru_cache
 from typing import get_type_hints, Any, List
 
-import inspect
-
 from arbol import aprint
 
 
