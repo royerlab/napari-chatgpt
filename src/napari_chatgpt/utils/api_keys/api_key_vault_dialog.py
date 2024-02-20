@@ -9,6 +9,9 @@ class APIKeyDialog(QDialog):
     def __init__(self, api_key_name: str, parent=None):
         super().__init__(parent)
 
+        # Set the dialog box to be modal, so that it blocks interaction with the main window
+        self.setModal(True)
+
         self.api_key_name = api_key_name
 
         self.api_key = None
@@ -67,15 +70,32 @@ class APIKeyDialog(QDialog):
         # Add to layout:
         layout.addWidget(self.password_label)
         layout.addWidget(self.password_textbox)
+
+        # Create the button:
         self.button = QPushButton('Enter', self)
 
         # Connect the button to a slot
         self.button.clicked.connect(self.enter_button_clicked)
 
-        # Add to layout:
+        # Add Button to layout:
         layout.addWidget(self.button)
 
         if not enter_new_key:
+
+            # Add a button to ignore the dialog::
+            self.cancel_button = QPushButton('Continue without API key', self)
+            # Set tooltip text:
+            self.cancel_button.setToolTip('Click here to continue without setting the API key.\n'
+                                          'You won`t be able to dialog with Omega. However,\n'
+                                          'some features such as the code editor will be available\n'
+                                          'but without any of the AI features.')
+
+            # Connect the button to a slot
+            self.cancel_button.clicked.connect(self.accept)
+
+            # Add to layout:
+            layout.addWidget(self.cancel_button)
+
             # Add a button to clear the key:
             self.reset_button = QPushButton('Reset API Key and Password', self)
             self.reset_button.setStyleSheet("QPushButton { color: #8B0000; }")
@@ -88,6 +108,9 @@ class APIKeyDialog(QDialog):
 
             # Add to layout:
             layout.addWidget(self.reset_button)
+
+
+
 
         return layout
 
@@ -149,15 +172,19 @@ class APIKeyDialog(QDialog):
         self.api_key = None
         return api_key
 
+_already_asked_api_key = {}
 
 def request_if_needed_api_key_dialog(api_key_name: str) -> str:
-    dialog = APIKeyDialog(api_key_name=api_key_name)
 
-    # Set the dialog box to be modal, so that it blocks interaction with the main window
-    dialog.setModal(True)
+    if api_key_name in _already_asked_api_key:
+        return None
+
+    dialog = APIKeyDialog(api_key_name=api_key_name)
 
     # Show the dialog box
     dialog.exec()
+
+    _already_asked_api_key[api_key_name] = True
 
     # Return key:
     return dialog.get_api_key()
