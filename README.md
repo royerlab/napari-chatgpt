@@ -8,8 +8,8 @@
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8240289.svg)](https://doi.org/10.5281/zenodo.8240289)
 
-<img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/c85185d2-6d16-472d-a2c8-5680ea869bf2' height='330'>
-<img height="330" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/f3ea245e-dd86-4ff2-802e-48c2073cb6f9">
+<img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/c85185d2-6d16-472d-a2c8-5680ea869bf2' height='300'>
+<img height="300" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/f3ea245e-dd86-4ff2-802e-48c2073cb6f9">
 
 
 A [napari](napari.org) plugin that leverages OpenAI's Large Language Model
