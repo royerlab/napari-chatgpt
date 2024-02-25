@@ -71,10 +71,26 @@ analyst or computer vision expert, it is just a matter of time...
 Omega holds a conversation with the user and uses different tools to answer questions, 
 download and operate on images, write widgets for napari, and more.
 
+## Omega's Built-in AI-Augmented Code Editor
+
+The Omega AI-Augmented Code Editor is a new feature within Omega, designed to enhance the Omega's user experience. This editor is not just a text editor; it's a powerful interface that interacts with the Omega dialogue agent to generate, optimize, and manage code for advanced image analysis tasks.
+
+<img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/cf9b1c15-f11a-4e25-a73d-d96915c46c6a' width='800'>
+
+#### Key Features
+- **Code Highlighting and Completion**: For ease of reading and writing, the code editor comes with built-in syntax highlighting and intelligent code completion features.
+- **LLM-Augmented Tools**: The editor is equipped with AI tools that assist in commenting, cleaning up, fixing, modifying, and performing safety checks on the code.
+- **Persistent Code Snippets**: Users can save and manage snippets of code, preserving their work across multiple Napari sessions.
+- **Network Code Sharing (Code-Drop)**: Facilitates the sharing of code snippets across the local network, empowering collaborative work and knowledge sharing.
+
+#### Usage Scenarios
+- **Widget Creation**: Expert users can create widgets using the Omega dialogue agent and retain them for future use.
+- **Collaboration**: Share custom widgets with colleagues or the community, even if they don't have access to an API key.
+- **Learning**: New users can learn from the AI-augmented suggestions, improving their coding skills in Python and image analysis workflows.
 
 ----------------------------------
 
-## Installation instructions:
+## Omega's Installation instructions:
 
 Assuming you have a Python environment with a working napari installation, you can simply:
 
