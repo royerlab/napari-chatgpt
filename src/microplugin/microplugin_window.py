@@ -2,6 +2,7 @@ import os
 import sys
 from typing import Tuple, Optional
 
+from arbol import aprint
 from napari._qt.qt_resources import get_current_stylesheet
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication
@@ -83,12 +84,17 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
         self.setStyleSheet(current_style)
 
         # Set window size and position to be centered and occupy specified screen space
-        screen = QApplication.primaryScreen().geometry()
-        desired_width = screen.width() * 0.5  # 50% of screen width
-        desired_height = screen.height() * 0.6  # 60% of screen height
-        left = (screen.width() - desired_width) / 2
-        top = (screen.height() - desired_height) / 2
-        self.setGeometry(left, top, desired_width, desired_height)
+        try:
+            screen = QApplication.primaryScreen().geometry()
+            desired_width = screen.width() * 0.5  # 50% of screen width
+            desired_height = screen.height() * 0.6  # 60% of screen height
+            left = (screen.width() - desired_width) / 2
+            top = (screen.height() - desired_height) / 2
+            self.setGeometry(int(left), int(top), int(desired_width), int(desired_height))
+        except Exception as e:
+            aprint(f'Error setting window size and position: {e}')
+            import traceback
+            traceback.print_exc()
 
         # LLM settings:
         self.llm_model_name = None
