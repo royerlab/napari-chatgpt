@@ -48,7 +48,7 @@ class OmegaQWidget(QWidget):
     # in one of two ways:
     # 1. use a parameter called `napari_viewer`, as done here
     # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
-    def __init__(self, napari_viewer):
+    def __init__(self, napari_viewer, add_code_editor=True):
         super().__init__()
         aprint("OmegaQWidget instantiated!")
 
@@ -82,11 +82,15 @@ class OmegaQWidget(QWidget):
         self._verbose()
 
         # Instantiate the MicroPluginMainWindow:
-        self.micro_plugin_main_window = MicroPluginMainWindow(napari_viewer=napari_viewer)
+        if add_code_editor:
+            self.micro_plugin_main_window = MicroPluginMainWindow(napari_viewer=napari_viewer)
 
-        # Add the start Omega and SHow editor buttons to the layout:
+        # Add the start Omega:
         self._start_omega_button()
-        self._show_editor_button()
+
+        # Add the show editor button:
+        if add_code_editor:
+            self._show_editor_button()
 
         # Set the layout on the application's window
         self.setLayout(self.layout)
@@ -484,6 +488,10 @@ class OmegaQWidget(QWidget):
 
     def _show_editor(self):
         try:
+            if not self.micro_plugin_main_window:
+                aprint("MicroPluginMainWindow not instantiated.")
+                return
+
             with asection("Showing editor now!"):
 
                 # Set LLM parameters to self.micro_plugin_main_window:
