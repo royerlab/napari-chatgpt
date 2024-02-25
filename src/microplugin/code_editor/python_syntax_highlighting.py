@@ -23,15 +23,15 @@ def format(color, style=''):
 
 # Syntax styles that can be shared by all languages
 STYLES = {
-    'keyword': format('orange'),
-    'operator': format('white'),
+    'keyword': format('#C68261'),
+    'operator': format('#F0F0F0'),
     'brace': format('lightGray'),
-    'defclass': format('white', 'bold'),
-    'string': format('green'),
-    'string2': format('lightGreen'),
-    'comment': format('darkGreen', 'italic'),
-    'self': format('magenta'),
-    'numbers': format('lightBlue'),
+    'defclass': format('#B4B6BC', 'bold'),
+    'string': format('#5FA167'),
+    'string2': format('#5FA167', 'italic'),
+    'comment': format('#547760', 'italic'),
+    'self': format('#864A7E'),
+    'numbers': format('#25A2AF'),
 }
 
 
@@ -59,6 +59,8 @@ class PythonSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         '\+=', '-=', '\*=', '/=', '\%=',
         # Bitwise
         '\^', '\|', '\&', '\~', '>>', '<<',
+        # Dict:
+        '\|='
     ]
 
     # Python braces
@@ -106,6 +108,7 @@ class PythonSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 
             # From '#' until a newline
             (r'#[^\n]*', 0, STYLES['comment']),
+
         ]
 
         # Build a QRegExp for each pattern

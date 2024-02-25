@@ -14,6 +14,7 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
 
     _singleton_pattern_active = True
     _singleton_instance = None
+    _singleton_instance_initialized = False
 
     def __new__(cls, *args, **kwargs):
 
@@ -28,7 +29,7 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
         else:
             # We still want the last instance to be recorded:
             cls._singleton_instance = super().__new__(cls)
-            return
+            return cls._singleton_instance
 
 
     def __init__(self,
@@ -38,6 +39,10 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
                  parent=None,
                  *args,
                  **kwargs):
+
+        # If the singleton instance is already initialized, just return it:
+        if MicroPluginMainWindow._singleton_pattern_active and MicroPluginMainWindow._singleton_instance_initialized:
+            return
 
         if folder_path is None:
 
@@ -77,8 +82,19 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
         current_style = get_current_stylesheet()
         self.setStyleSheet(current_style)
 
+        # Set window size and position to be centered and occupy specified screen space
+        screen = QApplication.primaryScreen().geometry()
+        desired_width = screen.width() * 0.5  # 50% of screen width
+        desired_height = screen.height() * 0.6  # 60% of screen height
+        left = (screen.width() - desired_width) / 2
+        top = (screen.height() - desired_height) / 2
+        self.setGeometry(left, top, desired_width, desired_height)
+
         # LLM settings:
         self.llm_model_name = None
+
+        # Set the instance as initialized:
+        MicroPluginMainWindow._singleton_instance_initialized = True
 
 
 

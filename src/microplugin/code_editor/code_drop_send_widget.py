@@ -1,3 +1,5 @@
+from typing import Callable, Tuple
+
 from arbol import aprint
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QWidget, QPushButton, QComboBox, \
@@ -108,40 +110,6 @@ class CodeDropSendWidget(QWidget):
             # If there was no selection or the selected server is no longer available, default to the first item:
             self.username_address_port_combo_box.setCurrentIndex(0)
 
-    # def update_server_list(self):
-    #
-    #     # Save the current selection:
-    #     current_selection = self.server_address_and_port_combo_box.currentData()
-    #
-    #     # Clear the combo box:
-    #     self.server_address_and_port_combo_box.clear()
-    #
-    #     # for loop to get the server name and address
-    #     for key, username_address_port in self.code_drop_client.servers.items():
-    #         # Split the key into hostname and port:
-    #         hostname, port = key.split(':')
-    #
-    #         # Split the username, address and port:
-    #         username, address, port = username_address_port
-    #
-    #         # String to display in the combo box:
-    #         string_to_display = f"{username} at {hostname} ({address}:{port})"
-    #
-    #         self.server_address_and_port_combo_box.addItem(string_to_display,
-    #                                                        username_address_port)
-    #
-    #         aprint(
-    #             f"Updated list of servers on UI with: {hostname} at {username_address_port}")
-    #
-    #     # Restore the current selection:
-    #     index = self.server_address_and_port_combo_box.findData(current_selection)
-    #
-    #     # check if the index is valid:
-    #     if index >= 0:
-    #         self.server_address_and_port_combo_box.setCurrentIndex(index)
-    #     else:
-    #         self.server_address_and_port_combo_box.setCurrentIndex(0)
-
     def send_code(self):
 
         # Get the selected server address and port:
@@ -153,13 +121,19 @@ class CodeDropSendWidget(QWidget):
 
             # Logging":
             aprint(
-                f"Sending code of length {len(self.code)} to {username} at {server_address}:{server_port}.")
+                f"Sending code to {username} at {server_address}:{server_port}.")
 
-            # Send message:
-            self.code_drop_client.send_code_message(server_address=server_address,
-                                                    server_port=server_port,
-                                                    filename=self.filename,
-                                                    code=self.code)
+            # Get the filename and code:
+            filename, code = self.get_code_callable()
+
+            if filename is not None and code is not None:
+                # Send message:
+                self.code_drop_client.send_code_message(server_address=server_address,
+                                                        server_port=server_port,
+                                                        filename=filename,
+                                                        code=code)
+            else:
+                aprint("No code to send, no code could be obtained.")
         else:
             aprint("Please select a recipient.")
 
@@ -199,12 +173,10 @@ class CodeDropSendWidget(QWidget):
             self.timer=None
 
     def show_send_dialog(self,
-                         filename: str,
-                         code: str):
+                         get_code_callable: Callable[[], Tuple[str, str]]):
 
         # Store the filename and code:
-        self.filename = filename
-        self.code = code
+        self.get_code_callable = get_code_callable
 
         # Enable discovery worker:
         self.code_drop_client.discover_worker.is_enabled = True

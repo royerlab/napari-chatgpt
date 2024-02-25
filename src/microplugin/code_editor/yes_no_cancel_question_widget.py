@@ -1,5 +1,6 @@
 from typing import Optional
 
+from arbol import aprint
 from qtpy.QtWidgets import QHBoxLayout, QWidget, QPushButton, QLabel, \
     QSizePolicy
 
@@ -85,22 +86,40 @@ class YesNoCancelQuestionWidget(QWidget):
         self.show()
 
     def on_yes(self):
-        if self.yes_callback:
-            self.yes_callback()
-        self.hide()
-        if self.do_after_callable:
-            self.do_after_callable()
+        try:
+            if self.yes_callback:
+                self.yes_callback()
+        except Exception as e:
+            aprint(f'Error in on_yes: {e}')
+            import traceback
+            traceback.print_exc()
+        finally:
+            self.hide()
+            if self.do_after_callable:
+                self.do_after_callable()
 
     def on_no(self):
-        if self.no_callback:
-            self.no_callback()
-        self.hide()
-        if self.do_after_callable:
-            self.do_after_callable()
+        try:
+            if self.no_callback:
+                self.no_callback()
+        except Exception as e:
+            aprint(f'Error in on_no: {e}')
+            import traceback
+            traceback.print_exc()
+        finally:
+            self.hide()
+            if self.do_after_callable:
+                self.do_after_callable()
 
     def on_cancel(self):
-        if self.cancel_callback:
-            self.cancel_callback()
-        self.hide()
-        if self.do_after_callable:
-            self.do_after_callable()
+        try:
+            if self.cancel_callback:
+                self.cancel_callback()
+        except Exception as e:
+            aprint(f'Error in on_cancel: {e}')
+            import traceback
+            traceback.print_exc()
+        finally:
+            self.hide()
+            if self.do_after_callable:
+                self.do_after_callable()

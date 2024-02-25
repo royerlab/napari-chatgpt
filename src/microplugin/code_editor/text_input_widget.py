@@ -1,5 +1,6 @@
 from typing import Optional
 
+from arbol import aprint
 from qtpy.QtWidgets import QHBoxLayout, QWidget, QPushButton, QLabel, \
     QSizePolicy, QLineEdit, QTextEdit
 
@@ -119,18 +120,29 @@ class TextInputWidget(QWidget):
 
     def on_enter(self):
         input_text = self.current_input.text() if not self.multi_line else self.current_input.toPlainText()
-
-        if self.enter_callback:
-            self.enter_callback(input_text)
-        self.hide()
-        if self.do_after_callable:
-            self.do_after_callable(input_text)
+        try:
+            if self.enter_callback:
+                self.enter_callback(input_text)
+        except Exception as e:
+            aprint(f'Error in on_enter: {e}')
+            import traceback
+            traceback.print_exc()
+        finally:
+            self.hide()
+            if self.do_after_callable:
+                self.do_after_callable(input_text)
 
     def on_cancel(self):
-        if self.cancel_callback:
-            self.cancel_callback('')
-        self.hide()
-        if self.do_after_callable:
-            self.do_after_callable('')
+        try:
+            if self.cancel_callback:
+                self.cancel_callback('')
+        except Exception as e:
+            aprint(f'Error in on_enter: {e}')
+            import traceback
+            traceback.print_exc()
+        finally:
+            self.hide()
+            if self.do_after_callable:
+                self.do_after_callable('')
 
 

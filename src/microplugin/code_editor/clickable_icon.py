@@ -12,7 +12,7 @@ class ClickableIcon(QLabel):
             self,
             icon: Union[QIcon, QPixmap, str],
             size: int = 24,
-            invert_colors: bool = False,
+            invert_colors: bool = True,
             parent=None
     ):
         """
@@ -81,19 +81,19 @@ class ClickableIcon(QLabel):
                 color.setGreen(255 - color.green())
                 color.setBlue(255 - color.blue())
 
-                # Rotate hue by 180 degrees
-                if (
-                        color.hue() != -1
-                ):  # Check if color is not grayscale (hue is undefined for grayscale)
-                    hue = (color.hue() + 180) % 360
-                    color.setHsv(
-                        hue, color.saturation(), color.value(), color.alpha()
-                    )  # Preserve alpha
-
-                # Set the modified color back to the image
-                image.setPixel(
-                    x, y, color.rgba()
-                )  # Use rgba() to include the alpha channel
+                # # Rotate hue by 180 degrees
+                # if (
+                #         color.hue() != -1
+                # ):  # Check if color is not grayscale (hue is undefined for grayscale)
+                #     hue = (color.hue() + 180) % 360
+                #     color.setHsv(
+                #         hue, color.saturation(), color.value(), color.alpha()
+                #     )  # Preserve alpha
+                #
+                # # Set the modified color back to the image
+                # image.setPixel(
+                #     x, y, color.rgba()
+                # )  # Use rgba() to include the alpha channel
 
         # Convert QImage back to QPixmap
         modified_pixmap = QPixmap.fromImage(image)

@@ -19,7 +19,7 @@ from qtpy.QtWidgets import (
     QMenu,
     QAction, QSizePolicy, QListWidgetItem, )
 
-from microplugin.code_editor.TextDialog import TextDialog
+from microplugin.code_editor.text_dialog import TextDialog
 from microplugin.code_editor.clickable_icon import ClickableIcon
 from microplugin.code_editor.code_drop_send_widget import \
     CodeDropSendWidget
@@ -93,29 +93,33 @@ class CodeSnippetEditorWidget(QWidget):
         self.toolbar = QToolBar("Main Toolbar")
         main_layout.addWidget(self.toolbar)
 
+        # Icon color:
+        icon_color = '#5E636F'
+
+        # function to get icon from fontawesome:
+        def _get_icon(icon_name: str):
+            return qtawesome.icon(icon_name, color=icon_color)
+
         # New file button with a standard icon:
-        new_file_clickable_icon = ClickableIcon(qtawesome.icon('fa5s.file-alt'))
+        new_file_clickable_icon = ClickableIcon(_get_icon('fa5s.file-alt'))
         new_file_clickable_icon.setToolTip("New file")
         self.toolbar.addWidget(new_file_clickable_icon)
         new_file_clickable_icon.clicked.connect(self.new_file_dialog)
 
         # Duplicate file button with a custom icon:
-        duplicate_file_clickable_icon = ClickableIcon(
-            qtawesome.icon('fa5s.copy'))
+        duplicate_file_clickable_icon = ClickableIcon(_get_icon('fa5s.copy'))
         duplicate_file_clickable_icon.setToolTip("Duplicate file")
         self.toolbar.addWidget(duplicate_file_clickable_icon)
         duplicate_file_clickable_icon.clicked.connect(self.duplicate_file)
 
         # Delete file button with a custom icon:
-        delete_file_clickable_icon = ClickableIcon(
-            qtawesome.icon('fa5s.trash-alt'))
+        delete_file_clickable_icon = ClickableIcon(_get_icon('fa5s.trash-alt'))
         delete_file_clickable_icon.setToolTip("Delete file")
         self.toolbar.addWidget(delete_file_clickable_icon)
         delete_file_clickable_icon.clicked.connect(self.delete_file)
 
         # Clean and reformat code in file button with a custom icon:
-        clean_file_clickable_icon = ClickableIcon(
-            qtawesome.icon('fa5s.hand-sparkles'))
+        clean_file_clickable_icon = ClickableIcon(_get_icon('fa5s.hand-sparkles'))
         clean_file_clickable_icon.setToolTip("Clean and reformat code")
         self.toolbar.addWidget(clean_file_clickable_icon)
         clean_file_clickable_icon.clicked.connect(self.clean_and_reformat_current_file)
@@ -124,30 +128,26 @@ class CodeSnippetEditorWidget(QWidget):
         if self.is_openai_available:
 
             # Check if the file is 'safe':
-            check_code_safety_clickable_icon = ClickableIcon(
-                qtawesome.icon('fa5s.virus-slash'))
+            check_code_safety_clickable_icon = ClickableIcon(_get_icon('fa5s.virus-slash'))
             check_code_safety_clickable_icon.setToolTip("Check code safety")
             self.toolbar.addWidget(check_code_safety_clickable_icon)
             check_code_safety_clickable_icon.clicked.connect(
                 self.check_code_safety_with_AI)
 
             # Improve code in file button with a custom icon:
-            comment_code_clickable_icon = ClickableIcon(
-                qtawesome.icon('fa5s.edit'))
+            comment_code_clickable_icon = ClickableIcon(_get_icon('fa5s.edit'))
             comment_code_clickable_icon.setToolTip("Improve code comments and explanations")
             self.toolbar.addWidget(comment_code_clickable_icon)
             comment_code_clickable_icon.clicked.connect(self.comment_code_with_AI)
 
             # Use AI to change code based on prompt:
-            modify_code_clickable_icon = ClickableIcon(
-                qtawesome.icon('fa5s.robot'))
+            modify_code_clickable_icon = ClickableIcon(_get_icon('fa5s.robot'))
             modify_code_clickable_icon.setToolTip("Modify code with AI")
             self.toolbar.addWidget(modify_code_clickable_icon)
             modify_code_clickable_icon.clicked.connect(self.modify_code_with_AI)
 
         # Send file button with a custom icon:
-        send_file_clickable_icon = ClickableIcon(
-            qtawesome.icon('fa5s.wifi'))
+        send_file_clickable_icon = ClickableIcon(_get_icon('fa5s.wifi'))
         send_file_clickable_icon.setToolTip("Send file")
         self.toolbar.addWidget(send_file_clickable_icon)
         send_file_clickable_icon.clicked.connect(self.send_current_file)
@@ -158,8 +158,7 @@ class CodeSnippetEditorWidget(QWidget):
         self.toolbar.addWidget(spacer)
 
         # Run file button with a custom icon:
-        run_file_clickable_icon = ClickableIcon(
-            qtawesome.icon('fa5s.play-circle'))
+        run_file_clickable_icon = ClickableIcon(_get_icon('fa5s.play-circle'))
         run_file_clickable_icon.setToolTip("Run file")
         self.toolbar.addWidget(run_file_clickable_icon)
         run_file_clickable_icon.clicked.connect(self.run_current_file)
@@ -301,13 +300,29 @@ class CodeSnippetEditorWidget(QWidget):
         self.displayname_to_filename.clear()
         self.currently_open_filename = None
 
+        # Get the list of files in the folder:
+        file_list = os.listdir(self.folder_path)
+
+        # Sort the list of files:
+        file_list.sort()
+
+        # Reset the index for duplicated display names:
+        display_name_index = 0
+
         # Populate the list widget with the Python files in the folder:
         max_width = 0
         fm = QFontMetrics(self.list_widget.font())
-        for filename in os.listdir(self.folder_path):
+        for filename in file_list:
             if filename.endswith(".py"):
                 # Add the file to the list widget:
                 display_name = self.truncate_filename(filename)
+
+                # If there is already a file with the same display name, add a number to the display name:
+                if display_name in self.displayname_to_filename:
+                    display_name_index += 1
+                    display_name = self.truncate_filename(filename, display_name_index)
+                else:
+                    display_name_index = 0
 
                 # Add the file to the dictionaries:
                 self.filename_to_displayname[filename] = display_name
@@ -345,12 +360,22 @@ class CodeSnippetEditorWidget(QWidget):
                 self.list_widget.setCurrentRow(0)
                 self.load_snippet()
 
-    def truncate_filename(self, filename):
-        max_length = 40
+    def truncate_filename(self,
+                          filename: str,
+                          index: Optional[int] = None,
+                          max_length: int = 40) -> str:
+
+        # Convert index to string if it is not None:
+        if index is not None:
+            index_str = str(index)
+        else:
+            index_str = ""
+
+        # Truncate the filename if it is too long:
         if len(filename) > max_length:
             extension = filename.split(".")[-1]
             base_length = max_length - len(extension) - 3
-            return f"{filename[:base_length]}(...).{extension}"
+            return f"{filename[:base_length]}…{index_str}.{extension}"
         return filename
 
     def on_text_modified(self):
@@ -387,6 +412,11 @@ class CodeSnippetEditorWidget(QWidget):
 
         # If there is a currently open file, save it:
         if self.currently_open_filename:
+
+            # Make sure that there is an editor <=> at least one file in the list:
+            if not self.editor_manager.current_editor:
+                return
+
             # Get the full path to the file:
             full_path = os.path.join(self.folder_path,
                                      self.currently_open_filename)
@@ -432,10 +462,15 @@ class CodeSnippetEditorWidget(QWidget):
 
         def _new_file(filename_text: str):
             # if no file is selected but the editor has contents, use it as the new file's content:
-            current_text_in_editor = self.editor_manager.current_editor.toPlainText()
-            if self.currently_open_filename is None and current_text_in_editor and len(
-                    current_text_in_editor) > 0:
-                code = self.editor_manager.current_editor.toPlainText()
+
+            if self.editor_manager.current_editor:
+                current_editor = self.editor_manager.current_editor
+                current_text_in_editor = current_editor.toPlainText()
+                if self.currently_open_filename is None and current_text_in_editor and len(
+                        current_text_in_editor) > 0:
+                    code = current_editor.toPlainText()
+                else:
+                    code = ""
             else:
                 code = ""
 
@@ -583,6 +618,11 @@ class CodeSnippetEditorWidget(QWidget):
 
     def clean_and_reformat_current_file(self):
         if self.currently_open_filename:
+
+            # Make sure that there is an editor <=> at least one file in the list:
+            if not self.editor_manager.current_editor:
+                return
+
             # Get the code from the editor:
             code = self.editor_manager.current_editor.toPlainText()
 
@@ -618,6 +658,11 @@ class CodeSnippetEditorWidget(QWidget):
 
     def check_code_safety_with_AI(self):
         if self.currently_open_filename:
+
+            # Make sure that there is an editor <=> at least one file in the list:
+            if not self.editor_manager.current_editor:
+                return
+
             # Get the code from the editor:
             code = self.editor_manager.current_editor.toPlainText()
 
@@ -646,6 +691,10 @@ class CodeSnippetEditorWidget(QWidget):
     def comment_code_with_AI(self):
         if self.currently_open_filename:
 
+            # Make sure that there is an editor <=> at least one file in the list:
+            if not self.editor_manager.current_editor:
+                return
+
             # Get the code from the editor:
             code = self.editor_manager.current_editor.toPlainText()
 
@@ -659,10 +708,15 @@ class CodeSnippetEditorWidget(QWidget):
 
     def modify_code_with_AI(self):
         if self.currently_open_filename:
-            # Get the code from the editor:
-            code = self.editor_manager.current_editor.toPlainText()
 
             def _modify_code(request: str):
+
+                # If there is no currently open file, return:
+                if not self.currently_open_filename:
+                    return
+
+                # Get the code from the editor:
+                code = self.editor_manager.current_editor.toPlainText()
 
                 # Modify the code based on the request:
                 from napari_chatgpt.utils.python.modify_code import modify_code
@@ -681,10 +735,19 @@ class CodeSnippetEditorWidget(QWidget):
                 self.editor_manager.current_editor.setPlainTextUndoable(modified_code)
 
 
+            placeholder_text = ("Explain how you you want to modify the code of the currently selected file.\n"
+                                "For example:\n"
+                                "   'Make a widget from this code',\n"
+                                "   'Make the code work for 3d stacks',\n"
+                                "   etc...\n"
+                                "You can also place 'TODO's or 'FIXME' in the code, in that case no prompt is required.\n"
+                                "Finally, you can undo the changes with CTRL+Z.\n")
+
+
             # Show the text input widget:
             self.text_input_widget.show_input(
                 message="Prompt:",
-                placeholder_text="Explain how you you want to modify the code...",
+                placeholder_text=placeholder_text,
                 enter_text="Modify",
                 cancel_text="Cancel",
                 enter_callback=_modify_code,
@@ -698,13 +761,17 @@ class CodeSnippetEditorWidget(QWidget):
 
         # Send the file if there is a currently open file:
         if self.currently_open_filename:
-            # Get the code from the editor:
-            code = self.editor_manager.current_editor.toPlainText()
+
+            def _get_current_code_and_filename():
+                # Get the code from the editor:
+                if self.editor_manager.current_editor:
+                    code = self.editor_manager.current_editor.toPlainText()
+                    return self.currently_open_filename, code
+                return None, None
 
             # Show the send dialog:
             self.code_drop_send_widget.show_send_dialog(
-                filename=self.currently_open_filename,
-                code=code
+                get_code_callable=_get_current_code_and_filename
             )
 
     def run_current_file(self):
@@ -714,6 +781,10 @@ class CodeSnippetEditorWidget(QWidget):
 
             # Save the file before running it:
             self.save_current_file()
+
+            # Make sure that there is an editor <=> at least one file in the list:
+            if not self.editor_manager.current_editor:
+                return
 
             # Get code from the editor:
             code = self.editor_manager.current_editor.toPlainText()

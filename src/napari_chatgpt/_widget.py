@@ -40,6 +40,8 @@ _creativity_mapping['slightly creative'] = 0.01
 _creativity_mapping['moderately creative'] = 0.05
 _creativity_mapping['creative'] = 0.1
 
+# Ensure the singleton pattern is on:
+MicroPluginMainWindow._singleton_pattern_active = True
 
 class OmegaQWidget(QWidget):
     # your QWidget.__init__ can optionally request the napari viewer instance
@@ -383,7 +385,7 @@ class OmegaQWidget(QWidget):
         aprint("Setting up start Omega button UI.")
 
         # Start Omega button:
-        self.start_omega_button = QPushButton("Start Omega")
+        self.start_omega_button = QPushButton("Start Conversing with Omega")
         self.start_omega_button.clicked.connect(self._start_omega)
         self.start_omega_button.setToolTip(
             "Start Omega, this will open a browser window.\n"
@@ -397,7 +399,7 @@ class OmegaQWidget(QWidget):
         aprint("Setting up start Omega button UI.")
 
         # Start Omega button:
-        self.show_editor_button = QPushButton("Show Code Editor")
+        self.show_editor_button = QPushButton("Show Omega's Code Editor")
         self.show_editor_button.clicked.connect(self._show_editor)
         self.show_editor_button.setToolTip(
             "Shows Omega's microplugin code snippet editor. \n"
@@ -421,10 +423,9 @@ class OmegaQWidget(QWidget):
                 show_one_time_disclaimer_dialog(
                     "Omega is research software that can make changes to your data "
                     "and machine if instructed to do so or if it misunderstands "
-                    "your requests. "
-                    "It is not perfect and can make mistakes. "
+                    "your requests. It is not perfect and can make mistakes. "
                     "By clicking 'I agree' you acknowledge that you understand "
-                    "the risks and agree to use Omega at your own risk. "
+                    "the potential dangers and agree to use Omega at your own risk. "
                     "You can find more information about Omega's disclaimer "
                     "and terms of use at <a href='https://github.com/royerlab/napari-chatgpt?tab=readme-ov-file#disclaimer' >disclaimer</a>."
                 )
@@ -498,6 +499,16 @@ class OmegaQWidget(QWidget):
             aprint(f"Error: {e}")
             aprint("Omega failed to start. Please check the console for more information.")
             traceback.print_exc()
+
+
+    def setStyleSheet(self, style):
+
+        # Set the stylesheet for the micro plugin main window:
+        if self.micro_plugin_main_window:
+            self.micro_plugin_main_window.setStyleSheet(style)
+
+        # Call the parent class method:
+        super().setStyleSheet(style)
 
     def close(self):
 
