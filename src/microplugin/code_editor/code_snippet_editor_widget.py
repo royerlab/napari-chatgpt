@@ -603,7 +603,7 @@ class CodeSnippetEditorWidget(QWidget):
             self.text_input_widget.show_input(
                 message="Enter new file name:",
                 placeholder_text="Enter new name here",
-                default_text=old_display_name[:-3],
+                default_text=old_filename[:-3],
                 enter_text="Rename",
                 cancel_text="Cancel",
                 enter_callback=_rename_file,
