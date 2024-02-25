@@ -88,6 +88,8 @@ The Omega AI-Augmented Code Editor is a new feature within Omega, designed to en
 - **Collaboration**: Share custom widgets with colleagues or the community, even if they don't have access to an API key.
 - **Learning**: New users can learn from the AI-augmented suggestions, improving their coding skills in Python and image analysis workflows.
 
+You can find more information in the corresponding [wiki page](https://github.com/royerlab/napari-chatgpt/wiki/OmegaCodeEditor).
+
 ----------------------------------
 
 ## Omega's Installation instructions:
