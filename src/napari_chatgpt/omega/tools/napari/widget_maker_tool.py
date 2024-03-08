@@ -7,7 +7,8 @@ from napari import Viewer
 from napari_chatgpt.omega.tools.napari.napari_base_tool import NapariBaseTool
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
-from napari_chatgpt.utils.strings.find_function_name import find_magicgui_decorated_function_name
+from napari_chatgpt.utils.strings.find_function_name import \
+    find_magicgui_decorated_function_name
 from napari_chatgpt.utils.strings.trailing_code import remove_trailing_code
 
 _napari_widget_maker_prompt = """
@@ -26,8 +27,11 @@ Your task is to competently write image processing and image analysis functions 
 - Make sure that the code is correct! 
 {last_generated_code}
 
-**ViewerInformation:**
+**Viewer Information:**
 {viewer_information}
+
+**System Information:**
+{system_information}
 
 **Request:**
 {input}
@@ -174,10 +178,16 @@ class NapariWidgetMakerTool(NapariBaseTool):
                     # Load the widget in the viewer:
                     viewer.window.add_dock_widget(function, name=function_name)
 
+                    # Standalone code with the viewer.window.add_dock_widget call:
+                    standalone_code = f"{code}\n\nviewer.window.add_dock_widget({function_name}, name='{function_name}')"
+
                     # At this point we assume the code ran successfully and we add it to the notebook:
                     if self.notebook:
-                        self.notebook.add_code_cell(code+'\n\n'
-                                                        +f'viewer.window.add_dock_widget(function, name={function_name})')
+                        self.notebook.add_code_cell(standalone_code)
+
+                    # Add the snippet to the code snippet editor:
+                    from microplugin.microplugin_window import MicroPluginMainWindow
+                    MicroPluginMainWindow.add_snippet(filename=function_name, code=standalone_code)
 
                     message = f"The requested widget has been successfully created and registered to the viewer."
 

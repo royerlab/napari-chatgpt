@@ -33,4 +33,4 @@ messages = [
     HumanMessage(content=prompt)
 ]
 result = chat(messages)
-print(result.content)
+print(result.code)

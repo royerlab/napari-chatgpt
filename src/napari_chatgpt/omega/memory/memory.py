@@ -11,6 +11,11 @@ from langchain_core.prompts import BasePromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, root_validator
 
 
+###
+### This code is modified from the original class ConversationSummaryMemory in LangChain.
+### LangChain's license is the MIT License
+###
+
 class SummarizerMixin(BaseModel):
     human_prefix: str = "Human"
     ai_prefix: str = "AI"

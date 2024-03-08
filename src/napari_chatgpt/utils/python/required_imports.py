@@ -4,9 +4,9 @@ import traceback
 
 from arbol import asection, aprint
 from langchain.chains import LLMChain
-from langchain_openai import ChatOpenAI
 from langchain.llms import BaseLLM
 from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
 
 from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
     ArbolCallbackHandler

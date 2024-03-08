@@ -1,9 +1,6 @@
 import base64
-import openai
-import os
 
 from openai.resources.chat import Completions
-from openai.types.chat import ChatCompletion
 
 # Updated file path to a JPEG image
 #image_path = "/Users/royer/Downloads/image.jpeg"

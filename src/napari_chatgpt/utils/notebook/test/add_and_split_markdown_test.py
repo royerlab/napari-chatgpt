@@ -76,12 +76,18 @@ This widget function `color_space_explorer` allows the user to explore different
 def test_add_and_split_markdown():
 
     jnf = JupyterNotebookFile()
-    jnf.add_markdown_cell(markdown)
+    jnf.add_markdown_cell(markdown, detect_code_blocks=False)
+
+    assert len(jnf.notebook.cells) == 1
+
+def test_add_and_split_markdown_detect_code_blocks():
+    jnf = JupyterNotebookFile()
+    jnf.add_markdown_cell(markdown, detect_code_blocks=True)
 
     assert len(jnf.notebook.cells) == 3
-    assert '```' not in jnf.notebook.cells[0].source
-    assert '```' in jnf.notebook.cells[1].source
-    assert '```' not in jnf.notebook.cells[2].source
+    assert '###'  in jnf.notebook.cells[0].source
+    assert 'import numpy' in jnf.notebook.cells[1].source
+    assert 'This widget function' in jnf.notebook.cells[2].source
 
 
 

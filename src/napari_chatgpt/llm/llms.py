@@ -1,11 +1,11 @@
 from time import sleep
 
 from arbol import aprint
-from langchain.callbacks.manager import AsyncCallbackManager
 
 from napari_chatgpt.utils.configuration.app_configuration import \
     AppConfiguration
 from napari_chatgpt.utils.ollama.ollama_server import is_ollama_running
+from napari_chatgpt.utils.openai.max_token_limit import openai_max_token_limit
 
 
 def instantiate_LLMs(main_llm_model_name: str,
@@ -56,20 +56,7 @@ def _instantiate_single_llm(llm_model_name: str,
             callbacks=[callback_handler]
         )
 
-        if 'gpt-4-1106-preview' in llm_model_name or 'gpt-4-vision-preview' in llm_model_name:
-            max_token_limit = 128000
-        elif '32k' in llm_model_name:
-            max_token_limit = 32000
-        elif '16k' in llm_model_name:
-            max_token_limit = 16385
-        elif 'gpt-4' in llm_model_name:
-            max_token_limit = 8192
-        elif 'gpt-3.5-turbo-1106' in llm_model_name:
-            max_token_limit = 16385
-        elif 'gpt-3.5' in llm_model_name:
-            max_token_limit = 4096
-        else:
-            max_token_limit = 4096
+        max_token_limit = openai_max_token_limit(llm_model_name)
 
         return llm, max_token_limit
 
@@ -135,3 +122,6 @@ def _instantiate_single_llm(llm_model_name: str,
         )
 
         return llm, max_token_limit
+
+
+

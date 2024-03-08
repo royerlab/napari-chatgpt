@@ -1,11 +1,20 @@
 from typing import List
 
 from arbol import aprint, asection
-from napari_chatgpt.utils.python.conda_utils import conda_install
 
+from napari_chatgpt.utils.python.conda_utils import conda_install
 from napari_chatgpt.utils.python.installed_packages import is_package_installed
-from napari_chatgpt.utils.qt.package_dialog import install_packages_dialog, \
-    install_packages_dialog_threadsafe
+from napari_chatgpt.utils.qt.package_dialog import install_packages_dialog
+
+___included_packages = ['numpy', 'napari', 'magicgui', 'scikit-image', 'scipy']
+
+___extra_packages = {'opencv': ['opencv-contrib-python']}
+
+___pip_substitutions = {'stardist': ['napari-stardist'],
+                        'cellpose': ['cellpose-napari']}
+
+___conda_forge_substitutions = {'cupy': ['cupy']}
+# Special rules for CUPY and dependencies: https://docs.cupy.dev/en/stable/install.html
 
 
 def pip_install(packages: List[str],
@@ -17,7 +26,7 @@ def pip_install(packages: List[str],
     message = ''
 
     if included:
-        included_packages = ['numpy', 'napari', 'magicgui', 'scikit-image', 'scipy']
+        included_packages = ___included_packages
         aprint(
             f"Removing 'included' packages that should be already installed with Omega: {', '.join(included_packages)}")
         packages = [p for p in packages if
@@ -30,15 +39,28 @@ def pip_install(packages: List[str],
 
     if special_rules:
         all_packages_str = ', '.join(packages)
-        if 'opencv' in all_packages_str:
-            packages.append('opencv-contrib-python')
-            message+=f"Adding 'opencv-contrib-python' to the list of packages to install.\n"
 
-        if 'cupy' in all_packages_str:
-            packages.remove('cupy')
-            # Special rules for CUPY and dependencies: https://docs.cupy.dev/en/stable/install.html
-            conda_install(['cupy'], channel='conda-forge')
-            message +=  f"Installing 'cupy' with conda-forge.\n"
+        # Check for extra packages:
+        for package, extras in ___extra_packages.items():
+            if package in all_packages_str:
+                for extra in extras:
+                    packages.append(extra)
+                    message += f"Adding '{extra}' to the list of packages to install.\n"
+
+        # Check for substitutions:
+        for package, substitutions in ___pip_substitutions.items():
+            if package in all_packages_str:
+                packages.remove(package)
+                for substitute in substitutions:
+                    packages.append(substitute)
+                    message += f"Installing '{substitute}' with pip instead of '{package}'.\n"
+
+        # Check for conda-forge substitutions:
+        for package, substitutions in ___conda_forge_substitutions.items():
+            if package in all_packages_str:
+                packages.remove(package)
+                conda_install(substitutions, channel='conda-forge')
+                message += f"Installing '{','.join(substitutions)}' with conda-forge instead of '{package}'.\n"
 
     # TODO: use conda to install some packages.
 

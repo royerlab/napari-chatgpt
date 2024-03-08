@@ -6,6 +6,7 @@ from napari_chatgpt.utils.ollama.ollama import OllamaFixed
 from napari_chatgpt.utils.ollama.ollama_server import start_ollama, stop_ollama, \
     is_ollama_running, get_ollama_models
 
+
 @pytest.mark.skipif(not is_ollama_running(),
                     reason="requires an ollama instance to run")
 def test_ollama():

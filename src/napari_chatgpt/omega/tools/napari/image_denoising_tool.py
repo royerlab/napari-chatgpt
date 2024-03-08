@@ -75,8 +75,11 @@ Here is an explanation of the parameters:
 
 {last_generated_code}
 
-**ViewerInformation:**
+**Viewer Information:**
 {viewer_information}
+
+**System Information:**
+{system_information}
 
 **Request:** 
 {input}

@@ -1,3 +1,4 @@
+import os
 from base64 import b64encode
 from datetime import datetime
 from io import BytesIO
@@ -5,9 +6,8 @@ from mimetypes import guess_type
 from os import path, makedirs
 from typing import Optional, Callable
 
-from PIL import Image
-from napari import Viewer
 import nbformat
+from PIL import Image
 from nbformat.v4 import new_notebook, new_code_cell, new_markdown_cell
 
 from napari_chatgpt.utils.strings.markdown import extract_markdown_blocks
@@ -57,6 +57,9 @@ class JupyterNotebookFile:
         # path of default notebook file on desktop:
         self.default_file_path = path.join(notebook_folder_path, f'{formatted_date_time}_omega_notebook.ipynb')
 
+        # Actual file path of the notebook (last saved file path):
+        self.file_path = None
+
         # Restart the notebook:
         self.notebook = new_notebook()
 
@@ -64,7 +67,7 @@ class JupyterNotebookFile:
         self._modified = False
 
     def write(self, file_path: Optional[str] = None):
-        file_path = file_path or self.default_file_path
+        self.file_path = file_path or self.default_file_path
         # Write the notebook to disk
         with open(file_path, 'w') as f:
             nbformat.write(self.notebook, f)
@@ -143,6 +146,13 @@ class JupyterNotebookFile:
 
         # Add this image to the notebook
         self.add_image_cell_from_PIL_image(pil_image, text)
+
+
+    def delete_notebook_file(self):
+        # Delete the notebook file
+        if self.file_path is not None and path.exists(self.file_path):
+            os.unlink(self.file_path)
+            print(f"Deleted the notebook at {self.file_path}")
 
 
 # def start_jupyter_server(folder_path):

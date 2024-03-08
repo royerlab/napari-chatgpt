@@ -1,8 +1,9 @@
 import sys
 from typing import Callable
 
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QTimer
+from qtpy.QtCore import QTimer
+from qtpy.QtWidgets import QApplication
+
 
 def get_or_create_qt_app():
     # Check if there is already a QApplication instance running

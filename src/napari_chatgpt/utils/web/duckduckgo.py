@@ -1,4 +1,5 @@
 import traceback
+from typing import Optional
 
 from arbol import asection, aprint
 from duckduckgo_search import DDGS
@@ -6,12 +7,6 @@ from duckduckgo_search import DDGS
 from napari_chatgpt.utils.llm.summarizer import summarize
 from napari_chatgpt.utils.python.pip_utils import pip_install_single_package
 
-# Make sure we have the latest version installed:
-try:
-    with asection("Installing the latest version of duckduckgo_search:"):
-        aprint(pip_install_single_package('duckduckgo_search', upgrade=True))
-except Exception as e:
-    traceback.print_exc()
 
 def summary_ddg(query: str,
                 num_results: int = 3,
@@ -44,19 +39,21 @@ def summary_ddg(query: str,
         traceback.format_exc()
         return f"Web search failed for: '{query}'"
 
+        install_latest_ddg
+
 
 def search_ddg(query: str,
                num_results: int = 3,
                lang: str = "en",
-               safesearch: str = 'moderate'
+               safe_search: str = 'moderate'
                ) -> str:
 
     lang = 'en-us' if lang == 'en' else lang
 
     results = DDGS().text(keywords=query,
-                  region=lang,
-                  safesearch=safesearch,
-                  max_results=num_results)
+                          region=lang,
+                          safesearch=safe_search,
+                          max_results=num_results)
 
     if results:
         results = list(results)
@@ -70,19 +67,29 @@ def search_images_ddg(query: str,
                       num_results: int = 3,
                       lang: str = "en",
                       safesearch: str = 'moderate'
-                      ) -> str:
+                      ) -> list[dict[str, Optional[str]]]:
     lang = 'en-us' if lang == 'en' else lang
 
     results = DDGS().images(keywords=query,
-                         region=lang,
-                         safesearch=safesearch,
-                         size=None,
-                         color=None,
-                         type_image=None,
-                         layout=None,
-                         license_image=None,
-                         max_results=num_results)
+                            region=lang,
+                            safesearch=safesearch,
+                            size=None,
+                            color=None,
+                            type_image=None,
+                            layout=None,
+                            license_image=None,
+                            max_results=num_results)
 
     results = list(results)
 
     return results
+
+
+def install_latest_ddg():
+    # Make sure we have the latest version installed:
+    try:
+        with asection("Installing the latest version of duckduckgo_search:"):
+            aprint(
+                pip_install_single_package('duckduckgo_search', upgrade=True))
+    except Exception as e:
+        traceback.print_exc()

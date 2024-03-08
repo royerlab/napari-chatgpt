@@ -1,9 +1,8 @@
-import sys
 from typing import Optional
 
-from PyQt5.QtWidgets import QApplication, QDialog, QVBoxLayout, QListWidget, \
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QDialog, QVBoxLayout, QListWidget, \
     QPushButton, QLabel, QSizePolicy
-from PyQt5.QtCore import Qt
 
 from napari_chatgpt.utils.qt.qt_app import get_or_create_qt_app, \
     run_on_main_thread

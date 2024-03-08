@@ -1,7 +1,7 @@
 
+import socket
 import subprocess
 import traceback
-import socket
 from time import sleep
 
 from arbol import asection, aprint

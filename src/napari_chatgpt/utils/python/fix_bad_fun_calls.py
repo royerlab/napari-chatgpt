@@ -6,9 +6,9 @@ from typing import Tuple
 
 from arbol import asection, aprint
 from langchain.chains import LLMChain
-from langchain_openai import ChatOpenAI
 from langchain.llms import BaseLLM
 from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
 
 from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
     ArbolCallbackHandler
@@ -18,6 +18,7 @@ from napari_chatgpt.utils.python.installed_packages import \
     installed_package_list
 from napari_chatgpt.utils.python.python_lang_utils import \
     extract_fully_qualified_function_names, function_exists
+
 
 def fix_all_bad_function_calls(code: str,
                                llm: BaseLLM = None,

@@ -1,11 +1,7 @@
 from typing import Sequence, Optional
 
-
 from napari.types import ArrayLike
 from numpy import ndarray
-
-from napari_chatgpt.omega.tools.napari.delegated_code.classic import \
-    classic_segmentation
 
 
 ### SIGNATURE
@@ -67,13 +63,9 @@ def cellpose_segmentation(image: ArrayLike,
     """
     ### SIGNATURE
 
-    # Falling back to classic segmentation if image is 3D or more:
-    if len(image.shape) > 2:
-        return classic_segmentation(image,
-                             normalize=normalize,
-                             norm_range_low=norm_range_low,
-                             norm_range_high=norm_range_high)
-
+    # Raise an error if the image is not 2D or 3D:
+    if len(image.shape) > 3:
+        raise ValueError("The input image must be 2D or 3D.")
 
     # Convert image to float
     image = image.astype(float, copy=False)
@@ -90,9 +82,34 @@ def cellpose_segmentation(image: ArrayLike,
     from cellpose import models
     model = models.Cellpose(model_type=model_type)
 
-    # Run cellpose:
-    labels, flows, styles, diams = model.eval([image],
-                                              diameter=diameter,
-                                              channels=[channel])
+    if len(image.shape) == 2:
+        # Run cellpose in 2D mode:
+        labels, _, _, _ = model.eval([image],
+                                        diameter=diameter,
+                                        channels=[channel])
+    elif len(image.shape) == 3:
 
-    return labels[0]
+        # If no diameter is provided, use a default value:
+        if diameter is None:
+            diameter = 30.0
+
+        # Run cellpose in 3D mode:
+        labels, _, _, _   = model.eval    ([image],
+                                              diameter=diameter,
+                                              channels=[channel],
+                                              do_3D=True,
+                                              z_axis=0)
+    # Get the first label array from the list:
+    labels = labels[0]
+
+    # Remove small segments:
+    labels = remove_small_segments(labels, min_segment_size)
+
+    return labels
+
+def remove_small_segments(labels, min_segment_size):
+    # remove small segments:
+    if min_segment_size > 0:
+        from skimage.morphology import remove_small_objects
+        labels = remove_small_objects(labels, min_segment_size)
+    return labels

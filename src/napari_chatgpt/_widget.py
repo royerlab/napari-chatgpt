@@ -10,13 +10,13 @@ import sys
 import traceback
 from typing import TYPE_CHECKING, List
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QLabel, QCheckBox
-from PyQt5.QtWidgets import QVBoxLayout, QComboBox
 from napari.viewer import Viewer
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QApplication, QLabel, QCheckBox
 from qtpy.QtWidgets import QPushButton, QWidget
+from qtpy.QtWidgets import QVBoxLayout, QComboBox
 
-from napari_chatgpt.chat_server.chat_server import NapariChatServer
+from microplugin.microplugin_window import MicroPluginMainWindow
 from napari_chatgpt.utils.configuration.app_configuration import \
     AppConfiguration
 from napari_chatgpt.utils.ollama.ollama_server import is_ollama_running, \
@@ -24,6 +24,8 @@ from napari_chatgpt.utils.ollama.ollama_server import is_ollama_running, \
 from napari_chatgpt.utils.openai.model_list import get_openai_model_list
 from napari_chatgpt.utils.python.installed_packages import \
     is_package_installed
+from napari_chatgpt.utils.qt.one_time_disclaimer_dialog import \
+    show_one_time_disclaimer_dialog
 from napari_chatgpt.utils.qt.warning_dialog import show_warning_dialog
 
 if TYPE_CHECKING:
@@ -37,13 +39,15 @@ _creativity_mapping['slightly creative'] = 0.01
 _creativity_mapping['moderately creative'] = 0.05
 _creativity_mapping['creative'] = 0.1
 
+# Ensure the singleton pattern is on:
+MicroPluginMainWindow._singleton_pattern_active = True
 
 class OmegaQWidget(QWidget):
     # your QWidget.__init__ can optionally request the napari viewer instance
     # in one of two ways:
     # 1. use a parameter called `napari_viewer`, as done here
     # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
-    def __init__(self, napari_viewer):
+    def __init__(self, napari_viewer, add_code_editor=True):
         super().__init__()
         aprint("OmegaQWidget instantiated!")
 
@@ -54,6 +58,7 @@ class OmegaQWidget(QWidget):
         self.viewer = napari_viewer
 
         # Napari chat server instance:
+        from napari_chatgpt.chat_server.chat_server import NapariChatServer
         self.server: NapariChatServer = None
 
         # Create a QVBoxLayout instance
@@ -76,10 +81,27 @@ class OmegaQWidget(QWidget):
         self._save_chats_as_notebooks()
         self._verbose()
 
+        # Instantiate the MicroPluginMainWindow:
+        if add_code_editor:
+            self.micro_plugin_main_window = MicroPluginMainWindow(napari_viewer=napari_viewer)
+
+        # Add the start Omega:
         self._start_omega_button()
+
+        # Add the show editor button:
+        if add_code_editor:
+            self._show_editor_button()
 
         # Set the layout on the application's window
         self.setLayout(self.layout)
+
+        # Make sure that when the viewer window closes this widget closes too:
+        try:
+            self.viewer.window._qt_window.destroyed.connect(self.close)
+        except Exception as e:
+            aprint(f"Error: {e}")
+            aprint("Could not connect to viewer's closed signal.")
+            traceback.print_exc()
 
     def _model_selection(self):
 
@@ -305,7 +327,7 @@ class OmegaQWidget(QWidget):
             "When checked Omega will try to fix its own \n"
             "coding mistakes when making widgets. \n"
             "Works so-so with ChatGPT 3.5, but works well with ChatGPT 4.\n"
-            "This involves a LLM call which can incur additional\n"
+            "This requires API calls which may incur additional\n"
             "cost in time and possibly money.")
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.autofix_widgets_checkbox)
@@ -322,8 +344,8 @@ class OmegaQWidget(QWidget):
         self.tutorial_mode_checkbox.setChecked(config.get('tutorial_mode_checkbox', False))
         self.tutorial_mode_checkbox.setToolTip(
             "When checked Omega will actively asks questions \n"
-            "to clarify and disambiguate the request, and  \n"
-            "will propose multiple options and be didactic. ")
+            "to clarify and disambiguate the request, will propose \n"
+            "multiple options and try to be as didactic as possible. ")
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.tutorial_mode_checkbox)
 
@@ -367,8 +389,8 @@ class OmegaQWidget(QWidget):
         aprint("Setting up start Omega button UI.")
 
         # Start Omega button:
-        self.start_omega_button = QPushButton("Start Omega")
-        self.start_omega_button.clicked.connect(self._on_click)
+        self.start_omega_button = QPushButton("Start Conversing with Omega")
+        self.start_omega_button.clicked.connect(self._start_omega)
         self.start_omega_button.setToolTip(
             "Start Omega, this will open a browser window.\n"
             "You can restart Omega with new settings by\n"
@@ -377,9 +399,40 @@ class OmegaQWidget(QWidget):
         # Omega button:
         self.layout.addWidget(self.start_omega_button)
 
-    def _on_click(self):
+    def _show_editor_button(self):
+        aprint("Setting up start Omega button UI.")
+
+        # Start Omega button:
+        self.show_editor_button = QPushButton("Show Omega's Code Editor")
+        self.show_editor_button.clicked.connect(self._show_editor)
+        self.show_editor_button.setToolTip(
+            "Shows Omega's microplugin code snippet editor. \n"
+            "All code generated by Omega is added to the editor\n"
+            "so you can conveniently find it again after restarting\n"
+            "napari, edit the code, reformat it, check for 'safety',\n"
+            "send it to colleagues across the local network, and\n"
+            "rerun the code. Running code for widgets adds the widget\n"
+            "back to the viewer.\n")
+        # Omega button:
+        self.layout.addWidget(self.show_editor_button)
+
+    def _start_omega(self):
         try:
             with asection("Starting Omega now!"):
+
+                # First we show the Omega's disclaimer that explains that
+                # Omega is research software that can make changes to your data
+                # and machine if instructed to do so or if it misunderstands the
+                # requests.
+                show_one_time_disclaimer_dialog(
+                    "Omega is research software that can make changes to your data "
+                    "and machine if instructed to do so or if it misunderstands "
+                    "your requests. It is not perfect and can make mistakes. "
+                    "By clicking 'I agree' you acknowledge that you understand "
+                    "the potential dangers and agree to use Omega at your own risk. "
+                    "You can find more information about Omega's disclaimer "
+                    "and terms of use at <a href='https://github.com/royerlab/napari-chatgpt?tab=readme-ov-file#disclaimer' >disclaimer</a>."
+                )
 
                 # Stop previous instance if it exists:
                 if self.server:
@@ -433,6 +486,48 @@ class OmegaQWidget(QWidget):
             aprint("Omega failed to start. Please check the console for more information.")
             traceback.print_exc()
 
+    def _show_editor(self):
+        try:
+            if not self.micro_plugin_main_window:
+                aprint("MicroPluginMainWindow not instantiated.")
+                return
+
+            with asection("Showing editor now!"):
+
+                # Set LLM parameters to self.micro_plugin_main_window:
+                self.micro_plugin_main_window.code_editor_widget.llm_model_name = self.model_combo_box.currentText()
+
+                # Show the editor:
+                self.micro_plugin_main_window.show()
+
+                # Make sure to bring the window to the front:
+                self.micro_plugin_main_window.raise_()
+
+        except Exception as e:
+            aprint(f"Error: {e}")
+            aprint("Omega failed to start. Please check the console for more information.")
+            traceback.print_exc()
+
+
+    def setStyleSheet(self, style):
+
+        # Set the stylesheet for the micro plugin main window:
+        if self.micro_plugin_main_window:
+            self.micro_plugin_main_window.setStyleSheet(style)
+
+        # Call the parent class method:
+        super().setStyleSheet(style)
+
+    def close(self):
+
+        if self.server:
+            self.server.stop()
+
+        if self.micro_plugin_main_window:
+            self.micro_plugin_main_window.hide()
+            self.micro_plugin_main_window.close()
+
+        super().close()
 
 def main():
     app = QApplication(sys.argv)
