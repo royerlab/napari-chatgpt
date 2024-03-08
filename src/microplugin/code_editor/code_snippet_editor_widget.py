@@ -220,6 +220,7 @@ class CodeSnippetEditorWidget(QWidget):
         duplicate_action = QAction("Duplicate", self)
         delete_action = QAction("Delete", self)
         open_in_system = QAction("Open in system", self)
+        find_in_system = QAction("Find in system", self)
 
         # Instantiate AI actions for the context menu:
         if self.is_openai_available:
@@ -233,6 +234,7 @@ class CodeSnippetEditorWidget(QWidget):
         context_menu.addAction(duplicate_action)
         context_menu.addAction(delete_action)
         context_menu.addAction(open_in_system)
+        context_menu.addAction(find_in_system)
 
         # Add AI actions to the context menu:
         if self.is_openai_available:
@@ -246,6 +248,7 @@ class CodeSnippetEditorWidget(QWidget):
         duplicate_action.triggered.connect(self.duplicate_file)
         delete_action.triggered.connect(self.delete_file_from_context_menu)
         open_in_system.triggered.connect(self.open_file_in_system)
+        find_in_system.triggered.connect(self.find_file_in_system)
 
         # Connect AI actions to the corresponding slots:
         if self.is_openai_available:
@@ -428,7 +431,7 @@ class CodeSnippetEditorWidget(QWidget):
     def new_file(self,
                  filename: str,
                  code: Optional[str] = "",
-                 postfix_if_exists = 'copy'):
+                 postfix_if_exists = '_copy'):
 
         # Make sure the file has '.py' extension:
         if not filename.endswith(".py"):
@@ -445,8 +448,26 @@ class CodeSnippetEditorWidget(QWidget):
             # Get the filename without extension:
             base_name, ext = os.path.splitext(filename)
 
-            # Change the filename to avoid overwriting the existing file:
-            filename = f"{base_name}_{postfix_if_exists}{ext}"
+            # If the filename already contains the postfix, the we check if there is number after the postfix:
+            if postfix_if_exists in base_name:
+                # Get the number after the postfix:
+                postfix_number = base_name.split(postfix_if_exists)[-1]
+                try:
+                    postfix_number = int(postfix_number)
+                except ValueError:
+                    postfix_number = 0
+
+                # Increase the number and add it to the base name:
+                base_name = base_name.split(postfix_if_exists)[0]
+                base_name = f"{base_name}{postfix_if_exists}{postfix_number + 1}"
+
+                # Change the filename to avoid overwriting the existing file:
+                filename = f"{base_name}{ext}"
+            else:
+                # Add the postfix to the base name:
+                base_name = f"{base_name}{postfix_if_exists}"
+                # Change the filename to avoid overwriting the existing file:
+                filename = f"{base_name}{ext}"
 
             # Update the full path:
             full_path = os.path.join(self.folder_path, filename)
@@ -654,6 +675,19 @@ class CodeSnippetEditorWidget(QWidget):
             # Then Linux:
             else:
                 os.system(f'xdg-open {os.path.join(self.folder_path, filename_to_open)}')
+
+    def find_file_in_system(self):
+
+        # Open the folder in the system for different OS:
+        # First OSX:
+        if sys.platform == "darwin":
+            os.system(f'open {self.folder_path}')
+        # Then Windows:
+        elif sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys" or sys.platform == "win64":
+            os.system(f'start {self.folder_path}')
+        # Then Linux:
+        else:
+            os.system(f'xdg-open {self.folder_path}')
 
 
     def check_code_safety_with_AI(self):

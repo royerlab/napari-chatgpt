@@ -1,11 +1,10 @@
 from typing import Optional, Any
 
-import numpy
 from napari.types import ArrayLike
 from numpy import ndarray
 
 from napari_chatgpt.utils.segmentation.labels_3d_merging import \
-    merge_2d_segments
+    segment_3d_from_segment_2d
 
 
 ### SIGNATURE
@@ -111,31 +110,16 @@ def stardist_3d(image,
     from stardist.models import StarDist2D
     model = StarDist2D.from_pretrained(model_type)
 
-    # Initialize an empty list to collect the segmented slices
-    segmented_slices = []
+    # Define a function to segment 2D slices:
+    def segment_2d(image):
+        return stardist_2d(image,
+                             scale=scale,
+                             model_type=model_type,
+                             model=model)
 
-    # Iterate over each slice of the 3D image
-    for i in range(image.shape[0]):
-        # Segment the current slice with stardist_segmentation
-        # Note: We are not setting optional parameters as instructed
-        segmented_slice = stardist_2d(image[i],
-                                      scale=scale,
-                                      model_type=model_type,
-                                      model=model)
-
-        segmented_slice = remove_small_segments(segmented_slice, min_segment_size=min_segment_size)
-
-        # Append the segmented slice to the list
-        segmented_slices.append(segmented_slice)
-
-    # Stack the segmented slices to form a 3D segmented image
-    segmented_image = numpy.stack(segmented_slices, axis=0)
-
-    # Convert the segmented image to uint32 as required
-    segmented_image = segmented_image.astype(numpy.uint32)
-
-    # Merge overlapping segments:
-    segmented_image = merge_2d_segments(segmented_image, overlap_threshold=1)
+    segmented_image = segment_3d_from_segment_2d(image,
+                                                 segment_2d_func=segment_2d,
+                                                 min_segment_size=min_segment_size)
 
     return segmented_image
 

@@ -17,7 +17,6 @@ from qtpy.QtWidgets import QPushButton, QWidget
 from qtpy.QtWidgets import QVBoxLayout, QComboBox
 
 from microplugin.microplugin_window import MicroPluginMainWindow
-from napari_chatgpt.chat_server.chat_server import NapariChatServer
 from napari_chatgpt.utils.configuration.app_configuration import \
     AppConfiguration
 from napari_chatgpt.utils.ollama.ollama_server import is_ollama_running, \
@@ -59,6 +58,7 @@ class OmegaQWidget(QWidget):
         self.viewer = napari_viewer
 
         # Napari chat server instance:
+        from napari_chatgpt.chat_server.chat_server import NapariChatServer
         self.server: NapariChatServer = None
 
         # Create a QVBoxLayout instance

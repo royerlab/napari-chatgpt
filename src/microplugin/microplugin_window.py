@@ -109,7 +109,7 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
                     code: Optional[str] = None):
 
         # Create a new file with the given code:
-        MicroPluginMainWindow._singleton_instance.code_editor_widget.new_file(filename=filename, code=code, postfix_if_exists='new_from_omega')
+        MicroPluginMainWindow._singleton_instance.code_editor_widget.new_file(filename=filename, code=code, postfix_if_exists='_new_from_omega')
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

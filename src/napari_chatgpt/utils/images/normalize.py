@@ -1,6 +1,5 @@
 import numpy as np
 from napari.types import ArrayLike
-from numba import njit
 
 
 def normalize_img(image: ArrayLike,
