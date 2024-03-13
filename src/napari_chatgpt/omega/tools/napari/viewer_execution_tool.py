@@ -80,7 +80,7 @@ class NapariViewerExecutionTool(NapariBaseTool):
         "Use this tool when you need to perform tasks that require access to the napari viewer instance and its layers. "
         "This tool can perform any task that requires access to the viewer, its layers, and data contained in the layers. "
         "The input must be a plain text description of what you want to do, it should not contain code, it must not assume knowledge of our conversation, and it must be explicit about what is asked."
-        "For example, you can ask to 'save the selected image to a file', or 'write in a CSV file the list of segments in layer `segmented` ', or 'open a saved image with teh system viewer'. "
+        "For example, you can ask to 'save the selected image to a file', or 'write in a CSV file on the desktop the list of segments in layer `segmented` ', or 'open file <filename> with the system viewer'. "
         "This tool returns a message that summarises what was done. "
     )
     prompt = _napari_viewer_execution_prompt

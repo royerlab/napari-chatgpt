@@ -47,15 +47,13 @@ Here is an explanation of the parameters:
 
     image: ArrayLike, 
             Valid parameter for both StarDist and Cellpose. 
-            Image for which to segment cells
+            2D or 3D Image for which to segment cells
 
     model_type: str, 
             Valid parameter for both StarDist and Cellpose. 
             Segmentation model: 
             - For Cellpose it can be: cyto, nuclei. cyto -> cytoplasm (whole cell) model, nuclei -> nucleus model.
-            - For StarDist can be: '2D_versatile_fluo', '2D_versatile_he', '3D_versatile_fluo'. '2D_versatile_fluo' is trained on a broad range of fluorescent 2D semantic
-            segmentation images. '2D_versatile_he' is trained on H&E stained tissue (but may generalize to other
-            staining modalities). '3D_versatile_fluo' is trained for 3D fluorescence microscopy images.
+            - For StarDist can be: 'versatile_fluo', 'versatile_he'. 'versatile_fluo' is trained on a broad range of fluorescent images. 'versatile_he' is trained on H&E stained tissue (but may generalize to other staining modalities).
             
     normalize: Optional[bool]
             Valid parameter for both StarDist and Cellpose.
@@ -117,11 +115,13 @@ Here is an explanation of the parameters:
             If True, applies the watershed algorithm to the distance transform of the thresholded image.
             This is useful for separating cells that are touching.
 ```
-Note: some parameters above might refer to functions that are not available.
 
-All functions provided above return the segmented image as a labels array.
-When calling these functions, do not set optional parameters unless you have a good reason to change them.
-Use either ***AVAILABLE_FUNCTIONS*** directly without importing or implementing these functions, they will be provided to you by the system.
+**Notes:**
+- some parameters above might refer to functions that are not available.
+- All functions provided above return the segmented image as a labels array.
+- When calling these functions, do not set optional parameters unless you have a good reason to change them.
+- Use either ***AVAILABLE_FUNCTIONS*** directly without importing or implementing these functions, they will be provided to you by the system.
+- Although StarDist or Cellpose cannot by default segment 3D images, the functions given above are capable of handling 2D *and* 3D images.
 
 **Instructions:**
 {instructions}

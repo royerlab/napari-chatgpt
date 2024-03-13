@@ -20,7 +20,7 @@ def cellpose_segmentation(image: ArrayLike,
     ----------
 
     image: ArrayLike
-            image for which to segment cells
+            image for which to segment cells, must be 2D or 3D.
 
     model_type: str
             Model type, can be: 'cyto' or 'nuclei' or 'cyto2'.

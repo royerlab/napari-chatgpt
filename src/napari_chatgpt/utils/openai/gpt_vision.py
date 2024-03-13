@@ -56,7 +56,7 @@ def describe_image(image_path: str,
 
     """
 
-    with asection(f"Asking GPT-vision to analyse a given image at path: '{image_path}':"):
+    with (asection(f"Asking GPT-vision to analyse a given image at path: '{image_path}':")):
         aprint(f"Query: '{query}'")
         aprint(f"Model: '{model}'")
         aprint(f"Max tokens: '{max_tokens}'")
@@ -129,8 +129,9 @@ def describe_image(image_path: str,
                         continue
 
                     # if the response contains these words: "sorry" and ("I cannot" or "I can't")  then try again:
-                    if "sorry" in response_lc and ("i cannot" in response_lc or "i can't" in response_lc):
-                        aprint(f"Response contains the words 'sorry' and 'I cannot' or 'I can't'. Trying again...")
+                    if ("sorry" in response_lc and ("i cannot" in response_lc or "i can't" in response_lc or 'i am unable' in response_lc)) \
+                        or "i cannot assist" in response_lc:
+                        aprint(f"Vision model refuses to assist (response: {response}). Trying again...")
                         continue
                     else:
                         return response
