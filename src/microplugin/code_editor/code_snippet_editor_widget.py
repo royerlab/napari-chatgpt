@@ -216,6 +216,7 @@ class CodeSnippetEditorWidget(QWidget):
         context_menu = QMenu(self)
 
         # Instantiate actions for the context menu:
+        refresh_action = QAction("Refresh file list", self)
         rename_action = QAction("Rename", self)
         duplicate_action = QAction("Duplicate", self)
         delete_action = QAction("Delete", self)
@@ -230,6 +231,7 @@ class CodeSnippetEditorWidget(QWidget):
             modify_action = QAction("Modify", self)
 
         # Add actions to the context menu:
+        context_menu.addAction(refresh_action)
         context_menu.addAction(rename_action)
         context_menu.addAction(duplicate_action)
         context_menu.addAction(delete_action)
@@ -244,6 +246,7 @@ class CodeSnippetEditorWidget(QWidget):
             context_menu.addAction(modify_action)
 
         # Connect the actions to the corresponding slots:
+        refresh_action.triggered.connect(self.populate_list)
         rename_action.triggered.connect(self.rename_file)
         duplicate_action.triggered.connect(self.duplicate_file)
         delete_action.triggered.connect(self.delete_file_from_context_menu)

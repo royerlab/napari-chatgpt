@@ -1,5 +1,7 @@
 def openai_max_token_limit(llm_model_name):
-    if 'gpt-4-1106-preview' in llm_model_name or 'gpt-4-vision-preview' in llm_model_name:
+    if ('gpt-4-1106-preview' in llm_model_name
+        or 'gpt-4-0125-preview' in llm_model_name
+        or 'gpt-4-vision-preview' in llm_model_name):
         max_token_limit = 128000
     elif '32k' in llm_model_name:
         max_token_limit = 32000

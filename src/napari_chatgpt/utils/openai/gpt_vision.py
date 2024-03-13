@@ -30,7 +30,8 @@ def is_gpt_vision_available(vision_model_name: str = 'gpt-4-vision-preview') -> 
 def describe_image(image_path: str,
                    query: str = 'Here is an image, please carefully describe it in detail.',
                    model: str = "gpt-4-vision-preview",
-                   max_tokens: int = 4096
+                   max_tokens: int = 4096,
+                   number_of_tries: int = 4,
                    ) -> str:
     """
     Describe an image using GPT-vision.
@@ -45,6 +46,8 @@ def describe_image(image_path: str,
         Model to use
     max_tokens  : int
         Maximum number of tokens to use
+    number_of_tries : int
+        Number of times to try to send the request to GPT.
 
     Returns
     -------
@@ -97,21 +100,40 @@ def describe_image(image_path: str,
             set_api_key('OpenAI')
 
             try:
-                # Instantiate API entry points:
-                client = OpenAI()
-                completions = Completions(client)
+                for tries in range(number_of_tries):
 
-                # Send a request to GPT:
-                result = completions.create(model=model,
-                                            messages=prompt_messages,
-                                            max_tokens=max_tokens)
+                    # Instantiate API entry points:
+                    client = OpenAI()
+                    completions = Completions(client)
 
-                # Actual response:
-                response = result.choices[0].message.content
+                    # Send a request to GPT:
+                    result = completions.create(model=model,
+                                                messages=prompt_messages,
+                                                max_tokens=max_tokens)
 
-                aprint(f"Response: '{response}'")
+                    # Actual response:
+                    response = result.choices[0].message.content
+                    aprint(f"Response: '{response}'")
 
-                return response
+                    # Check if the response is empty:
+                    if not response:
+                        aprint(f"Response is empty. Trying again...")
+                        continue
+
+                    # response in lower case and trimmed of white spaces
+                    response_lc = response.lower().strip()
+
+                    # Check if response is too short:
+                    if len(response) < 3:
+                        aprint(f"Response is empty. Trying again...")
+                        continue
+
+                    # if the response contains these words: "sorry" and ("I cannot" or "I can't")  then try again:
+                    if "sorry" in response_lc and ("i cannot" in response_lc or "i can't" in response_lc):
+                        aprint(f"Response contains the words 'sorry' and 'I cannot' or 'I can't'. Trying again...")
+                        continue
+                    else:
+                        return response
 
             except Exception as e:
                 # Log the error:
