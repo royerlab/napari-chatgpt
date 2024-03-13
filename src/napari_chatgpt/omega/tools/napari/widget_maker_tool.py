@@ -59,8 +59,8 @@ _instructions = \
 - Accept integers, floats, booleans, or any other type that is compatible with the magicgui library.
 - Decorate the function with the magicgui decorator: '@magicgui(call_button='Run')'. 
 - Ideally, replace the call_button text 'Run' with a few short words that more explicit describe the action of the widget.
-- Set 'result_widget=True' in the decorator, if and only if, the widget function returns a string, or a single int, float, list or tuple.
-- Set 'result_widget=False' in the decorator, if the widget function returns an array or a napari layer.
+- Set 'result_widget=True' in the decorator, if and ONLY if, the widget function returns a string, or a *single* int, float, or a *short* list or tuple.
+- Set 'result_widget=False' in the decorator, the most likely setting, if the widget function returns a numpy array, a napari data type *Data, or a napari layer.
 - To expose a float parameter as a slider, include <parameter_name>={{"widget_type": "FloatSlider", 'min':<min_value>, 'max': <max_value>}} in the decorator.
 - To expose a string parameter as dropdown choice, include <parameter_name>={{"choices": ['first', 'second', 'third']}}.
 - Do NOT use tuples for widget function parameters.

@@ -67,10 +67,11 @@ class JupyterNotebookFile:
         self._modified = False
 
     def write(self, file_path: Optional[str] = None):
-        self.file_path = file_path or self.default_file_path
+        file_path = file_path or self.default_file_path
         # Write the notebook to disk
         with open(file_path, 'w') as f:
             nbformat.write(self.notebook, f)
+            self.file_path = file_path
 
     def add_code_cell(self, code: str, remove_quotes: bool = False):
 

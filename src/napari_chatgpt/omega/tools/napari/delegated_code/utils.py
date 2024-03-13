@@ -41,13 +41,13 @@ def get_description_of_algorithms() -> str:
 
     for algo in algos:
         if 'cellpose' in algo:
-            description += "'segment cell nuclei in selected layer with StarDist', "
+            description += "'segment cell's cytoplams in given layer with Cellpose', "
 
         elif 'stardist' in algo:
-            description += "'segment cell's cytoplams in selected layer with Cellpose', "
+            description += "'segment cell nuclei in selected 3D layer with StarDist', "
 
         elif 'classic' in algo:
-            description += "'segment cell nuclei in selected 3D image with Classic', "
+            description += "'segment cell nuclei in 3D layer named 'some_name' with Classic', "
 
     # remove last comma:
     description = description[:-2]
@@ -56,13 +56,13 @@ def get_description_of_algorithms() -> str:
 
     for algo in algos:
         if 'cellpose' in algo:
-            description += "cellpose for the cell cytoplasm/membrane outline, "
+            description += "Cellpose for segmenting irregular or non-convex cytoplasms or membrane outlines in 2D, "
 
         elif 'stardist' in algo:
-            description += "stardist for segmenting nuclei, "
+            description += "StarDist for segmenting near-convex nuclei in 2D or 3D, "
 
         elif 'classic' in algo:
-            description += "classic for 3D images, "
+            description += "Classic for very contrasted and easy to segment 2D or 3D images, "
 
     # remove last comma:
     description = description[:-2]

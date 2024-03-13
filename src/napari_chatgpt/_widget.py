@@ -126,6 +126,8 @@ class OmegaQWidget(QWidget):
             model_list.append('claude-2.1')
             model_list.append('claude-2.0')
             model_list.append('claude-instant-1.2')
+            #model_list.append('claude-3-sonnet-20240229')
+            #model_list.append('claude-3-opus-20240229')
 
 
         if is_ollama_running():
@@ -157,7 +159,7 @@ class OmegaQWidget(QWidget):
         model_list = best_models + [m for m in model_list if m not in best_models]
 
         # Ensure that the very best models are at the top of the list:
-        very_best_models = [m for m in model_list if ('1106' in m and 'gpt-4' in m) ]
+        very_best_models = [m for m in model_list if ('gpt-4-0125' in m) ]
         model_list = very_best_models + [m for m in model_list if m not in very_best_models]
 
         # normalise list:

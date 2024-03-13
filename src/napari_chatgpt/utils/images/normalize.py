@@ -1,5 +1,6 @@
 import numpy as np
 from napari.types import ArrayLike
+from numpy import ravel, percentile
 
 
 def normalize_img(image: ArrayLike,
@@ -28,7 +29,7 @@ def normalize_img(image: ArrayLike,
     Normalized image
     """
     # Calculate lower and higher percentiles:
-    v_low, v_high = np.percentile(image, [p_low, p_high])
+    v_low, v_high = percentile(ravel(image), [p_low, p_high])
 
     # rescale the image:
     normalized_image = (image - v_low) / (v_high - v_low + 1e-6)

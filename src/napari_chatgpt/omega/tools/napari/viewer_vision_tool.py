@@ -51,6 +51,17 @@ class NapariViewerVisionTool(NapariBaseTool):
                 # Regex search for layer name:
                 match = re.search(r'\*(.*?)\*', query)
 
+                # If there is no match, look for words that start with '*':
+                if not match:
+                    # This sometimes happens if the LLM gets confused about teh exact syntax requested:
+
+                    # We find a match with just one star '*' and a word:
+                    match = re.search(r'\*(.*?)[\s]+', query)
+
+                    # If there is match, add the missing '*' at the end:
+                    if match:
+                        query = query.replace(match.group(1), f"{match.group(1)}*")
+
                 # Check if the layer name is present in the input:
                 if match or '*selected*' in query or '*active*' in query or '*current*' in query:
 

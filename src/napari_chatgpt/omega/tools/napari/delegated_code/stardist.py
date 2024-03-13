@@ -9,7 +9,7 @@ from napari_chatgpt.utils.segmentation.labels_3d_merging import \
 
 ### SIGNATURE
 def stardist_segmentation(image: ArrayLike,
-                          model_type: str = '2D_versatile_fluo',
+                          model_type: str = 'versatile_fluo',
                           normalize: Optional[bool] = True,
                           norm_range_low: Optional[float] = 1.0,
                           norm_range_high: Optional[float] = 99.8,
@@ -22,13 +22,12 @@ def stardist_segmentation(image: ArrayLike,
     ----------
 
     image: ArrayLike
-            Image for which to segment cells. Must be 2D.
+            Image for which to segment cells. Must be 2D or 3D.
 
     model_type: str
-            Model type, pre-trained models include: '2D_versatile_fluo', '2D_versatile_he'.
-            '2D_versatile_fluo' is trained on a broad range of fluorescent 2D semantic
-            segmentation images.
-            '2D_versatile_he' is trained on H&E stained tissue (but may generalize to other
+            Model type, pre-trained models include: 'versatile_fluo', 'versatile_he'.
+            'versatile_fluo' is trained on a broad range of fluorescent images.
+            'versatile_he' is trained on H&E stained tissue (but may generalize to other
             staining modalities).
 
 
@@ -59,6 +58,10 @@ def stardist_segmentation(image: ArrayLike,
     # Raise an error if the image is not 2D or 3D:
     if len(image.shape) > 3:
         raise ValueError("The input image must be 2D or 3D.")
+
+    # Add '2D_' as prefix to the model if not yet a prefix:
+    if not model_type.startswith('2D_'):
+        model_type = '2D_' + model_type
 
     # Convert image to float
     image = image.astype(float, copy=False)
