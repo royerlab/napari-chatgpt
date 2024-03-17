@@ -6,7 +6,7 @@
 [![tests](https://github.com/royerlab/napari-chatgpt/workflows/tests/badge.svg)](https://github.com/royerlab/napari-chatgpt/actions)
 [![codecov](https://codecov.io/gh/royerlab/napari-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/royerlab/napari-chatgpt)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8240289.svg)](https://doi.org/10.5281/zenodo.8240289)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10828225.svg)](https://doi.org/10.5281/zenodo.10828225)
 
 <img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/c85185d2-6d16-472d-a2c8-5680ea869bf2' height='300'>
 <img height="300" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/f3ea245e-dd86-4ff2-802e-48c2073cb6f9">
@@ -27,7 +27,7 @@ library, as well as [napari](https://napari.org), a fast, interactive,
 multi-dimensional
 image viewer for
 Python, [another](https://ilovesymposia.com/2019/10/24/introducing-napari-a-fast-n-dimensional-image-viewer-in-python/)
-project initially started by Loic and [Juan Nunez-Iglesias](https://github.com/jni).
+week-end project, initially started by Loic and [Juan Nunez-Iglesias](https://github.com/jni).
 
 # What is Omega?
 
@@ -38,14 +38,14 @@ Can LLM-based agents write image processing code and napari widgets, correct its
 coding mistakes, performing follow-up analysis, and controlling the napari viewer? 
 The answer appears to be yes.
 
-The preprint can be downloaded here: [10.5281/zenodo.8240289](https://zenodo.org/records/8240289)
+The preprint can be downloaded here: [10.5281/zenodo.10828225](https://doi.org/10.5281/zenodo.10828225)
 
 
 #### In this video, I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image but fails because of an inexistent 'multichannel' parameter. Realizing that, Omega tries again, and this time succeeds:
 
 https://user-images.githubusercontent.com/1870994/235768559-ca8bfa84-21f5-47b6-b2bd-7fcc07cedd92.mp4
 
-#### After loading in napari a sample 3D image of cell nuclei, I ask Omega to segment the nuclei using the Otsu method. My first request was very vague, so it just segmented foreground versus background. I then ask to segment the foreground into distinct segments for each connected component. Omega does a rookie mistake by forgetting to 'import np'. No problem; it notices, tries again, and succeeds:
+#### After loading a sample 3D image of cell nuclei in napari, I asked Omega to segment the nuclei using the Otsu method. My first request was vague, so it just segmented foreground versus background. I then ask to segment the foreground into distinct segments for each connected component. Omega does a rookie mistake by forgetting to 'import np'. No problem; it notices, tries again, and succeeds:
 
 https://user-images.githubusercontent.com/1870994/235769990-a281a118-1369-47aa-834a-b491f706bd48.mp4
 
@@ -53,19 +53,19 @@ https://user-images.githubusercontent.com/1870994/235769990-a281a118-1369-47aa-8
 
 https://github.com/royerlab/napari-chatgpt/assets/1870994/bb9b35a4-d0aa-4f82-9e7c-696ef5859a2f
 
-As LLMs continue to improve, Omega will become even more adept at handling complex
-image processing and analysis tasks. The current version of ChatGPT, 3.5,
-has a cutoff date of 2021, which means that it lacks nearly two years of knowledge
-on the napari API and usage, as well as the latest versions of popular libraries
-like scikit-image, OpenCV, numpy, scipy, etc... Despite this, you can see in the
-videos below that it is quite capable. While ChatGPT 4.0 is a significant upgrade, it is not
-yet widely available.
+As LLMs improve, Omega will become even more adept at handling complex
+image processing and analysis tasks. GPT 4.0 has been a significant upgrade
+compared to GPT 3.5, and many of the videos (see below and here) are highly reproducible, 
+with a typically 90% success rate (see preprint for a reproducibility analysis).
+While open-source models are promising and rapidly improving, they must get better to run Omega reliably. 
+More recent models by OpenAI's competitors, such as Google and Anthropic, are great news, 
+but Omega still needs to support these newer models fully -- it seems every week comes with a new batch of models.
 
 Omega could eventually help non-experts process and analyze images, especially
 in the bioimage domain.
 It is also potentially valuable for educative purposes as it could
 assist in teaching image processing and analysis, making it more accessible.
-Although ChatGPT, which powers Omega, may not be yet on par with an expert image
+Although ChatGPT, which powers Omega, may still need to be on par with an expert image
 analyst or computer vision expert, it is just a matter of time...
 
 Omega holds a conversation with the user and uses different tools to answer questions, 
@@ -98,7 +98,7 @@ Assuming you have a Python environment with a working napari installation, you c
 
     pip install napari-chatgpt
 
-Or just install the plugin from napari's plugin installer.
+Or install the plugin from napari's plugin installer.
 
 For detailed instructions and variations, check [this page](http://github.com/royerlab/napari-chatgpt/wiki/InstallOmega) of our wiki.
     
@@ -138,7 +138,7 @@ this is actually **not** possible).
 ## Disclaimer:
 
 Do not use this software lightly; it will download libraries of its own volition
-and write any code that it deems necessary; it might actually do what you ask, even
+and write any code it deems necessary; it might do what you ask, even
 if it is a very bad idea. Also, beware that it might _misunderstand_ what you ask and
 then do something bad in ways that elude you. For example, it is unwise to use Omega to delete 
 'some' files from your system; it might end up deleting more than that if you are unclear in 
