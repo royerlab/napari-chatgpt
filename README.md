@@ -119,7 +119,7 @@ Check our guide on how to prompt Omega and some examples [here](https://github.c
 ## Video Demos:
 
 You can check the original release videos [here](https://github.com/royerlab/napari-chatgpt/wiki/VideoDemos).
-You can also find the latest preprint videos on [Vimeo](https://vimeo.com/showcase/10983385).
+You can also find the latest preprint videos on [Vimeo](https://vimeo.com/showcase/10983382).
 
 ## How does Omega work?
 
