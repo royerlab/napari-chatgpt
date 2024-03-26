@@ -300,7 +300,8 @@ def start_chat_server(viewer: napari.Viewer = None,
         bridge = NapariBridge(viewer=viewer)
 
         # Register snapshot function:
-        notebook.register_snapshot_function(bridge.take_snapshot)
+        if notebook:
+            notebook.register_snapshot_function(bridge.take_snapshot)
 
         # Instantiates server:
         chat_server = NapariChatServer(notebook=notebook,
