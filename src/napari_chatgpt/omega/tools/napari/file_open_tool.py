@@ -16,6 +16,7 @@ class NapariFileOpenTool(NapariBaseTool):
         "Use this tool when you need to open image files in napari. "
         "Input must be a plain text list of local file paths or URLs to be opened. "
         "The list must be \\n delimited, i.e one entry per line. "
+        "The first item on the list must be the requested 'napari-plugin', if none is provided, use 'napari'."
         "This tool can only open image files with these extensions: .tif, .png, .jpg, .zarr, and more... "
         "For example, if the input is: 'file1.tif\\nfile2.tif\\nfile3.tif' then this tool will open three images in napari. "
         "This tool cannot open text files or other non-image files. "
@@ -36,7 +37,9 @@ class NapariFileOpenTool(NapariBaseTool):
             # Errors encountered:
             encountered_errors = []
 
-            for line in lines:
+            plugin = lines[0]
+
+            for line in lines[1:]:
 
                 # Remove whitespaces:
                 line = line.strip()
@@ -45,7 +48,7 @@ class NapariFileOpenTool(NapariBaseTool):
 
                 # Try to open file:
                 try:
-                    success = open_in_napari(viewer, line)
+                    success = open_in_napari(viewer, line, plugin=plugin)
 
                     if success:
                         aprint(f"Successfully opened file: '{line}'. ")
