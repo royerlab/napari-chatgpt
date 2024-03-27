@@ -126,8 +126,8 @@ class OmegaQWidget(QWidget):
             model_list.append('claude-2.1')
             model_list.append('claude-2.0')
             model_list.append('claude-instant-1.2')
-            #model_list.append('claude-3-sonnet-20240229')
-            #model_list.append('claude-3-opus-20240229')
+            model_list.append('claude-3-sonnet-20240229')
+            model_list.append('claude-3-opus-20240229')
 
 
         if is_ollama_running():
