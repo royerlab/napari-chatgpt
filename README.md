@@ -24,7 +24,7 @@ in a conversational manner.
 This repository started as a 'week-end project'
 by [Loic A. Royer](https://twitter.com/loicaroyer)
 who leads a [research group](https://royerlab.org) at
-the [Chan Zuckerberg Biohub](https://czbiohub.org/sf/). It
+the [Chan Zuckerberg Biohub](https://royerlab.org). It
 leverages [OpenAI](https://openai.com)'s ChatGPT API via
 the [LangChain](https://python.langchain.com/en/latest/index.html) Python
 library, as well as [napari](https://napari.org), a fast, interactive,
