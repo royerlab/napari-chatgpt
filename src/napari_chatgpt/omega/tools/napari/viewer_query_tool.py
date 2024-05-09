@@ -98,9 +98,22 @@ class NapariViewerQueryTool(NapariBaseTool):
                     # Run query code:
                     response = query_function(viewer)
 
+                    # Add call to query function and print response:
+                    code += f"\n\nresponse = query(viewer)"
+                    code += f"\n\nprint(response)"
+
                     # Add successfully run code to notebook:
                     if self.notebook:
                         self.notebook.add_code_cell(code+'\n\nquery(viewer)')
+
+                    # Come up with a filename:
+                    filename = f"generated_code_{self.__class__.__name__}.py"
+
+                    # Add the snippet to the code snippet editor:
+                    from microplugin.microplugin_window import \
+                        MicroPluginMainWindow
+                    MicroPluginMainWindow.add_snippet(filename=filename,
+                                                      code=code)
 
                 # Get captured stdout:
                 captured_output = f.getvalue()

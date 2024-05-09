@@ -159,7 +159,7 @@ class OmegaQWidget(QWidget):
         model_list = best_models + [m for m in model_list if m not in best_models]
 
         # Ensure that the very best models are at the top of the list:
-        very_best_models = [m for m in model_list if ('gpt-4-0125' in m) ]
+        very_best_models = [m for m in model_list if ('gpt-4-turbo-2024-04-09' in m) ]
         model_list = very_best_models + [m for m in model_list if m not in very_best_models]
 
         # normalise list:

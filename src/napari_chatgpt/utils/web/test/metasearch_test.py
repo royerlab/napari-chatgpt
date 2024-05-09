@@ -12,6 +12,7 @@ def test_metasearch_summary():
     text = metasearch(query, do_summarize=True)
     aprint(text)
     assert 'Mickey' in text
+    assert 'Web search failed' not in text
 
 
 def test_metasearch():
@@ -19,3 +20,4 @@ def test_metasearch():
     text = metasearch(query, do_summarize=False)
     aprint(text)
     assert 'Mickey' in text
+    assert 'Web search failed' not in text

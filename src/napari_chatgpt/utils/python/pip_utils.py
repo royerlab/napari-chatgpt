@@ -34,8 +34,8 @@ def pip_install(packages: List[str],
         aprint(f'Packages left: {packages}')
         message += f"Removing 'included' packages that should be already installed with Omega: {', '.join(included_packages)}\n"
 
-    # Ensure it is a list:
-    packages = list(packages)
+    # Ensure it is a list and remove duplicates:
+    packages = list(set(packages))
 
     if special_rules:
         all_packages_str = ', '.join(packages)
@@ -162,6 +162,9 @@ def pip_install_single_package(package: str,
 def pip_uninstall(list_of_packages: List[str]) -> bool:
 
     error_occurred = False
+
+    # Ensure it is a list and remove duplicates:
+    list_of_packages = list(set(list_of_packages))
 
     with asection(f"Installing up to {len(list_of_packages)} packages with pip:"):
         for package in list_of_packages:

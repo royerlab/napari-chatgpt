@@ -7,6 +7,10 @@ from napari_chatgpt.utils.python.installed_packages import is_package_installed
 
 
 def conda_install(list_of_packages: List[str], channel:str = None) -> bool:
+
+    # Ensure it is a list and remove duplicates:
+    list_of_packages = list(set(list_of_packages))
+
     base_command = "conda install -y"
 
     if channel:
