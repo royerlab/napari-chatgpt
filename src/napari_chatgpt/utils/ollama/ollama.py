@@ -5,7 +5,7 @@ from typing import List, Optional, Any
 
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.schema import LLMResult
-from langchain_community.llms import Ollama
+from langchain_community.llms.ollama import Ollama
 
 _aysync_ollama_thread_pool = ThreadPoolExecutor()
 
