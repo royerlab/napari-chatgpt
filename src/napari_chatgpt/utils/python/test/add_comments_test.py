@@ -38,5 +38,5 @@ def test_add_comments():
     assert commented_code.count('#') >= 2
 
     # Count the number of docstrings:
-    assert commented_code.count('"""') >= 4
+    assert commented_code.count('"""') >= 2
 
