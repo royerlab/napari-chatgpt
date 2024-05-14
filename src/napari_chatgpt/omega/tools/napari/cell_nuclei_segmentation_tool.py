@@ -235,19 +235,32 @@ class CellNucleiSegmentationTool(NapariBaseTool):
                 loaded_module = dynamic_import(code)
 
                 # get the function:
-                segment = getattr(loaded_module, 'segment')
+                segment_function = getattr(loaded_module, 'segment')
 
                 # Run segmentation:
                 with asection(f"Running segmentation..."):
-                    segmented_image = segment(viewer)
+                    segmented_image = segment_function(viewer)
+
+                # Add to viewer:
+                viewer.add_labels(segmented_image, name='segmented')
+
+                # Add call to segment function:
+                code += f"\n\nsegmented_image = segment(viewer)"
+                code += f"\nviewer.add_labels(segmented_image, name='segmented')"
 
                 # At this point we assume the code ran successfully and we add it to the notebook:
                 if self.notebook:
                     self.notebook.add_code_cell(code)
 
+                # Come up with a filename:
+                filename = f"generated_code_{self.__class__.__name__}.py"
 
-                # Add to viewer:
-                viewer.add_labels(segmented_image, name='segmented')
+                # Add the snippet to the code snippet editor:
+                from microplugin.microplugin_window import MicroPluginMainWindow
+                MicroPluginMainWindow.add_snippet(filename=filename,
+                                                  code=code)
+
+
 
                 # Message:
                 message = f"Success: image segmented and added to the viewer as a labels layer named 'segmented'."

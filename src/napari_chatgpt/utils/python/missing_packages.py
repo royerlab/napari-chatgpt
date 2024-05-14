@@ -89,6 +89,9 @@ def required_packages(code: str,
             # Parse the list:
             list_of_packages = list_of_packages_str.split()
 
+            # Remove duplicates:
+            list_of_packages = list(set(list_of_packages))
+
             # Strip each package name of white spaces:
             list_of_packages = [p.strip() for p in list_of_packages]
 
