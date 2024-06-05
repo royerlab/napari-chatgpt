@@ -150,6 +150,7 @@ your request.
 Omega is generally safe as long as you do not make dangerous requests. To be 100% safe, and
 if your experiments with Omega could be potentially problematic, I recommend using this 
 software from within a sandboxed virtual machine.
+API keys are only as safe as the overall machine is, see the section below on API key hygiene.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
@@ -157,6 +158,15 @@ PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIG
 BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## API key hygiene:
+
+Best Practices for Managing Your API Keys:
+- **Host Computer Hygiene:** Ensure that the machine you’re installing napari-chagot/Onega on is secure, free of malware and viruses, and otherwise not compromised. Make sure to install antivirus software on Windows.
+- **Security:**  Treat your API key like a password. Do not share it with others or expose it in public repositories or forums.
+- **Cost Control:** Set spending limits on your OpenAI account (see [here](https://platform.openai.com/account/limits)).
+- **Regenerate Keys:** If you believe your API key has been compromised, cancel and regenerate it from the OpenAI API dashboard immediately.
+- **Key Storage:** Omega has a built-in 'API Key Vault' that encrypts keys using a password, this is the preferred approach. You can also store the key in an environment variable, but that is not encrypted and could compromise the key. 
 
 ## Contributing
 
