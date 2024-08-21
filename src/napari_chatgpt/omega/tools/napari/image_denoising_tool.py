@@ -148,18 +148,30 @@ class ImageDenoisingTool(NapariBaseTool):
                 loaded_module = dynamic_import(code)
 
                 # get the function:
-                denoise = getattr(loaded_module, 'denoise')
+                denoise_function = getattr(loaded_module, 'denoise')
+
+                # Run denoising:
+                with asection(f"Running image denoising..."):
+                    denoised_image = denoise_function(viewer)
+
+                # Add to viewer:
+                viewer.add_image(denoised_image, name='denoised')
+
+                # Add call to denoise function & add to napari viewer:
+                code += f"\n\ndenoised_image = denoise(viewer)"
+                code += f"\nviewer.add_image(denoised_image, name='denoised')"
 
                 # At this point we assume the code ran successfully and we add it to the notebook:
                 if self.notebook:
                     self.notebook.add_code_cell(code)
 
-                # Run denoising:
-                with asection(f"Running image denoising..."):
-                    denoised_image = denoise(viewer)
+                # Come up with a filename:
+                filename = f"generated_code_{self.__class__.__name__}.py"
 
-                # Add to viewer:
-                viewer.add_image(denoised_image, name='denoised')
+                # Add the snippet to the code snippet editor:
+                from microplugin.microplugin_window import MicroPluginMainWindow
+                MicroPluginMainWindow.add_snippet(filename=filename,
+                                                  code=code)
 
                 # Message:
                 message = f"Success: image denoised and added to the viewer as layer 'denoised'. "

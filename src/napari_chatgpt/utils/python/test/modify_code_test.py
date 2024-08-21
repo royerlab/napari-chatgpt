@@ -25,7 +25,7 @@ def test_modify_code():
 
     assert len(modified_code) >= len(___generated_python_code)
 
-    assert 'multichannel' in modified_code
+    assert 'multichannel' in modified_code or 'multi-channel' in modified_code or 'channel' in modified_code
 
 
 

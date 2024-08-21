@@ -12,6 +12,7 @@ def test_duckduckgo_search_overview_summary():
     text = summary_ddg(query, do_summarize=True)
     aprint(text)
     assert 'Mickey' in text
+    assert 'Web search failed' not in text
 
 
 def test_duckduckgo_search_overview():
@@ -19,3 +20,4 @@ def test_duckduckgo_search_overview():
     text = summary_ddg(query, do_summarize=False)
     aprint(text)
     assert 'Mickey' in text
+    assert 'Web search failed' not in text

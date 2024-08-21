@@ -3,10 +3,14 @@
 [![License BSD-3](https://img.shields.io/pypi/l/napari-chatgpt.svg?color=green)](https://github.com/royerlab/napari-chatgpt/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-chatgpt.svg?color=green)](https://pypi.org/project/napari-chatgpt)
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-chatgpt.svg?color=green)](https://python.org)
-[![tests](https://github.com/royerlab/napari-chatgpt/workflows/tests/badge.svg)](https://github.com/royerlab/napari-chatgpt/actions)
+[![tests](https://github.com/royerlab/napari-chatgpt/actions/workflows/test_and_deploy.yml/badge.svg)](https://github.com/royerlab/napari-chatgpt/actions/workflows/test_and_deploy.yml)
 [![codecov](https://codecov.io/gh/royerlab/napari-chatgpt/branch/main/graph/badge.svg)](https://codecov.io/gh/royerlab/napari-chatgpt)
+[![Downloads](https://pepy.tech/badge/napari-chatgpt)](https://pepy.tech/project/napari-chatgpt)
+[![Downloads](https://pepy.tech/badge/napari-chatgpt/month)](https://pepy.tech/project/napari-chatgpt)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10828225.svg)](https://doi.org/10.5281/zenodo.10828225)
+[![GitHub stars](https://img.shields.io/github/stars/royerlab/napari-chatgpt?style=social)](https://github.com/royerlab/napari-chatgpt/)
+[![GitHub forks](https://img.shields.io/github/forks/royerlab/napari-chatgpt?style=social)](https://git:hub.com/royerlab/napari-chatgpt/)
 
 <img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/c85185d2-6d16-472d-a2c8-5680ea869bf2' height='300'>
 <img height="300" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/f3ea245e-dd86-4ff2-802e-48c2073cb6f9">
@@ -20,7 +24,7 @@ in a conversational manner.
 This repository started as a 'week-end project'
 by [Loic A. Royer](https://twitter.com/loicaroyer)
 who leads a [research group](https://royerlab.org) at
-the [Chan Zuckerberg Biohub](https://czbiohub.org/sf/). It
+the [Chan Zuckerberg Biohub](https://royerlab.org). It
 leverages [OpenAI](https://openai.com)'s ChatGPT API via
 the [LangChain](https://python.langchain.com/en/latest/index.html) Python
 library, as well as [napari](https://napari.org), a fast, interactive,
@@ -146,6 +150,7 @@ your request.
 Omega is generally safe as long as you do not make dangerous requests. To be 100% safe, and
 if your experiments with Omega could be potentially problematic, I recommend using this 
 software from within a sandboxed virtual machine.
+API keys are only as safe as the overall machine is, see the section below on API key hygiene.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
@@ -153,6 +158,15 @@ PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIG
 BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## API key hygiene:
+
+Best Practices for Managing Your API Keys:
+- **Host Computer Hygiene:** Ensure that the machine you’re installing napari-chagot/Onega on is secure, free of malware and viruses, and otherwise not compromised. Make sure to install antivirus software on Windows.
+- **Security:**  Treat your API key like a password. Do not share it with others or expose it in public repositories or forums.
+- **Cost Control:** Set spending limits on your OpenAI account (see [here](https://platform.openai.com/account/limits)).
+- **Regenerate Keys:** If you believe your API key has been compromised, cancel and regenerate it from the OpenAI API dashboard immediately.
+- **Key Storage:** Omega has a built-in 'API Key Vault' that encrypts keys using a password, this is the preferred approach. You can also store the key in an environment variable, but that is not encrypted and could compromise the key. 
 
 ## Contributing
 

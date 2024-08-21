@@ -63,9 +63,16 @@ def _instantiate_single_llm(llm_model_name: str,
     elif 'claude' in llm_model_name:
 
         # Import Claude LLM:
-        from langchain.chat_models import ChatAnthropic
+        from langchain_anthropic import ChatAnthropic
 
-        max_token_limit = 8000
+        llm_model_name_lc = llm_model_name.lower()
+
+        if 'opus' in llm_model_name_lc or 'sonnet' in llm_model_name_lc or 'hiaku' in llm_model_name_lc or '2.1':
+            max_tokens_to_sample = 4096
+            max_token_limit = 200000
+        else:
+            max_tokens_to_sample = 4096
+            max_token_limit = 8000
 
         # Instantiates Main LLM:
         llm = ChatAnthropic(
@@ -73,7 +80,7 @@ def _instantiate_single_llm(llm_model_name: str,
             verbose=verbose,
             streaming=streaming,
             temperature=temperature,
-            max_tokens_to_sample=max_token_limit,
+            max_tokens_to_sample=max_tokens_to_sample,
             callbacks=[callback_handler])
 
         return llm, max_token_limit
@@ -103,7 +110,7 @@ def _instantiate_single_llm(llm_model_name: str,
             # Wait a bit:
             sleep(3)
 
-        # Make ure that Ollama is running
+        # Make sure that Ollama is running
         if not is_ollama_running(ollama_host, ollama_port):
             aprint(f"Ollama server is not running on '{ollama_host}'. Please start the Ollama server on this machine and make sure the port '{ollama_port}' is open. ")
             raise Exception("Ollama server is not running!")

@@ -7,12 +7,14 @@ from napari_chatgpt.utils.web.duckduckgo import search_ddg
 
 def search_wikipedia(query: str,
                      num_results: int = 3,
+                     lang: str = "en",
                      max_text_length: int = 4000,
                      do_summarize: bool = False,
                      llm: BaseLLM = None) -> str:
     # Run a google search specifically on wikipedia:
     results = search_ddg(query=f"{query} site:wikipedia.org",
-                         num_results=max(10, num_results))
+                         num_results=min(10, num_results),
+                         lang=lang)
 
     # keep the top k results:
     results = results[0: num_results]

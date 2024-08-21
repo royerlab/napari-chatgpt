@@ -23,6 +23,10 @@ def get_default_openai_model_name() -> str:
             parts = model.split('-')
             # Get the main version (e.g., '3.5' or '4' from 'gpt-3.5' or 'gpt-4')
             main_version = parts[1]
+
+            if 'o' in main_version:
+                main_version = main_version.replace('o', '.25')
+
             # Use the length of the model name as a secondary sorting criterion
             length = len(model)
             # Sort by main version (descending), then by length (ascending)
