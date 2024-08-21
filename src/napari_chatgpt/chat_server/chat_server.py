@@ -30,10 +30,16 @@ from napari_chatgpt.omega.omega_init import initialize_omega_agent
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
 from napari_chatgpt.utils.configuration.app_configuration import \
     AppConfiguration
+from napari_chatgpt.utils.network.port_available import \
+    find_first_port_available
 from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
 from napari_chatgpt.utils.openai.default_model import \
     get_default_openai_model_name
 from napari_chatgpt.utils.python.installed_packages import is_package_installed
+
+
+
+
 
 
 class NapariChatServer:
@@ -71,8 +77,12 @@ class NapariChatServer:
         # Get configuration
         config = AppConfiguration('omega')
 
-        # port:
-        self.port = config.get('port', 9000)
+        # check if default port is available, if not increment by one until available:
+        default_port = config.get('port', 9000)
+
+        # find first available port:
+        self.port = find_first_port_available(default_port, default_port+1000)
+        aprint(f"Using port: {self.port}")
 
         # Mount static files:
         static_files_path = os.path.join(
@@ -81,9 +91,11 @@ class NapariChatServer:
         self.app.mount("/static", StaticFiles(directory=static_files_path),
                        name="static")
 
+        # Load templates:
         templates_files_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'templates')
+
         # Load Jinja2 templates:
         templates = Jinja2Templates(directory=templates_files_path)
 

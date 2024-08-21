@@ -1,8 +1,6 @@
 from pathlib import Path
 from typing import Union
 
-from black import FileMode, format_file_in_place, WriteBack
-
 
 def format_code(code: str) -> str:
     """Format the code using black."""
@@ -28,6 +26,9 @@ def format_file(file_path: Union[str, Path]) -> None:
         # Ensure file_path is a Path object
         if isinstance(file_path, str):
             file_path = Path(file_path)
+
+        # Local import to avoid polution of the global namespace:
+        from black import FileMode, format_file_in_place, WriteBack
 
         # Format the file using Black
         format_file_in_place(file_path,
