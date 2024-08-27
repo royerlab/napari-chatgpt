@@ -1,17 +1,25 @@
+from typing import TYPE_CHECKING
 import os
 import tempfile
 import traceback
 
+if TYPE_CHECKING:
+    from napari import Viewer
 
-def open_in_napari(viewer: "Viewer", url: str) -> bool:
-    if open_zarr_in_napari(viewer, url):
+
+def open_in_napari(viewer: "Viewer", url: str, plugin: str = "napari") -> bool:
+    try:
+        viewer.open(url, plugin=plugin)
         return True
-    elif _open_imageio_in_napari(viewer, url):
-        return True
-    elif open_video_in_napari(viewer, url):
-        return True
-    else:
-        return False
+    except:
+        if open_zarr_in_napari(viewer, url):
+            return True
+        elif _open_imageio_in_napari(viewer, url):
+            return True
+        elif open_video_in_napari(viewer, url):
+            return True
+        else:
+            return False
 
 
 def open_video_in_napari(viewer: "Viewer", url: str):
