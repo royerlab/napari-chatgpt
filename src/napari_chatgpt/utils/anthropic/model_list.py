@@ -22,7 +22,7 @@ def get_anthropic_model_list() -> list:
 
     """
 
-    with asection(f"Enumerating all Anthropic models:"):
+    with asection("Enumerating all Anthropic models:"):
         model_list = []
 
         model_list.append('claude-3-opus-20240229')
