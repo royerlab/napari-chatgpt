@@ -119,7 +119,4 @@ def postprocess_openai_model_list(model_list: list) -> list:
         # print stacktrace:
         traceback.print_exc()
 
-    finally:
-
-        # If anything goes wrong we safely return the model list:
-        return model_list
+    return model_list
