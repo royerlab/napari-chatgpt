@@ -16,7 +16,7 @@ class NapariFileOpenTool(NapariBaseTool):
         "Use this tool when you need to open image files in napari. "
         "Input must be a plain text list of local file paths or URLs to be opened. "
         "The list must be \\n delimited, i.e one entry per line. "
-        "The first item on the list must be the requested 'napari-plugin', if none is provided, use 'napari'."
+        "For for each file a specific napari reader plugin can be specified within brackets: 'file_path_or_url [reader_plugin_name]'. "
         "This tool can only open image files with these extensions: .tif, .png, .jpg, .zarr, and more... "
         "For example, if the input is: 'file1.tif\\nfile2.tif\\nfile3.tif' then this tool will open three images in napari. "
         "This tool cannot open text files or other non-image files. "
@@ -28,26 +28,34 @@ class NapariFileOpenTool(NapariBaseTool):
 
         with asection(f"NapariFileOpenTool: query= {query} "):
 
-            # Split lines:
-            lines = query.splitlines()
-
             # Files opened:
             opened_files = []
 
             # Errors encountered:
             encountered_errors = []
 
-            plugin = lines[0]
+            # Split lines:
+            lines = query.splitlines()
 
-            for line in lines[1:]:
+            # Remove any whitespace from the list entries:
+            lines = [line.strip() for line in lines]
+
+            for line in lines:
 
                 # Remove whitespaces:
                 line = line.strip()
 
-                aprint(f"Trying to open file: '{line}' ")
+                # Check if a plugin is specified:
+                if '[' in line and ']' in line:
+                    plugin = line[line.index('[') + 1:line.index(']')].strip()
+                    line = line[:line.index('[')].strip()
+                else:
+                    plugin = None
 
                 # Try to open file:
                 try:
+                    aprint(f"Trying to open file: '{line}' with plugin '{plugin}'")
+
                     success = open_in_napari(viewer, line, plugin=plugin)
 
                     if success:
@@ -62,16 +70,17 @@ class NapariFileOpenTool(NapariBaseTool):
             # Encountered errors string:
             encountered_errors_str = '\n'.join(encountered_errors)
 
-            aprint(
-                f"Encountered the following errors while trying to open the files:\n" \
-                f"{encountered_errors_str}\n")
+            if encountered_errors:
+                aprint(
+                    f"Encountered the following errors while trying to open the files:\n" \
+                    f"{encountered_errors_str}\n")
 
             # Return outcome:
-            if len(opened_files) == len(lines):
+            if len(opened_files) == len(lines) and len(encountered_errors) == 0:
                 result = f"All of the image files: '{', '.join(opened_files)}' could be successfully opened in napari. "
                 aprint(result)
                 return result
-            elif len(opened_files) > 0:
+            elif len(opened_files) > 0 and len(encountered_errors) > 0:
                 result = f"Some of the image files: '{', '.join(opened_files)}' could be successfully opened in napari.\n" \
                          f"Here are the exceptions, if any, that occurred:\n" \
                          f"{encountered_errors_str}.\n"

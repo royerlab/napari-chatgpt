@@ -129,7 +129,8 @@ def test_get_function_signature():
 
     signature = get_function_signature('numpy.zeros_like', include_docstring=True)
     aprint(signature)
-    assert 'zeros_like(a, dtype, order, subok, shape)' in signature
+
+    assert 'zeros_like(a, dtype, order, subok, shape, device)' in signature or 'zeros_like(a, dtype, order, subok, shape)' in signature
     assert 'shape : int or sequence of ints, optional.' in signature
 
     print('\n\n')
