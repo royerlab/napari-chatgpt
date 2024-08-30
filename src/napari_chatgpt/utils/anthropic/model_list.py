@@ -1,8 +1,4 @@
-import traceback
-
-from arbol import asection, aprint
-
-from napari_chatgpt.utils.api_keys.api_key import set_api_key
+from arbol import asection
 
 
 
