@@ -19,8 +19,8 @@ def test_duckduckgo_search_overview_summary():
 
     except RatelimitException as e:
         aprint(f"RatelimitException: {e}")
-        aprint(f"RatelimitException: {e.response}")
-        aprint(f"RatelimitException: {e.response.text}")
+        import traceback
+        traceback.print_exc()
 
 
 
@@ -36,5 +36,5 @@ def test_duckduckgo_search_overview():
 
     except RatelimitException as e:
         aprint(f"RatelimitException: {e}")
-        aprint(f"RatelimitException: {e.response}")
-        aprint(f"RatelimitException: {e.response.text}")
+        import traceback
+        traceback.print_exc()

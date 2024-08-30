@@ -79,6 +79,8 @@ def postprocess_openai_model_list(model_list: list) -> list:
     """
 
     try:
+        # First, sort the list of models:
+        model_list = sorted(model_list)
 
         # get list of bad models for main LLM:
         bad_models_filters = ['0613', 'vision',
@@ -109,7 +111,7 @@ def postprocess_openai_model_list(model_list: list) -> list:
 
         # Ensure that the very best models are at the top of the list:
         very_best_models = [m for m in model_list if
-                            ('gpt-4o' in m)]
+                            ('gpt-4o' in m and not 'mini' in m)]
         model_list = very_best_models + [m for m in model_list if
                                          m not in very_best_models]
 

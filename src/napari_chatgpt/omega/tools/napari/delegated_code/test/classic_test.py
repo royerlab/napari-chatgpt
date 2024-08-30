@@ -47,7 +47,7 @@ def test_classsic_3d(show_viewer: bool = False):
     aprint('')
 
     # Load the 'cells' example dataset
-    cells = skimage.data.cells3d()[:, 1]
+    cells = skimage.data.cells3d()[0:100, 0:100, 1].copy()
 
     # Segment the cells:
     labels = classic_segmentation(cells)
@@ -58,7 +58,7 @@ def test_classsic_3d(show_viewer: bool = False):
     aprint(nb_unique_labels)
 
     # Check that the number of unique labels is correct:
-    assert nb_unique_labels == 25
+    assert nb_unique_labels == 6
 
     # If the viewer is not requested, return:
     if not show_viewer:

@@ -71,7 +71,18 @@ class NapariBridge():
         # Setting up delegated function:
         delegated_function = lambda v: get_viewer_info(v)
 
-        return self._execute_in_napari_context(delegated_function)
+        try:
+            # execute delegated function in napari context:
+            info = self._execute_in_napari_context(delegated_function)
+
+            return info
+
+        except Exception as e:
+            # print exception stack trace:
+            import traceback
+            traceback.print_exc()
+
+            return 'Could not get information about the viewer because of an error.'
 
 
     def take_snapshot(self):

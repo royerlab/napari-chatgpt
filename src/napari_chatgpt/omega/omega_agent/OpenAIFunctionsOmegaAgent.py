@@ -5,9 +5,6 @@ from langchain.agents import OpenAIFunctionsAgent
 from langchain.agents.format_scratchpad.openai_functions import (
     format_to_openai_function_messages,
 )
-from langchain.agents.output_parsers.openai_functions import (
-    OpenAIFunctionsAgentOutputParser,
-)
 from langchain_core.agents import AgentAction, AgentFinish
 from langchain_core.callbacks import Callbacks
 from langchain_core.messages import (
@@ -15,6 +12,8 @@ from langchain_core.messages import (
 )
 
 from napari_chatgpt.omega.napari_bridge import _get_viewer_info
+from napari_chatgpt.omega.omega_agent.OmegaOpenAIFunctionsAgentOutputParser import \
+    OpenAIFunctionsAgentOutputParser
 from napari_chatgpt.omega.omega_agent.prompts import DIDACTICS
 
 
@@ -25,26 +24,27 @@ class OpenAIFunctionsOmegaAgent(OpenAIFunctionsAgent):
     be_didactic: bool = False
 
     async def aplan(
-            self,
-            intermediate_steps: List[Tuple[AgentAction, str]],
-            callbacks: Callbacks = None,
-            **kwargs: Any,
+        self,
+        intermediate_steps: List[Tuple[AgentAction, str]],
+        callbacks: Callbacks = None,
+        **kwargs: Any,
     ) -> Union[AgentAction, AgentFinish]:
-        """Given input, decided what to do.
+        """Async given input, decided what to do.
 
         Args:
             intermediate_steps: Steps the LLM has taken to date,
-                along with observations
+                along with observations.
+            callbacks: Callbacks to use. Defaults to None.
             **kwargs: User inputs.
 
         Returns:
             Action specifying what tool to use.
+            If the agent is finished, returns an AgentFinish.
+            If the agent is not finished, returns an AgentAction.
         """
-        agent_scratchpad = format_to_openai_function_messages(
-            intermediate_steps)
+        agent_scratchpad = format_to_openai_function_messages(intermediate_steps)
         selected_inputs = {
-            k: kwargs[k] for k in self.prompt.input_variables if
-            k != "agent_scratchpad"
+            k: kwargs[k] for k in self.prompt.input_variables if k != "agent_scratchpad"
         }
         full_inputs = dict(**selected_inputs, agent_scratchpad=agent_scratchpad)
         prompt = self.prompt.format_prompt(**full_inputs)
@@ -60,6 +60,7 @@ class OpenAIFunctionsOmegaAgent(OpenAIFunctionsAgent):
                 )
             ))
 
+        # Add didactics to the messages:
         if self.be_didactic:
             messages.insert(-1, SystemMessage(
                 content=DIDACTICS,
@@ -68,10 +69,11 @@ class OpenAIFunctionsOmegaAgent(OpenAIFunctionsAgent):
                 )
             ))
 
+        # predict the message:
         predicted_message = await self.llm.apredict_messages(
             messages, functions=self.functions, callbacks=callbacks
         )
-        agent_decision = OpenAIFunctionsAgentOutputParser._parse_ai_message(
-            predicted_message
-        )
+
+        # parse the AI message:
+        agent_decision = OpenAIFunctionsAgentOutputParser._parse_ai_message(predicted_message)
         return agent_decision

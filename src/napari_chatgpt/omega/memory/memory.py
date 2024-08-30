@@ -2,6 +2,7 @@ from typing import Any, Dict, List
 from typing import Type
 
 from langchain.chains import LLMChain
+from langchain.memory import ConversationSummaryMemory
 from langchain.memory.chat_memory import BaseChatMemory
 from langchain.memory.prompt import SUMMARY_PROMPT
 from langchain_core.language_models import BaseLanguageModel
@@ -15,6 +16,8 @@ from langchain_core.pydantic_v1 import BaseModel, root_validator
 ### This code is modified from the original class ConversationSummaryMemory in LangChain.
 ### LangChain's license is the MIT License
 ###
+
+ConversationSummaryMemory
 
 class SummarizerMixin(BaseModel):
     human_prefix: str = "Human"

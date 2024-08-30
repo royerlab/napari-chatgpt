@@ -17,10 +17,13 @@ def test_wikipedia_search_MM():
 
         aprint(text)
 
+        assert 'Mickey Mouse' in text
+
     except RatelimitException as e:
         aprint(f"RatelimitException: {e}")
-        aprint(f"RatelimitException: {e.response}")
-        aprint(f"RatelimitException: {e.response.text}")
+        import traceback
+        traceback.print_exc()
+
 
 
 
@@ -36,10 +39,15 @@ def test_wikipedia_search_AE():
                                 do_summarize=True)
 
         aprint(text)
+
+        assert 'Albert Einstein' in text
+
     except RatelimitException as e:
         aprint(f"RatelimitException: {e}")
-        aprint(f"RatelimitException: {e.response}")
-        aprint(f"RatelimitException: {e.response.text}")
+        import traceback
+        traceback.print_exc()
+
+
 
 
 @pytest.mark.skipif(not is_api_key_available('OpenAI'),
@@ -55,10 +63,16 @@ def test_wikipedia_search_CZB():
 
         aprint(text)
 
+        assert 'CZ Biohub' in text
+
     except RatelimitException as e:
         aprint(f"RatelimitException: {e}")
-        aprint(f"RatelimitException: {e.response}")
-        aprint(f"RatelimitException: {e.response.text}")
+
+
+
+
+
+
 
 
 

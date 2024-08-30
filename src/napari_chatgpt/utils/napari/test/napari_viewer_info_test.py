@@ -89,17 +89,26 @@ def test_napari_viewer_info():
     vectors = numpy.zeros((n, 2, 2), dtype=numpy.float32)
     phi_space = numpy.linspace(0, 4 * numpy.pi, n)
     radius_space = numpy.linspace(0, 100, n)
+
     # assign x-y projection
     vectors[:, 1, 0] = radius_space * numpy.cos(phi_space)
     vectors[:, 1, 1] = radius_space * numpy.sin(phi_space)
+
     # assign x-y position
     vectors[:, 0] = vectors[:, 1] + 256
+
     # add the vectors
     vectors_layer = viewer.add_vectors(vectors, edge_width=3)
 
     # GET LAYER INFO FROM VIEWER:
     layers_info = get_viewer_info(viewer)
 
+    # Print the layers_info:
     aprint(layers_info)
 
+    # Check that the layers_info is not empty:
     assert len(layers_info) > 0
+
+    # Close the viewer:
+    viewer.close()
+

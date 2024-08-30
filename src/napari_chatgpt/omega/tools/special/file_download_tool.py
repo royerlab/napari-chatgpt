@@ -1,3 +1,5 @@
+from typing import Any
+
 from arbol import asection, aprint
 
 from napari_chatgpt.omega.tools.async_base_tool import AsyncBaseTool
@@ -13,9 +15,14 @@ class FileDownloadTool(AsyncBaseTool):
         "and thus is(are) directly accessible using its(their) filename. "
         "Use this tool to download files before any subsequent operations on these files.")
 
-    def _run(self, query: str) -> str:
-        """Use the tool."""
+    def _run(self,
+             *args: Any,
+             **kwargs: Any
+    ) -> Any:
+
         try:
+            # Get query:
+            query = self.normalise_to_string(kwargs)
 
             with asection(f"FileDownloadTool: query= {query} "):
                 # extract urls from query

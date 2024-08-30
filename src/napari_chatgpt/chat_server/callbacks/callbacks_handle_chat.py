@@ -121,7 +121,19 @@ class ChatCallbackHandler(AsyncCallbackHandler):
         if self.verbose:
             aprint(f"CHAT on_agent_action: {action}")
         tool = camel_case_to_lower_case(action.tool)
-        message = f"I am using the {tool} to tackle your request: '{action.tool_input}'"
+
+        # extract value for args key after checking if action.tool_input is a dict:
+        if isinstance(action.tool_input, dict):
+            argument = action.tool_input.get('args', '')
+
+            # if argument is a singleton list, unpop that single element:
+            if isinstance(argument, list):
+                argument = argument[0]
+
+        else:
+            argument = action.tool_input
+        
+        message = f"I am using the {tool} to tackle your request: '{argument}'"
 
         self.last_tool_used = tool
         self.last_tool_input = action.tool_input

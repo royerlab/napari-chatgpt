@@ -2,7 +2,7 @@ from queue import Queue
 
 import langchain
 from arbol import aprint
-from langchain.agents import AgentExecutor
+from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain.agents.conversational_chat.prompt import SUFFIX
 from langchain.base_language import BaseLanguageModel
 from langchain.callbacks.base import BaseCallbackHandler
@@ -39,6 +39,8 @@ from napari_chatgpt.omega.tools.special.exception_catcher_tool import \
 from napari_chatgpt.omega.tools.special.functions_info_tool import \
     PythonFunctionsInfoTool
 from napari_chatgpt.omega.tools.special.human_input_tool import HumanInputTool
+from napari_chatgpt.omega.tools.special.package_info_tool import \
+    PythonPackageInfoTool
 from napari_chatgpt.omega.tools.special.pip_install_tool import PipInstallTool
 from napari_chatgpt.omega.tools.special.python_repl import \
     PythonCodeExecutionTool
@@ -90,6 +92,7 @@ def initialize_omega_agent(to_napari_queue: Queue = None,
              ExceptionCatcherTool(callbacks=tool_callbacks),
              # FileDownloadTool(),
              PythonCodeExecutionTool(callbacks=tool_callbacks),
+             PythonPackageInfoTool(callbacks=tool_callbacks),
              PipInstallTool(callbacks=tool_callbacks)]
 
     # Adding the human input tool if required:

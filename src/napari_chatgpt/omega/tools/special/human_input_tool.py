@@ -1,6 +1,6 @@
 """Tool for asking human input."""
 
-from typing import Callable
+from typing import Callable, Any
 
 from pydantic import Field
 
@@ -25,7 +25,13 @@ class HumanInputTool(AsyncBaseTool):
         default_factory=lambda: _print_func)
     input_func: Callable = Field(default_factory=lambda: input)
 
-    def _run(self, query: str) -> str:
+    def _run(self,
+             *args: Any,
+             **kwargs: Any
+    ) -> Any:
+        # Get query:
+        query = self.normalise_to_string(kwargs)
+
         """Use the Human input tool."""
         self.prompt_func(query)
         return self.input_func()

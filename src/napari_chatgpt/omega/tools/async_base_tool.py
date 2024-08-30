@@ -14,11 +14,18 @@ class AsyncBaseTool(BaseTool):
 
     notebook: JupyterNotebookFile = None
 
-    async def _arun(self, query: str) -> str:
-        """Use the tool asynchronously."""
-        aprint(f"Starting async call to {type(self).__name__}({query}) ")
-        result = await asyncio.get_running_loop().run_in_executor(
-            _aysync_tool_thread_pool,
-            self._run,
-            query)
-        return result
+    def normalise_to_string(self, kwargs):
+
+        # extract the value for args key in kwargs:
+        if isinstance(kwargs, dict):
+            query = kwargs.get('args', '')
+        else:
+            query = kwargs
+
+        # If query is a singleton list, extract the value:
+        if isinstance(query, list) and len(query) == 1:
+            query = query[0]
+
+        # convert the query to string:
+        query = str(query)
+        return query

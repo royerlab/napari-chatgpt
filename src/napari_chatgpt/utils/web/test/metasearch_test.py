@@ -19,11 +19,8 @@ def test_metasearch_summary():
 
     except RatelimitException as e:
         aprint(f"RatelimitException: {e}")
-        aprint(f"RatelimitException: {e.response}")
-        aprint(f"RatelimitException: {e.response.text}")
-
-
-
+        import traceback
+        traceback.print_exc()
 
 
 def test_metasearch():
@@ -37,8 +34,9 @@ def test_metasearch():
 
     except RatelimitException as e:
         aprint(f"RatelimitException: {e}")
-        aprint(f"RatelimitException: {e.response}")
-        aprint(f"RatelimitException: {e.response.text}")
+        import traceback
+        traceback.print_exc()
+
 
 
 

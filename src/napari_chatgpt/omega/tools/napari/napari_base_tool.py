@@ -3,7 +3,7 @@ import sys
 import traceback
 from pathlib import Path
 from queue import Queue
-from typing import Union, Optional
+from typing import Union, Optional, Any
 
 from arbol import aprint, asection
 from langchain.chains import LLMChain
@@ -63,8 +63,11 @@ class NapariBaseTool(AsyncBaseTool):
 
     last_generated_code: Optional[str] = None
 
-    def _run(self, query: str) -> str:
+    def _run(self, *args: Any, **kwargs: Any) -> Any:
         """Use the tool."""
+
+        # Get query:
+        query = self.normalise_to_string(kwargs)
 
         if self.prompt:
             # Instantiate chain:
@@ -136,6 +139,7 @@ class NapariBaseTool(AsyncBaseTool):
             return f"Error: {exception_guard.exception_type_name} with message: '{str(exception_guard.exception)}' while using tool: {self.__class__.__name__} ."
 
         return response
+
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
         """

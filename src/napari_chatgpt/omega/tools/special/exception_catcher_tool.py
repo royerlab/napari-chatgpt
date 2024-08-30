@@ -2,6 +2,7 @@
 import queue
 import sys
 import traceback
+from typing import Any
 
 from arbol import aprint, asection
 
@@ -50,14 +51,19 @@ class ExceptionCatcherTool(AsyncBaseTool):
     )
     prompt: str = None
 
-    def _run(self, query: str) -> str:
-        """Use the tool."""
+    def _run(self,
+             *args: Any,
+             **kwargs: Any
+    ) -> Any:
 
         with asection('ExceptionCatcherTool: List of caught exceptions:'):
             text = "Here is the list of exceptions that occurred:\n\n"
             text += "```\n"
 
             try:
+                # Get query:
+                query = self.normalise_to_string(kwargs)
+
                 # We try to convert the input to an integer:
                 number_of_exceptions = int(query.strip())
             except Exception as e:
