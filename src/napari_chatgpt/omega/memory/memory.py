@@ -17,8 +17,6 @@ from langchain_core.pydantic_v1 import BaseModel, root_validator
 ### LangChain's license is the MIT License
 ###
 
-ConversationSummaryMemory
-
 class SummarizerMixin(BaseModel):
     human_prefix: str = "Human"
     ai_prefix: str = "AI"
