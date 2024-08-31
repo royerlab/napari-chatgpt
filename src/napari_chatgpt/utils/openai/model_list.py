@@ -80,7 +80,7 @@ def postprocess_openai_model_list(model_list: list) -> list:
         model_list = sorted(model_list)
 
         # get list of bad models for main LLM:
-        bad_models_filters = ['0613', 'vision',
+        bad_models_filters = {'0613', 'vision',
                               'turbo-instruct',
                               'gpt-3.5-turbo',
                               'gpt-3.5-turbo-0613',
@@ -88,10 +88,10 @@ def postprocess_openai_model_list(model_list: list) -> list:
                               'gpt-3.5-turbo-1106',
                               'gpt-3.5-turbo-0125',
                               'gpt-3.5-turbo-16k',
-                              'chatgpt-4o-latest']
+                              'chatgpt-4o-latest'}
 
         # get list of best models for main LLM:
-        best_models_filters = ['0314', '0301', '1106', 'gpt-4', 'gpt-4o']
+        best_models_filters = {'0314', '0301', '1106', 'gpt-4', 'gpt-4o'}
 
         # Ensure that some 'bad' or unsupported models are excluded:
         bad_models = [m for m in model_list if
@@ -112,8 +112,8 @@ def postprocess_openai_model_list(model_list: list) -> list:
         model_list = very_best_models + [m for m in model_list if
                                          m not in very_best_models]
 
-    except Exception as e:
-        aprint("Error {e} occured while postprocessing the list of OpenAI models!")
+    except Exception as exc:
+        aprint(f"Error occurred: {exc}")
 
         # print stacktrace:
         traceback.print_exc()
