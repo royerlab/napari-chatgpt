@@ -1,11 +1,8 @@
 import traceback
 
 from arbol import asection, aprint
-from exceptiongroup import catch
 
 from napari_chatgpt.utils.api_keys.api_key import set_api_key
-
-
 
 
 def get_openai_model_list(filter: str = 'gpt', verbose: bool = False) -> list:
