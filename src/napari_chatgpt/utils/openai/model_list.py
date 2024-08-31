@@ -108,7 +108,7 @@ def postprocess_openai_model_list(model_list: list) -> list:
 
         # Ensure that the very best models are at the top of the list:
         very_best_models = [m for m in model_list if
-                            ('gpt-4o' in m and not 'mini' in m)]
+                            ('gpt-4o' in m and 'mini' not in m)]
         model_list = very_best_models + [m for m in model_list if
                                          m not in very_best_models]
 
