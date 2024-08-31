@@ -1,5 +1,6 @@
 """A tool for running python code in a REPL."""
 import traceback
+from typing import Any
 
 from arbol import asection, aprint
 
@@ -22,8 +23,13 @@ class PythonFunctionsInfoTool(AsyncBaseTool):
         "and example usages, please prefix your request with the single star character '*'."
     )
 
-    def _run(self, query: str) -> str:
-        """Use the tool."""
+    def _run(self,
+             *args: Any,
+             **kwargs: Any
+    ) -> Any:
+
+        # Get query:
+        query = self.normalise_to_string(kwargs)
 
         with asection(f"PythonFunctionsInfoTool: query= {query} "):
 

@@ -17,11 +17,13 @@ from qtpy.QtWidgets import QPushButton, QWidget
 from qtpy.QtWidgets import QVBoxLayout, QComboBox
 
 from microplugin.microplugin_window import MicroPluginMainWindow
+from napari_chatgpt.utils.anthropic.model_list import get_anthropic_model_list
 from napari_chatgpt.utils.configuration.app_configuration import \
     AppConfiguration
 from napari_chatgpt.utils.ollama.ollama_server import is_ollama_running, \
     get_ollama_models
-from napari_chatgpt.utils.openai.model_list import get_openai_model_list
+from napari_chatgpt.utils.openai.model_list import get_openai_model_list, \
+    postprocess_openai_model_list
 from napari_chatgpt.utils.python.installed_packages import \
     is_package_installed
 from napari_chatgpt.utils.qt.one_time_disclaimer_dialog import \
@@ -123,44 +125,15 @@ class OmegaQWidget(QWidget):
 
         if is_package_installed('anthropic'):
             # Add Anthropic models to the combo box:
-            model_list.append('claude-2.1')
-            model_list.append('claude-2.0')
-            model_list.append('claude-instant-1.2')
-            model_list.append('claude-3-sonnet-20240229')
-            model_list.append('claude-3-opus-20240229')
-
+            model_list.extend(get_anthropic_model_list())
 
         if is_ollama_running():
             ollama_models = get_ollama_models()
             for ollama_model in ollama_models:
                 model_list.append('ollama_'+ollama_model)
 
-        # Postprocess model list:
-
-        # Special cases (common prefix):
-        if 'gpt-3.5-turbo' in model_list:
-            model_list.remove('gpt-3.5-turbo')
-
-        # get list of bad models for main LLM:
-        bad_models_filters = ['0613', 'vision', 'turbo-instruct', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo-16k']
-
-        # get list of best models for main LLM:
-        best_models_filters = ['0314', '0301', '1106', 'gpt-4']
-
-        # Ensure that some 'bad' or unsupported models are excluded:
-        bad_models = [m for m in model_list if any(bm in m for bm in bad_models_filters)]
-        for bad_model in bad_models:
-            if bad_model in model_list:
-                model_list.remove(bad_model)
-                # model_list.append(bad_model)
-
-        # Ensure that the best models are at the top of the list:
-        best_models = [m for m in model_list if any(bm in m for bm in best_models_filters)]
-        model_list = best_models + [m for m in model_list if m not in best_models]
-
-        # Ensure that the very best models are at the top of the list:
-        very_best_models = [m for m in model_list if ('gpt-4-turbo-2024-04-09' in m) ]
-        model_list = very_best_models + [m for m in model_list if m not in very_best_models]
+        # Postprocess OpenAI model list:
+        model_list = postprocess_openai_model_list(model_list)
 
         # normalise list:
         model_list = list(model_list)

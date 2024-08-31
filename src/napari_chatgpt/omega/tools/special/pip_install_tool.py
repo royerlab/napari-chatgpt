@@ -1,5 +1,6 @@
 """A tool for running python code in a REPL."""
 import traceback
+from typing import Any
 
 from arbol import asection, aprint
 
@@ -21,8 +22,13 @@ class PipInstallTool(AsyncBaseTool):
         "This tool is useful for installing packages that are not installed by default in the napari environment. "
 )
 
-    def _run(self, query: str) -> str:
-        """Use the tool."""
+    def _run(self,
+             *args: Any,
+             **kwargs: Any
+    ) -> Any:
+
+        # Get query:
+        query = self.normalise_to_string(kwargs)
 
         with asection(f"PipInstallTool: query= {query} "):
 

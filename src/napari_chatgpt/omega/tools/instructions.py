@@ -20,7 +20,8 @@ omega_generic_codegen_instructions = """
 - When and if you use PyTorch functions make sure to pass tensors with the right dtype and number of dimensions in order to match PyTorch's functions parameter requirements. For instance, add and remove batch dimensions and convert to a compatible dtype before and after a series of calls to PyTorch functions.
 - The only data types supported by PyTorch are: float32, float64, float16, bfloat16, uint8, int8, int16, int32, int64, and bool. Make sure to convert the input to one of these types before passing it to a PyTorch function.
 - When using Numba to write image processing code make sure to avoid high-level numpy functions and instead implement the algorithms with loops and low-level numpy functions. Also, make sure to use the right data types for the input and output arrays.
-- If you need to get the selected layer in the napari viewer, use the following code: `viewer.layers.selection.active` .
+- If you need to get the selected layer in the napari viewer, use the following code: `viewer.layers.selection.active`.
+- napari layers do not have a 'type' field, if you need to check the type of a layer, use for example the following code: `isinstance(layer, napari.layers.Shapes)`.
 - If you need to rotate the viewer camera to a specific set of angles, use the following code: `viewer.camera.angles = (angle_z, angle_y, angle_x)`  .
 """
 

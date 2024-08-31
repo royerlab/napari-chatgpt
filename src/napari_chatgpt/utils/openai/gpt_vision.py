@@ -130,7 +130,7 @@ def describe_image(image_path: str,
 
                     # if the response contains these words: "sorry" and ("I cannot" or "I can't")  then try again:
                     if ("sorry" in response_lc and ("i cannot" in response_lc or "i can't" in response_lc or 'i am unable' in response_lc)) \
-                        or "i cannot assist" in response_lc:
+                        or "i cannot assist" in response_lc or "i can't assist" in response_lc or 'i am unable to assist' in response_lc or "I'm sorry" in response_lc:
                         aprint(f"Vision model refuses to assist (response: {response}). Trying again...")
                         continue
                     else:
