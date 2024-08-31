@@ -52,8 +52,8 @@ def test_wikipedia_search_AE():
 
 
 
-@pytest.mark.skipif(not is_api_key_available('OpenAI'),
-                    reason="requires OpenAI key to run")
+@pytest.mark.skipif(IN_GITHUB_ACTIONS or not is_api_key_available('OpenAI'),
+                    reason="requires OpenAI key to run and doesn't work in Github Actions.")
 def test_wikipedia_search_CZB():
 
     try:
