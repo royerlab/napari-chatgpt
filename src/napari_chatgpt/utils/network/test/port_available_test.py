@@ -5,7 +5,7 @@ from napari_chatgpt.utils.network.port_available import is_port_available
 
 def test_port_available():
 
-    # Looks for the first port available after 5000 by looping through each port:
+    # Looks for the first port available after 9000 by looping through each port:
     available_port = None
     for port in range(9000, 10000):
         if is_port_available(port):
