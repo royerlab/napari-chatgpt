@@ -41,6 +41,10 @@ def test_port_available():
         # Now check if the port is occupied:
         assert not is_port_available(available_port)
 
+        # Clean up the server:
+        loop.run_until_complete(site.stop())
+        loop.run_until_complete(runner.cleanup())
+
 
 
 
