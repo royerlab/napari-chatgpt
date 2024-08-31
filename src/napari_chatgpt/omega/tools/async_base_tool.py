@@ -17,10 +17,7 @@ class AsyncBaseTool(BaseTool):
     def normalise_to_string(self, kwargs):
 
         # extract the value for args key in kwargs:
-        if isinstance(kwargs, dict):
-            query = kwargs.get('args', '')
-        else:
-            query = kwargs
+        query = kwargs.get('args', '') if isinstance(kwargs, dict) else kwargs
 
         # If query is a singleton list, extract the value:
         if isinstance(query, list) and len(query) == 1:
