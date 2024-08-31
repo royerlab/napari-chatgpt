@@ -2,7 +2,7 @@ from queue import Queue
 
 import langchain
 from arbol import aprint
-from langchain.agents import AgentExecutor, create_openai_functions_agent
+from langchain.agents import AgentExecutor
 from langchain.agents.conversational_chat.prompt import SUFFIX
 from langchain.base_language import BaseLanguageModel
 from langchain.callbacks.base import BaseCallbackHandler
