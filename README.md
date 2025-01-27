@@ -42,7 +42,8 @@ Can LLM-based agents write image processing code and napari widgets, correct its
 coding mistakes, performing follow-up analysis, and controlling the napari viewer? 
 The answer appears to be yes.
 
-The preprint can be downloaded here: [10.5281/zenodo.10828225](https://doi.org/10.5281/zenodo.10828225)
+The publication is available here: [10.1038/s41592-024-02310-w](https://doi.org/10.1038/s41592-024-02310-w).
+The preprint can be downloaded here: [10.5281/zenodo.10828225](https://doi.org/10.5281/zenodo.10828225).
 
 
 #### In this video, I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image but fails because of an inexistent 'multichannel' parameter. Realizing that, Omega tries again, and this time succeeds:
@@ -127,7 +128,9 @@ You can also find the latest preprint videos on [Vimeo](https://vimeo.com/showca
 
 ## How does Omega work?
 
-Check our preprint here: [10.5281/zenodo.8240289](10.5281/zenodo.8240289)
+The publication is available here: [10.1038/s41592-024-02310-w](https://doi.org/10.1038/s41592-024-02310-w).
+Check our preprint here: [10.5281/zenodo.10828225](https://doi.org/10.5281/zenodo.10828225).
+
 and our [wiki page](https://github.com/royerlab/napari-chatgpt/wiki/OmegaDesign) on Omega's design and architecture.
 
 ## Cost:
