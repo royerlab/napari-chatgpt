@@ -30,7 +30,13 @@ def get_default_openai_model_name() -> str:
             # Use the length of the model name as a secondary sorting criterion
             length = len(model)
             # Sort by main version (descending), then by length (ascending)
-            return (-float(main_version), length)
+            try:
+                key = (-float(main_version), length)
+            except Exception:
+                # If conversion to float fails, return a tuple that ensures this model is sorted last
+                key = (float('inf'), length)
+
+            return key
 
         sorted_model_list = sorted(model_list, key=model_key)
 

@@ -46,6 +46,7 @@ def set_api_key(api_name: str) -> bool:
             aprint(f"Requesting key from user via user interface...")
             api_key = request_if_needed_api_key_dialog(api_name)
 
+
         # Potentially releases the Qt app, MUST BE KEPT!:
         app = None
 

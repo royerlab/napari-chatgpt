@@ -1,32 +1,20 @@
 from arbol import asection
 
 
-
-
-def get_anthropic_model_list() -> list:
+def get_anthropic_model_list() -> list[str]:
     """
-    Get the list of all Anthropic  models.
+    Return a list of all *current, non-deprecated* Anthropic Claude models.
 
-    Parameters
-    ----------
-    filter : str
-        Filter to apply to the list of models.
-    Returns
-    -------
-    list
-        List of models.
-
+    Snapshot dates ensure deterministic behaviour.  Last verified: 2025-06-25.
     """
-
-    with asection("Enumerating all Anthropic models:"):
-        model_list = []
-
-        model_list.append('claude-3-opus-20240229')
-        model_list.append('claude-3-sonnet-20240229')
-        model_list.append('claude-3-haiku-20240307')
-        model_list.append('claude-3-5-sonnet-20240620')
-
-        return model_list
-
-
-
+    with asection("Enumerating active Anthropic models"):
+        return [
+            "claude-3-opus-20240229",
+            "claude-3-haiku-20240307",
+            "claude-3-5-sonnet-20240620",
+            "claude-3-5-sonnet-20241022",
+            "claude-3-5-haiku-20241022",
+            "claude-3-7-sonnet-20250219",
+            "claude-sonnet-4-20250514",
+            "claude-opus-4-20250514",
+        ]

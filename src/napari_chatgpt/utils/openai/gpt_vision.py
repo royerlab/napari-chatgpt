@@ -4,7 +4,7 @@ from napari_chatgpt.utils.api_keys.api_key import set_api_key
 from napari_chatgpt.utils.openai.model_list import get_openai_model_list
 
 
-def is_gpt_vision_available(vision_model_name: str = 'gpt-4-vision-preview') -> bool:
+def is_gpt_vision_available(vision_model_name: str = 'gpt-4') -> bool:
     """
     Check if GPT-vision is available.
 
@@ -29,7 +29,7 @@ def is_gpt_vision_available(vision_model_name: str = 'gpt-4-vision-preview') -> 
 
 def describe_image(image_path: str,
                    query: str = 'Here is an image, please carefully describe it in detail.',
-                   model: str = "gpt-4-vision-preview",
+                   model: str = "gpt-4o",
                    max_tokens: int = 4096,
                    number_of_tries: int = 4,
                    ) -> str:

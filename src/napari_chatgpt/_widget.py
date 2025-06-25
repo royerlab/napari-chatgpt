@@ -422,16 +422,6 @@ class OmegaQWidget(QWidget):
                 # Model selected:
                 main_llm_model_name = self.model_combo_box.currentText()
 
-                # Warn users with a modal window that the selected model might be sub-optimal:
-                if 'gpt-4' not in main_llm_model_name and 'claude-3-opus' not in main_llm_model_name:
-                    aprint("Warning: you did not select a gpt-4 level model. Omega's cognitive and coding abilities will be degraded.")
-                    show_warning_dialog(f"You have selected this model: '{main_llm_model_name}'. "
-                                        f"This is not a GPT4 or Claude-3-opus level model. "
-                                        f"Omega's cognitive and coding abilities will be degraded. "
-                                        f"It might even completely fail or be too slow. "
-                                        f"Please visit <a href='https://github.com/royerlab/napari-chatgpt/wiki/OpenAIKey'>our wiki</a> "
-                                        f"for information on how to gain access to GPT4 (or Claude-3).")
-
                 # Set tool LLM model name via configuration file.
                 tool_llm_model_name = self.config.get('tool_llm_model_name', 'same')
                 if tool_llm_model_name.strip() == 'same':

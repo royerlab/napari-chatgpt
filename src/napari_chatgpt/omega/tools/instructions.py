@@ -23,5 +23,7 @@ omega_generic_codegen_instructions = """
 - If you need to get the selected layer in the napari viewer, use the following code: `viewer.layers.selection.active`.
 - napari layers do not have a 'type' field, if you need to check the type of a layer, use for example the following code: `isinstance(layer, napari.layers.Shapes)`.
 - If you need to rotate the viewer camera to a specific set of angles, use the following code: `viewer.camera.angles = (angle_z, angle_y, angle_x)`  .
+- When required, import 'ArrayLike' from 'numpy.typing'.
+
 """
 
