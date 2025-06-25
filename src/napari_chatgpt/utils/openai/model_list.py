@@ -48,6 +48,10 @@ def get_openai_model_list(filter: str = 'gpt', verbose: bool = False) -> list:
                     if verbose:
                         aprint(model_id)
 
+            # Remove any models that contain the following substrings:
+            model_list = [m for m in model_list if
+                          not any(x in m for x in ['vision', 'instruct', 'turbo-instruct', 'preview', 'realtime', 'audio', 'transcribe', 'image'])]
+
             return model_list
 
         except Exception as e:

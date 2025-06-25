@@ -59,7 +59,7 @@ def text_from_html(body,
         text = re.sub("\n\n+", "\n", text)
 
         # replaces any other kind of repeated whitespace to a single space:
-        text = re.sub("\s\s+", " ", text)
+        text = re.sub(r"\s\s+", " ", text)
 
     return text
 

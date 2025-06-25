@@ -179,7 +179,7 @@ _instructions = \
 - Assume that the functions 'cellpose_segmentation()', 'stardist_segmentation()', and 'classic_segmentation()' are available and within scope of your code.
 - DO NOT add the segmentation to the napari viewer, this is done automatically by the system.
 - DO NOT directly use the Cellpose or StarDist APIs: 'models.cellpose(...', 'model.predict_instances(...', etc.
-- Response must be only the python function: 'segment(viewer)->ArrayLike'.
+- Response must be only the python function: 'segment(viewer)' that returns an array.
 - Convert arrays to float type before processing. Intermediate or local arrays should be of type float. Constants for: np.full(), np.ones(), np.zeros(), ... should be floats (for example 1.0).
 - If the request mentions 'this/that/the image/layer' then most likely it refers to the last added image or layer.
 - Convert the segmented image to 'np.uint32' before returning the segmentation.

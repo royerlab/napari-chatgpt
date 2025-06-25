@@ -96,8 +96,6 @@ from napari.layers import Image, Labels, Points, Shapes, Surface, Tracks, Vector
 ```
 - If you need to import other libraries, do so outside of the function.
 
-
-
 """
 
 _code_prefix = """
