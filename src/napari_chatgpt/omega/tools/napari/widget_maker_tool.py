@@ -184,7 +184,8 @@ class NapariWidgetMakerTool(NapariBaseTool):
                         self.notebook.add_code_cell(standalone_code)
 
                     # Add the snippet to the code snippet editor:
-                    from microplugin.microplugin_window import MicroPluginMainWindow
+
+                    from napari_chatgpt.microplugin.microplugin_window import MicroPluginMainWindow
                     MicroPluginMainWindow.add_snippet(filename=function_name, code=standalone_code)
 
                     message = f"The requested widget has been successfully created and registered to the viewer."

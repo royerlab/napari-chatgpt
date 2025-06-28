@@ -4,7 +4,7 @@ import traceback
 
 from qtpy.QtWidgets import QApplication
 
-from microplugin.microplugin_window import MicroPluginMainWindow
+from napari_chatgpt.microplugin.microplugin_window import MicroPluginMainWindow
 
 
 def myExceptionHook(exctype, value, tb):

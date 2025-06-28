@@ -1,6 +1,6 @@
 from qtpy.QtWidgets import QWidget, QVBoxLayout
 
-from microplugin.code_editor.python_code_editor_widget import \
+from napari_chatgpt.microplugin.code_editor.python_code_editor_widget import \
     PythonCodeEditor
 
 

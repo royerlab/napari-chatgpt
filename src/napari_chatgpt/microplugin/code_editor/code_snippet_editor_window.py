@@ -5,7 +5,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication
 from qtpy.QtWidgets import QMainWindow
 
-from microplugin.code_editor.code_snippet_editor_widget import \
+from napari_chatgpt.microplugin.code_editor.code_snippet_editor_widget import \
     CodeSnippetEditorWidget
 
 # Enable High DPI display with PyQt5

@@ -256,7 +256,7 @@ class CellNucleiSegmentationTool(NapariBaseTool):
                 filename = f"generated_code_{self.__class__.__name__}.py"
 
                 # Add the snippet to the code snippet editor:
-                from microplugin.microplugin_window import MicroPluginMainWindow
+                from napari_chatgpt.microplugin.microplugin_window import MicroPluginMainWindow
                 MicroPluginMainWindow.add_snippet(filename=filename,
                                                   code=code)
 

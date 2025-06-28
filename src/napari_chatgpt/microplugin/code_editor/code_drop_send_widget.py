@@ -5,7 +5,7 @@ from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QWidget, QPushButton, QComboBox, \
     QSizePolicy, QHBoxLayout
 
-from microplugin.network.code_drop_client import CodeDropClient
+from napari_chatgpt.microplugin.network.code_drop_client import CodeDropClient
 
 
 class CodeDropSendWidget(QWidget):

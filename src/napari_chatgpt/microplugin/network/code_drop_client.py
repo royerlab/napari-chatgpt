@@ -7,8 +7,8 @@ from time import sleep
 from arbol import aprint
 from qtpy.QtCore import QObject, Signal, Slot, QThread
 
-from microplugin.network.code_drop_server import CodeDropServer
-from microplugin.network.discover_worker import DiscoverWorker
+from napari_chatgpt.microplugin.network.code_drop_server import CodeDropServer
+from napari_chatgpt.microplugin.network.discover_worker import DiscoverWorker
 
 
 class CodeDropClient(QObject):

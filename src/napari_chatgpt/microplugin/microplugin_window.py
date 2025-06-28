@@ -7,7 +7,7 @@ from napari._qt.qt_resources import get_current_stylesheet
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication
 
-from microplugin.code_editor.code_snippet_editor_window import \
+from napari_chatgpt.microplugin.code_editor.code_snippet_editor_window import \
     CodeSnippetEditorWindow
 
 
