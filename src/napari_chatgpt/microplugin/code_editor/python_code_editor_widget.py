@@ -7,7 +7,7 @@ from qtpy.QtWidgets import (
     QCompleter,
 )
 
-from microplugin.code_editor.python_syntax_highlighting import \
+from napari_chatgpt.microplugin.code_editor.python_syntax_highlighting import \
     PythonSyntaxHighlighter
 
 

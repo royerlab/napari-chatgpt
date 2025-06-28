@@ -1,16 +1,99 @@
 [build-system]
-requires = ["setuptools>=42.0.0", "wheel", "setuptools_scm"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
 
-[tool.setuptools_scm]
-write_to = "src/napari_chatgpt/_version.py"
+[project]
+name = "napari-chatgpt"
+description = "A napari plugin that brings an LLM-powered agent (Omega) to interactive image analysis."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Loic A. Royer", email = "royerloic@gmail.com" }]
+requires-python = ">=3.9"
+dynamic = ["version"]
 
-[tool.black]
-line-length = 79
+# --- runtime deps (unchanged) ---
+dependencies = [
+    "numpy",
+    "magicgui",
+    "scikit-image",
+    "qtpy",
+    "QtAwesome",
+    "langchain==0.2.15",
+    "langchain-community==0.2.14",
+    "langchain-openai==0.1.23",
+    "langchain-anthropic==0.1.23",
+    "openai==1.42.0",
+    "anthropic==0.34.1",
+    "fastapi", "uvicorn",
+    "websockets",
+    "tiktoken",
+    "wikipedia",
+    "lxml",
+    "matplotlib",
+    "xarray",
+    "arbol",
+    "playwright",
+    "duckduckgo-search==8.0.4",
+    "ome-zarr",
+    "transformers",
+    "cryptography",
+    "tabulate",
+    "numba",
+    "imageio[ffmpeg,pyav]",
+    "notebook",
+    "nbformat",
+    "jedi",
+    "httpx==0.27.2",
+    "lxml_html_clean",
+]
 
-[tool.isort]
-profile = "black"
-line_length = 79
+[project.optional-dependencies]
+testing = ["tox", "pytest", "pytest-cov", "pytest-qt", "napari", "pyqt5"]
+
+[project.entry-points]
+"napari.manifest" = { "napari-chatgpt" = "napari_chatgpt:napari.yaml" }
+"omega.tools"     = { "example_tool"  = "napari_chatgpt.omega.tools.examples.example_omega_tool:ExampleOmegaTool" }
 
 
+[project.urls]
+Homepage = "https://github.com/royerlab/napari-chatgpt"
+Issues = "https://github.com/royerlab/napari-chatgpt/issues"
 
+# -------------------------------------------------------------------------
+# Hatch specifics
+# -------------------------------------------------------------------------
+[tool.hatch.version]
+path = "src/napari_chatgpt/__init__.py"
+
+# Ship code from the src/ layout
+[tool.hatch.build]
+sources = ["src"]
+
+# Control *what* is included in each artefact
+[tool.hatch.build.targets.sdist]
+ignore-vcs = true                     # ignore .gitignore patterns :contentReference[oaicite:0]{index=0}
+exclude = [
+    # developer & CI auxiliaries
+    ".github/**",
+    ".napari-hub/**",
+    "recipe/**",
+    # generated or heavy artefacts
+    "dist/**",
+    "**/*.egg-info",
+    # documentation / non-runtime assets
+    "art/**",
+    "manuscript/**",
+    # tests and local junk
+    "**/tests/**",
+    "**/.DS_Store",
+    "sandbox/**",
+    # plugin-internal resources that shouldn’t be in wheels
+    "src/napari_chatgpt/resources/**",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/napari_chatgpt"]     # wheel only contains code; others auto-excluded :contentReference[oaicite:1]{index=1}
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-qt", "napari", "pyqt5", "black"]
+default-args = ["src/"]

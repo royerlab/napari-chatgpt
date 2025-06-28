@@ -16,7 +16,7 @@ from qtpy.QtWidgets import QApplication, QLabel, QCheckBox
 from qtpy.QtWidgets import QPushButton, QWidget
 from qtpy.QtWidgets import QVBoxLayout, QComboBox
 
-from microplugin.microplugin_window import MicroPluginMainWindow
+from napari_chatgpt.microplugin.microplugin_window import MicroPluginMainWindow
 from napari_chatgpt.utils.anthropic.model_list import get_anthropic_model_list
 from napari_chatgpt.utils.configuration.app_configuration import \
     AppConfiguration
@@ -28,7 +28,6 @@ from napari_chatgpt.utils.python.installed_packages import \
     is_package_installed
 from napari_chatgpt.utils.qt.one_time_disclaimer_dialog import \
     show_one_time_disclaimer_dialog
-from napari_chatgpt.utils.qt.warning_dialog import show_warning_dialog
 
 if TYPE_CHECKING:
     pass

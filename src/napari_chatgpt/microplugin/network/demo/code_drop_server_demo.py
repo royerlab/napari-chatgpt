@@ -2,7 +2,7 @@ import sys
 
 from qtpy.QtWidgets import QApplication
 
-from microplugin.network.code_drop_server import CodeDropServer
+from napari_chatgpt.microplugin.network.code_drop_server import CodeDropServer
 
 
 def server_message_received(addr, message):

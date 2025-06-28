@@ -19,21 +19,19 @@ from qtpy.QtWidgets import (
     QMenu,
     QAction, QSizePolicy, QListWidgetItem, )
 
-from microplugin.code_editor.text_dialog import TextDialog
-from microplugin.code_editor.clickable_icon import ClickableIcon
-from microplugin.code_editor.code_drop_send_widget import \
+from napari_chatgpt.microplugin.code_editor.text_dialog import TextDialog
+from napari_chatgpt.microplugin.code_editor.clickable_icon import ClickableIcon
+from napari_chatgpt.microplugin.code_editor.code_drop_send_widget import \
     CodeDropSendWidget
-from microplugin.code_editor.console_widget import ConsoleWidget
-from microplugin.code_editor.python_code_editor_manager import \
+from napari_chatgpt.microplugin.code_editor.console_widget import ConsoleWidget
+from napari_chatgpt.microplugin.code_editor.python_code_editor_manager import \
     MultiEditorManager
-from microplugin.code_editor.python_code_editor_widget import \
-    PythonCodeEditor
-from microplugin.code_editor.text_input_widget import TextInputWidget
-from microplugin.code_editor.yes_no_cancel_question_widget import \
+from napari_chatgpt.microplugin.code_editor.text_input_widget import TextInputWidget
+from napari_chatgpt.microplugin.code_editor.yes_no_cancel_question_widget import \
     YesNoCancelQuestionWidget
-from microplugin.formating.black_formating import format_code
-from microplugin.network.code_drop_client import CodeDropClient
-from microplugin.network.code_drop_server import CodeDropServer
+from napari_chatgpt.microplugin.formating.black_formating import format_code
+from napari_chatgpt.microplugin.network.code_drop_client import CodeDropClient
+from napari_chatgpt.microplugin.network.code_drop_server import CodeDropServer
 
 
 class CodeSnippetEditorWidget(QWidget):

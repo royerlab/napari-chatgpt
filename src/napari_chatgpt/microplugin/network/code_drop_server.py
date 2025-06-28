@@ -6,8 +6,8 @@ from typing import Optional, Callable
 from arbol import aprint
 from qtpy.QtCore import QObject, QThread
 
-from microplugin.network.broadcast_worker import BroadcastWorker
-from microplugin.network.receive_worker import ReceiveWorker
+from napari_chatgpt.microplugin.network.broadcast_worker import BroadcastWorker
+from napari_chatgpt.microplugin.network.receive_worker import ReceiveWorker
 
 
 class CodeDropServer(QObject):
