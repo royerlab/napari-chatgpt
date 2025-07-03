@@ -1,11 +1,16 @@
 from typing import Optional
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QDialog, QVBoxLayout, QListWidget, \
-    QPushButton, QLabel, QSizePolicy
+from qtpy.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QListWidget,
+    QPushButton,
+    QLabel,
+    QSizePolicy,
+)
 
-from napari_chatgpt.utils.qt.qt_app import get_or_create_qt_app, \
-    run_on_main_thread
+from napari_chatgpt.utils.qt.qt_app import get_or_create_qt_app, run_on_main_thread
 
 
 class PackageDialog(QDialog):
@@ -19,26 +24,30 @@ class PackageDialog(QDialog):
         layout = QVBoxLayout(self)
 
         # Placeholder for explanatory message
-        message_label = QLabel("The following packages need to be installed. \n"
-                               "Please review the list and accept or refuse. \n"
-                               "If you refuse Omega might not be able to fullfill the task.", self)
+        message_label = QLabel(
+            "The following packages need to be installed. \n"
+            "Please review the list and accept or refuse. \n"
+            "If you refuse Omega might not be able to fullfill the task.",
+            self,
+        )
 
         layout.addWidget(message_label)
 
         # List widget for packages
         self.listWidget = QListWidget(self)
-        self.listWidget.setSelectionMode(
-            QListWidget.NoSelection)  # Disable selection
+        self.listWidget.setSelectionMode(QListWidget.NoSelection)  # Disable selection
         self.listWidget.addItems(self.packages)
         layout.addWidget(self.listWidget)
 
         # Setting size policy and maximum visible items
         self.listWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.listWidget.setMaximumHeight(self.listWidget.sizeHintForRow(0) * 12 + 2 * self.listWidget.frameWidth())
+        self.listWidget.setMaximumHeight(
+            self.listWidget.sizeHintForRow(0) * 12 + 2 * self.listWidget.frameWidth()
+        )
 
         # Yes and No buttons
-        yes_btn = QPushButton('Install packages', self)
-        no_btn = QPushButton('Do not install packages', self)
+        yes_btn = QPushButton("Install packages", self)
+        no_btn = QPushButton("Do not install packages", self)
         yes_btn.clicked.connect(self.accept)
         no_btn.clicked.connect(self.reject)
         layout.addWidget(yes_btn)
@@ -54,6 +63,7 @@ class PackageDialog(QDialog):
         self.user_response = False
         super().reject()
 
+
 def install_packages_dialog(packages, app=None) -> bool:
     if not app:
         app = get_or_create_qt_app()
@@ -61,7 +71,7 @@ def install_packages_dialog(packages, app=None) -> bool:
     dialog.exec_()
     return dialog.user_response
 
-def install_packages_dialog_threadsafe(packages):
 
+def install_packages_dialog_threadsafe(packages):
     # Call the dialog on the main thread:
     run_on_main_thread(lambda: install_packages_dialog(packages))

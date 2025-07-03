@@ -1,19 +1,12 @@
 import sys
 
 from arbol import aprint, asection
-from langchain.chains import LLMChain
-from langchain.llms import BaseLLM
-from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
 
-from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
-    ArbolCallbackHandler
-from napari_chatgpt.utils.openai.default_model import \
-    get_default_openai_model_name
-from napari_chatgpt.utils.python.installed_packages import \
-    installed_package_list
+from napari_chatgpt.llm.litemind_api import get_llm
+from napari_chatgpt.llm.llm import LLM
+from napari_chatgpt.utils.python.installed_packages import installed_package_list
 
-_check_code_safety_prompt = f"""
+_check_code_safety_prompt = """
 **Context:**
 You are an expert Python coder with extensive cybersecurity experience and knowledge. 
 You can analyse complex python code and assess its safety from an user standpoint.
@@ -31,17 +24,17 @@ You then rank the piece code as follows:
 - Code that is deceptive or malicious should be rated as unsafe. 
 
 **Context:**
-- The code is written against Python version: {sys.version.split()[0]}.
-- Here is the list of installed packages: {'{installed_packages}'}.
+- The code is written against Python version: {python_version}.
+- Here is the list of installed packages: {installed_packages}.
 
 **Code:**
 
 ```python
-{'{code}'}
+{code}
 ```
 
 **Response Format:**
-Please return an explanation for your ranking and snippets of code that support your jusgement.
+Please return an explanation for your ranking and snippets of code that support your judgement.
 The answer must contain the rank surrounded with asterisks. 
 For example you can write: 'For the reasons stated above, the code is rated *B*', or 'The code is rated *B* because...'.
 
@@ -49,12 +42,10 @@ For example you can write: 'For the reasons stated above, the code is rated *B*'
 """
 
 
-def check_code_safety(code: str,
-                      llm: BaseLLM = None,
-                      model_name: str = None,
-                      verbose: bool = False) -> str:
-    with(asection(
-            f'Checking safety of code of length: {len(code)}')):
+def check_code_safety(
+    code: str, llm: LLM = None, model_name: str = None, verbose: bool = False
+) -> str:
+    with asection(f"Checking safety of code of length: {len(code)}"):
 
         try:
 
@@ -63,59 +54,56 @@ def check_code_safety(code: str,
 
             # If code is empty, nothing to improve!
             if len(code) == 0:
-                return 'No code is safe code,', 'A'
+                return "No code is safe code,", "A"
 
-            aprint(f'Input code:\n{code}')
+            aprint(f"Input code:\n{code}")
 
             # Instantiates LLM if needed:
-            llm = llm or ChatOpenAI(model_name=model_name or get_default_openai_model_name(),
-                                    temperature=0)
-
-            # Make prompt template:
-            prompt_template = PromptTemplate(template=_check_code_safety_prompt,
-                                             input_variables=["code", 'installed_packages'])
-
-            # Instantiate chain:
-            chain = LLMChain(
-                prompt=prompt_template,
-                llm=llm,
-                verbose=verbose,
-                callbacks=[ArbolCallbackHandler('Check Code Safety')]
-            )
+            llm = llm or get_llm()
 
             # List of installed packages:
             package_list = installed_package_list()
 
+            # Python version:
+            python_version = sys.version.split()[0]
+
             # Variable for prompt:
-            variables = {"code": code, 'installed_packages': ' '.join(package_list)}
+            variables = {
+                "code": code,
+                "python_version": python_version,
+                "installed_packages": " ".join(package_list),
+            }
 
             # call LLM:
-            response = chain.invoke(variables)['text']
+            response = llm.generate(
+                prompt=_check_code_safety_prompt, variables=variables, temperature=0.0
+            )
+
+            # Extract the response text:
+            response = response[-1].to_plain_text()
 
             # Cleanup:
             response = response.strip()
 
             # Find the upper case letter between asterisks, for example A in *A*, buy serachinhg for the four ranks: *A*, *B*, *C*, *D*, *E*:
-            if '*A*' in response or '*Rank: A*' in response:
-                safety_rank = 'A'
-            elif '*B*' in response or '*Rank: B*' in response:
-                safety_rank = 'B'
-            elif '*C*' in response or '*Rank: C*' in response:
-                safety_rank = 'C'
-            elif '*D*' in response or '*Rank: D*' in response:
-                safety_rank = 'D'
-            elif '*E*' in response or '*Rank: E*' in response:
-                safety_rank = 'E'
+            if "*A*" in response or "*Rank: A*" in response:
+                safety_rank = "A"
+            elif "*B*" in response or "*Rank: B*" in response:
+                safety_rank = "B"
+            elif "*C*" in response or "*Rank: C*" in response:
+                safety_rank = "C"
+            elif "*D*" in response or "*Rank: D*" in response:
+                safety_rank = "D"
+            elif "*E*" in response or "*Rank: E*" in response:
+                safety_rank = "E"
             else:
-                safety_rank = 'Unknown'
+                safety_rank = "Unknown"
 
             return response, safety_rank
 
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             aprint(e)
-            return '', 'Unknown'
-
-
-
+            return "", "Unknown"

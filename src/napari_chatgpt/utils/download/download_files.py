@@ -14,11 +14,11 @@ def download_files(urls, path=None) -> List[str]:
         # Iterates through urls:
         for url in urls:
             # builds the filepath from the url:
-            file_name = url.split('/')[-1]
-            file_path = path + '/' + file_name
+            file_name = url.split("/")[-1]
+            file_path = path + "/" + file_name
 
             # Downloads
-            aprint(f'Downloading file at {url} to {file_path}...')
+            aprint(f"Downloading file at {url} to {file_path}...")
             urllib.request.urlretrieve(url, file_path)
 
             # Add filenames to list:
@@ -31,6 +31,7 @@ import requests
 import tempfile
 import os
 
+
 def download_file_stealth(url, file_path=None) -> str:
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -39,7 +40,7 @@ def download_file_stealth(url, file_path=None) -> str:
         "Accept-Encoding": "gzip, deflate, br",
         "DNT": "1",  # Do Not Track Request Header
         "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1"
+        "Upgrade-Insecure-Requests": "1",
     }
 
     response = requests.get(url, headers=headers, stream=True)
@@ -52,7 +53,7 @@ def download_file_stealth(url, file_path=None) -> str:
             file_obj = temp_file
         else:
             # Use the specified file path
-            file_obj = open(file_path, 'wb')
+            file_obj = open(file_path, "wb")
 
         with file_obj as f:
             for chunk in response.iter_content(1024):
@@ -63,5 +64,3 @@ def download_file_stealth(url, file_path=None) -> str:
     else:
         print(f"Failed to download file: status code {response.status_code}")
         return None
-
-

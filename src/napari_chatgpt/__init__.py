@@ -1,4 +1,4 @@
-__version__ = "2025.06.27"
+__version__ = "2025.07.02"
 
 try:
     from ._version import version as __version__
@@ -7,6 +7,4 @@ except ImportError:
 
 from ._widget import OmegaQWidget
 
-__all__ = (
-    "OmegaQWidget"
-)
+__all__ = "OmegaQWidget"

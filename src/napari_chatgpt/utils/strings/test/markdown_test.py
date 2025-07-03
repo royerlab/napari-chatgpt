@@ -73,36 +73,33 @@ def color_space_explorer(
 This widget function `color_space_explorer` allows the user to explore different color spaces and adjust parameters relevant to the selected color space. The user can select the target color space from a dropdown menu, adjust parameters using sliders, and apply the conversion to the selected image layer. The function also provides a preview of the converted image before applying it. The function is decorated with `magicgui` to create an interactive GUI within napari.
 """
 
+markdown_2 = """
+    To create a widget that inverts the colors of an image, we will follow these steps:
+    1. Define a function that accepts an image array as input. This image array can be 2D grayscale, 3D grayscale, or nD where the last dimension is assumed to be color channels (e.g., RGB).
+    2. Inside the function, convert the image array to float type for processing.
+    3. Invert the colors of the image by subtracting the image data from the maximum possible value. For an image with values ranging from 0 to 1, this would be `1 - image_data`. For an image with values ranging from 0 to 255, it would be `255 - image_data`.
+    4. Decorate the function with the `@magicgui` decorator, specifying the call button text and setting `result_widget=False` since the function will return an image array.
+    5. Return the inverted image array.
+    Now, let's write the corresponding code:
+    ```python
+    from napari.types import ImageData
+    from magicgui import magicgui
+    import numpy as np
+    @magicgui(call_button='Invert Colors', result_widget=False)
+    def invert_colors(image: ImageData) -> ImageData:
+        # Convert the image to float for processing
+        image_float = image.astype(float)
+        
+        # Invert the image colors
+        inverted_image = 255.0 - image_float
+        
+        return inverted_image
+    # The function `invert_colors` can now be used as a widget in napari.
+    # When an image layer is selected, this widget will invert its colors.
+    ```
+    This code defines a widget function that inverts the colors of an image. The function is decorated with `@magicgui` to create a GUI element in napari. When the user presses the "Invert Colors" button, the selected image's colors will be inverted, and the result will be displayed in the napari viewer.
+    """
 
-
-
-markdown_2 = \
-"""
-To create a widget that inverts the colors of an image, we will follow these steps:
-1. Define a function that accepts an image array as input. This image array can be 2D grayscale, 3D grayscale, or nD where the last dimension is assumed to be color channels (e.g., RGB).
-2. Inside the function, convert the image array to float type for processing.
-3. Invert the colors of the image by subtracting the image data from the maximum possible value. For an image with values ranging from 0 to 1, this would be `1 - image_data`. For an image with values ranging from 0 to 255, it would be `255 - image_data`.
-4. Decorate the function with the `@magicgui` decorator, specifying the call button text and setting `result_widget=False` since the function will return an image array.
-5. Return the inverted image array.
-Now, let's write the corresponding code:
-```python
-from napari.types import ImageData
-from magicgui import magicgui
-import numpy as np
-@magicgui(call_button='Invert Colors', result_widget=False)
-def invert_colors(image: ImageData) -> ImageData:
-    # Convert the image to float for processing
-    image_float = image.astype(float)
-    
-    # Invert the image colors
-    inverted_image = 255.0 - image_float
-    
-    return inverted_image
-# The function `invert_colors` can now be used as a widget in napari.
-# When an image layer is selected, this widget will invert its colors.
-```
-This code defines a widget function that inverts the colors of an image. The function is decorated with `@magicgui` to create a GUI element in napari. When the user presses the "Invert Colors" button, the selected image's colors will be inverted, and the result will be displayed in the napari viewer.
-"""
 
 def test_extract_markdown_blocks_1():
     blocks = extract_markdown_blocks(markdown_1)
@@ -112,9 +109,10 @@ def test_extract_markdown_blocks_1():
     print(blocks[2])
 
     assert len(blocks) == 3
-    assert '```' not in blocks[0]
-    assert '```' in blocks[1]
-    assert '```' not in blocks[2]
+    assert "```" not in blocks[0]
+    assert "```" in blocks[1]
+    assert "```" not in blocks[2]
+
 
 def test_extract_markdown_blocks_2():
     blocks = extract_markdown_blocks(markdown_2)
@@ -124,6 +122,6 @@ def test_extract_markdown_blocks_2():
     print(blocks[2])
 
     assert len(blocks) == 3
-    assert '```' not in blocks[0]
-    assert '```' in blocks[1]
-    assert '```' not in blocks[2]
+    assert "```" not in blocks[0]
+    assert "```" in blocks[1]
+    assert "```" not in blocks[2]

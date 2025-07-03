@@ -1,10 +1,8 @@
 from typing import Union
 
-from qtpy.QtCore import QSize
-from qtpy.QtCore import QRect, QPoint
-from qtpy.QtGui import QPainter
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QIcon, QPixmap, QColor, QImage
+from qtpy.QtGui import QPainter
 from qtpy.QtWidgets import QLabel
 
 
@@ -12,11 +10,11 @@ class ClickableIcon(QLabel):
     clicked = Signal()  # Signal to emit when the label is clicked
 
     def __init__(
-            self,
-            icon: Union[QIcon, QPixmap, str],
-            size: int = 24,
-            invert_colors: bool = True,
-            parent=None
+        self,
+        icon: Union[QIcon, QPixmap, str],
+        size: int = 24,
+        invert_colors: bool = True,
+        parent=None,
     ):
         """
         Create a clickable icon label.
@@ -46,10 +44,9 @@ class ClickableIcon(QLabel):
             # Get the pixmap from the icon, scaled isotropically:
             pixmap = icon.pixmap(self.size, self.size)
         elif isinstance(icon, QPixmap):
-            pixmap = icon.scaled(self.size,
-                                 self.size,
-                                 Qt.KeepAspectRatio,
-                                 Qt.SmoothTransformation)
+            pixmap = icon.scaled(
+                self.size, self.size, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
 
         # Invert colors if requested:
         if invert_colors:
@@ -62,12 +59,10 @@ class ClickableIcon(QLabel):
         self.setCursor(Qt.PointingHandCursor)
 
         # Highlight color when hovering over the label:
-        self.highlight_color = QColor(200, 200, 200,
-                                      50)  # Semi-transparent gray color
+        self.highlight_color = QColor(200, 200, 200, 50)  # Semi-transparent gray color
 
         # Flag to indicate if the mouse is hovering over the label:
         self.is_hovered = False
-
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -87,8 +82,7 @@ class ClickableIcon(QLabel):
         if self.is_hovered:
             painter = QPainter(self)
             painter.setCompositionMode(QPainter.CompositionMode_SourceAtop)
-            painter.fillRect(self.rect(),
-                             self.highlight_color)
+            painter.fillRect(self.rect(), self.highlight_color)
             painter.end()
 
     @staticmethod

@@ -5,13 +5,18 @@ import traceback
 import requests
 from arbol import aprint
 from qtpy.QtCore import QThread, QTimer
-from qtpy.QtWidgets import QApplication, QWidget, QProgressBar, QLabel, \
-    QVBoxLayout, QPushButton, QDialog
+from qtpy.QtWidgets import (
+    QApplication,
+    QWidget,
+    QProgressBar,
+    QLabel,
+    QVBoxLayout,
+    QPushButton,
+    QDialog,
+)
 
 
-def download_file_qt(url: str,
-                     filename: str,
-                     folder: str):
+def download_file_qt(url: str, filename: str, folder: str):
     # Check if there is already a QApplication instance running
     if not QApplication.instance():
         # If not, create a new QApplication instance
@@ -21,9 +26,7 @@ def download_file_qt(url: str,
         app = QApplication.instance()
 
     # Create a new instance of the MainWindow class
-    dialog = DownloadFileDialog(url=url,
-                                filename=filename,
-                                folder=folder)
+    dialog = DownloadFileDialog(url=url, filename=filename, folder=folder)
 
     # Set the dialog box to be modal, so that it blocks interaction with the main window
     dialog.setModal(True)
@@ -35,9 +38,7 @@ def download_file_qt(url: str,
 
 
 class ProgressBar(QWidget):
-    def __init__(self,
-                 filename: str,
-                 parent=None):
+    def __init__(self, filename: str, parent=None):
         super().__init__(parent)
 
         self.progressBar = QProgressBar(self)
@@ -58,23 +59,23 @@ class ProgressBar(QWidget):
 
             if progress % 10 == 0:
                 # every 10%:
-                aprint(f'progress: {progress / 10}%')
+                aprint(f"progress: {progress / 10}%")
 
 
 class DownloadFileDialog(QDialog):
-    def __init__(self,
-                 url: str = "https://people.math.sc.edu/Burkardt/data/tif/at3_1m4_01.tif",
-                 filename: str = "at3_1m4_01.tif",
-                 folder: str = f'{os.path.expanduser("~")}/Downloads'
-                 ):
+    def __init__(
+        self,
+        url: str = "https://people.math.sc.edu/Burkardt/data/tif/at3_1m4_01.tif",
+        filename: str = "at3_1m4_01.tif",
+        folder: str = f'{os.path.expanduser("~")}/Downloads',
+    ):
         super().__init__()
 
         self.url = url
         self.filename = filename
         self.folder = folder
 
-        self.progressBar = ProgressBar(filename=filename,
-                                       parent=self)
+        self.progressBar = ProgressBar(filename=filename, parent=self)
 
         self.button = QPushButton("Download")
         self.button.clicked.connect(self.downloadFile)
@@ -83,16 +84,19 @@ class DownloadFileDialog(QDialog):
         self.layout.addWidget(self.progressBar)
         self.layout.addWidget(self.button)
 
-    def downloadFile(self,
-                     ) -> 'DownloadWorker':
+    def downloadFile(
+        self,
+    ) -> "DownloadWorker":
         self.progressBar.setProgress(0)
         self.button.setEnabled(False)
 
         # Create a worker thread
-        self.worker = DownloadWorker(url=self.url,
-                                     filename=self.filename,
-                                     folder=self.folder,
-                                     progressBar=self.progressBar)
+        self.worker = DownloadWorker(
+            url=self.url,
+            filename=self.filename,
+            folder=self.folder,
+            progressBar=self.progressBar,
+        )
 
         # Start the worker thread
         self.worker.start()
@@ -108,12 +112,7 @@ class DownloadFileDialog(QDialog):
 
 
 class DownloadWorker(QThread):
-    def __init__(self,
-                 url: str,
-                 filename: str,
-                 folder: str,
-                 progressBar
-                 ):
+    def __init__(self, url: str, filename: str, folder: str, progressBar):
 
         super().__init__()
 
@@ -138,7 +137,7 @@ class DownloadWorker(QThread):
             with open(file_path, "wb") as f:
                 request = requests.get(self.url, stream=True)
 
-                file_size = int(request.headers['Content-Length'])
+                file_size = int(request.headers["Content-Length"])
 
                 for chunk in request.iter_content(4096):
                     f.write(chunk)
@@ -165,6 +164,7 @@ if __name__ == "__main__":
     download_file_qt(
         url="https://people.math.sc.edu/Burkardt/data/tif/at3_1m4_01.tif",
         filename="at3_1m4_01.tif",
-        folder=f'{os.path.expanduser("~")}/Downloads')
+        folder=f'{os.path.expanduser("~")}/Downloads',
+    )
 
     # sys.exit(app.exec_())

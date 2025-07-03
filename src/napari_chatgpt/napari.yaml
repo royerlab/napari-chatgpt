@@ -5,9 +5,9 @@ contributions:
     - id: napari-chatgpt.start_omega
       python_name: napari_chatgpt._widget:OmegaQWidget
       title: Start Omega
-#    - id: napari-chatgpt.start_microplugin
-#      python_name: microplugin.microplugin_window:MicroPluginMainWindow
-#      title: Start Omega's code editor
+  #    - id: napari-chatgpt.start_microplugin
+  #      python_name: microplugin.microplugin_window:MicroPluginMainWindow
+  #      title: Start Omega's code editor
   widgets:
     - command: napari-chatgpt.start_omega
       display_name: Omega -- a ChatGPT-enabled agent

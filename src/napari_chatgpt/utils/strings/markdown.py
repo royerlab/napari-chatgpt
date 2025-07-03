@@ -14,21 +14,21 @@ def extract_markdown_blocks(markdown_str, remove_quotes: bool = False):
     current_block = []
     in_code_block = False
 
-    for line in markdown_str.split('\n'):
+    for line in markdown_str.split("\n"):
         # Check for code block delimiter
-        if line.strip().startswith('```'):
+        if line.strip().startswith("```"):
             if in_code_block:
                 # End of code block
                 if not remove_quotes:
                     current_block.append(line)
-                blocks.append('\n'.join(current_block))
+                blocks.append("\n".join(current_block))
                 current_block = []
                 in_code_block = False
             else:
                 # Start of code block
                 if current_block:
                     # Add the previous text block if exists
-                    blocks.append('\n'.join(current_block))
+                    blocks.append("\n".join(current_block))
                     current_block = []
                 in_code_block = True
                 if not remove_quotes:
@@ -39,7 +39,6 @@ def extract_markdown_blocks(markdown_str, remove_quotes: bool = False):
 
     # Add the last block if exists
     if current_block:
-        blocks.append('\n'.join(current_block))
+        blocks.append("\n".join(current_block))
 
     return blocks
-

@@ -3,10 +3,9 @@ from napari.types import ArrayLike
 from numpy import ravel, percentile
 
 
-def normalize_img(image: ArrayLike,
-                  p_low: float,
-                  p_high: float,
-                  clip: bool = True) -> ArrayLike:
+def normalize_img(
+    image: ArrayLike, p_low: float, p_high: float, clip: bool = True
+) -> ArrayLike:
     """
     Normalize the image to a given percentile range.
 

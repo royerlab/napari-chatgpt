@@ -10,10 +10,9 @@ from arbol import aprint
 
 
 @lru_cache
-def get_function_signature(function_name: str,
-                           include_docstring: bool = False) -> str:
+def get_function_signature(function_name: str, include_docstring: bool = False) -> str:
     try:
-        module_name, function_name = function_name.rsplit('.', 1)
+        module_name, function_name = function_name.rsplit(".", 1)
         module = __import__(module_name, fromlist=[function_name])
         function = getattr(module, function_name)
         signature = inspect.signature(function)
@@ -24,7 +23,9 @@ def get_function_signature(function_name: str,
             if param.annotation != inspect.Parameter.empty:
                 if param.default != inspect.Parameter.empty:
                     default_value = str(param.default)
-                    parameters.append(f"{name}: {param.annotation.__name__} = {default_value}")
+                    parameters.append(
+                        f"{name}: {param.annotation.__name__} = {default_value}"
+                    )
                 else:
                     parameters.append(f"{name}: {param.annotation.__name__}")
             else:
@@ -37,32 +38,37 @@ def get_function_signature(function_name: str,
             return_type = f""
 
         # Get function name and signature
-        function_signature = f"def {function_name}({', '.join(parameters)}){return_type}:"
+        function_signature = (
+            f"def {function_name}({', '.join(parameters)}){return_type}:"
+        )
 
         # Include docstring if flag is True
         if include_docstring:
             docstring = inspect.getdoc(function)
             if docstring:
-                lines = docstring.strip().split('\n')
-                sections = {'Description':''}
-                current_section = 'Description'
+                lines = docstring.strip().split("\n")
+                sections = {"Description": ""}
+                current_section = "Description"
                 for i, line in enumerate(lines):
                     try:
                         line_stripped = line.strip()
-                        if line_stripped.startswith('----'):
-                            current_section = lines[i-1].strip()
-                            sections[current_section] = ''
+                        if line_stripped.startswith("----"):
+                            current_section = lines[i - 1].strip()
+                            sections[current_section] = ""
                         else:
-                            if current_section and i+1 < len(lines) and not lines[i+1].startswith('----'):
-                                sections[current_section] += line + '\n'
+                            if (
+                                current_section
+                                and i + 1 < len(lines)
+                                and not lines[i + 1].startswith("----")
+                            ):
+                                sections[current_section] += line + "\n"
                     except Exception:
-                       traceback.print_exc()
-                       aprint(f'Issue while parsing docstring line {i}: {line} ')
+                        traceback.print_exc()
+                        aprint(f"Issue while parsing docstring line {i}: {line} ")
 
-
-                desc_section = sections.get('Description', '')
-                param_section = sections.get('Parameters', '')
-                return_section = sections.get('Returns', '')
+                desc_section = sections.get("Description", "")
+                param_section = sections.get("Parameters", "")
+                return_section = sections.get("Returns", "")
 
                 if desc_section:
                     function_signature += f"\n\nDescription\n---------\n{desc_section}"
@@ -76,33 +82,34 @@ def get_function_signature(function_name: str,
     except (ImportError, AttributeError):
         return None
 
+
 @lru_cache
-def object_info_str(obj: Any,
-                    add_docstrings: bool = True,
-                    show_hidden: bool = False) -> str:
-    methods = enumerate_methods(obj,
-                                add_docstrings=add_docstrings,
-                                show_hidden=show_hidden)
+def object_info_str(
+    obj: Any, add_docstrings: bool = True, show_hidden: bool = False
+) -> str:
+    methods = enumerate_methods(
+        obj, add_docstrings=add_docstrings, show_hidden=show_hidden
+    )
 
     methods = list(methods)
 
-    info = f'Class {type(obj)}: '
-    info += '\n'.join(methods)
+    info = f"Class {type(obj)}: "
+    info += "\n".join(methods)
 
     return info
 
 
 @lru_cache
-def enumerate_methods(obj: Any,
-                      add_docstrings: bool = True,
-                      show_hidden: bool = False) -> List[str]:
+def enumerate_methods(
+    obj: Any, add_docstrings: bool = True, show_hidden: bool = False
+) -> List[str]:
     # List to hold methods:
     methods = []
 
     # Get the list of methods of the object
     for method_name in dir(obj):
         try:
-            if not show_hidden and method_name.startswith('_'):
+            if not show_hidden and method_name.startswith("_"):
                 continue
 
             method = getattr(obj, method_name)
@@ -113,14 +120,14 @@ def enumerate_methods(obj: Any,
 
     # Print the signature for each method with type hints
     for method_name in methods:
-        method_info = ''
+        method_info = ""
         try:
             method = getattr(obj, method_name)
             method_info += get_signature(method)
             if add_docstrings:
-                method_info += '\n'
+                method_info += "\n"
                 method_info += method.__doc__
-                method_info += '\n'
+                method_info += "\n"
 
             yield method_info
 
@@ -131,7 +138,7 @@ def enumerate_methods(obj: Any,
 
 @lru_cache
 def get_signature(method):
-    method_name = getattr(method, '__name__', repr(method))
+    method_name = getattr(method, "__name__", repr(method))
     argspec = inspect.getfullargspec(method)
     arg_names = argspec.args
     arg_defaults = argspec.defaults or ()
@@ -141,40 +148,39 @@ def get_signature(method):
     for i, arg_name in enumerate(arg_names):
         arg_type = arg_types.get(arg_name, None)
         if i >= len(arg_names) - num_defaults:
-            default_value = arg_defaults[
-                i - len(arg_names) + num_defaults]
+            default_value = arg_defaults[i - len(arg_names) + num_defaults]
             default_str = repr(default_value)
             signature_parts.append(
-                f"{arg_name}{': ' + arg_type.__name__ if arg_type else ''} = {default_str}")
+                f"{arg_name}{': ' + arg_type.__name__ if arg_type else ''} = {default_str}"
+            )
         else:
             signature_parts.append(
-                f"{arg_name}{': ' + arg_type.__name__ if arg_type else ''}")
+                f"{arg_name}{': ' + arg_type.__name__ if arg_type else ''}"
+            )
     signature = f"{method_name}({', '.join(signature_parts)})"
     return signature
 
 
 @lru_cache
-def get_function_info(function_path: str,
-                      add_docstrings: bool = False):
-
-
-    splitted_function_path = function_path.split('.')
+def get_function_info(function_path: str, add_docstrings: bool = False):
+    splitted_function_path = function_path.split(".")
 
     function_name = splitted_function_path[-1]
-    pkg_name = '.'.join(splitted_function_path[0:-2])
+    pkg_name = ".".join(splitted_function_path[0:-2])
 
-    info = find_function_info_in_package(pkg_name=pkg_name,
-                                         function_name=function_name,
-                                         add_docstrings=add_docstrings)
+    info = find_function_info_in_package(
+        pkg_name=pkg_name, function_name=function_name, add_docstrings=add_docstrings
+    )
 
     if len(info) > 0:
-        return '\n\n'.join(info)
+        return "\n\n".join(info)
     else:
-        return f'Function {function_path} not found.'
+        return f"Function {function_path} not found."
 
 
 def find_functions_in_package(pkg_name: str, function_name: str):
-    import warnings # to ignore deprecation warnings
+    import warnings  # to ignore deprecation warnings
+
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -185,11 +191,12 @@ def find_functions_in_package(pkg_name: str, function_name: str):
 
         functions = []
         for name, obj in inspect.getmembers(pkg):
-            if name.startswith('_'):
+            if name.startswith("_"):
                 continue
             if inspect.ismodule(obj):
                 recursive_functions = find_functions_in_package(
-                    pkg_name + '.' + name, function_name)
+                    pkg_name + "." + name, function_name
+                )
                 if recursive_functions:
                     functions += recursive_functions
             elif inspect.isfunction(obj) and obj.__name__ == function_name:
@@ -198,21 +205,20 @@ def find_functions_in_package(pkg_name: str, function_name: str):
         return functions
 
 
-def find_function_info_in_package(pkg_name: str,
-                                  function_name: str,
-                                  add_docstrings: bool = True):
-
+def find_function_info_in_package(
+    pkg_name: str, function_name: str, add_docstrings: bool = True
+):
     functions = find_functions_in_package(pkg_name, function_name)
 
     info_list = []
     for p, f in functions:
         try:
-            signature = p + '.' + get_signature(f)
+            signature = p + "." + get_signature(f)
             function_info = signature
             if add_docstrings:
-                function_info += '\n'
+                function_info += "\n"
                 function_info += f.__doc__
-                function_info += '\n'
+                function_info += "\n"
 
             info_list.append(function_info)
         except TypeError:
@@ -224,7 +230,7 @@ def find_function_info_in_package(pkg_name: str,
 
 @lru_cache
 def extract_package_path(path: str):
-    package_name_pattern = re.compile(r'\b\w+(\.\w+)*\b')
+    package_name_pattern = re.compile(r"\b\w+(\.\w+)*\b")
 
     match = package_name_pattern.search(path)
     if match:
@@ -235,10 +241,9 @@ def extract_package_path(path: str):
 
 
 @lru_cache
-def extract_fully_qualified_function_names(code: str,
-                                           unzip_result: bool = False) -> List[str]:
-
-
+def extract_fully_qualified_function_names(
+    code: str, unzip_result: bool = False
+) -> List[str]:
     try:
         function_calls = []
         import_statements = {}
@@ -253,11 +258,11 @@ def extract_fully_qualified_function_names(code: str,
             elif isinstance(node, ast.ImportFrom):
                 module_name = node.module
                 for item in node.names:
-                    import_statements[
-                        item.asname or item.name] = module_name + '.' + item.name
+                    import_statements[item.asname or item.name] = (
+                        module_name + "." + item.name
+                    )
 
-            elif isinstance(node, ast.Call) and isinstance(node.func,
-                                                           ast.Attribute):
+            elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
                 module_name = ""
                 if isinstance(node.func.value, ast.Name):
                     module_name = node.func.value.id
@@ -268,10 +273,13 @@ def extract_fully_qualified_function_names(code: str,
                 if module_name and function_name:
                     if module_name in import_statements:
                         fully_qualified_module_name = import_statements[module_name]
-                        fully_qualified_function_name = fully_qualified_module_name + '.' + function_name
-                        original_function_call = module_name + '.' + function_name
+                        fully_qualified_function_name = (
+                            fully_qualified_module_name + "." + function_name
+                        )
+                        original_function_call = module_name + "." + function_name
                         function_calls.append(
-                            (fully_qualified_function_name, original_function_call))
+                            (fully_qualified_function_name, original_function_call)
+                        )
 
         if unzip_result:
             function_calls = unzip(function_calls)
@@ -282,8 +290,6 @@ def extract_fully_qualified_function_names(code: str,
         return None
 
 
-
-
 def unzip(list_of_tuples):
     unzipped = zip(*list_of_tuples)
     return [list(items) for items in unzipped]
@@ -292,10 +298,11 @@ def unzip(list_of_tuples):
 @lru_cache
 def function_exists(function_name: str) -> bool:
     try:
-        module_name, function_name = function_name.rsplit('.', 1)
+        module_name, function_name = function_name.rsplit(".", 1)
         module = importlib.import_module(module_name)
         return hasattr(module, function_name) and callable(
-            getattr(module, function_name))
+            getattr(module, function_name)
+        )
     except (ValueError, ImportError, AttributeError):
         return False
 
@@ -313,6 +320,7 @@ def get_imported_modules(code: str) -> List[str]:
             imported_modules.add(node.module)
 
     return list(imported_modules)
+
 
 # def find_functions_with_name(module_list: List[str], function_name: str) -> List[str]:
 #     functions = []

@@ -2,18 +2,19 @@ from typing import Callable, Tuple
 
 from arbol import aprint
 from qtpy.QtCore import QTimer
-from qtpy.QtWidgets import QWidget, QPushButton, QComboBox, \
-    QSizePolicy, QHBoxLayout
+from qtpy.QtWidgets import QWidget, QPushButton, QComboBox, QSizePolicy, QHBoxLayout
 
 from napari_chatgpt.microplugin.network.code_drop_client import CodeDropClient
 
 
 class CodeDropSendWidget(QWidget):
-    def __init__(self,
-                 code_drop_client: CodeDropClient,
-                 max_height: int = 50,
-                 margin: int = 0,
-                 refresh_interval: int = 1):
+    def __init__(
+        self,
+        code_drop_client: CodeDropClient,
+        max_height: int = 50,
+        margin: int = 0,
+        refresh_interval: int = 1,
+    ):
 
         super().__init__()
 
@@ -21,8 +22,7 @@ class CodeDropSendWidget(QWidget):
         self.code_drop_client = code_drop_client
 
         # Initialize widgets:
-        self.initUI(max_height=max_height,
-                    margin=margin)
+        self.initUI(max_height=max_height, margin=margin)
 
         # Refresh interval, converting from seconds to milliseconds:
         self.refresh_interval = refresh_interval * 1000
@@ -30,9 +30,7 @@ class CodeDropSendWidget(QWidget):
         # field for timer:
         self.timer = None
 
-
-    def initUI(self, max_height: int,
-               margin: int):
+    def initUI(self, max_height: int, margin: int):
 
         # Layout:
         layout = QHBoxLayout(self)
@@ -42,24 +40,23 @@ class CodeDropSendWidget(QWidget):
         layout.addWidget(self.username_address_port_combo_box)
 
         # Send message button
-        self.send_button = QPushButton('Send')
+        self.send_button = QPushButton("Send")
         self.send_button.clicked.connect(self.send_code)
-        self.send_button.setSizePolicy(QSizePolicy.Maximum,
-                                       QSizePolicy.Maximum)  # Adjust size policy
+        self.send_button.setSizePolicy(
+            QSizePolicy.Maximum, QSizePolicy.Maximum
+        )  # Adjust size policy
         layout.addWidget(self.send_button)
 
         # Cancel message button
-        self.cancel_button = QPushButton('Cancel')
+        self.cancel_button = QPushButton("Cancel")
         self.cancel_button.clicked.connect(self.canceled)
-        self.cancel_button.setSizePolicy(QSizePolicy.Maximum,
-                                         QSizePolicy.Maximum)  # Adjust size policy
+        self.cancel_button.setSizePolicy(
+            QSizePolicy.Maximum, QSizePolicy.Maximum
+        )  # Adjust size policy
         layout.addWidget(self.cancel_button)
 
         # Set the layout margins:
-        layout.setContentsMargins(margin,
-                                  margin,
-                                  margin,
-                                  margin)
+        layout.setContentsMargins(margin, margin, margin, margin)
         # Set the layout:
         self.setLayout(layout)
 
@@ -78,12 +75,14 @@ class CodeDropSendWidget(QWidget):
             if not username_address_port:
                 return None
             username, address, port = username_address_port
-            return f'{username}:{address}:{str(port)}'
+            return f"{username}:{address}:{str(port)}"
 
         # Assume that the combination of address and port is unique for each server and remains constant.
         # Save the current selection based on a unique identifier (e.g., address and port):
         current_selection = self.username_address_port_combo_box.currentData()
-        current_identifier = _identifier(current_selection) if current_selection else None
+        current_identifier = (
+            _identifier(current_selection) if current_selection else None
+        )
 
         # Clear the combo box before updating:
         self.username_address_port_combo_box.clear()
@@ -93,18 +92,17 @@ class CodeDropSendWidget(QWidget):
             string_to_display = f"{username_address_port[0]} at {key} ({username_address_port[1]}:{username_address_port[2]})"
 
             # Add the server to the combo box, using the identifier as the item data for easy lookup:
-            self.username_address_port_combo_box.addItem(string_to_display,
-                                                         username_address_port)
+            self.username_address_port_combo_box.addItem(
+                string_to_display, username_address_port
+            )
 
         # Restore the current selection by finding the item with the matching unique identifier:
         if current_identifier:
             for index in range(self.username_address_port_combo_box.count()):
-                item_data = self.username_address_port_combo_box.itemData(
-                    index)
+                item_data = self.username_address_port_combo_box.itemData(index)
                 item_identifier = _identifier(item_data)
                 if item_identifier == current_identifier:
-                    self.username_address_port_combo_box.setCurrentIndex(
-                        index)
+                    self.username_address_port_combo_box.setCurrentIndex(index)
                     break
         else:
             # If there was no selection or the selected server is no longer available, default to the first item:
@@ -120,18 +118,19 @@ class CodeDropSendWidget(QWidget):
             username, server_address, server_port = username_address_port
 
             # Logging":
-            aprint(
-                f"Sending code to {username} at {server_address}:{server_port}.")
+            aprint(f"Sending code to {username} at {server_address}:{server_port}.")
 
             # Get the filename and code:
             filename, code = self.get_code_callable()
 
             if filename is not None and code is not None:
                 # Send message:
-                self.code_drop_client.send_code_message(server_address=server_address,
-                                                        server_port=server_port,
-                                                        filename=filename,
-                                                        code=code)
+                self.code_drop_client.send_code_message(
+                    server_address=server_address,
+                    server_port=server_port,
+                    filename=filename,
+                    code=code,
+                )
             else:
                 aprint("No code to send, no code could be obtained.")
         else:
@@ -139,7 +138,6 @@ class CodeDropSendWidget(QWidget):
 
         # To avoid code duplication, we call canceled to hide widget and stop discovery:
         self.canceled()
-
 
     def canceled(self):
 
@@ -170,10 +168,9 @@ class CodeDropSendWidget(QWidget):
         if self.timer:
             self.timer.stop()
             self.timer.deleteLater()
-            self.timer=None
+            self.timer = None
 
-    def show_send_dialog(self,
-                         get_code_callable: Callable[[], Tuple[str, str]]):
+    def show_send_dialog(self, get_code_callable: Callable[[], Tuple[str, str]]):
 
         # Store the filename and code:
         self.get_code_callable = get_code_callable
@@ -186,7 +183,6 @@ class CodeDropSendWidget(QWidget):
 
         # show widget:
         self.show()
-
 
     def stop(self):
         # Stop refreshing server list:

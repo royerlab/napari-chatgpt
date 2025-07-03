@@ -1,5 +1,6 @@
-from napari_chatgpt.utils.strings.find_integer_in_parenthesis import \
-    find_integer_in_parenthesis
+from napari_chatgpt.utils.strings.find_integer_in_parenthesis import (
+    find_integer_in_parenthesis,
+)
 
 
 def test_find_integer_in_parenthesis():

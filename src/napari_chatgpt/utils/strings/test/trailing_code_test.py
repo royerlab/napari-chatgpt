@@ -1,7 +1,7 @@
 from napari_chatgpt.utils.strings.trailing_code import remove_trailing_code
 
-___code = \
-'''
+___code =\
+"""
 import numpy as np
 from napari.types import ImageData
 from napari.layers import Image
@@ -14,15 +14,14 @@ def generate_gaussian_noise_image(width: int, height: int, mean: float, sigma: f
 
 result = generate_gaussian_noise_image()
 viewer.add_image(result)
-'''
+"""
 
 
 def test_trailing_code():
-
     result = remove_trailing_code(___code)
 
-    print('')
+    print("")
     print(result)
 
-    assert 'result = generate_gaussian_noise_image()' not in result
-    assert 'viewer.add_image(result)' not in result
+    assert "result = generate_gaussian_noise_image()" not in result
+    assert "viewer.add_image(result)" not in result

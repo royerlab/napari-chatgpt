@@ -6,13 +6,13 @@ from napari_chatgpt.utils.web.headers import _scrapping_request_headers
 from napari_chatgpt.utils.web.scrapper import text_from_url
 
 _useragent_list = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.62',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0'
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.62",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0",
 ]
 
 
@@ -55,24 +55,28 @@ class SearchResult:
         return f"SearchResult(url={self.url}, title={self.title}, description={self.description})"
 
 
-def search_overview(query: str,
-                    num_results: int = 3,
-                    lang: str = "en",
-                    max_text_snippets: int = 5,
-                    max_query_freq_hz: float = 0.5) -> str:
+def search_overview(
+    query: str,
+    num_results: int = 3,
+    lang: str = "en",
+    max_text_snippets: int = 5,
+    max_query_freq_hz: float = 0.5,
+) -> str:
     url = f"https://www.google.com/search?q={query}&num={num_results}&hl={lang}"
-    text = text_from_url(url,
-                         max_text_snippets=max_text_snippets,
-                         max_query_freq_hz=max_query_freq_hz)
+    text = text_from_url(
+        url, max_text_snippets=max_text_snippets, max_query_freq_hz=max_query_freq_hz
+    )
     return text
 
 
-def search_google(query,
-                  num_results: int = 10,
-                  lang: str = "en",
-                  advanced: bool = False,
-                  sleep_interval: int = 0,
-                  timeout: int = 5) -> str:
+def search_google(
+    query,
+    num_results: int = 10,
+    lang: str = "en",
+    advanced: bool = False,
+    sleep_interval: int = 0,
+    timeout: int = 5,
+) -> str:
     """Search the Google search engine"""
 
     escaped_term = query.replace(" ", "+")
@@ -81,8 +85,7 @@ def search_google(query,
     start = 0
     while start < num_results:
         # Send request
-        resp = _req(escaped_term, num_results - start,
-                    lang, start, timeout)
+        resp = _req(escaped_term, num_results - start, lang, start, timeout)
 
         # Parse
         soup = BeautifulSoup(resp.text, "html.parser")
@@ -91,15 +94,13 @@ def search_google(query,
             # Find link, title, description
             link = result.find("a", href=True)
             title = result.find("h3")
-            description_box = result.find(
-                "div", {"style": "-webkit-line-clamp:2"})
+            description_box = result.find("div", {"style": "-webkit-line-clamp:2"})
             if description_box:
                 description = description_box.text
                 if link and title and description:
                     start += 1
                     if advanced:
-                        yield SearchResult(link["href"], title.text,
-                                           description)
+                        yield SearchResult(link["href"], title.text, description)
                     else:
                         yield link["href"]
         sleep(sleep_interval)

@@ -14,4 +14,4 @@ print('test_dynamic_import')
 def test_find_function_name():
     function_name = find_function_name(_some_code)
 
-    assert function_name == 'my_function'
+    assert function_name == "my_function"

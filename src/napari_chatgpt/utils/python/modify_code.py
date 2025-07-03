@@ -1,20 +1,14 @@
 import sys
+from typing import Optional
 
 from arbol import aprint, asection
-from langchain.chains import LLMChain
-from langchain.llms import BaseLLM
-from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
 
-from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
-    ArbolCallbackHandler
-from napari_chatgpt.utils.openai.default_model import \
-    get_default_openai_model_name
-from napari_chatgpt.utils.python.installed_packages import \
-    installed_package_list
+from napari_chatgpt.llm.litemind_api import get_llm
+from napari_chatgpt.llm.llm import LLM
+from napari_chatgpt.utils.python.installed_packages import installed_package_list
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 
-_change_code_prompt = f"""
+_change_code_prompt = """
 ## Context
 You are an expert Python programmer and software engineer with a specialization in modifying and improving code based on specific requests. Your expertise includes understanding complex Python code and making precise adjustments to fulfill given requirements without altering the original intent or functionality.
 
@@ -35,16 +29,16 @@ If the task involves a napari viewer:
 - For code that defines a napari widget using `@magicgui`, integrate the widget into the viewer using `viewer.window.add_dock_widget()`.
 
 ### Python Environment
-- **Python Version:** The code is intended to run on Python version `{sys.version.split()[0]}`.
-- **Installed Packages:** A list of installed packages is available for reference: `{'{installed_packages}'}`.
+- **Python Version:** The code is intended to run on Python version `{python_version}`.
+- **Installed Packages:** A list of installed packages is available for reference: `{installed_packages}`.
 
 ## Provided Code
 ```python
-{'{code}'}
+{code}
 ```
 
 ## Modification Request
-{'{request}'}
+{request}
 
 ## Submission Format
 Please submit the modified code in Markdown format, ensuring it adheres to the above guidelines and fulfills the request accurately.
@@ -54,56 +48,55 @@ Please submit the modified code in Markdown format, ensuring it adheres to the a
 """
 
 
-def modify_code(code: str,
-                request: str,
-                llm: BaseLLM = None,
-                model_name: str = None,
-                verbose: bool = False) -> str:
-    with(asection(
-            f'Modifying code upon request for code of length: {len(code)}')):
+def modify_code(
+    code: str,
+    request: str,
+    llm: Optional[LLM] = None,
+    model_name: Optional[str] = None,
+    verbose: bool = False,
+) -> str:
+    with asection(f"Modifying code upon request for code of length: {len(code)}"):
 
         try:
 
             # Cleanup code:
             code = code.strip()
 
-            #Cleanup request:
+            # Cleanup request:
             request = request.strip()
 
             # If the request is empty we assume we want to address TODO_ and FIXME_ comments:
-            request = request or 'Address TODO and FIXME comments in the code.'
+            request = request or "Address TODO and FIXME comments in the code."
 
-            aprint(f'Input code:\n{code}')
+            aprint(f"Input code:\n{code}")
 
             # Instantiates LLM if needed:
-            llm = llm or ChatOpenAI(model_name=model_name or get_default_openai_model_name(),
-                                    temperature=0)
-
-            # Make prompt template:
-            prompt_template = PromptTemplate(template=_change_code_prompt,
-                                             input_variables=['code', 'request', 'installed_packages'])
-
-            # Instantiate chain:
-            chain = LLMChain(
-                prompt=prompt_template,
-                llm=llm,
-                verbose=verbose,
-                callbacks=[ArbolCallbackHandler('Change Code')]
-            )
+            llm = llm or get_llm(model_name=model_name)
 
             # List of installed packages:
             package_list = installed_package_list()
 
+            # get python version:
+            python_version = sys.version.split()[0]
+
             # Variable for prompt:
-            variables = {'code': code,
-                         'request': request,
-                         'installed_packages':' '.join(package_list)}
+            variables = {
+                "code": code,
+                "request": request,
+                "python_version": python_version,
+                "installed_packages": " ".join(package_list),
+            }
 
             # call LLM:
-            response = chain.invoke(variables)['text']
+            response = llm.generate(
+                prompt=_change_code_prompt, variables=variables, temperature=0.0
+            )
+
+            # Extract the response text:
+            response_text = response[-1].to_plain_text()
 
             # Extract code from the response:
-            modified_code = extract_code_from_markdown(response)
+            modified_code = extract_code_from_markdown(response_text)
 
             # Cleanup:
             modified_code = modified_code.strip()
@@ -112,9 +105,7 @@ def modify_code(code: str,
 
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             aprint(e)
             return code
-
-
-

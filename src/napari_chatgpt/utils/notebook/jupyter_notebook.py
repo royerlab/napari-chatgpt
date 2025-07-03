@@ -15,20 +15,20 @@ from napari_chatgpt.utils.strings.markdown import extract_markdown_blocks
 
 class JupyterNotebookFile:
 
-
     def __init__(self, notebook_folder_path: Optional[str] = None):
         self._modified = False
-        self.restart(notebook_folder_path=notebook_folder_path,
-                     write_before_restart=False,
-                     force_restart=True
-                     )
+        self.restart(
+            notebook_folder_path=notebook_folder_path,
+            write_before_restart=False,
+            force_restart=True,
+        )
 
-
-    def restart(self,
-                notebook_folder_path: Optional[str] = None,
-                write_before_restart: bool = True,
-                force_restart: bool = False
-                ):
+    def restart(
+        self,
+        notebook_folder_path: Optional[str] = None,
+        write_before_restart: bool = True,
+        force_restart: bool = False,
+    ):
 
         # If the notebook has not been modified since last restart then we don't need to restart again:
         if not force_restart and not self._modified:
@@ -39,10 +39,12 @@ class JupyterNotebookFile:
             self.write()
 
         # path of system's desktop folder:
-        desktop_path = path.join(path.join(path.expanduser('~')), 'Desktop')
+        desktop_path = path.join(path.join(path.expanduser("~")), "Desktop")
 
         # default folder path for notebooks:
-        notebook_folder_path = notebook_folder_path or path.join(desktop_path, 'omega_notebooks')
+        notebook_folder_path = notebook_folder_path or path.join(
+            desktop_path, "omega_notebooks"
+        )
 
         # Create the folder if it does not exist:
         if not path.exists(notebook_folder_path):
@@ -55,7 +57,9 @@ class JupyterNotebookFile:
         formatted_date_time = now.strftime("%Y_%m_%d_%H_%M_%S")
 
         # path of default notebook file on desktop:
-        self.default_file_path = path.join(notebook_folder_path, f'{formatted_date_time}_omega_notebook.ipynb')
+        self.default_file_path = path.join(
+            notebook_folder_path, f"{formatted_date_time}_omega_notebook.ipynb"
+        )
 
         # Actual file path of the notebook (last saved file path):
         self.file_path = None
@@ -69,7 +73,7 @@ class JupyterNotebookFile:
     def write(self, file_path: Optional[str] = None):
         file_path = file_path or self.default_file_path
         # Write the notebook to disk
-        with open(file_path, 'w') as f:
+        with open(file_path, "w") as f:
             nbformat.write(self.notebook, f)
             self.file_path = file_path
 
@@ -77,7 +81,7 @@ class JupyterNotebookFile:
 
         if remove_quotes:
             # Remove the quotes from the code block
-            code = '\n'.join(code.split('\n')[1:-1])
+            code = "\n".join(code.split("\n")[1:-1])
 
         # Add a code cell
         self.notebook.cells.append(new_code_cell(code))
@@ -93,7 +97,7 @@ class JupyterNotebookFile:
             if blocks:
                 # Add a code cell for each code block
                 for block in blocks:
-                    if block.strip().startswith('```'):
+                    if block.strip().startswith("```"):
                         self.add_code_cell(block, remove_quotes=True)
                     else:
                         self.add_markdown_cell(block, detect_code_blocks=False)
@@ -117,22 +121,21 @@ class JupyterNotebookFile:
 
     def add_image_cell(self, image_path: str, text: str = ""):
         # Read the image and convert it to base64
-        image_type = guess_type(image_path)[0].split('/')[1]
+        image_type = guess_type(image_path)[0].split("/")[1]
         with open(image_path, "rb") as image_file:
             base64_string = b64encode(image_file.read()).decode()
 
         # Use the existing method to add the image with text
         self._add_image(base64_string, image_type, text)
 
-
     def add_image_cell_from_PIL_image(self, pil_image: Image, text: str = ""):
         # Convert PIL image to base64
         buffered = BytesIO()
-        pil_image.save(buffered, format='PNG')
+        pil_image.save(buffered, format="PNG")
         base64_string = b64encode(buffered.getvalue()).decode()
 
         # Use the existing method to add the image with text
-        self._add_image(base64_string, 'PNG', text)
+        self._add_image(base64_string, "PNG", text)
 
         # Mark as modified:
         self._modified = True
@@ -147,7 +150,6 @@ class JupyterNotebookFile:
 
         # Add this image to the notebook
         self.add_image_cell_from_PIL_image(pil_image, text)
-
 
     def delete_notebook_file(self):
         # Delete the notebook file
@@ -165,5 +167,3 @@ class JupyterNotebookFile:
 #     thread = threading.Thread(target=notebook_thread)
 #     thread.start()
 #     print(f"Jupyter server started at {folder_path} 😄")
-
-

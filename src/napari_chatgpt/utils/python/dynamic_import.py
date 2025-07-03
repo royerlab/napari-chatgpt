@@ -9,20 +9,18 @@ from typing import Optional, Any
 from arbol import asection, aprint
 
 
-def dynamic_import(module_code: str,
-                   name: str = None) -> Optional[Any]:
+def dynamic_import(module_code: str, name: str = None) -> Optional[Any]:
     # Module name:
     if not name:
-        name = f'some_code_{randint(0, 999999999)}'
+        name = f"some_code_{randint(0, 999999999)}"
 
     # Write code to temp file:
-    with tempfile.NamedTemporaryFile(mode="w", suffix='.py', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(module_code)
         module_path = f.name
 
     # Load the module from the temporary file
-    spec = importlib.util.spec_from_file_location(name=name,
-                                                  location=module_path)
+    spec = importlib.util.spec_from_file_location(name=name, location=module_path)
 
     # Not clear what this is about:
     loaded_module = importlib.util.module_from_spec(spec)
@@ -33,24 +31,25 @@ def dynamic_import(module_code: str,
     return loaded_module
 
 
-
-
-
-def execute_as_module(code_str, name: str = None, **kwargs) -> str:
-
-    with asection(f"Executing code as module (length={code_str})"):
-
-        # Create a function in the new module that will receive the variables
-        # as arguments, and will contain the code_str
-        module_code = \
+# This should not have spurious whitespace, as it is used to format the code:
+__execution_harness=\
 """
 def execute_code({}):
 {}
-""".format(
-    ', '.join(kwargs.keys()) if kwargs else "",
-    '\n'.join('\t' + i for i in code_str.split('\n'))
-    # indent the code_str
-            )
+"""
+
+def execute_as_module(code_str, name: str = None, **kwargs) -> str:
+    with asection(f"Executing code as module (length={len(code_str)})"):
+
+        # Create a function in the new module that will receive the variables
+        # as arguments, and will contain the code_str
+
+        # prepare the arguments and code strings:
+        arguments_str = ", ".join(kwargs.keys()) if kwargs else ""
+        code_str = "\n".join("\t" + i for i in code_str.split("\n"))
+
+        # Format the final module code
+        module_code = __execution_harness.format(arguments_str, code_str)
 
         with asection(f"Module code:"):
             aprint(module_code)
@@ -59,7 +58,7 @@ def execute_code({}):
         _module_ = dynamic_import(module_code, name)
 
         # get the function from module:
-        execute_code = getattr(_module_, 'execute_code')
+        execute_code = getattr(_module_, "execute_code")
 
         f = StringIO()
         with redirect_stdout(f):
@@ -73,6 +72,3 @@ def execute_code({}):
         captured_output = f.getvalue().strip()
 
         return captured_output
-
-
-

@@ -7,8 +7,7 @@ from napari_chatgpt.microplugin.network.code_drop_client import CodeDropClient
 
 def on_server_discovered(server_name, server_address, server_port):
     print(f"Discovered server: {server_name} at {server_address}")
-    client.send_message_by_address(server_address, server_port,
-                                   "Hello, Server!")
+    client.send_message_by_address(server_address, server_port, "Hello, Server!")
 
 
 if __name__ == "__main__":

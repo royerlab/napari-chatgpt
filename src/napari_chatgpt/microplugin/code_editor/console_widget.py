@@ -1,13 +1,16 @@
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QVBoxLayout, QWidget, QTextEdit, QApplication, \
-    QHBoxLayout, QPushButton
+from qtpy.QtWidgets import (
+    QVBoxLayout,
+    QWidget,
+    QTextEdit,
+    QApplication,
+    QHBoxLayout,
+    QPushButton,
+)
 
 
 class ConsoleWidget(QWidget):
-    def __init__(self,
-                 margin: int = 0,
-                 icon_size: int = 20,
-                 parent=None):
+    def __init__(self, margin: int = 0, icon_size: int = 20, parent=None):
 
         super().__init__(parent=parent)
 
@@ -15,13 +18,9 @@ class ConsoleWidget(QWidget):
         self.setWindowFlags(Qt.Popup)
 
         # Initialize the UI
-        self.initUI(margin=margin,
-                    icon_size=icon_size)
+        self.initUI(margin=margin, icon_size=icon_size)
 
-    def initUI(self,
-               margin: int,
-               icon_size: int
-               ):
+    def initUI(self, margin: int, icon_size: int):
 
         # Main layout
         self.layout = QVBoxLayout()
@@ -59,8 +58,7 @@ class ConsoleWidget(QWidget):
         self.layout.addWidget(self.console_output)
 
         # Set the layout margins:
-        self.layout.setContentsMargins(margin, margin, margin,
-                                  margin)
+        self.layout.setContentsMargins(margin, margin, margin, margin)
 
         # Set the layout to the widget
         self.setLayout(self.layout)
@@ -68,7 +66,7 @@ class ConsoleWidget(QWidget):
         # Hide the widget initially:
         self.hide()
 
-    def append_message(self, message: str, message_type: str = 'info'):
+    def append_message(self, message: str, message_type: str = "info"):
         """
         Append a message to the console output.
 
@@ -85,17 +83,17 @@ class ConsoleWidget(QWidget):
             return
 
         # Replace '\n' with '<br>' to display newlines in the QTextEdit:
-        message = message.replace('\n', '<br>')
+        message = message.replace("\n", "<br>")
 
         # Replace '\t' with '&nbsp;&nbsp;&nbsp;&nbsp;' to display tabs in the QTextEdit:
-        message = message.replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;')
+        message = message.replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
 
         # Replace ' ' with '&nbsp;' to display spaces in the QTextEdit:
-        message = message.replace(' ', '&nbsp;')
+        message = message.replace(" ", "&nbsp;")
 
-        if message_type == 'error':
+        if message_type == "error":
             message = f"<span style='color: red;'>{message}</span>"
-        elif message_type == 'info':
+        elif message_type == "info":
             message = f"<span style='color: green;'>{message}</span>"
 
         # Append the message to the console

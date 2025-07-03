@@ -1,14 +1,17 @@
 from qtpy.QtWidgets import QWidget, QVBoxLayout
 
-from napari_chatgpt.microplugin.code_editor.python_code_editor_widget import \
-    PythonCodeEditor
+from napari_chatgpt.microplugin.code_editor.python_code_editor_widget import (
+    PythonCodeEditor,
+)
 
 
 class MultiEditorManager(QWidget):
-    def __init__(self,
-                 on_text_modified_callback,
-                 editor_widget_class: type[QWidget] = PythonCodeEditor,
-                 parent=None):
+    def __init__(
+        self,
+        on_text_modified_callback,
+        editor_widget_class: type[QWidget] = PythonCodeEditor,
+        parent=None,
+    ):
         super().__init__(parent)
         self.on_text_modified_callback = on_text_modified_callback
         self.editor_widget_class = editor_widget_class
@@ -16,7 +19,6 @@ class MultiEditorManager(QWidget):
         self.editors = {}  # Key: filename, Value: PythonCodeEditor instance
         self.current_editor_name = None
         self.current_editor = None
-
 
     def switch_to(self, filename):
 

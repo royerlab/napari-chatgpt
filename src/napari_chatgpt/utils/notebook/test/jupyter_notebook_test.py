@@ -1,4 +1,3 @@
-import os
 import tempfile
 
 import requests
@@ -15,23 +14,25 @@ def test_notebook_creation():
     # delete the notebook file if it exists:
     notebook.delete_notebook_file()
 
+
 def test_add_code_cell():
     # Test adding a code cell
     notebook = JupyterNotebookFile()
     notebook.add_code_cell("print('Hello, World!')")
     assert len(notebook.notebook.cells) == 1
-    assert notebook.notebook.cells[0].cell_type == 'code'
+    assert notebook.notebook.cells[0].cell_type == "code"
     assert notebook.notebook.cells[0].source == "print('Hello, World!')"
 
     # delete the notebook file if it exists:
     notebook.delete_notebook_file()
+
 
 def test_add_markdown_cell():
     # Test adding a markdown cell
     notebook = JupyterNotebookFile()
     notebook.add_markdown_cell("# Hello, World!")
     assert len(notebook.notebook.cells) == 1
-    assert notebook.notebook.cells[0].cell_type == 'markdown'
+    assert notebook.notebook.cells[0].cell_type == "markdown"
     assert notebook.notebook.cells[0].source == "# Hello, World!"
 
     # delete the notebook file if it exists:
@@ -47,7 +48,7 @@ def download_image(url, file):
 
 def test_add_image_cell():
     # URL of the image
-    image_url = 'https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png'
+    image_url = "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png"
 
     # Use a temporary file
     temp_image = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
@@ -65,14 +66,12 @@ def test_add_image_cell():
     notebook.add_image_cell(temp_image.name, "Example Image")
 
     # Save the notebook
-    notebook_file_path = 'test_notebook.ipynb'
+    notebook_file_path = "test_notebook.ipynb"
     notebook.write(notebook_file_path)
 
     # delete the notebook file:
     notebook.delete_notebook_file()
 
-
-    print(f"Test completed. Notebook saved at {notebook_file_path}. Please open this notebook to verify the image cell.")
-
-
-
+    print(
+        f"Test completed. Notebook saved at {notebook_file_path}. Please open this notebook to verify the image cell."
+    )

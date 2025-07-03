@@ -3,16 +3,15 @@ from typing import Optional
 import napari
 import skimage
 
-from napari_chatgpt.omega.tools.napari.delegated_code.stardist import \
-    stardist_2d
-from napari_chatgpt.utils.segmentation.labels_3d_merging import \
-    segment_3d_from_segment_2d
+from napari_chatgpt.omega_agent.tools.napari.delegated_code.stardist import stardist_2d
 from napari_chatgpt.utils.images.normalize import normalize_img
+from napari_chatgpt.utils.segmentation.labels_3d_merging import (
+    segment_3d_from_segment_2d,
+)
+
 
 # Example usage
 def main():
-
-
     # Load the 'cells' example dataset
     cells = skimage.data.cells3d()[:, 1]
 
@@ -23,34 +22,29 @@ def main():
 
     # Get the StarDist model once:
     from stardist.models import StarDist2D
-    model_type = '2D_versatile_fluo'
+
+    model_type = "2D_versatile_fluo"
     model = StarDist2D.from_pretrained(model_type)
 
     def segment_2d(image):
-
-        labels = stardist_2d(image,
-                             scale=1,
-                             model_type=model_type,
-                             model=model)
+        labels = stardist_2d(image, scale=1, model_type=model_type, model=model)
 
         return labels
 
-    labels = segment_3d_from_segment_2d(cells,
-                                        segment_2d,
-                                        min_segment_size=32)
+    labels = segment_3d_from_segment_2d(cells, segment_2d, min_segment_size=32)
 
     # Open a napari instance:
     viewer = napari.Viewer()
 
     # add image to viewer:
-    viewer.add_image(cells, name='cells')
+    viewer.add_image(cells, name="cells")
 
     # Load the segmented cells into the viewer:
-    viewer.add_labels(labels, name='labels')
+    viewer.add_labels(labels, name="labels")
 
     # Make the viewer visible
     napari.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

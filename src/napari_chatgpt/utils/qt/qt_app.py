@@ -17,7 +17,5 @@ def get_or_create_qt_app():
     return app
 
 
-
-
 def run_on_main_thread(func: Callable):
     QTimer.singleShot(0, func)
