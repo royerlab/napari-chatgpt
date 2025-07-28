@@ -68,13 +68,14 @@ class OmegaQWidget(QWidget):
             self._main_model_selection()
             self._tool_model_selection()
             self._creativity_level()
-            self._memory_type_selection()
+            # self._memory_type_selection()
             self._personality_selection()
             self._fix_imports()
             self._fix_bad_version_calls()
             self._install_missing_packages()
             self._autofix_mistakes()
             self._autofix_widgets()
+            self._builtin_websearch_tool()
             self._tutorial_mode()
             self._save_chats_as_notebooks()
             self._verbose()
@@ -162,12 +163,15 @@ class OmegaQWidget(QWidget):
     @staticmethod
     def _prefered_models(model_list: List[str]):
         # List of filters to identify preferred models:
-        preferred_models_filter = ['gpt-4.1', 'gpt-4o'] #, 'claude-3-7', 'opus-4', 'gemini-2.5-pro']
+        preferred_models_filter = [
+            "gpt-4.1",
+            "gpt-4o",
+        ]  # , 'claude-3-7', 'opus-4', 'gemini-2.5-pro']
         # List of preferred models:
         preferred_models = [
-            model for model in model_list if any(
-                filter in model for filter in preferred_models_filter
-            )
+            model
+            for model in model_list
+            if any(filter in model for filter in preferred_models_filter)
         ]
         # Exclude models that are in fact not preferred::
         preferred_models.remove("chatgpt-4o-latest")
@@ -357,6 +361,27 @@ class OmegaQWidget(QWidget):
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.tutorial_mode_checkbox)
 
+    def _builtin_websearch_tool(self):
+        aprint("Setting up builtin web search UI.")
+
+        # Get app configuration:
+        config = AppConfiguration("omega")
+
+        # Create a QLabel instance
+        self.builtin_websearch_tool_checkbox = QCheckBox("Web search tool")
+        self.builtin_websearch_tool_checkbox.setChecked(
+            config.get("builtin_websearch_tool", True)
+        )
+        self.builtin_websearch_tool_checkbox.setToolTip(
+            "When checked Omega will use a web search tool \n"
+            "to search the web for information to answer your questions.\n"
+            "This is useful when Omega does not know the answer to your question.\n"
+            "Note: This is for built-in web search only!\n"
+            "This is not supported by all models, \n"
+        )
+        # Add the install_missing_packages checkbox to the layout:
+        self.layout.addWidget(self.builtin_websearch_tool_checkbox)
+
     def _save_chats_as_notebooks(self):
         aprint("Setting up save notebooks UI.")
 
@@ -472,7 +497,8 @@ class OmegaQWidget(QWidget):
                     tool_llm_model_name=tool_llm_model_name,
                     temperature=temperature,
                     tool_temperature=tool_temperature,
-                    memory_type=self.memory_type_combo_box.currentText(),
+                    has_builtin_websearch_tool=self.builtin_websearch_tool_checkbox.isChecked(),
+                    memory_type="standard",
                     agent_personality=self.agent_personality_combo_box.currentText(),
                     fix_imports=self.fix_imports_checkbox.isChecked(),
                     install_missing_packages=self.install_missing_packages_checkbox.isChecked(),

@@ -15,7 +15,7 @@ from napari_chatgpt.omega_agent.tools.base_napari_tool import (
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 from napari_chatgpt.utils.python.pip_utils import pip_install
 
-_image_denoising_prompt =\
+_image_denoising_prompt = \
 """
 **Context**
 You are an expert python programmer with deep expertise in image processing and analysis.
@@ -90,8 +90,7 @@ Here is an explanation of the parameters:
 **Answer in markdown:**
 """
 
-_instructions =\
-"""
+_instructions = """
 
 **Instructions specific to calling the denoising functions:**
 - DO NOT include code for the functions 'aydin_classic_denoising()' and 'aydin_fgr_denoising()' in your answer.
@@ -141,6 +140,7 @@ class ImageDenoisingTool(BaseNapariTool):
             with asection(f"ImageDenoisingTool:"):
                 with asection(f"Request:"):
                     aprint(request)
+                aprint(f"Resulting in code of length: {len(code)}")
 
                 # prepare code:
                 code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)

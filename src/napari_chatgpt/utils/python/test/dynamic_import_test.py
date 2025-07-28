@@ -4,8 +4,7 @@ from napari_chatgpt.utils.python.dynamic_import import dynamic_import, execute_a
 
 __some_register = {}
 
-___module_code =\
-"""
+___module_code = """
 def my_function(x): 
     return x**2
 print('test_dynamic_import')
@@ -21,8 +20,7 @@ def test_dynamic_import():
     assert __some_register["my_function"](2) == 4
 
 
-___some_numba_stuff =\
-"""
+___some_numba_stuff = """
 import numpy as np
 from numba import njit
 

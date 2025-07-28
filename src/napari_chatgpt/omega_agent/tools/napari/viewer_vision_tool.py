@@ -10,7 +10,7 @@ from napari import Viewer
 
 from napari_chatgpt.omega_agent.tools.base_napari_tool import BaseNapariTool
 from napari_chatgpt.utils.napari.layer_snapshot import capture_canvas_snapshot
-from napari_chatgpt.utils.openai.gpt_vision import describe_image
+from napari_chatgpt.utils.llm.vision import describe_image
 
 
 class NapariViewerVisionTool(BaseNapariTool):
@@ -18,12 +18,14 @@ class NapariViewerVisionTool(BaseNapariTool):
     A tool for describing visually an individual layer.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, vision_model_name: str, **kwargs):
         """
         Initialize the NapariViewerVisionTool.
 
         Parameters
         ----------
+        vision_model_name: str
+            The name of the vision model to use for image description.
         kwargs: dict
             Additional keyword arguments to pass to the base class.
             This can include parameters like `notebook`, `fix_bad_calls`, etc.
@@ -45,6 +47,8 @@ class NapariViewerVisionTool(BaseNapariTool):
         )
         self.prompt: str = None
         self.instructions: str = None
+
+        self.vision_model_name = vision_model_name
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
 
@@ -110,7 +114,10 @@ class NapariViewerVisionTool(BaseNapariTool):
 
                         # Get the description of the image of the selected layer:
                         message = _get_description_for_selected_layer(
-                            query=augmented_query, viewer=viewer, reset_view=True
+                            query=augmented_query,
+                            viewer=viewer,
+                            vision_model_name=self.vision_model_name,
+                            reset_view=True,
                         )
                     else:
                         message = f"Tool did not succeed because no layer '{layer_name}' exists or no layer is selected."
@@ -120,7 +127,9 @@ class NapariViewerVisionTool(BaseNapariTool):
                     augmented_query = f"Here is an image. {query}"
 
                     message = _get_description_for_whole_canvas(
-                        query=augmented_query, viewer=viewer
+                        query=augmented_query,
+                        viewer=viewer,
+                        vision_model_name=self.vision_model_name,
                     )
 
                     message = f"The following is the description of the contents of the whole canvas: '{message}'"
@@ -135,7 +144,9 @@ class NapariViewerVisionTool(BaseNapariTool):
             return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to query the napari viewer."  # with code:\n```python\n{code}\n```\n.
 
 
-def _get_description_for_selected_layer(query, viewer, reset_view: bool = False):
+def _get_description_for_selected_layer(
+    query, viewer, vision_model_name: str, reset_view: bool = False
+):
     with asection(f"Getting description for selected layer. "):
         aprint(f"Query: '{query}'")
 
@@ -197,12 +208,15 @@ def _get_description_for_selected_layer(query, viewer, reset_view: bool = False)
         return message
 
 
-def _get_description_for_whole_canvas(query, viewer):
+def _get_description_for_whole_canvas(query, viewer, vision_model_name):
     with asection(f"Getting description for whole canvas.'"):
         aprint(f"Query: '{query}'")
 
         message = _get_layer_image_description(
-            viewer=viewer, query=query, layer_name=None
+            viewer=viewer,
+            query=query,
+            vision_model_name=vision_model_name,
+            layer_name=None,
         )
 
         return message
@@ -211,6 +225,7 @@ def _get_description_for_whole_canvas(query, viewer):
 def _get_layer_image_description(
     viewer,
     query,
+    vision_model_name: str,
     layer_name: Optional[str] = None,
     delete: bool = False,
     reset_view: bool = False,
@@ -227,7 +242,9 @@ def _get_layer_image_description(
         snapshot_image.save(tmpfile.name)
 
         # Query OpenAI API to describe the image of the layer:
-        description = describe_image(image_path=tmpfile.name, query=query)
+        description = describe_image(
+            image_path=tmpfile.name, query=query, model_name=vision_model_name
+        )
 
         if layer_name:
             message = f"Tool completed successfully, layer '{layer_name}' description: '{description}'"

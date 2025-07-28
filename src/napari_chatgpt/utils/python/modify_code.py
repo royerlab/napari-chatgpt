@@ -8,7 +8,8 @@ from napari_chatgpt.llm.llm import LLM
 from napari_chatgpt.utils.python.installed_packages import installed_package_list
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 
-_change_code_prompt = """
+_change_code_prompt =\
+"""
 ## Context
 You are an expert Python programmer and software engineer with a specialization in modifying and improving code based on specific requests. Your expertise includes understanding complex Python code and making precise adjustments to fulfill given requirements without altering the original intent or functionality.
 

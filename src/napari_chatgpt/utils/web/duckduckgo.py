@@ -2,7 +2,7 @@ import traceback
 from typing import Optional
 
 from arbol import asection, aprint
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 from napari_chatgpt.utils.llm.summarizer import summarize
 from napari_chatgpt.utils.python.pip_utils import pip_install_single_package
@@ -47,7 +47,7 @@ def search_ddg(
     lang = "en-us" if lang == "en" else lang
 
     results = DDGS().text(
-        keywords=query, region=lang, safesearch=safe_search, max_results=num_results
+        query=query, region=lang, safesearch=safe_search, max_results=num_results
     )
 
     if results:
@@ -64,7 +64,7 @@ def search_images_ddg(
     lang = "en-us" if lang == "en" else lang
 
     results = DDGS().images(
-        keywords=query,
+        query=query,
         region=lang,
         safesearch=safesearch,
         size=None,

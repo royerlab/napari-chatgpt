@@ -16,7 +16,6 @@ class BaseOmegaTool(FunctionTool):
         # Get Tools description:
         description = kwargs.get("description", self.__class__.__doc__)
 
-
         # Call super class constructor:
         super().__init__(func=self.run_omega_tool, description=description)
 

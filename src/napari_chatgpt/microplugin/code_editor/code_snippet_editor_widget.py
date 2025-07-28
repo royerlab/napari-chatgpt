@@ -22,7 +22,7 @@ from qtpy.QtWidgets import (
     QListWidgetItem,
 )
 
-from napari_chatgpt.llm.litemind_api import is_available
+from napari_chatgpt.llm.litemind_api import is_llm_available
 from napari_chatgpt.microplugin.code_editor.clickable_icon import ClickableIcon
 from napari_chatgpt.microplugin.code_editor.code_drop_send_widget import (
     CodeDropSendWidget,
@@ -74,7 +74,7 @@ class CodeSnippetEditorWidget(QWidget):
         self.server.start_receiving()
 
         # Check if LLMs are available:
-        self.is_llm_available = is_available()
+        self.is_llm_available = is_llm_available()
 
         # Initialize the UI:
         self.init_UI()

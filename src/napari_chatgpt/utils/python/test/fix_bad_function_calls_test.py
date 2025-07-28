@@ -1,19 +1,17 @@
 import pytest
 from arbol import aprint
 
-from napari_chatgpt.llm.litemind_api import is_available
+from napari_chatgpt.llm.litemind_api import is_llm_available
 from napari_chatgpt.utils.python.fix_bad_fun_calls import fix_all_bad_function_calls
 
-_code_snippet_1 =\
-"""
+_code_snippet_1 = """
 import numpy as np
 
 data = pd.read_csv("data.csv")
 result = np.mean(data["value"])
 """
 
-_code_snippet_2 =\
-"""
+_code_snippet_2 = """
 from magicgui import magicgui
 from napari.types import ImageData, LabelsData, PointsData, ShapesData, SurfaceData, TracksData, VectorsData
 import numpy as np
@@ -41,8 +39,7 @@ def structure_tensor_trace(viewer: 'napari.viewer.Viewer', layer: Image) -> Imag
     return trace
 """
 
-_code_snippet_3 =\
-"""
+_code_snippet_3 = """
 import numpy as np
 from skimage import feature, transform
 from napari.types import ImageData, LabelsData
@@ -66,7 +63,7 @@ def find_straight_lines(image: ImageData) -> LabelsData:
 """
 
 
-@pytest.mark.skipif(not is_available(), reason="requires LLM to run")
+@pytest.mark.skipif(not is_llm_available(), reason="requires LLM to run")
 def test_fix_bad_call_1():
     fixed_code, did_something, report = fix_all_bad_function_calls(_code_snippet_1)
     aprint(fixed_code)
@@ -75,7 +72,7 @@ def test_fix_bad_call_1():
     assert not did_something
 
 
-@pytest.mark.skipif(not is_available(), reason="requires LLM to run")
+@pytest.mark.skipif(not is_llm_available(), reason="requires LLM to run")
 def test_fix_bad_call_2():
     fixed_code, did_something, report = fix_all_bad_function_calls(_code_snippet_2)
     aprint(fixed_code)
@@ -84,7 +81,7 @@ def test_fix_bad_call_2():
     assert not did_something
 
 
-@pytest.mark.skipif(not is_available(), reason="requires LLM to run")
+@pytest.mark.skipif(not is_llm_available(), reason="requires LLM to run")
 def test_fix_bad_call_3():
     fixed_code, did_something, report = fix_all_bad_function_calls(_code_snippet_3)
     aprint(fixed_code)

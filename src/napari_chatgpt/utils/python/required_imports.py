@@ -8,7 +8,8 @@ from napari_chatgpt.llm.litemind_api import get_llm
 from napari_chatgpt.llm.llm import LLM
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 
-_required_imports_prompt = f"""
+_required_imports_prompt = \
+f"""
 **Context:**
 You are an expert Python coder with extensive knowledge of all python libraries, and their different versions.
 

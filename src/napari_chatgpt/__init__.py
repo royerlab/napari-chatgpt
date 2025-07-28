@@ -1,4 +1,4 @@
-__version__ = "2025.07.02"
+__version__ = "2025.07.28"
 
 try:
     from ._version import version as __version__

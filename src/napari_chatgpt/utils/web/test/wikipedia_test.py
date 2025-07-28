@@ -2,9 +2,9 @@ import os
 
 import pytest
 from arbol import aprint
-from duckduckgo_search.exceptions import RatelimitException
+from ddgs.exceptions import RatelimitException
 
-from napari_chatgpt.llm.litemind_api import is_available
+from napari_chatgpt.llm.litemind_api import is_llm_available
 from napari_chatgpt.utils.web.wikipedia import search_wikipedia
 
 # Skip tests that require API keys in Github Actions
@@ -31,7 +31,7 @@ def test_wikipedia_search_MM():
 
 
 @pytest.mark.skipif(
-    IN_GITHUB_ACTIONS or not is_available(),
+    IN_GITHUB_ACTIONS or not is_llm_available(),
     reason="requires LLM to run and doesn't work in Github Actions.",
 )
 def test_wikipedia_search_AE():
@@ -53,7 +53,7 @@ def test_wikipedia_search_AE():
 
 
 @pytest.mark.skipif(
-    IN_GITHUB_ACTIONS or not is_available(),
+    IN_GITHUB_ACTIONS or not is_llm_available(),
     reason="requires LLM to run and doesn't work in Github Actions.",
 )
 def test_wikipedia_search_CZB():

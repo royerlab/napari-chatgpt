@@ -32,11 +32,12 @@ def dynamic_import(module_code: str, name: str = None) -> Optional[Any]:
 
 
 # This should not have spurious whitespace, as it is used to format the code:
-__execution_harness=\
+__execution_harness =\
 """
 def execute_code({}):
 {}
 """
+
 
 def execute_as_module(code_str, name: str = None, **kwargs) -> str:
     with asection(f"Executing code as module (length={len(code_str)})"):

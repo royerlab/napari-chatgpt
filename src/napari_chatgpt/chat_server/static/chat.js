@@ -65,6 +65,7 @@ const wrapperRenderer = {
   ${html}
 </details>`;
   }
+
 };
 
 /******************************************************************
@@ -82,12 +83,20 @@ function escapeHTML(unsafeText) {
 }
 
 function parse_markdown(str) {
-    // Parse Markdown to HTML:
-    str = marked.parse(str);
+  // 1️⃣ Turn Markdown into HTML (already highlighted etc.)
+  str = marked.parse(str);
 
-    // Make sure that ordered lists show up as ordered with numbers:
-    str = str.replace("<ol>", '<ol class="list-decimal">');
-    return str;
+  // 2️⃣ Make ordered lists look right in Tailwind
+  str = str.replace('<ol>', '<ol class="list-decimal">');
+
+  // 3️⃣ PATCH: add new-tab behaviour + colour class to every link
+  //    – works no matter what Marked generated for the <a>
+  str = str.replace(
+    /<a\s/gi,
+    '<a target="_blank" rel="noopener noreferrer" class="chat-link" '
+  );
+
+  return str;
 }
 
 // Endpoint for websocket:

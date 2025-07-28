@@ -1,5 +1,5 @@
 from arbol import aprint
-from duckduckgo_search.exceptions import RatelimitException
+from ddgs.exceptions import RatelimitException
 
 from napari_chatgpt.utils.web.google import search_overview
 

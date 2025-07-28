@@ -13,7 +13,7 @@ from napari_chatgpt.utils.strings.find_function_name import (
 )
 from napari_chatgpt.utils.strings.trailing_code import remove_trailing_code
 
-_napari_widget_maker_prompt =\
+_napari_widget_maker_prompt = \
 """
 **Context**
 You are an expert python programmer with deep expertise in image processing and analysis.
@@ -45,8 +45,7 @@ Your task is to competently write image processing and image analysis functions 
 # Important: all import statements must be inside of the function except for those needed for magicgui and for type hints.
 # All import statements required by function calls within the function must be within the function.
 
-_instructions =\
-"""
+_instructions = """
 
 ## 📌 Preamble  
 *These instructions tell you how to write **one** napari + magicgui widget (function or class) that can be pasted directly into a Python cell. The caller will take care of docking the widget and launching napari.*
@@ -144,8 +143,7 @@ from magicgui import magicgui
 
 """
 
-_code_prefix =\
-"""
+_code_prefix = """
 from magicgui import magicgui
 from napari.types import ImageData, LabelsData, PointsData, ShapesData, SurfaceData, TracksData, VectorsData
 from napari.layers import Image, Labels, Points, Shapes, Surface, Tracks, Vectors
@@ -216,6 +214,7 @@ class NapariWidgetMakerTool(BaseNapariTool):
             with asection(f"NapariWidgetMakerTool: "):
                 with asection(f"Query:"):
                     aprint(query)
+                aprint(f"Resulting in code of length: {len(code)}")
 
                 # Prepare code:
                 code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)

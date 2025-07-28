@@ -230,6 +230,7 @@ class CellNucleiSegmentationTool(BaseNapariTool):
             with asection(f"CellNucleiSegmentationTool:"):
                 with asection(f"Request:"):
                     aprint(request)
+                aprint(f"Resulting in code of length: {len(code)}")
 
                 # prepare code:
                 code = super()._prepare_code(

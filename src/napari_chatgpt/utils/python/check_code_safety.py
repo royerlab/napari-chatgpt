@@ -6,7 +6,8 @@ from napari_chatgpt.llm.litemind_api import get_llm
 from napari_chatgpt.llm.llm import LLM
 from napari_chatgpt.utils.python.installed_packages import installed_package_list
 
-_check_code_safety_prompt = """
+_check_code_safety_prompt = \
+"""
 **Context:**
 You are an expert Python coder with extensive cybersecurity experience and knowledge. 
 You can analyse complex python code and assess its safety from an user standpoint.

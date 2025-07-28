@@ -6,7 +6,8 @@ from arbol import aprint, asection
 from napari_chatgpt.llm.litemind_api import get_llm
 from napari_chatgpt.llm.llm import LLM
 
-_required_packages_prompt = """
+_required_packages_prompt =\
+"""
 **Context:**
 You are a highly knowledgeable Python expert, familiar with all pip-installable libraries and their dependencies.
 

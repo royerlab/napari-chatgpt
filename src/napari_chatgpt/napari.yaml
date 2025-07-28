@@ -10,7 +10,7 @@ contributions:
   #      title: Start Omega's code editor
   widgets:
     - command: napari-chatgpt.start_omega
-      display_name: Omega -- a ChatGPT-enabled agent
+      display_name: Omega -- an AI agent for image processing and analysis
 #    - command: napari-chatgpt.start_microplugin
 #      display_name: Companion Code Snippet Editor to Omega
 

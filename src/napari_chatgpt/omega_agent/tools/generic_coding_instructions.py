@@ -1,4 +1,5 @@
-omega_generic_codegen_instructions = """
+omega_generic_codegen_instructions = \
+"""
 **Coding Strategy:**
 1. Carefully plan your approach step by step before coding.
 2. Clearly describe each step of your implementation.
@@ -23,7 +24,6 @@ omega_generic_codegen_instructions = """
 - When using PyTorch, ensure tensors have the correct dtype and dimensions. Add or remove batch dimensions and convert dtypes as needed to match function requirements.
 - PyTorch supports only these data types: float32, float64, float16, bfloat16, uint8, int8, int16, int32, int64, and bool. Convert inputs to one of these types before using PyTorch functions.
 - When using Numba for image processing, avoid high-level NumPy functions. Use loops and low-level NumPy operations, and ensure correct data types for input and output arrays.
-
 
 
 """

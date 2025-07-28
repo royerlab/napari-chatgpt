@@ -1,7 +1,6 @@
 from napari_chatgpt.utils.strings.trailing_code import remove_trailing_code
 
-___code =\
-"""
+___code = """
 import numpy as np
 from napari.types import ImageData
 from napari.layers import Image

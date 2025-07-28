@@ -10,7 +10,7 @@ from napari import Viewer
 from napari_chatgpt.omega_agent.tools.base_napari_tool import BaseNapariTool
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 
-_napari_viewer_query_prompt =\
+_napari_viewer_query_prompt = \
 """
 **Context**
 You are an expert python programmer with deep expertise in image processing and analysis.
@@ -37,8 +37,7 @@ To answer the request, you need to implement a Python function called `query(vie
 **Answer in markdown:**
 """
 
-_instructions =\
-"""
+_instructions = """
 - Do **not** call the `query(viewer)` function yourself.
 - Provide your answer **only** in Markdown format.
 
@@ -97,6 +96,7 @@ class NapariViewerQueryTool(BaseNapariTool):
             with asection(f"NapariViewerQueryTool:"):
                 with asection(f"Query:"):
                     aprint(query)
+                aprint(f"Resulting in code of length: {len(code)}")
 
                 # prepare code:
                 code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)

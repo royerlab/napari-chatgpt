@@ -7,7 +7,8 @@ from napari import Viewer
 
 from napari_chatgpt.omega_agent.tools.base_napari_tool import BaseNapariTool
 
-_napari_viewer_execution_prompt = """
+_napari_viewer_execution_prompt = \
+"""
 **Context**
 You are an expert python programmer with deep expertise in image processing and analysis.
 You have perfect knowledge of the napari viewer's API.
@@ -34,8 +35,7 @@ The viewer instance is accessible using the variable `viewer`, so you can direct
 """
 
 
-_instructions =\
-"""
+_instructions = """
 
 **Instructions for executing code with the napari viewer:**
 - When adding images, labels, points, shapes, surfaces, tracks, or vectors, include code to load data from disk or a URL if needed.
@@ -56,8 +56,7 @@ _instructions =\
 - Ensure your code is correct, robust, and ready to run.
 """
 
-_code_prefix =\
-"""
+_code_prefix = """
 import napari
 """
 
@@ -96,6 +95,7 @@ class NapariViewerExecutionTool(BaseNapariTool):
             with asection(f"NapariViewerControlTool:"):
                 with asection(f"Request:"):
                     aprint(request)
+                aprint(f"Resulting in code of length: {len(code)}")
 
                 # Prepare code:
                 code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)

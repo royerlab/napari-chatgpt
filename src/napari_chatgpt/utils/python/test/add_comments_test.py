@@ -1,6 +1,6 @@
 import pytest
 
-from napari_chatgpt.llm.litemind_api import is_available
+from napari_chatgpt.llm.litemind_api import is_llm_available
 from napari_chatgpt.utils.python.add_comments import add_comments
 
 ___generated_python_code = """
@@ -23,7 +23,7 @@ def denoise_bilateral(image: ImageData, d: int = 15, sigmaColor: float = 75, sig
 """
 
 
-@pytest.mark.skipif(not is_available(), reason="requires LLM to run")
+@pytest.mark.skipif(not is_llm_available(), reason="requires LLM to run")
 def test_add_comments():
     # Add comments to the code:
     commented_code = add_comments(___generated_python_code)

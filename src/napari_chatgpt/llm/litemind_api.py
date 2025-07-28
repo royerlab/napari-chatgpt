@@ -9,7 +9,7 @@ from napari_chatgpt.llm.llm import LLM
 __litemind_api = None
 
 
-def is_available() -> bool:
+def is_llm_available() -> bool:
     """
     Checks if the LiteMind API is available.
 
@@ -89,6 +89,25 @@ def get_model_list() -> List[str]:
     from litemind.apis.model_features import ModelFeatures
 
     return api.list_models(features=[ModelFeatures.TextGeneration])
+
+
+def has_model_support_for(model_name: str, features: List[ModelFeatures]) -> bool:
+    """
+    Checks if a specific model supports the given features.
+
+    Parameters
+    ----------
+    model_name: str
+        The name of the model to check.
+    features: List[ModelFeatures]
+        A list of features to check for support.
+
+    Returns
+    -------
+    bool: True if the model supports all specified features, False otherwise.
+    """
+    api = get_litemind_api()
+    return api.has_model_support_for(features=features, model_name=model_name)
 
 
 def get_llm(

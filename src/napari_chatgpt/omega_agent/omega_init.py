@@ -6,8 +6,13 @@ from litemind.agent.agent import Agent
 from litemind.agent.messages.message import Message
 from litemind.agent.tools.callbacks.base_tool_callbacks import BaseToolCallbacks
 from litemind.agent.tools.toolset import ToolSet
+from litemind.apis.model_features import ModelFeatures
 
-from napari_chatgpt.llm.litemind_api import get_llm, get_litemind_api
+from napari_chatgpt.llm.litemind_api import (
+    get_llm,
+    get_litemind_api,
+    has_model_support_for,
+)
 from napari_chatgpt.omega_agent.omega_agent import OmegaAgent
 from napari_chatgpt.omega_agent.prompts import SYSTEM, PERSONALITY, DIDACTICS
 from napari_chatgpt.utils.configuration.app_configuration import AppConfiguration
@@ -21,8 +26,8 @@ def initialize_omega_agent(
     tool_llm_model_name: str = None,
     temperature: float = 0.0,
     tool_temperature: float = 0.0,
+    has_builtin_websearch_tool: bool = True,
     notebook: JupyterNotebookFile = None,
-    has_human_input_tool: bool = True,
     agent_personality: str = "neutral",
     fix_imports: bool = True,
     install_missing_packages: bool = True,
@@ -55,7 +60,19 @@ def initialize_omega_agent(
             "callback": None,  # This will be set later
         }
 
-        toolset: ToolSet = prepare_toolset(has_human_input_tool, tool_context)
+        toolset: ToolSet = prepare_toolset(tool_context, main_llm_model_name)
+
+        # Add built-in web search tool if required:
+        if has_builtin_websearch_tool:
+            if has_model_support_for(
+                main_llm_model_name, [ModelFeatures.WebSearchTool]
+            ):
+                aprint("Builtin websearch tool has been added to Omega.")
+                toolset.add_builtin_web_search_tool()
+            else:
+                aprint(
+                    f"Model '{main_llm_model_name}' does not support the web search tool."
+                )
 
         # Add tool callbacks:
         toolset.add_tool_callback(tool_callbacks)
@@ -69,7 +86,7 @@ def initialize_omega_agent(
             name="Omega",
             model_name=main_llm_model_name,
             temperature=temperature,
-            toolset=toolset
+            toolset=toolset,
         )
 
         # Format system instructions:
@@ -89,19 +106,11 @@ def initialize_omega_agent(
         return omega_agent
 
 
-def prepare_toolset(has_human_input_tool, tool_context) -> ToolSet:
+def prepare_toolset(tool_context, vision_llm_model_name) -> ToolSet:
     tools = []
 
-    # Basic list of tools:
-    # _append_basic_tools(tool_context, tools)
-
-    # Adding the human input tool if required:
-    # if has_human_input_tool:
-    #    from napari_chatgpt.omega_agent.tools.special.human_input_tool import HumanInputTool
-    #    tools.append(HumanInputTool(**tool_context))
-
     # Adding all napari tools:
-    _append_all_napari_tools(tool_context, tools)
+    _append_all_napari_tools(tool_context, tools, vision_llm_model_name)
 
     # Create Toolset from the list of tools:
     toolset = ToolSet(tools)
@@ -109,7 +118,7 @@ def prepare_toolset(has_human_input_tool, tool_context) -> ToolSet:
     return toolset
 
 
-def _append_all_napari_tools(tool_context, tools):
+def _append_all_napari_tools(tool_context, tools, vision_llm_model_name):
     from napari_chatgpt.omega_agent.tools.napari.viewer_control_tool import (
         NapariViewerControlTool,
     )
@@ -152,14 +161,18 @@ def _append_all_napari_tools(tool_context, tools):
 
     tools.append(CellNucleiSegmentationTool(**tool_context))
 
-    from napari_chatgpt.utils.openai.gpt_vision import is_gpt_vision_available
+    from napari_chatgpt.utils.llm.vision import is_vision_available
 
-    if is_gpt_vision_available():
+    if is_vision_available():
         from napari_chatgpt.omega_agent.tools.napari.viewer_vision_tool import (
             NapariViewerVisionTool,
         )
 
-        tools.append(NapariViewerVisionTool(**tool_context))
+        tools.append(
+            NapariViewerVisionTool(
+                vision_model_name=vision_llm_model_name, **tool_context
+            )
+        )
 
     from napari_chatgpt.utils.system.is_apple_silicon import is_apple_silicon
 

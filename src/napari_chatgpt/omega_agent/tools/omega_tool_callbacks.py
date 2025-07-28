@@ -11,13 +11,13 @@ class OmegaToolCallbacks(BaseToolCallbacks):
     for these events by passing in callback functions that will be executed at the appropriate times.
     """
 
-    def __init__(self,
-                    _on_tool_start: Callable,
-                    _on_tool_activity: Callable,
-                    _on_tool_end: Callable,
-                    _on_tool_error: Callable
-                 ):
-
+    def __init__(
+        self,
+        _on_tool_start: Callable,
+        _on_tool_activity: Callable,
+        _on_tool_end: Callable,
+        _on_tool_error: Callable,
+    ):
         """
         Initialize the OmegaToolCallbacks with specific callback functions.
         This class is designed to handle tool lifecycle events such as start, activity, end, and error.
@@ -46,14 +46,13 @@ class OmegaToolCallbacks(BaseToolCallbacks):
         self._on_tool_error = _on_tool_error
 
     def on_tool_start(self, tool: "BaseTool", *args, **kwargs) -> None:
-        self._on_tool_start(tool, kwargs['query'])
+        self._on_tool_start(tool, kwargs["query"])
 
     def on_tool_activity(self, tool: "BaseTool", activity_type: str, **kwargs) -> Any:
-        self._on_tool_activity(tool, activity_type, kwargs.get('code', None))
+        self._on_tool_activity(tool, activity_type, kwargs.get("code", None))
 
     def on_tool_end(self, tool: "BaseTool", result: Any) -> None:
         self._on_tool_end(tool, result)
 
     def on_tool_error(self, tool: "BaseTool", exception: Exception) -> None:
         self._on_tool_error(tool, exception)
-

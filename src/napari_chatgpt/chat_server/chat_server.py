@@ -1,4 +1,5 @@
 """Main entrypoint for the app."""
+
 import asyncio
 import os
 import traceback
@@ -26,7 +27,9 @@ from napari_chatgpt.omega_agent.tools.omega_tool_callbacks import OmegaToolCallb
 from napari_chatgpt.utils.configuration.app_configuration import AppConfiguration
 from napari_chatgpt.utils.network.port_available import find_first_port_available
 from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
-from napari_chatgpt.utils.strings.camel_case_to_normal import camel_case_to_lower_case_with_space
+from napari_chatgpt.utils.strings.camel_case_to_normal import (
+    camel_case_to_lower_case_with_space,
+)
 
 
 class NapariChatServer(BaseToolCallbacks):
@@ -47,6 +50,7 @@ class NapariChatServer(BaseToolCallbacks):
         tool_llm_model_name: str = None,
         temperature: float = 0.01,
         tool_temperature: float = 0.01,
+        has_builtin_websearch_tool: bool = True,
         memory_type: str = "standard",
         agent_personality: str = "neutral",
         fix_imports: bool = True,
@@ -161,10 +165,18 @@ class NapariChatServer(BaseToolCallbacks):
                 self.notebook.restart()
 
             # Tool's callbacks:
-            tool_callbacks = OmegaToolCallbacks(_on_tool_start=(lambda t, q : notify_user_omega_tool_start(websocket, t, q)),
-                                                _on_tool_activity=(lambda t, at, c : notify_user_omega_tool_activity(websocket, t, at, c)),
-                                                _on_tool_end=(lambda t,r : notify_user_omega_tool_end(websocket, t, r)),
-                                                _on_tool_error=(lambda t, e : notify_user_omega_error(websocket, e)))
+            tool_callbacks = OmegaToolCallbacks(
+                _on_tool_start=(
+                    lambda t, q: notify_user_omega_tool_start(websocket, t, q)
+                ),
+                _on_tool_activity=(
+                    lambda t, at, c: notify_user_omega_tool_activity(
+                        websocket, t, at, c
+                    )
+                ),
+                _on_tool_end=(lambda t, r: notify_user_omega_tool_end(websocket, t, r)),
+                _on_tool_error=(lambda t, e: notify_user_omega_error(websocket, e)),
+            )
 
             # Agent
             agent = initialize_omega_agent(
@@ -174,6 +186,7 @@ class NapariChatServer(BaseToolCallbacks):
                 tool_llm_model_name=tool_llm_model_name,
                 temperature=temperature,
                 tool_temperature=tool_temperature,
+                has_builtin_websearch_tool=has_builtin_websearch_tool,
                 notebook=self.notebook,
                 agent_personality=agent_personality,
                 fix_imports=fix_imports,
@@ -209,9 +222,9 @@ class NapariChatServer(BaseToolCallbacks):
 
                         # call LLM:
                         notify_user_omega_thinking(websocket)
-                        #result = agent(prompt)
+                        # result = agent(prompt)
                         result = await self.async_run_in_executor(agent, prompt)
-                        notify_user_omega_done(websocket)
+                        notify_user_omega_done_thinking(websocket)
 
                         with asection(f"Agent response:"):
                             # Extract text from result:
@@ -288,48 +301,61 @@ class NapariChatServer(BaseToolCallbacks):
             # Send the typing response to the user via WebSocket:
             self.sync_handler(websocket.send_json, resp.dict())
 
-        def notify_user_omega_tool_start(websocket: WebSocket, tool: BaseTool, *args, **kwargs):
+        def notify_user_omega_tool_start(
+            websocket: WebSocket, tool: BaseTool, query: str
+        ):
             """Notify user that Omega started using a tool."""
 
             # Convert name of the tool to a human-readable format:
             tool_name = camel_case_to_lower_case_with_space(tool.name)
 
             # Format the message to notify the user:
-            message = f"I am using the {tool_name} to tackle your request:\n {','.join(args)} {kwargs if kwargs else ''}"
+            message = f"I am using the {tool_name} to tackle your request:\n {query}"
 
             # Create a ChatResponse object to send to the user:
             resp = ChatResponse(sender="agent", message=message, type="tool_start")
 
             # Send the message to the user via WebSocket:
             self.sync_handler(websocket.send_json, resp.dict())
+            aprint(f"Sent to user via web-ui: {message}")
 
             # If notebook is available, add the message to it:
             if self.notebook:
                 self.notebook.add_markdown_cell("### Omega:\n" + message)
 
-        def notify_user_omega_tool_activity(websocket: WebSocket, tool: BaseTool, activity_type, code):
+        def notify_user_omega_tool_activity(
+            websocket: WebSocket, tool: BaseTool, activity_type: str, code: str
+        ):
             """Notify user that Omega started using a tool."""
             aprint(f"Tool {tool.name} is {activity_type}...")
-            if activity_type == 'coding':
+            if activity_type == "coding":
                 # Convert name of the tool to a human-readable format:
                 tool_name = camel_case_to_lower_case_with_space(tool.name)
 
                 # Format the message to notify the user:
                 message = f"Tool {tool_name} wrote and executed successfully the following code:\n\n```python\n{code.strip() if code else '[code missing!]'}\n```\n"
+
                 # Create a ChatResponse object to send to the user:
-                resp = ChatResponse(sender="agent", message=message, type="tool_activity")
+                resp = ChatResponse(
+                    sender="agent", message=message, type="tool_activity"
+                )
 
                 # Send the message to the user via WebSocket:
                 self.sync_handler(websocket.send_json, resp.dict())
+                aprint(f"Sent to user via web-ui: {message}")
 
             else:
                 # If activity type is not 'coding' then we raise an error:
-                raise ValueError(f"Unknown activity type: {activity_type}. Expected 'coding'.")
+                raise ValueError(
+                    f"Unknown activity type: {activity_type}. Expected 'coding'."
+                )
 
-
-        def notify_user_omega_tool_end(websocket: WebSocket, tool: BaseTool, result: Any):
+        def notify_user_omega_tool_end(
+            websocket: WebSocket, tool: BaseTool, result: Any
+        ):
             """Notify user that Omega's tool usage ended."""
 
+            # Convert to string if result is not a string:
             message = str(result)
 
             # Create a ChatResponse object to send to the user:
@@ -337,28 +363,11 @@ class NapariChatServer(BaseToolCallbacks):
 
             # Send the message to the user via WebSocket:
             self.sync_handler(websocket.send_json, resp.dict())
+            aprint(f"Sent to user via web-ui: {message}")
 
             # If notebook is available, add the message to it:
             if self.notebook:
                 self.notebook.add_markdown_cell("### Omega:\n" + message)
-
-        # def on_tool_end(self, output: str, **kwargs: Any) -> Any:
-        #     """Run when tool ends running."""
-        #     if self.verbose:
-        #         aprint(f"TOOL on_tool_end: {output}")
-        #     if output.startswith("Error:") or "Failure" in output:
-        #         resp = ChatResponse(sender="agent", message=output, type="error")
-        #         self.run_async(self.websocket.send_json, resp.dict())
-        #         if self.notebook:
-        #             self.notebook.add_markdown_cell("### Omega:\n" + "Error:\n" + output)
-        #     else:
-        #         resp = ChatResponse(sender="agent", message=output, type="tool_result")
-        #         self.run_async(self.websocket.send_json, resp.dict())
-        #         if self.notebook:
-        #             self.notebook.add_markdown_cell(
-        #                 "### Omega:\n" + "Tool result:\n" + output
-        #             )
-
 
         def notify_user_omega_error(websocket: WebSocket, error: Exception):
             """Notify user that Omega's tool encountered an error."""
@@ -375,12 +384,13 @@ class NapariChatServer(BaseToolCallbacks):
 
             # Send the error response to the user via WebSocket:
             self.sync_handler(websocket.send_json, resp.dict())
+            aprint(f"Sent to user via web-ui: {message}")
 
             # If notebook is available, add the error message to it:
             if self.notebook:
                 self.notebook.add_markdown_cell("### Omega:\n" + "Error:\n" + message)
 
-        def notify_user_omega_done(websocket: WebSocket):
+        def notify_user_omega_done_thinking(websocket: WebSocket):
             """Notify user that Omega has finished processing."""
             # resp = ChatResponse(sender="agent", message=message, type="finish")
             # await self.websocket.send_json(resp.dict())
@@ -390,7 +400,6 @@ class NapariChatServer(BaseToolCallbacks):
             config = Config(app, port=self.port)
             self.uvicorn_server = Server(config=config)
             self.uvicorn_server.run()
-
 
     def run(self):
         self._start_uvicorn_server(self.app)
@@ -417,14 +426,13 @@ class NapariChatServer(BaseToolCallbacks):
         return self.event_loop.run_in_executor(None, func, *args)
 
 
-
-
 def start_chat_server(
     viewer: napari.Viewer = None,
     main_llm_model_name: str = None,
     tool_llm_model_name: str = None,
     temperature: float = 0.01,
     tool_temperature: float = 0.01,
+    has_builtin_websearch_tool: bool = True,
     memory_type: str = "standard",
     agent_personality: str = "neutral",
     fix_imports: bool = True,
@@ -469,6 +477,7 @@ def start_chat_server(
             tool_llm_model_name=tool_llm_model_name,
             temperature=temperature,
             tool_temperature=tool_temperature,
+            has_builtin_websearch_tool=has_builtin_websearch_tool,
             memory_type=memory_type,
             agent_personality=agent_personality,
             fix_imports=fix_imports,
@@ -481,7 +490,6 @@ def start_chat_server(
         )
 
         with asection("Starting chat server..."):
-
 
             # Define server thread code:
             def server_thread_function():
