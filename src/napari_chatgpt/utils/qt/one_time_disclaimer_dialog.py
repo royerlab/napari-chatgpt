@@ -8,17 +8,17 @@ def show_one_time_disclaimer_dialog(
     html_message: str, message_title: str = "Disclaimer", app_name: str = "omega"
 ) -> int:
     """
-    Show a one-time disclaimer dialog with a message in HTML format.
-
-    Parameters
-    ----------
-    html_message:
-        The message to display in HTML format.
-
-    Returns
-    -------
-    int
-
+    Display a one-time disclaimer dialog with an HTML-formatted message.
+    
+    If the disclaimer has already been acknowledged, the dialog is not shown and an OK response is returned. Otherwise, the dialog is displayed, and acknowledgment is recorded for future runs.
+    
+    Parameters:
+        html_message (str): The HTML content to display in the dialog.
+        message_title (str, optional): The title of the dialog window. Defaults to "Disclaimer".
+        app_name (str, optional): The application name used for configuration. Defaults to "omega".
+    
+    Returns:
+        int: The response code from the dialog interaction (typically QMessageBox.Ok).
     """
 
     # Get app configuration:

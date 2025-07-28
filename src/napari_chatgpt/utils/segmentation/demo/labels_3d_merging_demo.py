@@ -13,6 +13,11 @@ from napari_chatgpt.utils.segmentation.labels_3d_merging import (
 # Example usage
 def main():
     # Load the 'cells' example dataset
+    """
+    Performs 3D cell segmentation on a microscopy dataset using a 2D StarDist model and visualizes the results with Napari.
+    
+    Loads a sample 3D cell image, normalizes its intensity, segments the volume by applying a pretrained 2D StarDist model slice-by-slice, and displays both the normalized image and segmentation labels in a Napari viewer.
+    """
     cells = skimage.data.cells3d()[:, 1]
 
     # Normalize the image:
@@ -27,6 +32,15 @@ def main():
     model = StarDist2D.from_pretrained(model_type)
 
     def segment_2d(image):
+        """
+        Segment a 2D microscopy image using a StarDist model.
+        
+        Parameters:
+            image (ndarray): A 2D image array to be segmented.
+        
+        Returns:
+            labels (ndarray): A 2D array of integer labels representing segmented objects.
+        """
         labels = stardist_2d(image, scale=1, model_type=model_type, model=model)
 
         return labels

@@ -67,12 +67,9 @@ class NapariViewerControlTool(BaseNapariTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the NapariViewerControlTool.
-
-        Parameters
-        ----------
-        kwargs: dict
-            Additional keyword arguments to pass to the base
+        Initialize a tool for controlling a napari viewer instance via natural language requests.
+        
+        Sets up the tool's name, description, prompt template, instructions, and code prefix for generating and executing Python code that manipulates the provided napari viewer. Disables saving of the last generated code.
         """
         super().__init__(**kwargs)
 
@@ -92,6 +89,17 @@ class NapariViewerControlTool(BaseNapariTool):
 
     def _run_code(self, request: str, code: str, viewer: Viewer) -> str:
 
+        """
+        Execute generated Python code to manipulate the provided napari viewer instance based on a natural language request.
+        
+        Parameters:
+            request (str): The plain text instruction describing the desired viewer manipulation.
+            code (str): The generated Python code intended to fulfill the request.
+            viewer (Viewer): The napari viewer instance to be controlled.
+        
+        Returns:
+            str: A summary message indicating success and any captured output, or an error message if execution fails.
+        """
         try:
             with asection(f"NapariViewerControlTool:"):
                 with asection(f"Request:"):

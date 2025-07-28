@@ -44,12 +44,13 @@ from napari_chatgpt.microplugin.network.code_drop_server import CodeDropServer
 class CodeSnippetEditorWidget(QWidget):
     def __init__(self, folder_path: str, variables: Optional[dict] = None, parent=None):
         """
-        Create a widget for editing Python code snippets.
-
-        Parameters
-        ----------
-        folder_path : str
-            The path to the folder containing the Python code snippets.
+        Initialize the CodeSnippetEditorWidget for managing and editing Python code snippets in a specified folder.
+        
+        Creates mappings for file display names, sets up undo stacks, initializes network client and server for code sharing, checks for language model availability, and builds the user interface.
+        
+        Parameters:
+            folder_path (str): Path to the folder containing Python code snippets.
+            variables (dict, optional): Dictionary of variables available to code execution within the widget.
         """
         super().__init__(parent)
         self.folder_path = folder_path
@@ -83,6 +84,11 @@ class CodeSnippetEditorWidget(QWidget):
         self.llm_model_name = None
 
     def init_UI(self):
+        """
+        Initializes the user interface components for the code snippet editor widget.
+        
+        Sets up the main layout, toolbar with file and AI-related actions, file list, code editor, auxiliary widgets, and connects relevant signals for user interaction.
+        """
         main_layout = QVBoxLayout(self)
 
         # Initialize the toolbar
@@ -94,6 +100,15 @@ class CodeSnippetEditorWidget(QWidget):
 
         # function to get icon from fontawesome:
         def _get_icon(icon_name: str):
+            """
+            Return a QtAwesome icon with the specified name and predefined color.
+            
+            Parameters:
+                icon_name (str): The name of the icon to retrieve.
+            
+            Returns:
+                QIcon: The generated QtAwesome icon.
+            """
             return qtawesome.icon(icon_name, color=icon_color)
 
         # New file button with a standard icon:
@@ -208,6 +223,14 @@ class CodeSnippetEditorWidget(QWidget):
     def show_context_menu(self, position):
 
         # Create the context menu:
+        """
+        Display a context menu for file operations and AI-assisted actions at the specified position in the file list.
+        
+        The menu includes options for refreshing, renaming, duplicating, deleting, and locating files, as well as AI-powered actions such as cleaning, checking, commenting, and modifying code if a language model is available.
+        
+        Parameters:
+            position: The position in the file list widget where the context menu should appear.
+        """
         context_menu = QMenu(self)
 
         # Instantiate actions for the context menu:
@@ -259,11 +282,24 @@ class CodeSnippetEditorWidget(QWidget):
         context_menu.exec_(self.list_widget.mapToGlobal(position))
 
     def on_server_discovered(self, server_name, server_address, port_number):
+        """
+        Handles the event when a new code-sharing server is discovered on the network.
+        
+        Parameters:
+            server_name (str): The name of the discovered server.
+            server_address (str): The IP address of the discovered server.
+            port_number (int): The port number on which the server is available.
+        """
         aprint(f"Discovered server: {server_name} at {server_address}:{port_number}")
 
     def server_message_received(self, addr, message):
 
         # Get IP address and port number:
+        """
+        Handles incoming code file messages from the network, prompting the user to accept and save the received file.
+        
+        If accepted, creates a new file with the received code, prepending metadata about the sender and receipt time.
+        """
         ip_address, port = addr
 
         aprint(f"Message of length: {len(message)} received from {ip_address}:{port}")
@@ -285,6 +321,9 @@ class CodeSnippetEditorWidget(QWidget):
         message = f"Accept file '{filename}' sent by {username} at {hostname} ({ip_address}:{port})?"
 
         def _accept_file():
+            """
+            Create a new file with the received code, appending a 'received' postfix to the filename if necessary to avoid overwriting existing files.
+            """
             self.new_file(filename=filename, code=code, postfix_if_exists="received")
 
         # Show the question widget:
@@ -295,6 +334,11 @@ class CodeSnippetEditorWidget(QWidget):
     def populate_list(self, selected_filename: Optional[str] = None):
 
         # Clear the list widget and dictionaries:
+        """
+        Populate the file list widget with Python files from the target folder, updating display names and selection.
+        
+        If a filename is too long or duplicates exist, display names are truncated or suffixed to ensure uniqueness. The widget's width is adjusted to fit the longest display name. Optionally, a specific file can be selected and loaded after repopulation.
+        """
         self.list_widget.clear()
         self.filename_to_displayname.clear()
         self.displayname_to_filename.clear()
@@ -367,6 +411,17 @@ class CodeSnippetEditorWidget(QWidget):
     ) -> str:
 
         # Convert index to string if it is not None:
+        """
+        Truncate a filename to a specified maximum length, appending an optional index and preserving the file extension.
+        
+        Parameters:
+            filename (str): The original filename to be truncated.
+            index (int, optional): An optional index to append after truncation for uniqueness.
+            max_length (int): The maximum allowed length of the truncated filename.
+        
+        Returns:
+            str: The truncated filename with ellipsis and index if applicable.
+        """
         if index is not None:
             index_str = str(index)
         else:
@@ -412,6 +467,11 @@ class CodeSnippetEditorWidget(QWidget):
     def save_current_file(self):
 
         # If there is a currently open file, save it:
+        """
+        Saves the contents of the currently open code editor to its associated file.
+        
+        If no file is open or no editor is active, the function does nothing.
+        """
         if self.currently_open_filename:
 
             # Make sure that there is an editor <=> at least one file in the list:
@@ -430,6 +490,16 @@ class CodeSnippetEditorWidget(QWidget):
     ):
 
         # Make sure the file has '.py' extension:
+        """
+        Create a new Python file with the specified filename and code, ensuring no existing file is overwritten.
+        
+        If a file with the given name exists, appends a postfix and incrementing number to generate a unique filename. After creation, updates the file list and selects the new file.
+        
+        Parameters:
+            filename (str): Desired name for the new file. The '.py' extension is added if missing.
+            code (Optional[str]): Initial code content to write into the new file. Defaults to an empty string.
+            postfix_if_exists (str): Suffix to append for duplicate filenames. Defaults to '_copy'.
+        """
         if not filename.endswith(".py"):
             filename = f"{filename}.py"
 
@@ -477,6 +547,11 @@ class CodeSnippetEditorWidget(QWidget):
 
     def new_file_dialog(self):
 
+        """
+        Prompt the user to enter a new filename and create a new file, optionally using the current editor's content if no file is open.
+        
+        If no file is currently selected but the editor contains text, the new file will be initialized with that content; otherwise, it will be empty.
+        """
         def _new_file(filename_text: str):
             # if no file is selected but the editor has contents, use it as the new file's content:
 
@@ -509,6 +584,11 @@ class CodeSnippetEditorWidget(QWidget):
     def duplicate_file(self):
 
         # get current item:
+        """
+        Create a duplicate of the currently selected code snippet file with a unique filename.
+        
+        If a file with the default duplicate name exists, appends a numeric suffix to ensure uniqueness. The new file is added to the file list and selected.
+        """
         current_item = self.list_widget.currentItem()
 
         if current_item:
@@ -549,6 +629,9 @@ class CodeSnippetEditorWidget(QWidget):
     def delete_file_from_context_menu(self):
 
         # Get current item:
+        """
+        Deletes the file corresponding to the currently selected item in the file list via the context menu.
+        """
         current_item = self.list_widget.currentItem()
 
         # If there is a current item:
@@ -561,6 +644,11 @@ class CodeSnippetEditorWidget(QWidget):
 
     def delete_file(self, filename=None):
         # Determine which file to delete:
+        """
+        Prompt the user for confirmation and delete the specified file or the currently open file.
+        
+        If a file is deleted, the file list and editor are updated accordingly. If no files remain, the editor is cleared.
+        """
         file_to_delete = filename or self.currently_open_filename
 
         # If there is a file to delete:
@@ -571,6 +659,9 @@ class CodeSnippetEditorWidget(QWidget):
 
             def _delete_file():
                 # Get the full path to the file:
+                """
+                Delete the specified file from disk, refresh the file list, and update the editor display accordingly.
+                """
                 file_to_delete_path = os.path.join(self.folder_path, file_to_delete)
 
                 # remove file:
@@ -594,6 +685,11 @@ class CodeSnippetEditorWidget(QWidget):
     def rename_file(self):
 
         # Get current line:
+        """
+        Prompt the user to rename the currently selected file and update the file and UI accordingly.
+        
+        If a file is selected, saves any changes, prompts the user for a new name, renames the file on disk, and refreshes the file list to reflect the change.
+        """
         current_item = self.list_widget.currentItem()
 
         if current_item:
@@ -654,6 +750,11 @@ class CodeSnippetEditorWidget(QWidget):
 
     def open_file_in_system(self):
         # Get current item:
+        """
+        Opens the currently selected file in the system's default application for its file type.
+        
+        This method determines the operating system and uses the appropriate system command to open the file externally.
+        """
         current_item = self.list_widget.currentItem()
 
         if current_item:
@@ -682,6 +783,9 @@ class CodeSnippetEditorWidget(QWidget):
 
         # Open the folder in the system for different OS:
         # First OSX:
+        """
+        Opens the folder containing code snippets in the system's default file explorer.
+        """
         if sys.platform == "darwin":
             os.system(f"open {self.folder_path}")
         # Then Windows:
@@ -697,6 +801,11 @@ class CodeSnippetEditorWidget(QWidget):
             os.system(f"xdg-open {self.folder_path}")
 
     def check_code_safety_with_AI(self):
+        """
+        Analyzes the currently open code snippet for safety using an AI model and displays the results in a dialog.
+        
+        The method retrieves the code from the active editor, sends it to an AI-powered safety checker, and presents the safety assessment and explanation in a modal dialog with an appropriate icon based on the safety rank.
+        """
         if self.currently_open_filename:
 
             # Make sure that there is an editor <=> at least one file in the list:
@@ -728,6 +837,9 @@ class CodeSnippetEditorWidget(QWidget):
             dialog.exec_()
 
     def comment_code_with_AI(self):
+        """
+        Uses an AI model to add comments and explanations to the currently open code snippet, updating the editor with the commented code.
+        """
         if self.currently_open_filename:
 
             # Make sure that there is an editor <=> at least one file in the list:
@@ -746,6 +858,11 @@ class CodeSnippetEditorWidget(QWidget):
             self.editor_manager.current_editor.setPlainTextUndoable(code)
 
     def modify_code_with_AI(self):
+        """
+        Prompts the user for a code modification request and uses an AI model to update the currently open file accordingly.
+        
+        If a file is open, displays a dialog for the user to describe the desired code changes. The code is then modified using an AI model based on the user's request, with a comment prepended indicating the modification details. The updated code replaces the current editor content. Changes can be undone with standard undo functionality.
+        """
         if self.currently_open_filename:
 
             def _modify_code(request: str):
@@ -802,6 +919,11 @@ class CodeSnippetEditorWidget(QWidget):
     def send_current_file(self):
 
         # Send the file if there is a currently open file:
+        """
+        Opens a dialog to send the currently open file's code over the network.
+        
+        If a file is open in the editor, displays a dialog allowing the user to share its contents using the code drop send widget.
+        """
         if self.currently_open_filename:
 
             def _get_current_code_and_filename():
@@ -819,6 +941,11 @@ class CodeSnippetEditorWidget(QWidget):
     def run_current_file(self):
 
         # Run the file if there is a currently open file:
+        """
+        Executes the currently open Python code snippet as a module and displays the output or errors in the console.
+        
+        If a file is open and an editor is active, saves the file, retrieves its code, and runs it using the provided variables. Captured output or any exceptions, including stack traces, are shown in the console widget.
+        """
         if self.currently_open_filename:
 
             # Save the file before running it:
@@ -860,6 +987,9 @@ class CodeSnippetEditorWidget(QWidget):
     def current_list_item_changed(self, current, previous):
 
         # If the current item is different from the previous one, load the snippet:
+        """
+        Loads the code snippet corresponding to the newly selected file in the list when the selection changes.
+        """
         if current and (previous == None or current.text != previous.text()):
             # Load the snippet:
             self.load_snippet()

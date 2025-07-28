@@ -34,6 +34,15 @@ Make sure we have the right answer.
 
 
 def required_imports(code: str, llm: LLM = None, verbose: bool = False):
+    """
+    Determine and return a list of validated import statements required to run the given Python code snippet without errors.
+    
+    Parameters:
+        code (str): The Python code snippet to analyze.
+    
+    Returns:
+        list of str: Import statements necessary for the code to execute, validated for correctness.
+    """
     with asection(
         f"Automatically determines missing imports for code of length: {len(code)}"
     ):
@@ -74,6 +83,15 @@ def required_imports(code: str, llm: LLM = None, verbose: bool = False):
 
 
 def check_import_statement(import_statement):
+    """
+    Validate whether a given Python import statement is syntactically correct and references existing modules and names.
+    
+    Parameters:
+        import_statement (str): The import statement to validate.
+    
+    Returns:
+        bool: True if the import statement is valid and all referenced modules and names exist; False otherwise.
+    """
     with asection(
         f"Checking the validity of suggested import statement: '{import_statement}'"
     ):

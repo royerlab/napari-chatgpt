@@ -11,6 +11,11 @@ from arbol import asection, aprint
 
 def dynamic_import(module_code: str, name: str = None) -> Optional[Any]:
     # Module name:
+    """
+    Dynamically imports a Python module from a source code string.
+    
+    If no module name is provided, a random name is generated. The code is written to a temporary file, loaded as a module, and executed. Returns the loaded module object.
+    """
     if not name:
         name = f"some_code_{randint(0, 999999999)}"
 
@@ -40,6 +45,17 @@ def execute_code({}):
 
 
 def execute_as_module(code_str, name: str = None, **kwargs) -> str:
+    """
+    Execute a code string as a dynamically created module function with optional input variables and capture its standard output.
+    
+    Parameters:
+        code_str (str): The Python code to execute as the body of a function.
+        name (str, optional): The name to assign to the generated module.
+        **kwargs: Variables to pass as arguments to the executed function.
+    
+    Returns:
+        str: The captured standard output produced by the executed code.
+    """
     with asection(f"Executing code as module (length={len(code_str)})"):
 
         # Create a function in the new module that will receive the variables

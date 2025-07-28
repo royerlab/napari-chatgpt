@@ -16,6 +16,15 @@ class CodeDropSendWidget(QWidget):
         refresh_interval: int = 1,
     ):
 
+        """
+        Initialize the CodeDropSendWidget with a CodeDropClient and UI configuration.
+        
+        Parameters:
+            code_drop_client (CodeDropClient): The client used to manage server discovery and code sending.
+            max_height (int, optional): Maximum height of the widget in pixels. Defaults to 50.
+            margin (int, optional): Margin size for the widget layout. Defaults to 0.
+            refresh_interval (int, optional): Interval in seconds for refreshing the server list. Defaults to 1.
+        """
         super().__init__()
 
         # Code Drop Client:
@@ -33,6 +42,13 @@ class CodeDropSendWidget(QWidget):
     def initUI(self, max_height: int, margin: int):
 
         # Layout:
+        """
+        Set up the user interface for the code sending widget, including server selection, send and cancel buttons, and layout configuration.
+        
+        Parameters:
+            max_height (int): The maximum height for the widget.
+            margin (int): The margin to apply around the widget's layout.
+        """
         layout = QHBoxLayout(self)
 
         # Server selection dropdown
@@ -71,6 +87,11 @@ class CodeDropSendWidget(QWidget):
 
     def update_server_list(self):
 
+        """
+        Refreshes the server selection combo box with the latest list of available servers.
+        
+        Preserves the user's current selection if possible by matching a unique identifier for each server. If the previously selected server is no longer available, defaults to the first server in the list.
+        """
         def _identifier(username_address_port):
             if not username_address_port:
                 return None
@@ -111,6 +132,11 @@ class CodeDropSendWidget(QWidget):
     def send_code(self):
 
         # Get the selected server address and port:
+        """
+        Sends the current code snippet to the selected server and hides the widget.
+        
+        If a server is selected and code is available, transmits the code to the chosen server using the CodeDropClient. If no server is selected or no code is available, logs an appropriate message. The widget is then hidden and server discovery is stopped.
+        """
         username_address_port = self.username_address_port_combo_box.currentData()
 
         if username_address_port:
@@ -142,6 +168,9 @@ class CodeDropSendWidget(QWidget):
     def canceled(self):
 
         # Hide:
+        """
+        Cancels the send operation by hiding the widget, disabling server discovery, and stopping the server list refresh timer.
+        """
         self.hide()
 
         # Disable discovery worker:
@@ -165,6 +194,9 @@ class CodeDropSendWidget(QWidget):
 
     def stop_server_list_refresh(self):
         # Stop the timer:
+        """
+        Stops and deletes the server list refresh timer if it is running.
+        """
         if self.timer:
             self.timer.stop()
             self.timer.deleteLater()
@@ -173,6 +205,12 @@ class CodeDropSendWidget(QWidget):
     def show_send_dialog(self, get_code_callable: Callable[[], Tuple[str, str]]):
 
         # Store the filename and code:
+        """
+        Displays the widget for sending code and prepares it to retrieve code from the provided callable.
+        
+        Parameters:
+            get_code_callable (Callable[[], Tuple[str, str]]): A function that returns a tuple containing the filename and code to send.
+        """
         self.get_code_callable = get_code_callable
 
         # Enable discovery worker:
@@ -186,6 +224,9 @@ class CodeDropSendWidget(QWidget):
 
     def stop(self):
         # Stop refreshing server list:
+        """
+        Stops the periodic server list refresh for the widget.
+        """
         self.stop_server_list_refresh()
 
     def close(self):

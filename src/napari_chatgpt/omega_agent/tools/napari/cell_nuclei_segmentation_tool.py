@@ -153,6 +153,11 @@ Here is an explanation of the parameters:
 
 
 def _get_segmentation_prompt() -> str:
+    """
+    Constructs and returns a segmentation prompt string describing available segmentation functions based on installed packages.
+    
+    The prompt includes function signatures for Cellpose, StarDist, and Classic segmentation methods, depending on which are installed, and replaces placeholders in the template with the appropriate content.
+    """
     function_signatures = ""
     available_functions = ""
 
@@ -203,13 +208,9 @@ class CellNucleiSegmentationTool(BaseNapariTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the CellNucleiSegmentationTool.
-
-        Parameters
-        ----------
-        **kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+        Initialize the CellNucleiSegmentationTool with segmentation prompt, instructions, and metadata.
+        
+        This constructor sets up the tool for segmenting cells or nuclei in napari image layers using supported algorithms. It configures the tool's name, description, prompt, and instructions, and disables saving of the last generated code.
         """
         super().__init__(**kwargs)
 
@@ -226,6 +227,20 @@ class CellNucleiSegmentationTool(BaseNapariTool):
 
     def _run_code(self, request: str, code: str, viewer: Viewer) -> str:
 
+        """
+        Executes generated segmentation code, integrates the appropriate segmentation algorithm, and adds the result as a labels layer to the napari viewer.
+        
+        Parameters:
+            request (str): The user request or prompt that led to the code generation.
+            code (str): The generated Python code intended to perform segmentation.
+            viewer (Viewer): The napari viewer instance to operate on.
+        
+        Returns:
+            str: A message indicating success or describing any error encountered during execution.
+        
+        Raises:
+            ValueError: If the segmentation function used in the code cannot be determined.
+        """
         try:
             with asection(f"CellNucleiSegmentationTool:"):
                 with asection(f"Request:"):
@@ -308,6 +323,12 @@ class CellNucleiSegmentationTool(BaseNapariTool):
 
 @cache
 def stardist_package_massaging() -> str:
+    """
+    Install StarDist and its required TensorFlow dependencies on macOS systems.
+    
+    Returns:
+        str: Combined output messages from the installation commands, or an empty string if not on macOS.
+    """
     message = ""
     if sys.platform == "darwin":
         with asection(f"Stardist requires special treatment on M1"):
@@ -323,6 +344,9 @@ def stardist_package_massaging() -> str:
 
 
 def purge_tensorflow():
+    """
+    Uninstall all TensorFlow-related packages from the current environment using both conda and pip.
+    """
     with asection(f"Purging the tensorflow packages from environment"):
         conda_uninstall(
             [

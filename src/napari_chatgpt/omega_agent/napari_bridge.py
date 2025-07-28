@@ -19,11 +19,23 @@ _viewer_info = None
 
 
 def _set_viewer_info(viewer_info):
+    """
+    Set the global viewer information used by the bridge.
+    
+    Parameters:
+    	viewer_info: The viewer information object to store globally.
+    """
     global _viewer_info
     _viewer_info = viewer_info
 
 
 def _get_viewer_info():
+    """
+    Retrieve the current viewer information stored in the global variable.
+    
+    Returns:
+        The value of the global `_viewer_info`, which contains viewer-related information.
+    """
     global _viewer_info
     return _viewer_info
 
@@ -31,6 +43,11 @@ def _get_viewer_info():
 class NapariBridge:
 
     def __init__(self, viewer: Viewer):
+        """
+        Initialize the NapariBridge with a Napari Viewer instance and set up inter-thread communication for executing functions on the Napari Qt thread.
+        
+        Creates internal queues for delegating functions to the Qt thread and receiving results, and starts a worker to process these function calls.
+        """
         self.viewer = viewer
 
         self.to_napari_queue = Queue(maxsize=16)
@@ -38,6 +55,11 @@ class NapariBridge:
 
         #
         def qt_code_executor(fun: Callable[[napari.Viewer], None]):
+            """
+            Executes a delegated function on the Napari Qt thread and communicates the result or any exception via a queue.
+            
+            If an exception occurs during execution, it is captured and both the exception and its details are sent through the queue for external handling.
+            """
             with asection(f"qt_code_executor received delegated function."):
                 with ExceptionGuard() as guard:
                     aprint("Executing now!")
@@ -54,6 +76,11 @@ class NapariBridge:
 
         @thread_worker(connect={"yielded": qt_code_executor})
         def omega_napari_worker(to_napari_queue: Queue, from_napari_queue: Queue):
+            """
+            Continuously retrieves functions from a queue and yields them for execution on Napari's Qt thread.
+            
+            The worker runs until it receives a `None` value, which signals it to stop.
+            """
             while True:
 
                 # get code from the queue:
@@ -71,6 +98,12 @@ class NapariBridge:
     def get_viewer_info(self) -> str:
 
         # Setting up delegated function:
+        """
+        Retrieve information about the current Napari viewer.
+        
+        Returns:
+            str: A string containing viewer information, or an error message if retrieval fails.
+        """
         delegated_function = lambda v: get_viewer_info(v)
 
         try:
@@ -90,6 +123,12 @@ class NapariBridge:
     def take_snapshot(self):
 
         # Delegated function:
+        """
+        Capture a screenshot of the entire Napari viewer, including UI elements, and return it as a PIL image.
+        
+        Returns:
+            PIL.Image.Image: A screenshot of the current Napari viewer, or an error message if the operation fails.
+        """
         def _delegated_snapshot_function(viewer: Viewer):
             # Take a screenshot of the whole Napari viewer
             screenshot = self.viewer.screenshot(canvas_only=False, flash=False)
@@ -103,6 +142,11 @@ class NapariBridge:
         return self._execute_in_napari_context(_delegated_snapshot_function)
 
     def _execute_in_napari_context(self, delegated_function):
+        """
+        Execute a delegated function on the Napari Qt thread and return its result.
+        
+        If the delegated function raises an exception, returns an error message string describing the exception. If an unexpected error occurs during execution or communication, returns None.
+        """
         try:
 
             # Send code to napari:

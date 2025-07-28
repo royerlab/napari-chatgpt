@@ -14,13 +14,9 @@ class WebSearchTool(BaseOmegaTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the WebSearchTool.
-
-        Parameters
-        ----------
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+        Initialize a WebSearchTool instance with a predefined name and description.
+        
+        Additional keyword arguments are passed to the base class initializer.
         """
         super().__init__(**kwargs)
 
@@ -34,7 +30,15 @@ class WebSearchTool(BaseOmegaTool):
         )
 
     def run_omega_tool(self, query: str = ""):
-        """Use the tool."""
+        """
+        Performs a web search using the provided query and returns the search result.
+        
+        Parameters:
+            query (str): The plain text query to search for.
+        
+        Returns:
+            str: The result of the web search, or an error message if the search fails.
+        """
         try:
 
             with asection(f"WebSearchTool:"):

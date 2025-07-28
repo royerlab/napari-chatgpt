@@ -5,7 +5,16 @@ from qtpy import QtGui
 
 
 def format(color, style=""):
-    """Return a QTextCharFormat with the given attributes."""
+    """
+    Create a QTextCharFormat with the specified foreground color and optional font styles.
+    
+    Parameters:
+        color (str): The name of the color to use for the text foreground.
+        style (str, optional): A string containing "bold" and/or "italic" to apply those font styles.
+    
+    Returns:
+        QtGui.QTextCharFormat: The configured text format object.
+    """
     _color = QtGui.QColor()
     _color.setNamedColor(color)
 
@@ -119,6 +128,11 @@ class PythonSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     ]
 
     def __init__(self, parent: QtGui.QTextDocument) -> None:
+        """
+        Initializes the Python syntax highlighter with regex-based rules for Python language elements.
+        
+        Defines highlighting patterns for keywords, operators, braces, special identifiers, function and class names, numeric literals, strings, and comments. Also sets up multi-line string delimiters for triple-quoted strings.
+        """
         super().__init__(parent)
 
         # Multi-line strings (expression, flag, style)
@@ -164,7 +178,11 @@ class PythonSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         self.rules = [(QtCore.QRegExp(pat), index, fmt) for (pat, index, fmt) in rules]
 
     def highlightBlock(self, text):
-        """Apply syntax highlighting to the given block of text."""
+        """
+        Applies syntax highlighting to a block of text, including handling of multi-line strings and embedded triple quotes.
+        
+        Highlights Python syntax elements in the given text block using predefined regex rules and formatting styles. Correctly manages triple quotes within strings to avoid misidentifying multi-line string boundaries. Also invokes multi-line string highlighting for both single and double triple-quoted strings.
+        """
         self.tripleQuoutesWithinStrings = []
         # Do other syntax formatting
         for expression, nth, format in self.rules:

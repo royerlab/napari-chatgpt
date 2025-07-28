@@ -45,13 +45,9 @@ class ExceptionCatcherTool(BaseOmegaTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the ExceptionCatcherTool.
-
-        Parameters
-        ----------
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+        Initialize the ExceptionCatcherTool with a name, description, and optional prompt.
+        
+        Additional keyword arguments are passed to the base class initializer.
         """
         super().__init__(**kwargs)
 
@@ -67,6 +63,15 @@ class ExceptionCatcherTool(BaseOmegaTool):
 
     def run_omega_tool(self, query: str = ""):
 
+        """
+        Retrieve and report a list of uncaught exceptions captured by the global exception handler.
+        
+        Parameters:
+            query (str): Optional string representing the number of exceptions to report. If not a valid integer, all available exceptions are reported.
+        
+        Returns:
+            str: A formatted string containing descriptions of the most recent uncaught exceptions.
+        """
         with asection("ExceptionCatcherTool:"):
 
             text = "Here is the list of exceptions that occurred:\n\n"

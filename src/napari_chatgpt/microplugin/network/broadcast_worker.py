@@ -9,6 +9,15 @@ class BroadcastWorker(QObject):
     error = Signal(Exception)
 
     def __init__(self, sock, multicast_groups, port, broadcast_interval: int = 1):
+        """
+        Initialize a BroadcastWorker to periodically send multicast messages.
+        
+        Parameters:
+            sock: The socket used for sending broadcast messages.
+            multicast_groups: List of multicast group addresses to which messages will be sent.
+            port: Port number for broadcasting.
+            broadcast_interval (int, optional): Interval in seconds between broadcasts. Defaults to 1.
+        """
         super().__init__()
 
         # Store the socket object:
@@ -37,6 +46,11 @@ class BroadcastWorker(QObject):
     def broadcast(self):
 
         # Run the broadcast loop:
+        """
+        Periodically sends multicast broadcast messages containing the current username, hostname, and port to all configured multicast groups.
+        
+        The method runs in a loop controlled by internal flags, and emits an error signal if an exception occurs, allowing the broadcast process to continue.
+        """
         while self.is_running:
             try:
                 if self.is_enabled:

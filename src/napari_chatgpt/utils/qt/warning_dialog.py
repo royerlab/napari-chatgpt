@@ -4,17 +4,13 @@ from qtpy.QtWidgets import QMessageBox
 
 def show_warning_dialog(html_message: str) -> int:
     """
-    Show a warning dialog with a message in HTML format.
-
-    Parameters
-    ----------
-    html_message: str
-        The message to display in HTML format.
-
-    Returns
-    -------
-    int
-
+    Display a modal warning dialog with an HTML-formatted message.
+    
+    Parameters:
+        html_message (str): The message to display, interpreted as HTML.
+    
+    Returns:
+        int: The result code from the dialog execution.
     """
     dialog = QMessageBox()
     dialog.setIcon(QMessageBox.Warning)

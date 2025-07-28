@@ -68,12 +68,9 @@ class NapariViewerExecutionTool(BaseNapariTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the NapariViewerExecutionTool.
-        Parameters
-        ----------
-        **kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+        Initialize a tool for executing Python code that interacts with a napari viewer instance.
+        
+        Accepts additional keyword arguments for configuration, passing them to the base class.
         """
         super().__init__(**kwargs)
         self.name = "NapariViewerExecutionTool"
@@ -91,6 +88,17 @@ class NapariViewerExecutionTool(BaseNapariTool):
 
     def _run_code(self, request: str, code: str, viewer: Viewer) -> str:
 
+        """
+        Execute dynamically generated Python code that manipulates a napari viewer instance based on a plain text request.
+        
+        Parameters:
+            request (str): The user's plain text description of the desired viewer operation.
+            code (str): The generated Python code to execute.
+            viewer (Viewer): The napari viewer instance to operate on.
+        
+        Returns:
+            str: A message indicating whether the task was completed successfully, including any captured output, or an error message if execution failed.
+        """
         try:
             with asection(f"NapariViewerControlTool:"):
                 with asection(f"Request:"):

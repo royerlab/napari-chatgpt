@@ -11,14 +11,10 @@ __litemind_api = None
 
 def is_llm_available() -> bool:
     """
-    Checks if the LiteMind API is available.
-
-    This function checks if the global LiteMind API instance is initialized.
-    If it is not initialized, it will return False, indicating that the API
-    is not available.
-
+    Determine if any non-default LiteMind API implementations are available and initialized.
+    
     Returns:
-        bool: True if the LiteMind API is available, False otherwise.
+        bool: True if at least one LiteMind API implementation (other than DefaultApi and CombinedApi) exists and the global API instance is initialized; otherwise, False.
     """
 
     # Check that the list API_IMPLEMENTATIONS contains at least one API implementation except for DefaultApi and CombinedApi:
@@ -48,14 +44,10 @@ def is_llm_available() -> bool:
 
 def get_litemind_api() -> "CombinedApi":
     """
-    Returns the global LiteMind API instance.
-
-    This function provides access to the global LiteMind API instance,
-    which is initialized with the CombinedApi class. It allows for
-    interaction with various LLM providers and features.
-
+    Return the global LiteMind API instance, initializing it if necessary.
+    
     Returns:
-        CombinedApi: The global LiteMind API instance.
+        CombinedApi: The singleton LiteMind API instance for interacting with multiple LLM providers.
     """
 
     # This module provides a global instance of the LiteMind API.
@@ -77,13 +69,10 @@ def get_litemind_api() -> "CombinedApi":
 @lru_cache
 def get_model_list() -> List[str]:
     """
-    Returns a list of available models from the LiteMind API.
-
-    This function retrieves the list of models supported by the global
-    LiteMind API instance.
-
+    Retrieve the list of model names that support text generation from the LiteMind API.
+    
     Returns:
-        list: A list of model names available in the LiteMind API.
+        List[str]: Names of available models with text generation capability.
     """
     api = get_litemind_api()
     from litemind.apis.model_features import ModelFeatures
@@ -93,18 +82,14 @@ def get_model_list() -> List[str]:
 
 def has_model_support_for(model_name: str, features: List[ModelFeatures]) -> bool:
     """
-    Checks if a specific model supports the given features.
-
-    Parameters
-    ----------
-    model_name: str
-        The name of the model to check.
-    features: List[ModelFeatures]
-        A list of features to check for support.
-
-    Returns
-    -------
-    bool: True if the model supports all specified features, False otherwise.
+    Determine whether the specified model supports all provided features.
+    
+    Parameters:
+        model_name (str): Name of the model to check.
+        features (List[ModelFeatures]): Features to verify support for.
+    
+    Returns:
+        bool: True if the model supports every feature in the list; otherwise, False.
     """
     api = get_litemind_api()
     return api.has_model_support_for(features=features, model_name=model_name)
@@ -116,24 +101,17 @@ def get_llm(
     features: Optional[List[ModelFeatures]] = None,
 ) -> LLM:
     """
-    Returns an LLM instance based on the provided features.
-
-    Parameters
-    ----------
-    model_name: str
-        The name of the model to use. If None, the best model for the
-        specified features will be selected.
-    temperature: float
-        The temperature for the LLM. Default is 0.0, which means deterministic output.
-    features : List[ModelFeatures]
-        A list of features that the desired model should support.
-        This is used to determine the best model for the given features.
-
-    Returns
-    -------
-    LLM: An instance of the LLM class configured with the best model
-         for the specified features.
-
+    Return an LLM instance configured with the specified model, temperature, and required features.
+    
+    If no model name is provided, selects the best available model supporting the requested features (defaulting to text generation if none are specified).
+    
+    Parameters:
+        model_name (str, optional): Name of the model to use. If None, the best model for the features is selected.
+        temperature (float): Sampling temperature for the LLM; 0.0 produces deterministic output.
+        features (List[ModelFeatures], optional): List of required features the model must support.
+    
+    Returns:
+        LLM: An LLM instance configured with the chosen model and temperature.
     """
 
     if features is None:

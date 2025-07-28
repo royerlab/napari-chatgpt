@@ -16,52 +16,22 @@ def cellpose_segmentation(
     diameter: Optional[float] = None,
 ) -> ndarray:
     """
-    CP cell segmentation function.
-
-    Parameters
-    ----------
-
-    image: ArrayLike
-            image for which to segment cells, must be 2D or 3D.
-
-    model_type: str
-            Model type, can be: 'cyto' or 'nuclei' or 'cyto2'.
-            'cyto'=cytoplasm (whole cell) model;
-            'nuclei'=nucleus model;
-            'cyto2'=cytoplasm (whole cell) model with additional user images
-
-    normalize: Optional[bool]
-            If True, normalizes the image to a given percentile range.
-            If False, assumes that the image is already normalized to [0,1].
-
-    norm_range_low: Optional[float]
-            Lower percentile for normalization
-
-    norm_range_high: Optional[float]
-            Higher percentile for normalization
-
-    min_segment_size: Optional[int]
-            Minimum number of pixels in a segment. Segments smaller than this are removed.
-
-    channel: Optional[Sequence[int]]
-            Default is None.
-            list of channels, either of length 2 or of length number of images by 2.
-            First element of list is the channel to segment (0=grayscale, 1=red, 2=green, 3=blue).
-            Second element of list is the optional nuclear channel (0=none, 1=red, 2=green, 3=blue).
-            For instance, to segment grayscale images, input [0,0]. To segment images with cells
-            in green and nuclei in blue, input [2,3]. To segment one grayscale image and one
-            image with cells in green and nuclei in blue, input [[0,0], [2,3]].
-
-    diameter: Optional[float]
-            Estimated size of cells.
-            if diameter is set to None, the size of the cells is estimated on a per image basis
-            you can set the average cell `diameter` in pixels yourself (recommended)
-            diameter can be a list or a single number for all images
-
-    Returns
-    -------
-    Segmented image as a labels array that can be added to napari as a Labels layer.
-
+    Performs cell segmentation on 2D or 3D images using the Cellpose deep learning model.
+    
+    The function supports optional intensity normalization, configurable model types, channel selection, and removal of small segmented objects. Returns a labeled array suitable for visualization or further analysis.
+    
+    Parameters:
+        image (ArrayLike): Input image to segment; must be 2D or 3D.
+        model_type (str): Cellpose model type ('cyto', 'nuclei', or 'cyto2').
+        normalize (Optional[bool]): If True, normalizes image intensity to the specified percentile range.
+        norm_range_low (Optional[float]): Lower percentile for normalization.
+        norm_range_high (Optional[float]): Upper percentile for normalization.
+        min_segment_size (int): Minimum pixel size for segments; smaller segments are removed.
+        channel (Optional[Sequence[int]]): Channel specification for segmentation and optional nuclear channel; defaults to [0, 0].
+        diameter (Optional[float]): Estimated cell diameter; if None, estimated per image or set to 30 for 3D images.
+    
+    Returns:
+        ndarray: Labeled array of segmented cells.
     """
     ### SIGNATURE
 
@@ -110,6 +80,16 @@ def cellpose_segmentation(
 
 def remove_small_segments(labels, min_segment_size):
     # remove small segments:
+    """
+    Remove segments smaller than a specified size from a labeled image.
+    
+    Parameters:
+        labels: An array of labeled regions.
+        min_segment_size: Minimum number of pixels a segment must have to be retained.
+    
+    Returns:
+        The label image with segments smaller than the specified size removed.
+    """
     if min_segment_size > 0:
         from skimage.morphology import remove_small_objects
 

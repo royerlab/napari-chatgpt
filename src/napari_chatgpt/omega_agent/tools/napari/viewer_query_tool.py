@@ -67,12 +67,9 @@ class NapariViewerQueryTool(BaseNapariTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the NapariViewerQueryTool.
-
-        Parameters
-        ----------
-        **kwargs: Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+        Initialize a tool for answering concise, plain-text queries about the state of a napari viewer and its layers.
+        
+        This constructor sets up the tool's metadata, prompt template, and usage instructions, configuring it to generate and execute code that inspects an existing napari viewer instance. The tool is intended for short, explicit queries and is not suitable for requests that would return large datasets.
         """
         super().__init__(**kwargs)
 
@@ -92,6 +89,19 @@ class NapariViewerQueryTool(BaseNapariTool):
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
 
+        """
+        Dynamically executes generated Python code to answer a query about the state of a napari viewer.
+        
+        The method prepares and imports the provided code as a module, retrieves the `query(viewer)` function, and executes it with the given viewer instance. It captures any standard output produced during execution, logs relevant information, and integrates the code into a notebook and snippet editor if configured. Returns a formatted message containing the response and any captured output, or an error message if execution fails.
+        
+        Parameters:
+            query (str): The plain-text query to be answered about the napari viewer.
+            code (str): The dynamically generated Python code implementing the `query(viewer)` function.
+            viewer (Viewer): The napari viewer instance to be queried.
+        
+        Returns:
+            str: The response to the query, including any captured standard output or an error message if execution fails.
+        """
         try:
             with asection(f"NapariViewerQueryTool:"):
                 with asection(f"Query:"):

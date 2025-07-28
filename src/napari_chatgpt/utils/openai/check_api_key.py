@@ -3,10 +3,13 @@ from arbol import aprint
 
 def check_openai_api_key(openai_api_key: str) -> bool:
     """
-    Check if the OpenAI API key is valid.
-
-    Args:
-    api_key (
+    Validate an OpenAI API key by attempting a test request.
+    
+    Parameters:
+        openai_api_key (str): The API key to validate.
+    
+    Returns:
+        bool: True if the API key is valid, False if invalid.
     """
 
     import openai

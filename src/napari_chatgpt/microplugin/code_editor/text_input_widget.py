@@ -15,6 +15,14 @@ from qtpy.QtWidgets import (
 class TextInputWidget(QWidget):
     def __init__(self, max_height: int = 50, margin: int = 0, parent=None):
 
+        """
+        Initialize the TextInputWidget with optional maximum height, margin, and parent widget.
+        
+        Parameters:
+            max_height (int): Maximum height of the widget in pixels. Defaults to 50.
+            margin (int): Margin size for the widget layout. Defaults to 0.
+            parent: Optional parent widget.
+        """
         super().__init__(parent=parent)
 
         # Initialize callbacks:
@@ -31,6 +39,13 @@ class TextInputWidget(QWidget):
     def initUI(self, max_height: int, margin: int):
 
         # Layout:
+        """
+        Initialize the widget's user interface components, including layout, input fields, message label, and action buttons.
+        
+        Parameters:
+            max_height (int): The maximum height for the widget.
+            margin (int): The margin to apply around the widget's layout.
+        """
         self.layout = QHBoxLayout(self)
 
         # Message label:
@@ -83,6 +98,21 @@ class TextInputWidget(QWidget):
     ):
 
         # Set multi_line:
+        """
+        Configures and displays the text input widget with specified options and callbacks.
+        
+        Parameters:
+            message (str): The message to display above the input field.
+            placeholder_text (str, optional): Placeholder text for the input field.
+            default_text (str, optional): Default text to pre-fill in the input field.
+            enter_text (str, optional): Label for the Enter button.
+            cancel_text (str, optional): Label for the Cancel button. If empty, the button is hidden.
+            enter_callback (callable, optional): Function to call with the input text when Enter is pressed.
+            cancel_callback (callable, optional): Function to call with an empty string when Cancel is pressed.
+            do_after_callable (callable, optional): Function to call after the widget is hidden, with the input or empty string.
+            multi_line (bool, optional): If True, uses a multi-line input field; otherwise, single-line.
+            max_height (int, optional): Maximum height for the widget.
+        """
         self.multi_line = multi_line
 
         # Set the maximum height if provided:
@@ -124,6 +154,9 @@ class TextInputWidget(QWidget):
         self.show()
 
     def on_enter(self):
+        """
+        Handles the Enter action by retrieving the input text, invoking the enter callback if provided, hiding the widget, and optionally executing a post-action callable with the input text.
+        """
         input_text = (
             self.current_input.text()
             if not self.multi_line
@@ -143,6 +176,11 @@ class TextInputWidget(QWidget):
                 self.do_after_callable(input_text)
 
     def on_cancel(self):
+        """
+        Handles the Cancel action by invoking the cancel callback and hiding the widget.
+        
+        If a cancel callback is provided, it is called with an empty string. After hiding the widget, an optional post-action callable is also invoked with an empty string.
+        """
         try:
             if self.cancel_callback:
                 self.cancel_callback("")

@@ -1,3 +1,12 @@
+/**
+ * Creates a configuration object for integrating syntax highlighting with a markdown parser.
+ *
+ * Accepts either a highlight function or an options object containing a highlight function, and returns an object with methods for processing and rendering code blocks with syntax highlighting. Supports both synchronous and asynchronous highlight functions, configurable language class prefix, and safe HTML escaping for code output.
+ *
+ * @param {Function|Object} options - A highlight function or an options object with a `highlight` function, optional `async` boolean, and optional `langPrefix` string.
+ * @return {Object} An object with properties and methods for token walking and code rendering, suitable for use with a markdown parser.
+ * @throws {Error} If a valid highlight function is not provided, or if an asynchronous highlight function is used without enabling async mode.
+ */
 function markedHighlight(options) {
     if (typeof options === 'function') {
         options = {
@@ -53,10 +62,20 @@ function markedHighlight(options) {
     };
 }
 
+/**
+ * Extracts the first non-whitespace substring from a language string.
+ * @param {string} lang - The language string, which may contain additional whitespace or metadata.
+ * @return {string} The extracted language identifier, or an empty string if none is found.
+ */
 function getLang(lang) {
     return (lang || '').match(/\S*/)[0];
 }
 
+/**
+ * Returns a function that updates a token's text and marks it as escaped if the new code differs from the original.
+ * @param {object} token - The token object to update, with `text` and `escaped` properties.
+ * @return {function(string): void} A function that takes a code string and updates the token if necessary.
+ */
 function updateToken(token) {
     return (code) => {
         if (typeof code === 'string' && code !== token.text) {
@@ -80,6 +99,12 @@ const escapeReplacements = {
 };
 const getEscapeReplacement = (ch) => escapeReplacements[ch];
 
+/**
+ * Escapes special HTML characters in a string to prevent HTML injection.
+ * @param {string} html - The string to escape.
+ * @param {boolean} encode - If true, escapes all occurrences of `&`, `<`, `>`, `"`, and `'`. If false, escapes only unsafe characters not already part of an HTML entity.
+ * @return {string} The escaped string, or the original string if no escaping is needed.
+ */
 function escape(html, encode) {
     if (encode) {
         if (escapeTest.test(html)) {

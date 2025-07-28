@@ -12,6 +12,14 @@ class MultiEditorManager(QWidget):
         editor_widget_class: type[QWidget] = PythonCodeEditor,
         parent=None,
     ):
+        """
+        Initialize the MultiEditorManager with a text modification callback, an optional editor widget class, and an optional parent widget.
+        
+        Parameters:
+            on_text_modified_callback: Callback function to be invoked when the text in any editor is modified.
+            editor_widget_class (type[QWidget], optional): The class to use for creating editor widgets. Defaults to PythonCodeEditor.
+            parent (QWidget, optional): The parent widget for this manager.
+        """
         super().__init__(parent)
         self.on_text_modified_callback = on_text_modified_callback
         self.editor_widget_class = editor_widget_class
@@ -23,6 +31,11 @@ class MultiEditorManager(QWidget):
     def switch_to(self, filename):
 
         # If we are already editing the filename, do nothing:
+        """
+        Switch the active editor to the one associated with the specified filename.
+        
+        If an editor for the given filename does not exist, it is created and added to the layout. The method updates internal references, manages signal connections for text modification callbacks, and ensures only the selected editor is visible.
+        """
         if filename == self.current_editor_name:
             return
 

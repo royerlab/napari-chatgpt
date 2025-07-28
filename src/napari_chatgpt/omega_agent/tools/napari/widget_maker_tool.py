@@ -173,13 +173,9 @@ class NapariWidgetMakerTool(BaseNapariTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the NapariWidgetMakerTool.
-
-        Parameters
-        ----------
-        **kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+        Initialize the NapariWidgetMakerTool with metadata, prompt templates, and configuration for generating napari widgets from plain text descriptions.
+        
+        Additional keyword arguments are passed to the base class.
         """
         super().__init__(**kwargs)
 
@@ -209,6 +205,17 @@ class NapariWidgetMakerTool(BaseNapariTool):
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
 
+        """
+        Executes generated napari widget code, registers the resulting widget in the viewer, and integrates the code into relevant interfaces.
+        
+        Parameters:
+            query (str): The plain text description or request that led to the code generation.
+            code (str): The generated Python code for the napari widget.
+            viewer (Viewer): The napari viewer instance to which the widget will be added.
+        
+        Returns:
+            str: A message indicating whether the widget was successfully created and registered, or describing any error encountered.
+        """
         try:
 
             with asection(f"NapariWidgetMakerTool: "):

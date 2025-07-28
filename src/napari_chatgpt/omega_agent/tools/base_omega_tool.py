@@ -10,7 +10,9 @@ class BaseOmegaTool(FunctionTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the tool with the provided keyword arguments.
+        Initialize a BaseOmegaTool instance with optional description and name.
+        
+        If not provided, the description defaults to the class docstring and the name defaults to the class name.
         """
 
         # Get Tools description:
@@ -25,20 +27,27 @@ class BaseOmegaTool(FunctionTool):
     @abstractmethod
     def run_omega_tool(self, query: str = ""):
         """
-        This is an adapter function to bridge between Omega tools and Litemind's Function tools
-        Parameters
-        ----------
-        query
-
-        Returns
-        -------
-
+        Abstract method to execute the Omega tool with the provided query.
+        
+        Parameters:
+            query (str): The input query string for the tool.
+        
+        Returns:
+            The result of the tool execution, as defined by the subclass implementation.
+        
+        Note:
+            Subclasses must implement this method to define the tool's behavior.
         """
         pass
 
     def normalise_to_string(self, kwargs):
 
         # extract the value for args key in kwargs:
+        """
+        Convert input arguments to a normalized string representation.
+        
+        If the input is a dictionary, extracts the value associated with the "args" key; otherwise, uses the input directly. If the extracted value is a single-element list, unwraps it to the element. Returns the final value as a string.
+        """
         query = kwargs.get("args", "") if isinstance(kwargs, dict) else kwargs
 
         # If query is a singleton list, extract the value:
@@ -51,12 +60,11 @@ class BaseOmegaTool(FunctionTool):
 
     def pretty_string(self):
         """
-        Return a pretty string representation of the tool agent.
-
-        Returns
-        -------
-        str
-            A pretty string representation of the tool agent.
+        Return a formatted string summarizing the tool's name and a truncated description if it exceeds 80 characters.
+        
+        If the description is longer than 80 characters, it is truncated at the first period after the 80th character and an ellipsis is appended.
+        Returns:
+            str: The formatted string representation of the tool.
         """
 
         # Shorten description to the first period _after_ 80 characters:

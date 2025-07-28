@@ -13,16 +13,11 @@ class LLM:
         self, api: BaseApi, model_name: Optional[str] = None, temperature: float = 0.0
     ):
         """
-        Initializes the LLM with the given API and model name.
-
-        Parameters
-        ----------
-        api: BaseApi
-            The API to use for generating text.
-        model_name: Optional[str]
-            The name of the model to use for text generation. If None, the default model will be used.
-        temperature: float
-            The temperature for the text generation. Default is 0.0, which means deterministic output.
+        Initialize an LLM instance with the specified API, model name, and temperature.
+        
+        Parameters:
+            model_name (Optional[str]): Name of the language model to use, or None for the default.
+            temperature (float): Controls randomness in text generation; 0.0 produces deterministic output.
         """
         self._api = api
         self.model_name = model_name
@@ -37,23 +32,17 @@ class LLM:
         temperature: Optional[float] = None,
     ) -> List[Message]:
         """
-        Generates a response from the LLM based on the provided prompt and instructions.
-        Parameters
-        ----------
-        prompt: str
-            The prompt to send to the LLM.
-        system: Optional[str]
-            Instructions to provide context or guidance for the LLM.
-        variables: Optional[dict]
-            Variables to format the prompt with.
-        model_name: Optional[str]
-            The name of the model to use for text generation. If None, the model set during initialization will be used.
-        temperature: Optional[float]
-            The temperature for the text generation. Default is None in which case it uses the temperature set during initialization.
-        Returns
-        -------
-        List[Message]
-            A list of messages containing the generated response from the LLM.
+        Generate a list of messages in response to a prompt using the language model.
+        
+        Parameters:
+            prompt (str): The input prompt for the language model.
+            system (Optional[str]): Optional system-level instructions or context.
+            variables (Optional[dict[str, str]]): Optional variables to format the prompt template.
+            model_name (Optional[str]): Optional override for the model name.
+            temperature (Optional[float]): Optional override for generation randomness.
+        
+        Returns:
+            List[Message]: The generated response as a list of Message objects.
         """
 
         # List of messages to send to the LLM:

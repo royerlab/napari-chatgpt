@@ -57,6 +57,15 @@ The answer should be the code with comments, docstrings and type hints added. Th
 def add_comments(
     code: str, llm: LLM = None, model_name: str = None, verbose: bool = False
 ) -> str:
+    """
+    Automatically annotates Python code with explanatory comments, detailed docstrings, and type hints using a large language model.
+    
+    Parameters:
+        code (str): The Python code to be annotated.
+    
+    Returns:
+        str: The annotated Python code with added comments, docstrings, and type hints, or the original code if an error occurs or the input is empty.
+    """
     with asection(
         f"Automatically adds comments, docstrings and types for code of length: {len(code)}"
     ):

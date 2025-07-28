@@ -2,24 +2,19 @@
 
 
 def aydin_classic_denoising(image, batch_axes=None, chan_axes=None, variant=None):
-    """Method to denoise an image with  Aydin's Classic denoising restoration algorithms.
-
-
-    Parameters
-    ----------
-    image : numpy.ndarray
-        Image to denoise
-    batch_axes : array_like, optional
-        Indices of batch axes. Batch dimensions/axes are dimensions/axes for which there is no-spatiotemporal correlation in the data. For example: different instance images stored in the same array.
-    chan_axes : array_like, optional
-        Indices of channel axes. This is the dimensions/axis of the numpy array that corresponds to the channel dimension of the image. Dimensions/axes that are not batch or channel dimensions are your standard X,Y,Z or T dimensions over which the data exhibits some spatiotemporal correlation.
-    variant : str
-        Algorithm variant. Can be: 'bilateral', 'butterworth', 'gaussian', 'gm', 'harmonic', 'nlm', 'pca', 'spectral', 'tv', 'wavelet'.
-
-    Returns
-    -------
-    Denoised image : numpy.ndarray
-
+    """
+    Denoise an image using Aydin's Classic restoration algorithms.
+    
+    Applies the specified variant of Aydin's Classic denoising to the input image, optionally considering batch and channel axes.
+    
+    Parameters:
+        image (numpy.ndarray): The noisy image to be denoised.
+        batch_axes (array-like, optional): Indices of batch axes where no spatiotemporal correlation exists.
+        chan_axes (array-like, optional): Indices of channel axes representing image channels.
+        variant (str, optional): The denoising algorithm variant to use. Supported values include 'bilateral', 'butterworth', 'gaussian', 'gm', 'harmonic', 'nlm', 'pca', 'spectral', 'tv', and 'wavelet'.
+    
+    Returns:
+        numpy.ndarray: The denoised image.
     """
 
     # Turn on Aydin's logging:

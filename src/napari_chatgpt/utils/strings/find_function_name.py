@@ -18,6 +18,15 @@ def find_function_name(code: str):
 
 def find_magicgui_decorated_function_name(code: str):
     # Split the code into lines:
+    """
+    Return the name of the first function defined immediately after an @magicgui decorator in the given code string.
+    
+    Parameters:
+    	code (str): Python source code to search for a @magicgui-decorated function.
+    
+    Returns:
+    	str or None: The name of the decorated function if found; otherwise, None.
+    """
     lines = code.split("\n")
 
     # Flag to indicate whether @magicgui has been found:

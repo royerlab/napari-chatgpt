@@ -1,4 +1,13 @@
 def openai_max_token_limit(llm_model_name):
+    """
+    Return the maximum token limit for a given OpenAI language model name.
+    
+    Parameters:
+        llm_model_name (str): The name of the OpenAI language model.
+    
+    Returns:
+        int: The maximum number of tokens supported by the specified model.
+    """
     if (
         "gpt-4-1106-preview" in llm_model_name
         or "gpt-4-0125-preview" in llm_model_name

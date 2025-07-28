@@ -19,6 +19,12 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
 
     def __new__(cls, *args, **kwargs):
 
+        """
+        Implements the singleton pattern for the main window, ensuring only one instance exists when the singleton mode is active.
+        
+        Returns:
+            MicroPluginMainWindow: The singleton instance if active, otherwise the most recently created instance.
+        """
         if cls._singleton_pattern_active:
             if cls._singleton_instance is None:
                 # Call __new__ of the parent class and save the instance:
@@ -42,6 +48,11 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
     ):
 
         # If the singleton instance is already initialized, just return it:
+        """
+        Initialize the MicroPluginMainWindow, configuring the editor environment, window appearance, and singleton state.
+        
+        If no folder path is provided, retrieves the default or configured folder for micro-plugins, ensuring it exists. Sets up the code editor with the Napari viewer, disables background discovery, applies Napari's stylesheet, and centers the window on the primary screen. Prevents the window from being fully closed, hiding it instead. Ensures singleton initialization is respected.
+        """
         if (
             MicroPluginMainWindow._singleton_pattern_active
             and MicroPluginMainWindow._singleton_instance_initialized
@@ -114,6 +125,11 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
     def add_snippet(filename: str, code: Optional[str] = None):
 
         # Create a new file with the given code:
+        """
+        Add a new code snippet file to the editor with the specified filename and optional code.
+        
+        If a file with the given filename already exists, a postfix '_new_from_omega' is appended to the filename.
+        """
         MicroPluginMainWindow._singleton_instance.code_editor_widget.new_file(
             filename=filename, code=code, postfix_if_exists="_new_from_omega"
         )

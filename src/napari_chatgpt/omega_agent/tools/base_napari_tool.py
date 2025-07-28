@@ -59,41 +59,25 @@ class BaseNapariTool(BaseOmegaTool):
         **kwargs: dict,
     ):
         """
-        Initialize the tool.
-        Parameters
-        ----------
-        name: str
-            The name of the tool, must be unique.
-        description: str
-            The description of the tool, must be unique.
-        code_prefix: str
-            A prefix to prepend to the generated code, useful for imports or other necessary code.
-        instructions: str
-            Instructions for the sub-LLM, can be used to guide the code generation.
-        prompt: str
-            The prompt to use for the sub-LLM, if None, the tool will not delegate to a sub-LLM.
-        to_napari_queue: Queue
-            The queue to send the generated code to napari for execution.
-        from_napari_queue: Queue
-            The queue to receive the response from napari after executing the code.
-        llm: LLM
-            The LLM to use for code generation, if None, the tool will not delegate to a sub-LLM.
-        return_direct: bool
-            If True, the tool will return the generated code directly, otherwise it will send it to napari.
-        save_last_generated_code: bool
-            If True, the tool will save the last generated code for reference in future calls.
-        fix_imports: bool
-            If True, the tool will attempt to fix missing imports in the generated code.
-        install_missing_packages: bool
-            If True, the tool will attempt to install any missing packages required by the generated code.
-        fix_bad_calls: bool
-            If True, the tool will attempt to fix bad function calls in the generated code.
-        verbose: bool
-            If True, the tool will print additional information about the process.
-        last_generated_code: str
-            The last generated code, if any, to be used for reference in the prompt.
-        kwargs: dict
-            Additional keyword arguments, not used in this tool but can be used for future extensions.
+        Initialize a BaseNapariTool instance for generating and executing Python code in the napari environment.
+        
+        This constructor sets up tool identity, code generation parameters, communication queues, LLM integration, and various behavior flags. It also prepares optional notebook integration and caches the list of installed packages for use in code preparation and execution.
+        
+        Parameters:
+            name (str): Unique name for the tool.
+            description (str): Unique description of the tool's purpose.
+            code_prefix (str): Code to prepend to generated code, such as imports.
+            instructions (str): Instructions to guide the sub-LLM's code generation.
+            prompt (str, optional): Prompt for the sub-LLM; if None, code generation is not delegated.
+            return_direct (bool): If True, returns generated code directly instead of sending to napari.
+            save_last_generated_code (bool): If True, caches the last generated code for future reference.
+            fix_imports (bool): If True, attempts to fix missing imports in generated code.
+            install_missing_packages (bool): If True, attempts to install required but missing packages.
+            fix_bad_calls (bool): If True, attempts to fix invalid function calls in generated code.
+            verbose (bool): If True, enables verbose logging.
+            last_generated_code (str, optional): Previously generated code for prompt context.
+            notebook (JupyterNotebookFile, optional): Optional notebook integration.
+            **kwargs: Additional keyword arguments for extensibility.
         """
 
         super().__init__(name=name, description=description, **kwargs)
@@ -117,7 +101,17 @@ class BaseNapariTool(BaseOmegaTool):
         self._installed_package_list = installed_package_list()
 
     def run_omega_tool(self, query: str = "") -> Any:
-        """Use the tool."""
+        """
+        Generates Python code using a sub-LLM based on the provided query and tool instructions, sends the code for execution in the napari environment, and returns the execution result or an error message.
+        
+        If a prompt is configured, this method prepares a context-rich prompt for the LLM, including previous code, environment details, and instructions. The generated code is sent to napari for execution via a delegated function and communication queues. The method returns the result from napari, or an error message if execution fails.
+        
+        Parameters:
+            query (str): The user query or instruction for code generation.
+        
+        Returns:
+            Any: The result of code execution in napari, or an error message string if execution fails.
+        """
 
         if self.prompt:
             # Instantiate message
@@ -192,8 +186,9 @@ class BaseNapariTool(BaseOmegaTool):
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
         """
-        This is the code that is executed, see implementations for details,
-        must return 'Success: ...' if things went well, otherwise it is failure!
+        Executes the provided code in the napari viewer context.
+        
+        This method must be implemented by subclasses to define how code is executed. It should return a string beginning with 'Success:' if execution is successful; otherwise, it should indicate failure.
         """
         raise NotImplementedError("This method must be implemented")
 
@@ -206,6 +201,21 @@ class BaseNapariTool(BaseOmegaTool):
         do_install_missing_packages: bool = True,
     ) -> str:
 
+        """
+        Prepare and sanitize Python code for execution in the napari environment.
+        
+        This method extracts code from markdown if needed, prepends a code prefix, fixes missing imports and bad function calls, removes disallowed lines related to napari viewer instantiation or GUI manipulation, and installs any required but missing packages. The resulting code is returned as a ready-to-execute string.
+        
+        Parameters:
+            code (str): The Python code to prepare.
+            markdown (bool): Whether to extract code from markdown format.
+            do_fix_imports (bool): Whether to detect and add missing imports.
+            do_fix_bad_calls (bool): Whether to fix bad function calls in the code.
+            do_install_missing_packages (bool): Whether to detect and install missing packages.
+        
+        Returns:
+            str: The fully prepared and sanitized Python code.
+        """
         with asection(f"NapariBaseTool: _prepare_code(markdown={markdown}) "):
 
             with asection(f"code to prepare:"):
@@ -278,6 +288,24 @@ class BaseNapariTool(BaseOmegaTool):
         self, code, viewer, error: str = "", instructions: str = "", nb_tries: int = 3
     ) -> str:
 
+        """
+        Attempts to execute the provided code in the napari viewer context, automatically fixing errors and retrying execution up to a specified number of times.
+        
+        If execution fails, the method uses the LLM to attempt to fix the code based on the encountered error and retries until successful or the retry limit is reached. On success, the executed code is added to the microplugin code snippet editor and, if available, to a Jupyter notebook.
+        
+        Parameters:
+            code (str): The Python code to execute.
+            viewer (Viewer): The napari viewer instance in which to execute the code.
+            error (str, optional): Additional error context to provide to the code fixer.
+            instructions (str, optional): Extra instructions for the code fixer.
+            nb_tries (int, optional): Maximum number of attempts to execute and fix the code.
+        
+        Returns:
+            str: The output captured from the successful code execution.
+        
+        Raises:
+            Exception: If all retry attempts fail, the last encountered exception is raised.
+        """
         try:
             with asection(f"Running code:"):
 
@@ -328,6 +356,16 @@ class BaseNapariTool(BaseOmegaTool):
 
 
 def _get_delegated_code(name: str, signature: bool = False):
+    """
+    Retrieve the contents of a delegated Python code file by name, optionally extracting only the signature section.
+    
+    Parameters:
+        name (str): The base name of the delegated code file (without extension).
+        signature (bool): If True, returns only the code section after the '### SIGNATURE' marker.
+    
+    Returns:
+        str: The full code or the signature section from the specified delegated code file.
+    """
     with asection(f"Getting delegated code: '{name}' (signature={signature})"):
         # Get current package folder:
         current_package_folder = Path(__file__).parent

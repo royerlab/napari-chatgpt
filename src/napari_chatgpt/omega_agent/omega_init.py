@@ -38,6 +38,33 @@ def initialize_omega_agent(
     tool_callbacks: Optional[BaseToolCallbacks] = None,
     verbose: bool = False,
 ) -> Agent:
+    """
+    Initializes and returns an OmegaAgent configured with napari integration, toolset, and specified behavioral options.
+    
+    This function sets up an OmegaAgent by preparing communication queues, selecting language models for both the agent and its tools, and configuring various operational flags such as import fixing, package installation, and error correction. It assembles a tool context, prepares a toolset with napari and utility tools, optionally adds a built-in web search tool if supported, attaches tool callbacks, and constructs the agent with a system message reflecting the chosen personality and didactic settings.
+    
+    Parameters:
+        to_napari_queue (Queue, optional): Queue for sending messages to the napari environment.
+        from_napari_queue (Queue, optional): Queue for receiving messages from the napari environment.
+        main_llm_model_name (str, optional): Name of the main language model for the agent.
+        tool_llm_model_name (str, optional): Name of the language model used by the agent's tools.
+        temperature (float, optional): Sampling temperature for the main agent model.
+        tool_temperature (float, optional): Sampling temperature for the tool language model.
+        has_builtin_websearch_tool (bool, optional): Whether to include a built-in web search tool if supported.
+        notebook (JupyterNotebookFile, optional): Reference to a Jupyter notebook for code execution context.
+        agent_personality (str, optional): Personality preset for the agent's responses.
+        fix_imports (bool, optional): Whether to automatically fix missing imports in generated code.
+        install_missing_packages (bool, optional): Whether to install missing Python packages as needed.
+        fix_bad_calls (bool, optional): Whether to attempt to fix incorrect function calls.
+        autofix_mistakes (bool, optional): Whether to automatically correct mistakes in code execution.
+        autofix_widget (bool, optional): Whether to automatically fix issues in napari widget creation.
+        be_didactic (bool, optional): Whether to include didactic instructions in the system prompt.
+        tool_callbacks (BaseToolCallbacks, optional): Callbacks for tool execution events.
+        verbose (bool, optional): Enables verbose logging and output.
+    
+    Returns:
+        Agent: A fully configured OmegaAgent instance ready for interaction.
+    """
     with asection("Initialising Omega Agent"):
         # Get app configuration:
         config = AppConfiguration("omega")
@@ -107,6 +134,16 @@ def initialize_omega_agent(
 
 
 def prepare_toolset(tool_context, vision_llm_model_name) -> ToolSet:
+    """
+    Constructs and returns a ToolSet containing all Napari-related tools configured with the provided context and vision model.
+    
+    Parameters:
+        tool_context (dict): Context dictionary with configuration and resources for tool initialization.
+        vision_llm_model_name (str): Name of the vision-capable language model to use for vision tools.
+    
+    Returns:
+        ToolSet: A collection of initialized tools for integration with the OmegaAgent.
+    """
     tools = []
 
     # Adding all napari tools:
@@ -119,6 +156,11 @@ def prepare_toolset(tool_context, vision_llm_model_name) -> ToolSet:
 
 
 def _append_all_napari_tools(tool_context, tools, vision_llm_model_name):
+    """
+    Appends all relevant Napari-related tools to the provided tools list based on the given context and system capabilities.
+    
+    This includes core Napari viewer tools, widget creation, file opening, web image search, and cell nuclei segmentation. If vision model support is available, a vision tool is added. If not running on Apple Silicon, an image denoising tool is also included.
+    """
     from napari_chatgpt.omega_agent.tools.napari.viewer_control_tool import (
         NapariViewerControlTool,
     )
@@ -186,6 +228,11 @@ def _append_all_napari_tools(tool_context, tools, vision_llm_model_name):
 
 
 def _append_basic_tools(tool_context, tools):
+    """
+    Appends a set of general-purpose utility and special tools to the provided tools list.
+    
+    Adds tools for web search, Python function information, exception catching, code execution, package information, and pip installation to the tools collection using the given tool context.
+    """
     from napari_chatgpt.omega_agent.tools.search.web_search_tool import WebSearchTool
 
     from napari_chatgpt.omega_agent.tools.special.exception_catcher_tool import (

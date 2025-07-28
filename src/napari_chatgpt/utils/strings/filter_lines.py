@@ -5,14 +5,15 @@ def filter_lines(
     text: str, filter_out: List[str] = None, comment_lines: bool = False
 ) -> str:
     """
-    Filters out lines in `text` that contain any of the substrings in `substrings`.
-
-    Args:
-        text (str): The input text string.
-        filter_out (list): A list of substrings to filter out.
-
+    Process a multiline string by removing or commenting out lines containing specified substrings.
+    
+    Parameters:
+        text (str): The input multiline string to process.
+        filter_out (List[str], optional): Substrings used to identify lines for filtering or commenting. If None, no lines are filtered.
+        comment_lines (bool, optional): If True, lines containing any substring in `filter_out` are prefixed with '# '. If False, such lines are removed. Defaults to False.
+    
     Returns:
-        str: The filtered text string.
+        str: The processed multiline string with lines filtered or commented as specified.
     """
     lines = text.split("\n")
     if comment_lines:

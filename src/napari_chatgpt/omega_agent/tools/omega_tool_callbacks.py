@@ -19,25 +19,9 @@ class OmegaToolCallbacks(BaseToolCallbacks):
         _on_tool_error: Callable,
     ):
         """
-        Initialize the OmegaToolCallbacks with specific callback functions.
-        This class is designed to handle tool lifecycle events such as start, activity, end, and error.
-        It allows for custom behavior to be defined when these events occur by passing
-        callback functions that will be invoked at the appropriate times.
-
-        Parameters
-        ----------
-        _on_tool_start: Callable
-            A callback function to be called when a tool starts.
-            It should accept the tool instance and any additional arguments.
-        _on_tool_activity: Callable
-            A callback function to be called when a tool is active.
-            It should accept the tool instance, the type of activity, and any additional keyword arguments.
-        _on_tool_end: Callable
-            A callback function to be called when a tool ends.
-            It should accept the tool instance and the result of the tool execution.
-        _on_tool_error: Callable
-            A callback function to be called when a tool encounters an error.
-            It should accept the tool instance and the exception that occurred.
+        Initialize OmegaToolCallbacks with user-defined callbacks for tool lifecycle events.
+        
+        This constructor stores the provided callback functions, which are invoked during tool start, activity, end, and error events to enable custom handling of each stage.
         """
 
         self._on_tool_start = _on_tool_start
@@ -46,13 +30,43 @@ class OmegaToolCallbacks(BaseToolCallbacks):
         self._on_tool_error = _on_tool_error
 
     def on_tool_start(self, tool: "BaseTool", *args, **kwargs) -> None:
+        """
+        Invoke the start callback for a tool, passing the tool instance and the associated query.
+        
+        Parameters:
+            tool (BaseTool): The tool instance for which the start event is triggered.
+        """
         self._on_tool_start(tool, kwargs["query"])
 
     def on_tool_activity(self, tool: "BaseTool", activity_type: str, **kwargs) -> Any:
+        """
+        Invoke the activity callback for a tool with the specified activity type and optional code.
+        
+        Parameters:
+            activity_type (str): The type of activity occurring.
+            code (Any, optional): An optional code associated with the activity, if provided.
+        
+        Returns:
+            Any: The result returned by the activity callback.
+        """
         self._on_tool_activity(tool, activity_type, kwargs.get("code", None))
 
     def on_tool_end(self, tool: "BaseTool", result: Any) -> None:
+        """
+        Invoke the end callback when a tool finishes execution.
+        
+        Parameters:
+            tool (BaseTool): The tool instance that has completed execution.
+            result (Any): The result produced by the tool.
+        """
         self._on_tool_end(tool, result)
 
     def on_tool_error(self, tool: "BaseTool", exception: Exception) -> None:
+        """
+        Invoke the error callback when a tool encounters an exception.
+        
+        Parameters:
+            tool (BaseTool): The tool instance that raised the exception.
+            exception (Exception): The exception encountered during tool execution.
+        """
         self._on_tool_error(tool, exception)

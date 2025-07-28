@@ -12,6 +12,13 @@ from qtpy.QtWidgets import (
 class ConsoleWidget(QWidget):
     def __init__(self, margin: int = 0, icon_size: int = 20, parent=None):
 
+        """
+        Initialize the ConsoleWidget with optional margin and icon size.
+        
+        Parameters:
+            margin (int, optional): Margin size for the widget layout. Defaults to 0.
+            icon_size (int, optional): Size of the control buttons. Defaults to 20.
+        """
         super().__init__(parent=parent)
 
         # This helps in auto-hiding when losing focus:
@@ -23,6 +30,13 @@ class ConsoleWidget(QWidget):
     def initUI(self, margin: int, icon_size: int):
 
         # Main layout
+        """
+        Set up the user interface for the console widget, including control buttons and the console output area.
+        
+        Parameters:
+            margin (int): The margin size to apply around the widget's layout.
+            icon_size (int): The size (width and height) of the control buttons in pixels.
+        """
         self.layout = QVBoxLayout()
 
         # Top bar layout for the close and clear buttons
@@ -68,11 +82,11 @@ class ConsoleWidget(QWidget):
 
     def append_message(self, message: str, message_type: str = "info"):
         """
-        Append a message to the console output.
-
-        Args:
-        message (str): The message to append.
-        message_type (str): The type of message ('info', 'error', etc.). Can be used to format messages differently.
+        Appends a formatted message to the console output, displaying it in a color based on message type.
+        
+        Parameters:
+            message (str): The message to display in the console.
+            message_type (str): The type of message, determining its color ("info" for green, "error" for red). Defaults to "info".
         """
 
         # Clean the message:

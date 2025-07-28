@@ -2,13 +2,14 @@ from typing import Tuple
 
 
 def find_integer_in_parenthesis(string: str) -> Tuple[str, int]:
-    """Finds an integer surrounded by parenthesis in a string and returns that integer and the text without the number in parenthesis.
-
-    Args:
-      string: The string to search.
-
+    """
+    Extracts the first integer found within parentheses in a string and returns a tuple of the string with the parentheses and integer removed, and the extracted integer.
+    
+    Parameters:
+        string (str): The input string to search for an integer within parentheses.
+    
     Returns:
-      A tuple containing the integer and the text without the number in parenthesis.
+        tuple[str, int] or None: A tuple containing the modified string (with the parenthesized integer removed) and the extracted integer, or None if parentheses are not found.
     """
 
     # Find the index of the first parenthesis.

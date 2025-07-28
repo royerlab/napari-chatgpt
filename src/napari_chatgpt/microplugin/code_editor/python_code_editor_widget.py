@@ -14,6 +14,9 @@ from napari_chatgpt.microplugin.code_editor.python_syntax_highlighting import (
 
 class PythonCodeEditor(QPlainTextEdit):
     def __init__(self, parent=None):
+        """
+        Initialize the Python code editor widget with syntax highlighting, tab customization, placeholder text, and autocompletion support.
+        """
         super().__init__(parent)
 
         # Tab Length Customization
@@ -49,6 +52,11 @@ class PythonCodeEditor(QPlainTextEdit):
         self.setTextCursor(tc)
 
     def keyPressEvent(self, event):
+        """
+        Handles key press events to provide Python-specific editing features such as intelligent indentation and context-aware autocompletion.
+        
+        Processes key events to manage the visibility and behavior of the autocompletion popup, automatically indents new lines after Python block keywords, and updates completion suggestions as the user types.
+        """
         if self.completer:
             if self.completer.popup().isVisible():
                 if event.key() in (
@@ -127,6 +135,12 @@ class PythonCodeEditor(QPlainTextEdit):
 
     def setPlainTextUndoable(self, text):
         # Obtain the current text cursor from the editor
+        """
+        Replace the entire editor content with the given text as a single undoable operation.
+        
+        Parameters:
+            text (str): The new text to set in the editor.
+        """
         tc = self.textCursor()
 
         # Start an undoable operation

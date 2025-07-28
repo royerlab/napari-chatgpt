@@ -15,6 +15,11 @@ class PythonCodeExecutionTool(BaseOmegaTool):
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialize the PythonCodeExecutionTool with default settings for executing short Python code snippets.
+        
+        Sets the tool's name, usage description, and enables input sanitization by default.
+        """
         super().__init__(**kwargs)
 
         self.name = "PythonCodeExecutionTool"
@@ -30,6 +35,17 @@ class PythonCodeExecutionTool(BaseOmegaTool):
         self.sanitize_input: bool = True
 
     def run_omega_tool(self, query: str = ""):
+        """
+        Executes a short Python code snippet in a controlled REPL-like environment and returns its output or result.
+        
+        If the input contains multiple statements, all but the last are executed, and the last is evaluated or executed to capture its output or return value. Printed output is captured and returned if no value is produced. Input can be sanitized to remove extraneous formatting. Any exceptions during parsing or execution are caught and returned as error messages.
+        
+        Parameters:
+            query (str): The Python code snippet to execute.
+        
+        Returns:
+            The result of the last statement if it produces a value, the captured printed output, or an error message if execution fails.
+        """
         with asection(f"PythonCodeExecutionTool:"):
             with asection(f"Query:"):
                 aprint(query)
@@ -77,6 +93,15 @@ def sanitize_input(query: str) -> str:
     # Remove whitespace, backtick & python (if llm mistakes python console as terminal)
 
     # Removes `, whitespace & python from start
+    """
+    Sanitize a Python code snippet by removing leading/trailing whitespace, backticks, and an optional 'python' prefix.
+    
+    Parameters:
+        query (str): The input code snippet to sanitize.
+    
+    Returns:
+        str: The cleaned code snippet ready for execution.
+    """
     query = re.sub(r"^(\s|`)*(?i:python)?\s*", "", query)
     # Removes whitespace & ` from end
     query = re.sub(r"(\s|`)*$", "", query)

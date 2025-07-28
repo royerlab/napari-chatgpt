@@ -56,6 +56,18 @@ def modify_code(
     model_name: Optional[str] = None,
     verbose: bool = False,
 ) -> str:
+    """
+    Modify a Python code snippet according to a user-specified request using a large language model (LLM).
+    
+    If the request is empty, the function defaults to addressing TODO and FIXME comments in the code. The function returns the modified code as a string. If an error occurs during processing, the original code is returned unchanged.
+     
+    Parameters:
+        code (str): The Python code snippet to be modified.
+        request (str): The modification instructions or request.
+    
+    Returns:
+        str: The modified Python code, or the original code if an error occurs.
+    """
     with asection(f"Modifying code upon request for code of length: {len(code)}"):
 
         try:

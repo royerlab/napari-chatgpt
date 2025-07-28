@@ -46,6 +46,17 @@ For example you can write: 'For the reasons stated above, the code is rated *B*'
 def check_code_safety(
     code: str, llm: LLM = None, model_name: str = None, verbose: bool = False
 ) -> str:
+    """
+    Analyze a Python code snippet for cybersecurity safety using a large language model.
+    
+    The function evaluates the provided code string, passing it along with the current Python version and installed packages to an LLM using a predefined prompt. It returns the LLM's explanation and a categorical safety rank ("A" to "E") based on the analysis. If the code is empty, it returns a default safe message and rank "A". In case of errors during processing, it returns an empty string and rank "Unknown".
+    
+    Parameters:
+        code (str): The Python code to be analyzed.
+    
+    Returns:
+        tuple: A tuple containing the LLM's explanation (str) and the extracted safety rank (str).
+    """
     with asection(f"Checking safety of code of length: {len(code)}"):
 
         try:

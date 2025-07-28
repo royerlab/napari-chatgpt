@@ -7,6 +7,13 @@ from napari_chatgpt.llm.api_keys.api_key_vault import KeyVault
 class APIKeyDialog(QDialog):
 
     def __init__(self, api_key_name: str, parent=None):
+        """
+        Initialize the APIKeyDialog for managing an API key associated with the given service name.
+        
+        Parameters:
+            api_key_name (str): The name of the API key or service for which the dialog is being created.
+            parent: Optional parent widget for the dialog.
+        """
         super().__init__(parent)
 
         # Set the dialog box to be modal, so that it blocks interaction with the main window
@@ -33,6 +40,11 @@ class APIKeyDialog(QDialog):
 
     def _populate_layout(self):
 
+        """
+        Populate the dialog layout with widgets for entering or unlocking the API key.
+        
+        Arranges input fields and buttons based on whether an API key is already stored. If no key is present, prompts the user to enter a new API key and password. If a key exists, prompts for the password to unlock it and provides options to continue without the key or reset stored credentials.
+        """
         layout = self.layout()
 
         if layout is None:
@@ -126,6 +138,11 @@ class APIKeyDialog(QDialog):
 
     def enter_button_clicked(self):
 
+        """
+        Handles the logic for the "Enter" button in the API key dialog.
+        
+        If an API key is already stored, attempts to decrypt it using the entered password and closes the dialog on success. If no key is stored, validates the API key and password fields, encrypts and stores the new API key, and then closes the dialog. Displays an error message if the password is invalid or required fields are empty.
+        """
         if self.key_vault.is_key_present():
             from cryptography.fernet import InvalidToken
 
@@ -161,6 +178,11 @@ class APIKeyDialog(QDialog):
     def reset_button_clicked(self):
 
         # Clear clear key:
+        """
+        Resets the stored API key and updates the dialog to its initial state.
+        
+        Clears the API key from the vault and internal storage, then refreshes the dialog layout to prompt for a new key and password.
+        """
         self.key_vault.clear_key()
 
         # Delete the key:
@@ -175,6 +197,12 @@ class APIKeyDialog(QDialog):
     def get_api_key(self) -> str:
 
         # get API key:
+        """
+        Retrieve the stored API key and clear it from memory for security.
+        
+        Returns:
+            str: The decrypted API key, or None if not set.
+        """
         api_key = self.api_key
 
         # For safety we delete the key in the field:
@@ -186,6 +214,17 @@ _already_asked_api_key = {}
 
 
 def request_if_needed_api_key_dialog(api_key_name: str) -> str:
+    """
+    Prompt the user for an API key via a modal dialog if it has not already been requested for the given name.
+    
+    If the API key for the specified name has already been requested during this session, returns None. Otherwise, displays an API key dialog, marks the key as requested, and returns the entered API key.
+     
+    Parameters:
+        api_key_name (str): The identifier for the API key or service.
+    
+    Returns:
+        str or None: The API key entered by the user, or None if already requested.
+    """
     if api_key_name in _already_asked_api_key:
         return None
 

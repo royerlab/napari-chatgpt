@@ -8,6 +8,18 @@ from napari_chatgpt.utils.python.installed_packages import is_package_installed
 
 def conda_install(list_of_packages: List[str], channel: str = None) -> bool:
     # Ensure it is a list and remove duplicates:
+    """
+    Install one or more packages using conda, skipping those already installed.
+    
+    Removes duplicate package names, checks for existing installations, and installs missing packages using conda. Optionally uses a specified channel. Returns True if all installations succeed without errors; otherwise, returns False.
+     
+    Parameters:
+        list_of_packages (List[str]): Names of packages to install.
+        channel (str, optional): Conda channel to use for installation.
+    
+    Returns:
+        bool: True if all packages were installed successfully or already present; False if any installation failed.
+    """
     list_of_packages = list(set(list_of_packages))
 
     base_command = "conda install -y"
@@ -47,6 +59,11 @@ def conda_install(list_of_packages: List[str], channel: str = None) -> bool:
 
 
 def conda_uninstall(list_of_packages):
+    """
+    Uninstall a list of packages using the conda package manager.
+    
+    Attempts to remove each specified package if it is currently installed. Skips packages that are not installed. Returns True if all uninstallations succeed without errors; otherwise, returns False.
+    """
     base_command = "conda uninstall -y"
 
     error_occurred = False

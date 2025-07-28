@@ -11,20 +11,12 @@ def is_vision_available(
     model_name: Optional[str] = None,
 ) -> bool:
     """
-    Check if vision is available.
-
-    Parameters
-    ----------
-    api : BaseApi, optional
-        API to use for checking availability. If None, uses CombinedApi.
-    model_name : str, optional
-        Specific model name to check for vision capabilities. If None, checks all models.
-
-    Returns
-    -------
-    bool
-        True if the model is available, False otherwise.
-
+    Determine whether a vision-capable language model is available for use.
+    
+    Checks if the specified or best available model supports both text generation and image features. Returns False if an error occurs or if no suitable model is found.
+    
+    Returns:
+        bool: True if a model supporting both text and image features is available; False otherwise.
     """
 
     with asection(f"Checking if vision is available:"):
@@ -60,26 +52,16 @@ def describe_image(
     number_of_tries: int = 4,
 ) -> str:
     """
-    Describe an image using GPT-vision.
-
-    Parameters
-    ----------
-    image_path: str
-        Path to the image to describe
-    query  : str
-        Query to send to GPT
-    model_name   : str
-        Model to use
-    max_tokens  : int
-        Maximum number of tokens to use
-    number_of_tries : int
-        Number of times to try to send the request to GPT.
-
-    Returns
-    -------
-    str
-        Description of the image
-
+    Generates a detailed textual description of an image using a vision-capable GPT model.
+    
+    Parameters:
+        image_path (str): Path or URL to the image to be described.
+        query (str, optional): Prompt to guide the description. Defaults to a detailed description request.
+        model_name (str, optional): Specific model to use. If not provided or unsupported, the best available model is selected.
+        number_of_tries (int, optional): Number of attempts to send the request. Defaults to 4.
+    
+    Returns:
+        str: The generated image description, or an error message if the description could not be obtained.
     """
 
     with asection(f"Describe a given image at path: '{image_path}':"):
