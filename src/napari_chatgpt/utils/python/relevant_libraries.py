@@ -86,7 +86,7 @@ _signal_processing_related_packages = [
     "wave",  # Standard library module for reading and writing WAV files
     "pyaudio",  # PortAudio library bindings for audio I/O
     "matplotlib",  # Also used for plotting signals
-    "seaborn"  # Statistical data visualization library based on matplotlib, can be used to visualize signals
+    "seaborn",  # Statistical data visualization library based on matplotlib, can be used to visualize signals
     "numpy",  # Fundamental package for numerical computations
     "scipy",  # Used for scientific computing and technical computing
     "matplotlib",  # Plotting library
