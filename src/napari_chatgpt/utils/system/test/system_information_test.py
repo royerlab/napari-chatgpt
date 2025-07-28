@@ -11,6 +11,5 @@ def test_system_information():
     assert "Platform" in info
     assert "System" in info
 
-
-    print('')
+    print("")
     aprint(info)

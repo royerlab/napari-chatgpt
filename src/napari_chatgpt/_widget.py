@@ -1,11 +1,10 @@
 """
-This module is an example of a barebones QWidget plugin for napari
+napari_chatgpt OmegaQWidget
 
-It implements the Widget specification.
-see: https://napari.org/stable/plugins/guides.html?#widgets
+# OmegaQWidget.py
 
-Replace code below according to your needs.
 """
+
 import sys
 import traceback
 from typing import TYPE_CHECKING, List
@@ -16,18 +15,12 @@ from qtpy.QtWidgets import QApplication, QLabel, QCheckBox
 from qtpy.QtWidgets import QPushButton, QWidget
 from qtpy.QtWidgets import QVBoxLayout, QComboBox
 
+from napari_chatgpt.llm.litemind_api import get_model_list
 from napari_chatgpt.microplugin.microplugin_window import MicroPluginMainWindow
-from napari_chatgpt.utils.anthropic.model_list import get_anthropic_model_list
-from napari_chatgpt.utils.configuration.app_configuration import \
-    AppConfiguration
-from napari_chatgpt.utils.ollama.ollama_server import is_ollama_running, \
-    get_ollama_models
-from napari_chatgpt.utils.openai.model_list import get_openai_model_list, \
-    postprocess_openai_model_list
-from napari_chatgpt.utils.python.installed_packages import \
-    is_package_installed
-from napari_chatgpt.utils.qt.one_time_disclaimer_dialog import \
-    show_one_time_disclaimer_dialog
+from napari_chatgpt.utils.configuration.app_configuration import AppConfiguration
+from napari_chatgpt.utils.qt.one_time_disclaimer_dialog import (
+    show_one_time_disclaimer_dialog,
+)
 
 if TYPE_CHECKING:
     pass
@@ -35,13 +28,14 @@ if TYPE_CHECKING:
 from arbol import aprint, asection
 
 _creativity_mapping = {}
-_creativity_mapping['normal'] = 0.0
-_creativity_mapping['slightly creative'] = 0.01
-_creativity_mapping['moderately creative'] = 0.05
-_creativity_mapping['creative'] = 0.1
+_creativity_mapping["normal"] = 0.0
+_creativity_mapping["slightly creative"] = 0.01
+_creativity_mapping["moderately creative"] = 0.05
+_creativity_mapping["creative"] = 0.1
 
 # Ensure the singleton pattern is on:
 MicroPluginMainWindow._singleton_pattern_active = True
+
 
 class OmegaQWidget(QWidget):
     # your QWidget.__init__ can optionally request the napari viewer instance
@@ -53,14 +47,14 @@ class OmegaQWidget(QWidget):
         aprint("OmegaQWidget instantiated!")
 
         # Get app configuration:
-        self.config = AppConfiguration('omega')
+        self.config = AppConfiguration("omega")
 
         # Napari viewer instance:
         self.viewer = napari_viewer
 
         # Napari chat server instance:
-        from napari_chatgpt.chat_server.chat_server import NapariChatServer
-        self.server: NapariChatServer = None
+        # from napari_chatgpt.chat_server.chat_server import NapariChatServer
+        self.server: "NapariChatServer" = None
 
         # Create a QVBoxLayout instance
         self.layout = QVBoxLayout()
@@ -68,33 +62,39 @@ class OmegaQWidget(QWidget):
         # Set layout alignment:
         self.layout.setAlignment(Qt.AlignTop)
 
-        # Add elements to UI:
-        self._model_selection()
-        self._creativity_level()
-        self._memory_type_selection()
-        self._personality_selection()
-        self._fix_imports()
-        self._fix_bad_version_calls()
-        self._install_missing_packages()
-        self._autofix_mistakes()
-        self._autofix_widgets()
-        self._tutorial_mode()
-        self._save_chats_as_notebooks()
-        self._verbose()
+        with asection("Setting up OmegaQWidget UI:"):
 
-        # Instantiate the MicroPluginMainWindow:
-        if add_code_editor:
-            self.micro_plugin_main_window = MicroPluginMainWindow(napari_viewer=napari_viewer)
+            # Add elements to UI:
+            self._main_model_selection()
+            self._tool_model_selection()
+            self._creativity_level()
+            # self._memory_type_selection()
+            self._personality_selection()
+            self._fix_imports()
+            self._fix_bad_version_calls()
+            self._install_missing_packages()
+            self._autofix_mistakes()
+            self._autofix_widgets()
+            self._builtin_websearch_tool()
+            self._tutorial_mode()
+            self._save_chats_as_notebooks()
+            self._verbose()
 
-        # Add the start Omega:
-        self._start_omega_button()
+            # Instantiate the MicroPluginMainWindow:
+            if add_code_editor:
+                self.micro_plugin_main_window = MicroPluginMainWindow(
+                    napari_viewer=napari_viewer
+                )
 
-        # Add the show editor button:
-        if add_code_editor:
-            self._show_editor_button()
+            # Add the start Omega:
+            self._start_omega_button()
 
-        # Set the layout on the application's window
-        self.setLayout(self.layout)
+            # Add the show editor button:
+            if add_code_editor:
+                self._show_editor_button()
+
+            # Set the layout on the application's window
+            self.setLayout(self.layout)
 
         # Make sure that when the viewer window closes this widget closes too:
         try:
@@ -104,49 +104,79 @@ class OmegaQWidget(QWidget):
             aprint("Could not connect to viewer's closed signal.")
             traceback.print_exc()
 
-    def _model_selection(self):
+    def _main_model_selection(self):
 
-        aprint("Setting up model selection UI.")
+        aprint("Setting up main model selection UI.")
 
         # Create a QLabel instance
-        self.model_label = QLabel("Select a model:")
+        self.model_label = QLabel("Select a main model:")
         # Add the label to the layout
         self.layout.addWidget(self.model_label)
         # Create a QComboBox instance
-        self.model_combo_box = QComboBox()
+        self.main_model_combo_box = QComboBox()
         # Set tooltip for the combo box
-        self.model_combo_box.setToolTip(
-            "Choose an LLM model. Best models are GPT4s. \n"
-            "other models are less competent. \n")
+        self.main_model_combo_box.setToolTip(
+            "Choose the main LLM model used for conversation. \n"
+        )
 
-        # Add OpenAI models to the combo box:
-        model_list: List[str] = list(get_openai_model_list(verbose=True))
+        # Add All litemind API models to the combo box:
+        model_list: List[str] = list(get_model_list())
 
-        if is_package_installed('anthropic'):
-            # Add Anthropic models to the combo box:
-            model_list.extend(get_anthropic_model_list())
-
-        if is_ollama_running():
-            ollama_models = get_ollama_models()
-            for ollama_model in ollama_models:
-                model_list.append('ollama_'+ollama_model)
-
-        # Postprocess OpenAI model list:
-        model_list = postprocess_openai_model_list(model_list)
-
-        # normalise list:
-        model_list = list(model_list)
+        # Filter and sort the models to have preferred models first:
+        self._prefered_models(model_list)
 
         # Add models to combo box:
         for model in model_list:
-            self.model_combo_box.addItem(model)
+            self.main_model_combo_box.addItem(model)
 
-        # Connect the activated signal to a slot
-        # self.model_combo_box.activated[str].connect(self.onActivated)
         # Add the combo box to the layout
-        self.layout.addWidget(self.model_combo_box)
+        self.layout.addWidget(self.main_model_combo_box)
 
+    def _tool_model_selection(self):
 
+        aprint("Setting up tool model selection UI.")
+
+        # Create a QLabel instance
+        self.model_label = QLabel("Select a coding model:")
+        # Add the label to the layout
+        self.layout.addWidget(self.model_label)
+        # Create a QComboBox instance
+        self.tool_model_combo_box = QComboBox()
+        # Set tooltip for the combo box
+        self.tool_model_combo_box.setToolTip(
+            "Choose the tool LLM model used for coding. \n"
+        )
+
+        # Add All litemind API models to the combo box:
+        model_list: List[str] = list(get_model_list())
+
+        # Filter and sort the models to have preferred models first:
+        self._prefered_models(model_list)
+
+        # Add models to combo box:
+        for model in model_list:
+            self.tool_model_combo_box.addItem(model)
+
+        # Add the combo box to the layout
+        self.layout.addWidget(self.tool_model_combo_box)
+
+    @staticmethod
+    def _prefered_models(model_list: List[str]):
+        # List of filters to identify preferred models:
+        preferred_models_filter = [
+            "gpt-4.1",
+            "gpt-4o",
+        ]  # , 'claude-3-7', 'opus-4', 'gemini-2.5-pro']
+        # List of preferred models:
+        preferred_models = [
+            model
+            for model in model_list
+            if any(filter in model for filter in preferred_models_filter)
+        ]
+        # Exclude models that are in fact not preferred::
+        preferred_models.remove("chatgpt-4o-latest")
+        # Sort the model list stably to have preferred models first:
+        model_list.sort(key=lambda x: (x not in preferred_models, x))
 
     def _creativity_level(self):
         aprint("Setting up creativity level UI.")
@@ -161,14 +191,15 @@ class OmegaQWidget(QWidget):
             "Choose the level of creativity of Omega\n"
             "The less creative the more deterministic\n"
             "and accurate the results.\n"
-            "Teh more creative, the more fantasy and\n"
+            "The more creative, the more fantasy and\n"
             "the less competent it is at code generation\n"
-            "and precise reasoning.")
+            "and precise reasoning."
+        )
         # Add values:
-        self.creativity_combo_box.addItem('normal')
-        self.creativity_combo_box.addItem('slightly creative')
-        self.creativity_combo_box.addItem('moderately creative')
-        self.creativity_combo_box.addItem('creative')
+        self.creativity_combo_box.addItem("normal")
+        self.creativity_combo_box.addItem("slightly creative")
+        self.creativity_combo_box.addItem("moderately creative")
+        self.creativity_combo_box.addItem("creative")
         self.creativity_combo_box.setCurrentIndex(0)
         # Add the creativity combobox to the layout:
         self.layout.addWidget(self.creativity_combo_box)
@@ -185,11 +216,12 @@ class OmegaQWidget(QWidget):
         self.memory_type_combo_box.setToolTip(
             "'hybrid' is best as it combines accurate short-term memory \n"
             "with summarised long term memory. 'bounded' only remembers \n"
-            "the last few messages. 'infinite' remembers everything.")
+            "the last few messages. 'infinite' remembers everything."
+        )
         # Add memory types:
-        self.memory_type_combo_box.addItem('hybrid')
-        self.memory_type_combo_box.addItem('bounded')
-        self.memory_type_combo_box.addItem('infinite')
+        self.memory_type_combo_box.addItem("hybrid")
+        self.memory_type_combo_box.addItem("bounded")
+        self.memory_type_combo_box.addItem("infinite")
         # Add the combo box to the layout
         self.layout.addWidget(self.memory_type_combo_box)
 
@@ -204,13 +236,15 @@ class OmegaQWidget(QWidget):
         self.agent_personality_combo_box = QComboBox()
         self.agent_personality_combo_box.setToolTip(
             "Personalities affect the style of the answers\n"
-            "but (hopefully) not their quality")
+            "but (hopefully) not their quality"
+        )
         # Add characters:
-        self.agent_personality_combo_box.addItem('coder')
-        self.agent_personality_combo_box.addItem('neutral')
-        self.agent_personality_combo_box.addItem('prof')
-        self.agent_personality_combo_box.addItem('mobster')
-        self.agent_personality_combo_box.addItem('yoda')
+        self.agent_personality_combo_box.addItem("genius")
+        self.agent_personality_combo_box.addItem("coder")
+        self.agent_personality_combo_box.addItem("neutral")
+        self.agent_personality_combo_box.addItem("prof")
+        self.agent_personality_combo_box.addItem("mobster")
+        self.agent_personality_combo_box.addItem("yoda")
         # Add the combo box to the layout
         self.layout.addWidget(self.agent_personality_combo_box)
 
@@ -218,11 +252,11 @@ class OmegaQWidget(QWidget):
         aprint("Setting up fix imports UI.")
 
         # Get app configuration:
-        config = AppConfiguration('omega')
+        config = AppConfiguration("omega")
 
         # Create a QLabel instance
         self.fix_imports_checkbox = QCheckBox("Fix missing imports")
-        self.fix_imports_checkbox.setChecked(config.get('fix_missing_imports', True))
+        self.fix_imports_checkbox.setChecked(config.get("fix_missing_imports", False))
         self.fix_imports_checkbox.setToolTip(
             "Uses LLM to check for missing imports.\n"
             "This involves a LLM call which can incur additional\n"
@@ -235,18 +269,19 @@ class OmegaQWidget(QWidget):
         aprint("Setting up bad version imports UI.")
 
         # Get app configuration:
-        config = AppConfiguration('omega')
+        config = AppConfiguration("omega")
 
         # Create a QLabel instance
         self.fix_bad_calls_checkbox = QCheckBox("Fix bad function calls")
-        self.fix_bad_calls_checkbox.setChecked(config.get('fix_bad_calls', True))
-        self.fix_bad_calls_checkbox.setToolTip("Uses LLM to fix function calls.\n"
-                                              "When turned on, this detects wrong function calls, \n"
-                                              "possibly because of library version mismatch and fixes,"
-                                              "replaces the offending code with the right version! "
-                                              "This involves a LLM call which can incurr additional\n"
-                                              "cost in time and possibly money."
-                                               )
+        self.fix_bad_calls_checkbox.setChecked(config.get("fix_bad_calls", False))
+        self.fix_bad_calls_checkbox.setToolTip(
+            "Uses LLM to fix function calls.\n"
+            "When turned on, this detects wrong function calls, \n"
+            "possibly because of library version mismatch and fixes,"
+            "replaces the offending code with the right version! "
+            "This involves a LLM call which can incurr additional\n"
+            "cost in time and possibly money."
+        )
         # Add the fix_code checkbox to the layout:
         self.layout.addWidget(self.fix_bad_calls_checkbox)
 
@@ -254,16 +289,18 @@ class OmegaQWidget(QWidget):
         aprint("Setting up install missing packages UI.")
 
         # Get app configuration:
-        config = AppConfiguration('omega')
+        config = AppConfiguration("omega")
 
         # Create a QLabel instance
-        self.install_missing_packages_checkbox = QCheckBox(
-            "Install missing packages")
-        self.install_missing_packages_checkbox.setChecked(config.get('install_missing_packages', True))
+        self.install_missing_packages_checkbox = QCheckBox("Install missing packages")
+        self.install_missing_packages_checkbox.setChecked(
+            config.get("install_missing_packages", False)
+        )
         self.install_missing_packages_checkbox.setToolTip(
             "Uses LLM to figure out which packages to install.\n"
             "This involves a LLM call which can incur additional\n"
-            "cost in time and possibly money.")
+            "cost in time and possibly money."
+        )
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.install_missing_packages_checkbox)
 
@@ -271,19 +308,18 @@ class OmegaQWidget(QWidget):
         aprint("Setting up autofix mistakes UI.")
 
         # Get app configuration:
-        config = AppConfiguration('omega')
+        config = AppConfiguration("omega")
 
         # Create a QLabel instance
-        self.autofix_mistakes_checkbox = QCheckBox(
-            "Autofix coding mistakes")
-        self.autofix_mistakes_checkbox.setChecked(config.get('autofix_mistakes', True))
+        self.autofix_mistakes_checkbox = QCheckBox("Autofix coding mistakes")
+        self.autofix_mistakes_checkbox.setChecked(config.get("autofix_mistakes", True))
         self.autofix_mistakes_checkbox.setToolTip(
             "When checked Omega will try to fix on its own coding mistakes\n"
             "when processing data and interacting with the napari viewer.\n"
             "This does not include making widgets!\n"
-            "Works so-so with ChatGPT 3.5, but works well with ChatGPT 4.\n"
             "This involves a LLM call which can incur additional\n"
-            "cost in time and possibly money.")
+            "cost in time and possibly money."
+        )
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.autofix_mistakes_checkbox)
 
@@ -291,18 +327,18 @@ class OmegaQWidget(QWidget):
         aprint("Setting up autofix widgets UI.")
 
         # Get app configuration:
-        config = AppConfiguration('omega')
+        config = AppConfiguration("omega")
 
         # Create a QLabel instance
-        self.autofix_widgets_checkbox = QCheckBox(
-            "Autofix widget coding mistakes")
-        self.autofix_widgets_checkbox.setChecked(config.get('autofix_widgets', True))
+        self.autofix_widgets_checkbox = QCheckBox("Autofix widget coding mistakes")
+        self.autofix_widgets_checkbox.setChecked(config.get("autofix_widgets", True))
         self.autofix_widgets_checkbox.setToolTip(
             "When checked Omega will try to fix its own \n"
             "coding mistakes when making widgets. \n"
             "Works so-so with ChatGPT 3.5, but works well with ChatGPT 4.\n"
             "This requires API calls which may incur additional\n"
-            "cost in time and possibly money.")
+            "cost in time and possibly money."
+        )
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.autofix_widgets_checkbox)
 
@@ -310,32 +346,57 @@ class OmegaQWidget(QWidget):
         aprint("Setting up tutorial mode UI.")
 
         # Get app configuration:
-        config = AppConfiguration('omega')
+        config = AppConfiguration("omega")
 
         # Create a QLabel instance
-        self.tutorial_mode_checkbox = QCheckBox(
-            "Tutorial/Didactic mode")
-        self.tutorial_mode_checkbox.setChecked(config.get('tutorial_mode_checkbox', False))
+        self.tutorial_mode_checkbox = QCheckBox("Tutorial/Didactic mode")
+        self.tutorial_mode_checkbox.setChecked(
+            config.get("tutorial_mode_checkbox", False)
+        )
         self.tutorial_mode_checkbox.setToolTip(
             "When checked Omega will actively asks questions \n"
             "to clarify and disambiguate the request, will propose \n"
-            "multiple options and try to be as didactic as possible. ")
+            "multiple options and try to be as didactic as possible. "
+        )
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.tutorial_mode_checkbox)
+
+    def _builtin_websearch_tool(self):
+        aprint("Setting up builtin web search UI.")
+
+        # Get app configuration:
+        config = AppConfiguration("omega")
+
+        # Create a QLabel instance
+        self.builtin_websearch_tool_checkbox = QCheckBox("Web search tool")
+        self.builtin_websearch_tool_checkbox.setChecked(
+            config.get("builtin_websearch_tool", True)
+        )
+        self.builtin_websearch_tool_checkbox.setToolTip(
+            "When checked Omega will use a web search tool \n"
+            "to search the web for information to answer your questions.\n"
+            "This is useful when Omega does not know the answer to your question.\n"
+            "Note: This is for built-in web search only!\n"
+            "This is not supported by all models, \n"
+        )
+        # Add the install_missing_packages checkbox to the layout:
+        self.layout.addWidget(self.builtin_websearch_tool_checkbox)
 
     def _save_chats_as_notebooks(self):
         aprint("Setting up save notebooks UI.")
 
         # Get app configuration:
-        config = AppConfiguration('omega')
+        config = AppConfiguration("omega")
 
         # Create a QLabel instance
-        self.save_chats_as_notebooks = QCheckBox(
-            "Save chats as Jupyter notebooks")
-        self.save_chats_as_notebooks.setChecked(config.get('save_chats_as_notebooks', True))
+        self.save_chats_as_notebooks = QCheckBox("Save chats as Jupyter notebooks")
+        self.save_chats_as_notebooks.setChecked(
+            config.get("save_chats_as_notebooks", True)
+        )
         self.save_chats_as_notebooks.setToolTip(
             "When checked Omega will save the chats as Jupyter notebooks \n"
-            "by default in a folder on the user's desktop.")
+            "by default in a folder on the user's desktop."
+        )
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.save_chats_as_notebooks)
 
@@ -343,19 +404,19 @@ class OmegaQWidget(QWidget):
         aprint("Setting up verbose UI.")
 
         # Get app configuration:
-        config = AppConfiguration('omega')
+        config = AppConfiguration("omega")
 
         # Create a QLabel instance
-        self.verbose_checkbox = QCheckBox(
-            "High console verbosity")
-        self.verbose_checkbox.setChecked(config.get('verbose', False))
+        self.verbose_checkbox = QCheckBox("High console verbosity")
+        self.verbose_checkbox.setChecked(config.get("verbose", False))
         self.verbose_checkbox.setToolTip(
             "High level of verbosity in the console\n"
             "This includes a lot of internal logging\n"
             "from the langchain library.\n"
             "Nearly incomprehensible, but usefull\n"
             "if you are interested to see the prompts\n"
-            "in action...")
+            "in action..."
+        )
         # Add the install_missing_packages checkbox to the layout:
         self.layout.addWidget(self.verbose_checkbox)
 
@@ -369,12 +430,13 @@ class OmegaQWidget(QWidget):
             "Start Omega, this will open a browser window.\n"
             "You can restart Omega with new settings by\n"
             "clicking again this button. This closes the\n"
-            "previous session.")
+            "previous session."
+        )
         # Omega button:
         self.layout.addWidget(self.start_omega_button)
 
     def _show_editor_button(self):
-        aprint("Setting up start Omega button UI.")
+        aprint("Setting up open editor button UI.")
 
         # Start Omega button:
         self.show_editor_button = QPushButton("Show Omega's Code Editor")
@@ -386,7 +448,8 @@ class OmegaQWidget(QWidget):
             "napari, edit the code, reformat it, check for 'safety',\n"
             "send it to colleagues across the local network, and\n"
             "rerun the code. Running code for widgets adds the widget\n"
-            "back to the viewer.\n")
+            "back to the viewer.\n"
+        )
         # Omega button:
         self.layout.addWidget(self.show_editor_button)
 
@@ -414,40 +477,44 @@ class OmegaQWidget(QWidget):
                     self.server.stop()
 
                 # Temperature:
-                temperature = float(_creativity_mapping[
-                                        self.creativity_combo_box.currentText()])
-                tool_temperature = 0.01*temperature
+                temperature = float(
+                    _creativity_mapping[self.creativity_combo_box.currentText()]
+                )
+                tool_temperature = 0.01 * temperature
 
-                # Model selected:
-                main_llm_model_name = self.model_combo_box.currentText()
+                # Main model selection:
+                main_llm_model_name = self.main_model_combo_box.currentText()
 
                 # Set tool LLM model name via configuration file.
-                tool_llm_model_name = self.config.get('tool_llm_model_name', 'same')
-                if tool_llm_model_name.strip() == 'same':
-                    aprint(f"Using the same model {main_llm_model_name} for the main and tool's LLM.")
-                    tool_llm_model_name = main_llm_model_name
+                tool_llm_model_name = self.tool_model_combo_box.currentText()
 
+                aprint("Starting Omega Chat Server.")
                 from napari_chatgpt.chat_server.chat_server import start_chat_server
-                self.server = start_chat_server(self.viewer,
-                                                main_llm_model_name=main_llm_model_name,
-                                                tool_llm_model_name=tool_llm_model_name,
-                                                temperature=temperature,
-                                                tool_temperature=tool_temperature,
-                                                memory_type=self.memory_type_combo_box.currentText(),
-                                                agent_personality=self.agent_personality_combo_box.currentText(),
-                                                fix_imports=self.fix_imports_checkbox.isChecked(),
-                                                install_missing_packages=self.install_missing_packages_checkbox.isChecked(),
-                                                fix_bad_calls=self.fix_bad_calls_checkbox.isChecked(),
-                                                autofix_mistakes=self.autofix_mistakes_checkbox.isChecked(),
-                                                autofix_widget=self.autofix_widgets_checkbox.isChecked(),
-                                                be_didactic=self.tutorial_mode_checkbox.isChecked(),
-                                                save_chats_as_notebooks=self.save_chats_as_notebooks.isChecked(),
-                                                verbose=self.verbose_checkbox.isChecked()
-                                                )
+
+                self.server = start_chat_server(
+                    self.viewer,
+                    main_llm_model_name=main_llm_model_name,
+                    tool_llm_model_name=tool_llm_model_name,
+                    temperature=temperature,
+                    tool_temperature=tool_temperature,
+                    has_builtin_websearch_tool=self.builtin_websearch_tool_checkbox.isChecked(),
+                    memory_type="standard",
+                    agent_personality=self.agent_personality_combo_box.currentText(),
+                    fix_imports=self.fix_imports_checkbox.isChecked(),
+                    install_missing_packages=self.install_missing_packages_checkbox.isChecked(),
+                    fix_bad_calls=self.fix_bad_calls_checkbox.isChecked(),
+                    autofix_mistakes=self.autofix_mistakes_checkbox.isChecked(),
+                    autofix_widget=self.autofix_widgets_checkbox.isChecked(),
+                    be_didactic=self.tutorial_mode_checkbox.isChecked(),
+                    save_chats_as_notebooks=self.save_chats_as_notebooks.isChecked(),
+                    verbose=self.verbose_checkbox.isChecked(),
+                )
 
         except Exception as e:
             aprint(f"Error: {e}")
-            aprint("Omega failed to start. Please check the console for more information.")
+            aprint(
+                "Omega failed to start. Please check the console for more information."
+            )
             traceback.print_exc()
 
     def _show_editor(self):
@@ -459,7 +526,9 @@ class OmegaQWidget(QWidget):
             with asection("Showing editor now!"):
 
                 # Set LLM parameters to self.micro_plugin_main_window:
-                self.micro_plugin_main_window.code_editor_widget.llm_model_name = self.model_combo_box.currentText()
+                self.micro_plugin_main_window.code_editor_widget.llm_model_name = (
+                    self.main_model_combo_box.currentText()
+                )
 
                 # Show the editor:
                 self.micro_plugin_main_window.show()
@@ -469,9 +538,10 @@ class OmegaQWidget(QWidget):
 
         except Exception as e:
             aprint(f"Error: {e}")
-            aprint("Omega failed to start. Please check the console for more information.")
+            aprint(
+                "Omega failed to start. Please check the console for more information."
+            )
             traceback.print_exc()
-
 
     def setStyleSheet(self, style):
 
@@ -492,6 +562,7 @@ class OmegaQWidget(QWidget):
             self.micro_plugin_main_window.close()
 
         super().close()
+
 
 def main():
     app = QApplication(sys.argv)

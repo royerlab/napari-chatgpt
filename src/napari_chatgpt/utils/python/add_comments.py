@@ -1,20 +1,14 @@
 import sys
 
 from arbol import aprint, asection
-from langchain.chains import LLMChain
-from langchain.llms import BaseLLM
-from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
 
-from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
-    ArbolCallbackHandler
-from napari_chatgpt.utils.openai.default_model import \
-    get_default_openai_model_name
-from napari_chatgpt.utils.python.installed_packages import \
-    installed_package_list
+from napari_chatgpt.llm.litemind_api import get_llm
+from napari_chatgpt.llm.llm import LLM
+from napari_chatgpt.utils.python.installed_packages import installed_package_list
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 
-_add_comments_prompt = f"""
+_add_comments_prompt = \
+f"""
 **Context:**
 You are an expert Python coder specialised in documenting code, writing docstrings, and inferring type hints.
 You can understand the purpose of complex code and write detailed explanations for it.
@@ -60,12 +54,12 @@ The answer should be the code with comments, docstrings and type hints added. Th
 """
 
 
-def add_comments(code: str,
-                 llm: BaseLLM = None,
-                 model_name: str = None,
-                 verbose: bool = False) -> str:
-    with(asection(
-            f'Automatically adds comments, docstrings and types for code of length: {len(code)}')):
+def add_comments(
+    code: str, llm: LLM = None, model_name: str = None, verbose: bool = False
+) -> str:
+    with asection(
+        f"Automatically adds comments, docstrings and types for code of length: {len(code)}"
+    ):
 
         try:
 
@@ -74,37 +68,29 @@ def add_comments(code: str,
 
             # If code is empty, nothing to improve!
             if len(code) == 0:
-                return ''
+                return ""
 
-            aprint(f'Input code:\n{code}')
+            aprint(f"Input code:\n{code}")
 
             # Instantiates LLM if needed:
-            llm = llm or ChatOpenAI(model_name=model_name or get_default_openai_model_name(),
-                                    temperature=0)
-
-            # Make prompt template:
-            prompt_template = PromptTemplate(template=_add_comments_prompt,
-                                             input_variables=["code", 'installed_packages'])
-
-            # Instantiate chain:
-            chain = LLMChain(
-                prompt=prompt_template,
-                llm=llm,
-                verbose=verbose,
-                callbacks=[ArbolCallbackHandler('Comment Code')]
-            )
+            llm = llm or get_llm()
 
             # List of installed packages:
             package_list = installed_package_list()
 
             # Variable for prompt:
-            variables = {"code": code, 'installed_packages': ' '.join(package_list)}
+            variables = {"code": code, "installed_packages": " ".join(package_list)}
 
             # call LLM:
-            response = chain.invoke(variables)['text']
+            response = llm.generate(
+                prompt=_add_comments_prompt, variables=variables, temperature=0.0
+            )
+
+            # Extract the response text:
+            response_text = response[-1].to_plain_text()
 
             # Extract code from the response:
-            commented_code = extract_code_from_markdown(response)
+            commented_code = extract_code_from_markdown(response_text)
 
             # Cleanup:
             commented_code = commented_code.strip()
@@ -113,9 +99,7 @@ def add_comments(code: str,
 
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             aprint(e)
             return code
-
-
-

@@ -1,15 +1,19 @@
 from typing import Optional
 
 from arbol import aprint
-from qtpy.QtWidgets import QHBoxLayout, QWidget, QPushButton, QLabel, \
-    QSizePolicy, QLineEdit, QTextEdit
+from qtpy.QtWidgets import (
+    QHBoxLayout,
+    QWidget,
+    QPushButton,
+    QLabel,
+    QSizePolicy,
+    QLineEdit,
+    QTextEdit,
+)
 
 
 class TextInputWidget(QWidget):
-    def __init__(self,
-                 max_height: int = 50,
-                 margin: int = 0,
-                 parent=None):
+    def __init__(self, max_height: int = 50, margin: int = 0, parent=None):
 
         super().__init__(parent=parent)
 
@@ -22,12 +26,9 @@ class TextInputWidget(QWidget):
         self.multi_line = False
 
         # Initialize widgets:
-        self.initUI(max_height=max_height,
-                    margin=margin)
+        self.initUI(max_height=max_height, margin=margin)
 
-    def initUI(self,
-               max_height: int,
-               margin: int):
+    def initUI(self, max_height: int, margin: int):
 
         # Layout:
         self.layout = QHBoxLayout(self)
@@ -39,24 +40,26 @@ class TextInputWidget(QWidget):
         # Input fields (both single-line and multi-line, hidden by default):
         self.single_line_input = QLineEdit()
         self.single_line_input.setPlaceholderText("Enter text here")
-        self.single_line_input.setSizePolicy(QSizePolicy.Expanding,
-                                             QSizePolicy.Preferred)
+        self.single_line_input.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Preferred
+        )
         self.single_line_input.returnPressed.connect(self.on_enter)
         self.layout.addWidget(self.single_line_input)
 
         self.multi_line_input = QTextEdit()
         self.multi_line_input.setPlaceholderText("Enter text here")
-        self.multi_line_input.setSizePolicy(QSizePolicy.Expanding,
-                                            QSizePolicy.Preferred)
+        self.multi_line_input.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Preferred
+        )
         self.layout.addWidget(self.multi_line_input)
         self.multi_line_input.hide()  # Initially hidden
 
         # Buttons:
-        self.enter_button = QPushButton('Enter')
+        self.enter_button = QPushButton("Enter")
         self.enter_button.clicked.connect(self.on_enter)
         self.layout.addWidget(self.enter_button)
 
-        self.cancel_button = QPushButton('Cancel')
+        self.cancel_button = QPushButton("Cancel")
         self.cancel_button.clicked.connect(self.on_cancel)
         self.layout.addWidget(self.cancel_button)
 
@@ -65,17 +68,19 @@ class TextInputWidget(QWidget):
         self.setMaximumHeight(max_height)
         self.hide()
 
-
-    def show_input(self, message: str,
-                   placeholder_text: str = "Enter input here",
-                   default_text: str = '',
-                   enter_text: str = "Enter",
-                   cancel_text: str = "Cancel",
-                   enter_callback=None,
-                   cancel_callback=None,
-                   do_after_callable=None,
-                   multi_line: bool = False,
-                   max_height: Optional[int] = None):
+    def show_input(
+        self,
+        message: str,
+        placeholder_text: str = "Enter input here",
+        default_text: str = "",
+        enter_text: str = "Enter",
+        cancel_text: str = "Cancel",
+        enter_callback=None,
+        cancel_callback=None,
+        do_after_callable=None,
+        multi_line: bool = False,
+        max_height: Optional[int] = None,
+    ):
 
         # Set multi_line:
         self.multi_line = multi_line
@@ -119,13 +124,18 @@ class TextInputWidget(QWidget):
         self.show()
 
     def on_enter(self):
-        input_text = self.current_input.text() if not self.multi_line else self.current_input.toPlainText()
+        input_text = (
+            self.current_input.text()
+            if not self.multi_line
+            else self.current_input.toPlainText()
+        )
         try:
             if self.enter_callback:
                 self.enter_callback(input_text)
         except Exception as e:
-            aprint(f'Error in on_enter: {e}')
+            aprint(f"Error in on_enter: {e}")
             import traceback
+
             traceback.print_exc()
         finally:
             self.hide()
@@ -135,14 +145,13 @@ class TextInputWidget(QWidget):
     def on_cancel(self):
         try:
             if self.cancel_callback:
-                self.cancel_callback('')
+                self.cancel_callback("")
         except Exception as e:
-            aprint(f'Error in on_enter: {e}')
+            aprint(f"Error in on_enter: {e}")
             import traceback
+
             traceback.print_exc()
         finally:
             self.hide()
             if self.do_after_callable:
-                self.do_after_callable('')
-
-
+                self.do_after_callable("")

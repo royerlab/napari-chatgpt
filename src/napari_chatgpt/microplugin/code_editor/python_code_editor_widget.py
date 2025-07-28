@@ -7,8 +7,9 @@ from qtpy.QtWidgets import (
     QCompleter,
 )
 
-from napari_chatgpt.microplugin.code_editor.python_syntax_highlighting import \
-    PythonSyntaxHighlighter
+from napari_chatgpt.microplugin.code_editor.python_syntax_highlighting import (
+    PythonSyntaxHighlighter,
+)
 
 
 class PythonCodeEditor(QPlainTextEdit):
@@ -23,8 +24,7 @@ class PythonCodeEditor(QPlainTextEdit):
         self.setPlaceholderText("Type your code here...")
 
         # Syntax highlighter:
-        self.python_syntax_highlighter = PythonSyntaxHighlighter(
-            self.document())
+        self.python_syntax_highlighter = PythonSyntaxHighlighter(self.document())
 
         # Completer setup:
         self.completer = QCompleter(self)
@@ -52,11 +52,11 @@ class PythonCodeEditor(QPlainTextEdit):
         if self.completer:
             if self.completer.popup().isVisible():
                 if event.key() in (
-                        Qt.Key_Enter,
-                        Qt.Key_Return,
-                        Qt.Key_Escape,
-                        Qt.Key_Tab,
-                        Qt.Key_Backtab,
+                    Qt.Key_Enter,
+                    Qt.Key_Return,
+                    Qt.Key_Escape,
+                    Qt.Key_Tab,
+                    Qt.Key_Backtab,
                 ):
                     # Ignore the event if the completer is visible and the key is one of the above:
                     event.ignore()

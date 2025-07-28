@@ -17,28 +17,32 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QToolBar,
     QMenu,
-    QAction, QSizePolicy, QListWidgetItem, )
+    QAction,
+    QSizePolicy,
+    QListWidgetItem,
+)
 
-from napari_chatgpt.microplugin.code_editor.text_dialog import TextDialog
+from napari_chatgpt.llm.litemind_api import is_llm_available
 from napari_chatgpt.microplugin.code_editor.clickable_icon import ClickableIcon
-from napari_chatgpt.microplugin.code_editor.code_drop_send_widget import \
-    CodeDropSendWidget
+from napari_chatgpt.microplugin.code_editor.code_drop_send_widget import (
+    CodeDropSendWidget,
+)
 from napari_chatgpt.microplugin.code_editor.console_widget import ConsoleWidget
-from napari_chatgpt.microplugin.code_editor.python_code_editor_manager import \
-    MultiEditorManager
+from napari_chatgpt.microplugin.code_editor.python_code_editor_manager import (
+    MultiEditorManager,
+)
+from napari_chatgpt.microplugin.code_editor.text_dialog import TextDialog
 from napari_chatgpt.microplugin.code_editor.text_input_widget import TextInputWidget
-from napari_chatgpt.microplugin.code_editor.yes_no_cancel_question_widget import \
-    YesNoCancelQuestionWidget
+from napari_chatgpt.microplugin.code_editor.yes_no_cancel_question_widget import (
+    YesNoCancelQuestionWidget,
+)
 from napari_chatgpt.microplugin.formating.black_formating import format_code
 from napari_chatgpt.microplugin.network.code_drop_client import CodeDropClient
 from napari_chatgpt.microplugin.network.code_drop_server import CodeDropServer
 
 
 class CodeSnippetEditorWidget(QWidget):
-    def __init__(self,
-                 folder_path: str,
-                 variables: Optional[dict] = None,
-                 parent=None):
+    def __init__(self, folder_path: str, variables: Optional[dict] = None, parent=None):
         """
         Create a widget for editing Python code snippets.
 
@@ -61,8 +65,7 @@ class CodeSnippetEditorWidget(QWidget):
 
         # Start the network client and server:
         self.client = CodeDropClient()
-        self.client.discover_worker.server_discovered.connect(
-            self.on_server_discovered)
+        self.client.discover_worker.server_discovered.connect(self.on_server_discovered)
         self.client.start_discovering()
 
         # Start the server:
@@ -70,19 +73,14 @@ class CodeSnippetEditorWidget(QWidget):
         self.server.start_broadcasting()
         self.server.start_receiving()
 
-        # is OpenAI available?
-        from napari_chatgpt.utils.api_keys.api_key import is_api_key_available
-        self.is_openai_available = is_api_key_available('OpenAI')
+        # Check if LLMs are available:
+        self.is_llm_available = is_llm_available()
 
         # Initialize the UI:
         self.init_UI()
 
         # Set the default model name for the language model:
         self.llm_model_name = None
-
-
-
-
 
     def init_UI(self):
         main_layout = QVBoxLayout(self)
@@ -92,60 +90,64 @@ class CodeSnippetEditorWidget(QWidget):
         main_layout.addWidget(self.toolbar)
 
         # Icon color:
-        icon_color = '#5E636F'
+        icon_color = "#5E636F"
 
         # function to get icon from fontawesome:
         def _get_icon(icon_name: str):
             return qtawesome.icon(icon_name, color=icon_color)
 
         # New file button with a standard icon:
-        new_file_clickable_icon = ClickableIcon(_get_icon('fa5s.file-alt'))
+        new_file_clickable_icon = ClickableIcon(_get_icon("fa5s.file-alt"))
         new_file_clickable_icon.setToolTip("New file")
         self.toolbar.addWidget(new_file_clickable_icon)
         new_file_clickable_icon.clicked.connect(self.new_file_dialog)
 
         # Duplicate file button with a custom icon:
-        duplicate_file_clickable_icon = ClickableIcon(_get_icon('fa5s.copy'))
+        duplicate_file_clickable_icon = ClickableIcon(_get_icon("fa5s.copy"))
         duplicate_file_clickable_icon.setToolTip("Duplicate file")
         self.toolbar.addWidget(duplicate_file_clickable_icon)
         duplicate_file_clickable_icon.clicked.connect(self.duplicate_file)
 
         # Delete file button with a custom icon:
-        delete_file_clickable_icon = ClickableIcon(_get_icon('fa5s.trash-alt'))
+        delete_file_clickable_icon = ClickableIcon(_get_icon("fa5s.trash-alt"))
         delete_file_clickable_icon.setToolTip("Delete file")
         self.toolbar.addWidget(delete_file_clickable_icon)
         delete_file_clickable_icon.clicked.connect(self.delete_file)
 
         # Clean and reformat code in file button with a custom icon:
-        clean_file_clickable_icon = ClickableIcon(_get_icon('fa5s.hand-sparkles'))
+        clean_file_clickable_icon = ClickableIcon(_get_icon("fa5s.hand-sparkles"))
         clean_file_clickable_icon.setToolTip("Clean and reformat code")
         self.toolbar.addWidget(clean_file_clickable_icon)
         clean_file_clickable_icon.clicked.connect(self.clean_and_reformat_current_file)
 
         # Check if the OpenAI API key is available:
-        if self.is_openai_available:
-
+        if self.is_llm_available:
             # Check if the file is 'safe':
-            check_code_safety_clickable_icon = ClickableIcon(_get_icon('fa5s.virus-slash'))
+            check_code_safety_clickable_icon = ClickableIcon(
+                _get_icon("fa5s.virus-slash")
+            )
             check_code_safety_clickable_icon.setToolTip("Check code safety")
             self.toolbar.addWidget(check_code_safety_clickable_icon)
             check_code_safety_clickable_icon.clicked.connect(
-                self.check_code_safety_with_AI)
+                self.check_code_safety_with_AI
+            )
 
             # Improve code in file button with a custom icon:
-            comment_code_clickable_icon = ClickableIcon(_get_icon('fa5s.edit'))
-            comment_code_clickable_icon.setToolTip("Improve code comments and explanations")
+            comment_code_clickable_icon = ClickableIcon(_get_icon("fa5s.edit"))
+            comment_code_clickable_icon.setToolTip(
+                "Improve code comments and explanations"
+            )
             self.toolbar.addWidget(comment_code_clickable_icon)
             comment_code_clickable_icon.clicked.connect(self.comment_code_with_AI)
 
             # Use AI to change code based on prompt:
-            modify_code_clickable_icon = ClickableIcon(_get_icon('fa5s.robot'))
+            modify_code_clickable_icon = ClickableIcon(_get_icon("fa5s.robot"))
             modify_code_clickable_icon.setToolTip("Modify code with AI")
             self.toolbar.addWidget(modify_code_clickable_icon)
             modify_code_clickable_icon.clicked.connect(self.modify_code_with_AI)
 
         # Send file button with a custom icon:
-        send_file_clickable_icon = ClickableIcon(_get_icon('fa5s.wifi'))
+        send_file_clickable_icon = ClickableIcon(_get_icon("fa5s.wifi"))
         send_file_clickable_icon.setToolTip("Send file")
         self.toolbar.addWidget(send_file_clickable_icon)
         send_file_clickable_icon.clicked.connect(self.send_current_file)
@@ -156,7 +158,7 @@ class CodeSnippetEditorWidget(QWidget):
         self.toolbar.addWidget(spacer)
 
         # Run file button with a custom icon:
-        run_file_clickable_icon = ClickableIcon(_get_icon('fa5s.play-circle'))
+        run_file_clickable_icon = ClickableIcon(_get_icon("fa5s.play-circle"))
         run_file_clickable_icon.setToolTip("Run file")
         self.toolbar.addWidget(run_file_clickable_icon)
         run_file_clickable_icon.clicked.connect(self.run_current_file)
@@ -167,8 +169,7 @@ class CodeSnippetEditorWidget(QWidget):
         # List widget for the file names:
         self.list_widget = QListWidget()
         self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.list_widget.customContextMenuRequested.connect(
-            self.show_context_menu)
+        self.list_widget.customContextMenuRequested.connect(self.show_context_menu)
 
         # Code editor widget:
         self.editor_manager = MultiEditorManager(self.on_text_modified)
@@ -196,17 +197,13 @@ class CodeSnippetEditorWidget(QWidget):
         self.console_widget = ConsoleWidget()
         main_layout.addWidget(self.console_widget)
 
-
         # Set the layout for the main widget:
         self.setLayout(main_layout)
 
         # Connect signals and slots:
-        self.list_widget.currentItemChanged.connect(
-            self.current_list_item_changed)
-
+        self.list_widget.currentItemChanged.connect(self.current_list_item_changed)
 
         self.populate_list()
-
 
     def show_context_menu(self, position):
 
@@ -222,7 +219,7 @@ class CodeSnippetEditorWidget(QWidget):
         find_in_system = QAction("Find in system", self)
 
         # Instantiate AI actions for the context menu:
-        if self.is_openai_available:
+        if self.is_llm_available:
             clean_action = QAction("Clean", self)
             check_action = QAction("Check", self)
             comment_action = QAction("Comment", self)
@@ -237,7 +234,7 @@ class CodeSnippetEditorWidget(QWidget):
         context_menu.addAction(find_in_system)
 
         # Add AI actions to the context menu:
-        if self.is_openai_available:
+        if self.is_llm_available:
             context_menu.addAction(clean_action)
             context_menu.addAction(check_action)
             context_menu.addAction(comment_action)
@@ -252,7 +249,7 @@ class CodeSnippetEditorWidget(QWidget):
         find_in_system.triggered.connect(self.find_file_in_system)
 
         # Connect AI actions to the corresponding slots:
-        if self.is_openai_available:
+        if self.is_llm_available:
             clean_action.triggered.connect(self.clean_and_reformat_current_file)
             check_action.triggered.connect(self.check_code_safety_with_AI)
             comment_action.triggered.connect(self.comment_code_with_AI)
@@ -262,39 +259,38 @@ class CodeSnippetEditorWidget(QWidget):
         context_menu.exec_(self.list_widget.mapToGlobal(position))
 
     def on_server_discovered(self, server_name, server_address, port_number):
-        aprint(
-            f"Discovered server: {server_name} at {server_address}:{port_number}")
+        aprint(f"Discovered server: {server_name} at {server_address}:{port_number}")
 
     def server_message_received(self, addr, message):
 
         # Get IP address and port number:
         ip_address, port = addr
 
-        aprint(
-            f"Message of length: {len(message)} received from {ip_address}:{port}")
+        aprint(f"Message of length: {len(message)} received from {ip_address}:{port}")
 
         # Parse the message in JSON format:
         message_dict = json.loads(message)
-        hostname = message_dict['hostname']
-        username = message_dict['username']
-        filename = message_dict['filename']
-        code = message_dict['code']
+        hostname = message_dict["hostname"]
+        username = message_dict["username"]
+        filename = message_dict["filename"]
+        code = message_dict["code"]
 
         # Prepend a comment line to the code that gives the date and time it was recieved and from where?
-        code = f"# File '{filename}' of length: {len(code)} received from {username} at {hostname} ({ip_address}:{port})  at {datetime.now()}\n" + code
+        code = (
+            f"# File '{filename}' of length: {len(code)} received from {username} at {hostname} ({ip_address}:{port})  at {datetime.now()}\n"
+            + code
+        )
 
         # Ask for confirmation:
         message = f"Accept file '{filename}' sent by {username} at {hostname} ({ip_address}:{port})?"
 
         def _accept_file():
-            self.new_file(filename=filename,
-                          code=code,
-                          postfix_if_exists='received')
+            self.new_file(filename=filename, code=code, postfix_if_exists="received")
 
         # Show the question widget:
-        self.yes_no_cancel_question_widget.show_question(message=message,
-                                                         yes_callback=_accept_file,
-                                                         cancel_text=None)
+        self.yes_no_cancel_question_widget.show_question(
+            message=message, yes_callback=_accept_file, cancel_text=None
+        )
 
     def populate_list(self, selected_filename: Optional[str] = None):
 
@@ -349,13 +345,15 @@ class CodeSnippetEditorWidget(QWidget):
         self.list_widget.setMaximumWidth(max_width)
 
         # Ensure that the list widget cannot be too small
-        self.list_widget.setMinimumWidth(fm.width('some_file.py') + 20)
+        self.list_widget.setMinimumWidth(fm.width("some_file.py") + 20)
 
         # Ensure that the selected file is loaded:
         if selected_filename:
             # Make sure to select the right row:
             for i in range(self.list_widget.count()):
-                if self.list_widget.item(i).text() == self.filename_to_displayname.get(selected_filename, ""):
+                if self.list_widget.item(i).text() == self.filename_to_displayname.get(
+                    selected_filename, ""
+                ):
                     self.list_widget.setCurrentRow(i)
             self.load_snippet_by_filename(selected_filename)
         else:
@@ -364,10 +362,9 @@ class CodeSnippetEditorWidget(QWidget):
                 self.list_widget.setCurrentRow(0)
                 self.load_snippet()
 
-    def truncate_filename(self,
-                          filename: str,
-                          index: Optional[int] = None,
-                          max_length: int = 40) -> str:
+    def truncate_filename(
+        self, filename: str, index: Optional[int] = None, max_length: int = 40
+    ) -> str:
 
         # Convert index to string if it is not None:
         if index is not None:
@@ -422,17 +419,15 @@ class CodeSnippetEditorWidget(QWidget):
                 return
 
             # Get the full path to the file:
-            full_path = os.path.join(self.folder_path,
-                                     self.currently_open_filename)
+            full_path = os.path.join(self.folder_path, self.currently_open_filename)
 
             # Save the file:
             with open(full_path, "w") as file:
                 file.write(self.editor_manager.current_editor.toPlainText())
 
-    def new_file(self,
-                 filename: str,
-                 code: Optional[str] = "",
-                 postfix_if_exists = '_copy'):
+    def new_file(
+        self, filename: str, code: Optional[str] = "", postfix_if_exists="_copy"
+    ):
 
         # Make sure the file has '.py' extension:
         if not filename.endswith(".py"):
@@ -488,8 +483,11 @@ class CodeSnippetEditorWidget(QWidget):
             if self.editor_manager.current_editor:
                 current_editor = self.editor_manager.current_editor
                 current_text_in_editor = current_editor.toPlainText()
-                if self.currently_open_filename is None and current_text_in_editor and len(
-                        current_text_in_editor) > 0:
+                if (
+                    self.currently_open_filename is None
+                    and current_text_in_editor
+                    and len(current_text_in_editor) > 0
+                ):
                     code = current_editor.toPlainText()
                 else:
                     code = ""
@@ -505,7 +503,7 @@ class CodeSnippetEditorWidget(QWidget):
             cancel_text="Cancel",
             enter_callback=_new_file,
             cancel_callback=None,
-            do_after_callable=None
+            do_after_callable=None,
         )
 
     def duplicate_file(self):
@@ -520,8 +518,7 @@ class CodeSnippetEditorWidget(QWidget):
 
             # Get original filename and display name:
             original_display_name = current_item.text()
-            original_filename = self.displayname_to_filename[
-                original_display_name]
+            original_filename = self.displayname_to_filename[original_display_name]
 
             # get base name and extension:
             base_name, ext = os.path.splitext(original_filename)
@@ -539,10 +536,10 @@ class CodeSnippetEditorWidget(QWidget):
 
             # Copy the file on disk
             with open(
-                    os.path.join(self.folder_path, original_filename), "r"
+                os.path.join(self.folder_path, original_filename), "r"
             ) as original_file:
                 with open(
-                        os.path.join(self.folder_path, new_filename), "w"
+                    os.path.join(self.folder_path, new_filename), "w"
                 ) as new_file:
                     new_file.write(original_file.read())
 
@@ -557,8 +554,7 @@ class CodeSnippetEditorWidget(QWidget):
         # If there is a current item:
         if current_item:
             # Get the filename from the display name:
-            filename_to_delete = self.displayname_to_filename[
-                current_item.text()]
+            filename_to_delete = self.displayname_to_filename[current_item.text()]
 
             # Delete the file:
             self.delete_file(filename_to_delete)
@@ -575,8 +571,7 @@ class CodeSnippetEditorWidget(QWidget):
 
             def _delete_file():
                 # Get the full path to the file:
-                file_to_delete_path = os.path.join(self.folder_path,
-                                                   file_to_delete)
+                file_to_delete_path = os.path.join(self.folder_path, file_to_delete)
 
                 # remove file:
                 os.remove(file_to_delete_path)
@@ -592,9 +587,9 @@ class CodeSnippetEditorWidget(QWidget):
                     self.currently_open_filename = None
 
             # Show the question widget:
-            self.yes_no_cancel_question_widget.show_question(message=message,
-                                                             yes_callback=_delete_file,
-                                                             cancel_text=None)
+            self.yes_no_cancel_question_widget.show_question(
+                message=message, yes_callback=_delete_file, cancel_text=None
+            )
 
     def rename_file(self):
 
@@ -630,7 +625,7 @@ class CodeSnippetEditorWidget(QWidget):
                 cancel_text="Cancel",
                 enter_callback=_rename_file,
                 cancel_callback=None,
-                do_after_callable=None
+                do_after_callable=None,
             )
 
             # # Ask for new name:
@@ -663,33 +658,43 @@ class CodeSnippetEditorWidget(QWidget):
 
         if current_item:
             # Get the filename from the display name:
-            filename_to_open = self.displayname_to_filename[
-                current_item.text()]
+            filename_to_open = self.displayname_to_filename[current_item.text()]
 
             # Open the file in the system for different OS:
             # First OSX:
             if sys.platform == "darwin":
-                os.system(f'open {os.path.join(self.folder_path, filename_to_open)}')
+                os.system(f"open {os.path.join(self.folder_path, filename_to_open)}")
             # Then Windows:
-            elif sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys" or sys.platform == "win64":
-                os.system(f'start {os.path.join(self.folder_path, filename_to_open)}')
+            elif (
+                sys.platform == "win32"
+                or sys.platform == "cygwin"
+                or sys.platform == "msys"
+                or sys.platform == "win64"
+            ):
+                os.system(f"start {os.path.join(self.folder_path, filename_to_open)}")
             # Then Linux:
             else:
-                os.system(f'xdg-open {os.path.join(self.folder_path, filename_to_open)}')
+                os.system(
+                    f"xdg-open {os.path.join(self.folder_path, filename_to_open)}"
+                )
 
     def find_file_in_system(self):
 
         # Open the folder in the system for different OS:
         # First OSX:
         if sys.platform == "darwin":
-            os.system(f'open {self.folder_path}')
+            os.system(f"open {self.folder_path}")
         # Then Windows:
-        elif sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys" or sys.platform == "win64":
-            os.system(f'start {self.folder_path}')
+        elif (
+            sys.platform == "win32"
+            or sys.platform == "cygwin"
+            or sys.platform == "msys"
+            or sys.platform == "win64"
+        ):
+            os.system(f"start {self.folder_path}")
         # Then Linux:
         else:
-            os.system(f'xdg-open {self.folder_path}')
-
+            os.system(f"xdg-open {self.folder_path}")
 
     def check_code_safety_with_AI(self):
         if self.currently_open_filename:
@@ -702,26 +707,25 @@ class CodeSnippetEditorWidget(QWidget):
             code = self.editor_manager.current_editor.toPlainText()
 
             # Check the code for safety by calling ChatGPT with a custom prompt:
-            from napari_chatgpt.utils.python.check_code_safety import \
-                check_code_safety
-            response, safety_rank = check_code_safety(code,
-                                                      model_name=self.llm_model_name,
-                                                      verbose=True)
+            from napari_chatgpt.utils.python.check_code_safety import check_code_safety
+
+            response, safety_rank = check_code_safety(
+                code, model_name=self.llm_model_name, verbose=True
+            )
 
             # Create the icons for the dialog:
-            InformationIcon = qtawesome.icon('fa5s.info-circle')
-            WarningIcon = qtawesome.icon('fa5s.exclamation-triangle')
+            InformationIcon = qtawesome.icon("fa5s.info-circle")
+            WarningIcon = qtawesome.icon("fa5s.exclamation-triangle")
 
             # Create and show the custom dialog
             dialog = TextDialog(
                 f"Code Safety Report for: {self.currently_open_filename}",
                 response,
-                InformationIcon if safety_rank in ['A', 'B'] else WarningIcon
+                InformationIcon if safety_rank in ["A", "B"] else WarningIcon,
             )
 
             # Show the dialog:
             dialog.exec_()
-
 
     def comment_code_with_AI(self):
         if self.currently_open_filename:
@@ -735,11 +739,11 @@ class CodeSnippetEditorWidget(QWidget):
 
             # Add comments to the code:
             from napari_chatgpt.utils.python.add_comments import add_comments
+
             code = add_comments(code, model_name=self.llm_model_name, verbose=True)
 
             # Set the commented code in the editor:
             self.editor_manager.current_editor.setPlainTextUndoable(code)
-
 
     def modify_code_with_AI(self):
         if self.currently_open_filename:
@@ -755,13 +759,16 @@ class CodeSnippetEditorWidget(QWidget):
 
                 # Modify the code based on the request:
                 from napari_chatgpt.utils.python.modify_code import modify_code
-                modified_code = modify_code(code=code,
-                                           request=request,
-                                           model_name=self.llm_model_name,
-                                           verbose=True)
+
+                modified_code = modify_code(
+                    code=code,
+                    request=request,
+                    model_name=self.llm_model_name,
+                    verbose=True,
+                )
 
                 # Request without new line characters:
-                request_nonl = request.replace('\n', ' ')
+                request_nonl = request.replace("\n", " ")
 
                 # Add comment to the code that explains what as changed:
                 modified_code = f"# Code modified by Omega at {datetime.now()}.\n# Request:{request_nonl}.\n\n{modified_code}"
@@ -769,15 +776,15 @@ class CodeSnippetEditorWidget(QWidget):
                 # Set the commented code in the editor:
                 self.editor_manager.current_editor.setPlainTextUndoable(modified_code)
 
-
-            placeholder_text = ("Explain how you you want to modify the code of the currently selected file.\n"
-                                "For example:\n"
-                                "   'Make a widget from this code',\n"
-                                "   'Make the code work for 3d stacks',\n"
-                                "   etc...\n"
-                                "You can also place 'TODO's or 'FIXME' in the code, in that case no prompt is required.\n"
-                                "Finally, you can undo the changes with CTRL+Z.\n")
-
+            placeholder_text = (
+                "Explain how you you want to modify the code of the currently selected file.\n"
+                "For example:\n"
+                "   'Make a widget from this code',\n"
+                "   'Make the code work for 3d stacks',\n"
+                "   etc...\n"
+                "You can also place 'TODO's or 'FIXME' in the code, in that case no prompt is required.\n"
+                "Finally, you can undo the changes with CTRL+Z.\n"
+            )
 
             # Show the text input widget:
             self.text_input_widget.show_input(
@@ -789,7 +796,7 @@ class CodeSnippetEditorWidget(QWidget):
                 cancel_callback=None,
                 do_after_callable=None,
                 multi_line=True,
-                max_height=200
+                max_height=200,
             )
 
     def send_current_file(self):
@@ -826,8 +833,7 @@ class CodeSnippetEditorWidget(QWidget):
 
             try:
                 # Local import to avoid circular import:
-                from napari_chatgpt.utils.python.dynamic_import import \
-                    execute_as_module
+                from napari_chatgpt.utils.python.dynamic_import import execute_as_module
 
                 # Run the code as a module:
                 captured_output = execute_as_module(code, **self.variables)
@@ -840,17 +846,16 @@ class CodeSnippetEditorWidget(QWidget):
             except Exception as e:
                 aprint(f"Error running file: {e}")
                 import traceback
+
                 traceback.print_exc()
 
                 # String that contains stacktrace:
                 captured_stacktrace = traceback.format_exc()
 
                 # Show the output in the console:
-                self.console_widget.append_message(captured_stacktrace, message_type='error')
-
-
-
-
+                self.console_widget.append_message(
+                    captured_stacktrace, message_type="error"
+                )
 
     def current_list_item_changed(self, current, previous):
 

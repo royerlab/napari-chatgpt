@@ -3,18 +3,13 @@ import sys
 import traceback
 
 from arbol import asection, aprint
-from langchain.chains import LLMChain
-from langchain.llms import BaseLLM
-from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
 
-from napari_chatgpt.chat_server.callbacks.callbacks_arbol_stdout import \
-    ArbolCallbackHandler
-from napari_chatgpt.utils.openai.default_model import \
-    get_default_openai_model_name
+from napari_chatgpt.llm.litemind_api import get_llm
+from napari_chatgpt.llm.llm import LLM
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 
-_required_imports_prompt = f"""
+_required_imports_prompt = \
+f"""
 **Context:**
 You are an expert Python coder with extensive knowledge of all python libraries, and their different versions.
 
@@ -38,11 +33,10 @@ Make sure we have the right answer.
 """
 
 
-def required_imports(code: str,
-                     llm: BaseLLM = None,
-                     verbose: bool = False):
-    with(asection(
-            f'Automatically determines missing imports for code of length: {len(code)}')):
+def required_imports(code: str, llm: LLM = None, verbose: bool = False):
+    with asection(
+        f"Automatically determines missing imports for code of length: {len(code)}"
+    ):
         # Cleanup code:
         code = code.strip()
 
@@ -51,66 +45,60 @@ def required_imports(code: str,
             return []
 
         # Instantiates LLM if needed:
-        llm = llm or ChatOpenAI(model_name=get_default_openai_model_name(),
-                                temperature=0)
+        llm = llm or get_llm()
 
-        # Make prompt template:
-        prompt_template = PromptTemplate(template=_required_imports_prompt,
-                                         input_variables=["input"])
-
-        # Instantiate chain:
-        chain = LLMChain(
-            prompt=prompt_template,
-            llm=llm,
-            verbose=verbose,
-            callbacks=[ArbolCallbackHandler('Required imports')]
-        )
-
-        # Variable for prompt:
-        variables = {'input': code}
+        variables = {"input": code}
 
         # call LLM:
-        list_of_imports_str = chain.invoke(variables)['text']
+        result = llm.generate(
+            _required_imports_prompt, variables=variables, temperature=0.0
+        )
+
+        # Extract text from messages:
+        response_text = "\n".join([m.to_plain_text() for m in result])
 
         # Extract code:
-        list_of_imports_str = extract_code_from_markdown(list_of_imports_str)
+        list_of_imports_str = extract_code_from_markdown(response_text)
 
         # Parse the list:
-        list_of_imports = list_of_imports_str.split('\n')
+        list_of_imports = list_of_imports_str.split("\n")
 
         # Filter the list of imports for bad ones:
-        list_of_imports = list([i for i in list_of_imports if check_import_statement(i)])
+        list_of_imports = list(
+            [i for i in list_of_imports if check_import_statement(i)]
+        )
 
-        aprint(f'List of missing imports:\n{list_of_imports}')
+        aprint(f"List of missing imports:\n{list_of_imports}")
 
     return list_of_imports
 
 
 def check_import_statement(import_statement):
-
-    with asection(f"Checking the validity of suggested import statement: '{import_statement}'"):
+    with asection(
+        f"Checking the validity of suggested import statement: '{import_statement}'"
+    ):
         try:
             # Cleanup import statement:
             import_statement = import_statement.strip()
 
             # remove the 'as' statement:
-            if ' as ' in import_statement:
-                index = import_statement.find(' as ')
+            if " as " in import_statement:
+                index = import_statement.find(" as ")
                 import_statement = import_statement[:index].strip()
 
             # Extract modules and names:
-            if import_statement.startswith('import '):
+            if import_statement.startswith("import "):
                 import_statement = import_statement[7:]
 
                 # cleanup module name:
                 module_name = import_statement.strip()
 
                 names = None
-            elif import_statement.startswith('from '):
+            elif import_statement.startswith("from "):
                 import_statement = import_statement[5:]
 
                 # Split the import statement into module and names
-                module_name, names = import_statement.split(' import ')
+                module_name, names = import_statement.split(" import ")
 
                 # cleanup module name:
                 module_name = module_name.strip()
@@ -118,8 +106,7 @@ def check_import_statement(import_statement):
                 # Names:
                 names = names.split()
             else:
-                aprint(
-                    f"This is not an import statement: '{import_statement}' !")
+                aprint(f"This is not an import statement: '{import_statement}' !")
                 return False
 
             # cleanup module name and names:
@@ -148,7 +135,8 @@ def check_import_statement(import_statement):
                         aprint(f"Name '{name}' exists within module '{module_name}'.")
                     else:
                         aprint(
-                            f"Name '{name}' does not exist within module '{module_name}'.")
+                            f"Name '{name}' does not exist within module '{module_name}'."
+                        )
                         return False
 
             return True

@@ -2,22 +2,21 @@ import traceback
 from typing import Optional
 
 from arbol import asection, aprint
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 from napari_chatgpt.utils.llm.summarizer import summarize
 from napari_chatgpt.utils.python.pip_utils import pip_install_single_package
 
 
-def summary_ddg(query: str,
-                num_results: int = 3,
-                lang: str = "en",
-                do_summarize: bool = True,
-                ) -> str:
+def summary_ddg(
+    query: str,
+    num_results: int = 3,
+    lang: str = "en",
+    do_summarize: bool = True,
+) -> str:
     try:
 
-        results = search_ddg(query=query,
-                             num_results=num_results,
-                             lang=lang)
+        results = search_ddg(query=query, num_results=num_results, lang=lang)
 
         # Are there any results?
         if len(results) == 0:
@@ -42,18 +41,14 @@ def summary_ddg(query: str,
         install_latest_ddg
 
 
-def search_ddg(query: str,
-               num_results: int = 3,
-               lang: str = "en",
-               safe_search: str = 'moderate'
-               ) -> str:
+def search_ddg(
+    query: str, num_results: int = 3, lang: str = "en", safe_search: str = "moderate"
+) -> str:
+    lang = "en-us" if lang == "en" else lang
 
-    lang = 'en-us' if lang == 'en' else lang
-
-    results = DDGS().text(keywords=query,
-                          region=lang,
-                          safesearch=safe_search,
-                          max_results=num_results)
+    results = DDGS().text(
+        query=query, region=lang, safesearch=safe_search, max_results=num_results
+    )
 
     if results:
         results = list(results)
@@ -63,22 +58,22 @@ def search_ddg(query: str,
     return results
 
 
-def search_images_ddg(query: str,
-                      num_results: int = 3,
-                      lang: str = "en",
-                      safesearch: str = 'moderate'
-                      ) -> list[dict[str, Optional[str]]]:
-    lang = 'en-us' if lang == 'en' else lang
+def search_images_ddg(
+    query: str, num_results: int = 3, lang: str = "en", safesearch: str = "moderate"
+) -> list[dict[str, Optional[str]]]:
+    lang = "en-us" if lang == "en" else lang
 
-    results = DDGS().images(keywords=query,
-                            region=lang,
-                            safesearch=safesearch,
-                            size=None,
-                            color=None,
-                            type_image=None,
-                            layout=None,
-                            license_image=None,
-                            max_results=num_results)
+    results = DDGS().images(
+        query=query,
+        region=lang,
+        safesearch=safesearch,
+        size=None,
+        color=None,
+        type_image=None,
+        layout=None,
+        license_image=None,
+        max_results=num_results,
+    )
 
     results = list(results)
 
@@ -89,7 +84,6 @@ def install_latest_ddg():
     # Make sure we have the latest version installed:
     try:
         with asection("Installing the latest version of duckduckgo_search:"):
-            aprint(
-                pip_install_single_package('duckduckgo_search', upgrade=True))
+            aprint(pip_install_single_package("duckduckgo_search", upgrade=True))
     except Exception as e:
         traceback.print_exc()

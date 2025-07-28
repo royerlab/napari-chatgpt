@@ -4,18 +4,17 @@ from qtpy import QtCore
 from qtpy import QtGui
 
 
-def format(color, style=''):
-    """Return a QTextCharFormat with the given attributes.
-    """
+def format(color, style=""):
+    """Return a QTextCharFormat with the given attributes."""
     _color = QtGui.QColor()
     _color.setNamedColor(color)
 
     _format = QtGui.QTextCharFormat()
     _format.setForeground(_color)
 
-    if 'bold' in style:
+    if "bold" in style:
         _format.setFontWeight(QtGui.QFont.Bold)
-    if 'italic' in style:
+    if "italic" in style:
         _format.setFontItalic(True)
 
     return _format
@@ -23,101 +22,149 @@ def format(color, style=''):
 
 # Syntax styles that can be shared by all languages
 STYLES = {
-    'keyword': format('#C68261'),
-    'operator': format('#F0F0F0'),
-    'brace': format('lightGray'),
-    'defclass': format('#B4B6BC', 'bold'),
-    'string': format('#5FA167'),
-    'string2': format('#5FA167', 'italic'),
-    'comment': format('#547760', 'italic'),
-    'self': format('#864A7E'),
-    'numbers': format('#25A2AF'),
+    "keyword": format("#C68261"),
+    "operator": format("#F0F0F0"),
+    "brace": format("lightGray"),
+    "defclass": format("#B4B6BC", "bold"),
+    "string": format("#5FA167"),
+    "string2": format("#5FA167", "italic"),
+    "comment": format("#547760", "italic"),
+    "self": format("#864A7E"),
+    "numbers": format("#25A2AF"),
 }
 
 
 class PythonSyntaxHighlighter(QtGui.QSyntaxHighlighter):
-    """Syntax highlighter for the Python language.
-    """
+    """Syntax highlighter for the Python language."""
+
     # Python keywords
     keywords = [
-        'and', 'assert', 'break', 'class', 'continue', 'def',
-        'del', 'elif', 'else', 'except', 'exec', 'finally',
-        'for', 'from', 'global', 'if', 'import', 'in',
-        'is', 'lambda', 'not', 'or', 'pass', 'print',
-        'raise', 'return', 'try', 'while', 'yield',
-        'None', 'True', 'False',
+        "and",
+        "assert",
+        "break",
+        "class",
+        "continue",
+        "def",
+        "del",
+        "elif",
+        "else",
+        "except",
+        "exec",
+        "finally",
+        "for",
+        "from",
+        "global",
+        "if",
+        "import",
+        "in",
+        "is",
+        "lambda",
+        "not",
+        "or",
+        "pass",
+        "print",
+        "raise",
+        "return",
+        "try",
+        "while",
+        "yield",
+        "None",
+        "True",
+        "False",
     ]
 
     # Python operators
     operators = [
-        '=',
+        "=",
         # Comparison
-        '==', '!=', '<', '<=', '>', '>=',
+        "==",
+        "!=",
+        "<",
+        "<=",
+        ">",
+        ">=",
         # Arithmetic
-        '\+', '-', '\*', '/', '//', '\%', '\*\*',
+        "\+",
+        "-",
+        "\*",
+        "/",
+        "//",
+        "\%",
+        "\*\*",
         # In-place
-        '\+=', '-=', '\*=', '/=', '\%=',
+        "\+=",
+        "-=",
+        "\*=",
+        "/=",
+        "\%=",
         # Bitwise
-        '\^', '\|', '\&', '\~', '>>', '<<',
+        "\^",
+        "\|",
+        "\&",
+        "\~",
+        ">>",
+        "<<",
         # Dict:
-        '\|='
+        "\|=",
     ]
 
     # Python braces
     braces = [
-        '\{', '\}', '\(', '\)', '\[', '\]',
+        "\{",
+        "\}",
+        "\(",
+        "\)",
+        "\[",
+        "\]",
     ]
 
     def __init__(self, parent: QtGui.QTextDocument) -> None:
         super().__init__(parent)
 
         # Multi-line strings (expression, flag, style)
-        self.tri_single = (QtCore.QRegExp("'''"), 1, STYLES['string2'])
-        self.tri_double = (QtCore.QRegExp('"""'), 2, STYLES['string2'])
+        self.tri_single = (QtCore.QRegExp("'''"), 1, STYLES["string2"])
+        self.tri_double = (QtCore.QRegExp('"""'), 2, STYLES["string2"])
 
         rules = []
 
         # Keyword, operator, and brace rules
-        rules += [(r'\b%s\b' % w, 0, STYLES['keyword'])
-                  for w in PythonSyntaxHighlighter.keywords]
-        rules += [(r'%s' % o, 0, STYLES['operator'])
-                  for o in PythonSyntaxHighlighter.operators]
-        rules += [(r'%s' % b, 0, STYLES['brace'])
-                  for b in PythonSyntaxHighlighter.braces]
+        rules += [
+            (r"\b%s\b" % w, 0, STYLES["keyword"])
+            for w in PythonSyntaxHighlighter.keywords
+        ]
+        rules += [
+            (r"%s" % o, 0, STYLES["operator"])
+            for o in PythonSyntaxHighlighter.operators
+        ]
+        rules += [
+            (r"%s" % b, 0, STYLES["brace"]) for b in PythonSyntaxHighlighter.braces
+        ]
 
         # All other rules
         rules += [
             # 'self'
-            (r'\bself\b', 0, STYLES['self']),
-
+            (r"\bself\b", 0, STYLES["self"]),
             # 'def' followed by an identifier
-            (r'\bdef\b\s*(\w+)', 1, STYLES['defclass']),
+            (r"\bdef\b\s*(\w+)", 1, STYLES["defclass"]),
             # 'class' followed by an identifier
-            (r'\bclass\b\s*(\w+)', 1, STYLES['defclass']),
-
+            (r"\bclass\b\s*(\w+)", 1, STYLES["defclass"]),
             # Numeric literals
-            (r'\b[+-]?[0-9]+[lL]?\b', 0, STYLES['numbers']),
-            (r'\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b', 0, STYLES['numbers']),
-            (r'\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b', 0,
-             STYLES['numbers']),
-
+            (r"\b[+-]?[0-9]+[lL]?\b", 0, STYLES["numbers"]),
+            (r"\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b", 0, STYLES["numbers"]),
+            (r"\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b", 0, STYLES["numbers"]),
             # Double-quoted string, possibly containing escape sequences
-            (r'"[^"\\]*(\\.[^"\\]*)*"', 0, STYLES['string']),
+            (r'"[^"\\]*(\\.[^"\\]*)*"', 0, STYLES["string"]),
             # Single-quoted string, possibly containing escape sequences
-            (r"'[^'\\]*(\\.[^'\\]*)*'", 0, STYLES['string']),
-
+            (r"'[^'\\]*(\\.[^'\\]*)*'", 0, STYLES["string"]),
             # From '#' until a newline
-            (r'#[^\n]*', 0, STYLES['comment']),
-
+            (r"#[^\n]*", 0, STYLES["comment"]),
         ]
 
         # Build a QRegExp for each pattern
-        self.rules = [(QtCore.QRegExp(pat), index, fmt)
-                      for (pat, index, fmt) in rules]
+        self.rules = [(QtCore.QRegExp(pat), index, fmt) for (pat, index, fmt) in rules]
 
     def highlightBlock(self, text):
-        """Apply syntax highlighting to the given block of text.
-        """
+        """Apply syntax highlighting to the given block of text."""
         self.tripleQuoutesWithinStrings = []
         # Do other syntax formatting
         for expression, nth, format in self.rules:
@@ -126,16 +173,17 @@ class PythonSyntaxHighlighter(QtGui.QSyntaxHighlighter):
                 # if there is a string we check
                 # if there are some triple quotes within the string
                 # they will be ignored if they are matched again
-                if expression.pattern() in [r'"[^"\\]*(\\.[^"\\]*)*"',
-                                            r"'[^'\\]*(\\.[^'\\]*)*'"]:
+                if expression.pattern() in [
+                    r'"[^"\\]*(\\.[^"\\]*)*"',
+                    r"'[^'\\]*(\\.[^'\\]*)*'",
+                ]:
                     innerIndex = self.tri_single[0].indexIn(text, index + 1)
                     if innerIndex == -1:
                         innerIndex = self.tri_double[0].indexIn(text, index + 1)
 
                     if innerIndex != -1:
                         tripleQuoteIndexes = range(innerIndex, innerIndex + 3)
-                        self.tripleQuoutesWithinStrings.extend(
-                            tripleQuoteIndexes)
+                        self.tripleQuoutesWithinStrings.extend(tripleQuoteIndexes)
 
             while index >= 0:
                 # skipping triple quotes within strings

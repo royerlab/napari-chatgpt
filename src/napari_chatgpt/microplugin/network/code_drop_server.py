@@ -11,12 +11,14 @@ from napari_chatgpt.microplugin.network.receive_worker import ReceiveWorker
 
 
 class CodeDropServer(QObject):
-    _code_drop_multicast_groups = [('224.1.1.1', 5007), ('224.1.1.1', 5008)]
+    _code_drop_multicast_groups = [("224.1.1.1", 5007), ("224.1.1.1", 5008)]
 
-    def __init__(self,
-                 callback: Callable,
-                 multicast_groups=None,
-                 server_port: Optional[int] = None):
+    def __init__(
+        self,
+        callback: Callable,
+        multicast_groups=None,
+        server_port: Optional[int] = None,
+    ):
         super().__init__()
 
         if multicast_groups is None:
@@ -43,16 +45,17 @@ class CodeDropServer(QObject):
 
         # Create a socket for broadcasting:
         self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.broadcast_socket.setsockopt(socket.IPPROTO_IP,
-                                         socket.IP_MULTICAST_TTL, struct.pack('b', 32) )
+        self.broadcast_socket.setsockopt(
+            socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, struct.pack("b", 32)
+        )
 
         # Setup the broadcast worker and thread:
         self.broadcast_thread = QThread()
         self.broadcast_thread.setTerminationEnabled(True)
         self.broadcast_thread.setObjectName("BroadcastThread")
-        self.broadcast_worker = BroadcastWorker(self.broadcast_socket,
-                                                self.multicast_groups,
-                                                self.server_port)
+        self.broadcast_worker = BroadcastWorker(
+            self.broadcast_socket, self.multicast_groups, self.server_port
+        )
         self.broadcast_worker.moveToThread(self.broadcast_thread)
         self.broadcast_thread.started.connect(self.broadcast_worker.broadcast)
         self.broadcast_worker.error.connect(self.handle_error)
@@ -63,10 +66,10 @@ class CodeDropServer(QObject):
         self.receive_thread.setObjectName("ReceiveThread")
         self.receive_worker = ReceiveWorker(self.server_port)
         self.receive_worker.moveToThread(self.receive_thread)
-        self.receive_thread.started.connect(
-            self.receive_worker.receive_messages)
+        self.receive_thread.started.connect(self.receive_worker.receive_messages)
         self.receive_worker.message_received.connect(
-            lambda addr, msg: self.callback(addr, msg))
+            lambda addr, msg: self.callback(addr, msg)
+        )
         self.receive_worker.error.connect(self.handle_error)
 
     def _find_port(self):
@@ -75,7 +78,7 @@ class CodeDropServer(QObject):
             try:
                 # check if the port is already in use:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.bind(('', port))
+                s.bind(("", port))
                 s.close()
                 break
             except OSError:
@@ -106,8 +109,5 @@ class CodeDropServer(QObject):
         self.stop_broadcasting()
         self.stop_receiving()
 
-
     def handle_error(self, e):
         aprint(f"Error: {e}")
-
-

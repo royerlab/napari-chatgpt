@@ -73,21 +73,19 @@ def color_space_explorer(
 This widget function `color_space_explorer` allows the user to explore different color spaces and adjust parameters relevant to the selected color space. The user can select the target color space from a dropdown menu, adjust parameters using sliders, and apply the conversion to the selected image layer. The function also provides a preview of the converted image before applying it. The function is decorated with `magicgui` to create an interactive GUI within napari.
 """
 
-def test_add_and_split_markdown():
 
+def test_add_and_split_markdown():
     jnf = JupyterNotebookFile()
     jnf.add_markdown_cell(markdown, detect_code_blocks=False)
 
     assert len(jnf.notebook.cells) == 1
+
 
 def test_add_and_split_markdown_detect_code_blocks():
     jnf = JupyterNotebookFile()
     jnf.add_markdown_cell(markdown, detect_code_blocks=True)
 
     assert len(jnf.notebook.cells) == 3
-    assert '###'  in jnf.notebook.cells[0].source
-    assert 'import numpy' in jnf.notebook.cells[1].source
-    assert 'This widget function' in jnf.notebook.cells[2].source
-
-
-
+    assert "###" in jnf.notebook.cells[0].source
+    assert "import numpy" in jnf.notebook.cells[1].source
+    assert "This widget function" in jnf.notebook.cells[2].source

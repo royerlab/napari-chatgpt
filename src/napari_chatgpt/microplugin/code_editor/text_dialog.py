@@ -1,12 +1,12 @@
 # Custom dialog for displaying large amounts of text within reasonable limits
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QDialog, QTextEdit, QSizePolicy, QVBoxLayout, \
-    QPushButton
+from qtpy.QtWidgets import QDialog, QTextEdit, QSizePolicy, QVBoxLayout, QPushButton
 
 
 class TextDialog(QDialog):
-    def __init__(self, title, text, icon=None,
-                 parent=None):  # icon parameter is optional and can be None
+    def __init__(
+        self, title, text, icon=None, parent=None
+    ):  # icon parameter is optional and can be None
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setWindowModality(Qt.ApplicationModal)
@@ -15,8 +15,7 @@ class TextDialog(QDialog):
         self.textEdit = QTextEdit()
         self.textEdit.setText(text)
         self.textEdit.setReadOnly(True)
-        self.textEdit.setSizePolicy(QSizePolicy.Expanding,
-                                    QSizePolicy.Expanding)
+        self.textEdit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         # "OK" button to close the dialog
         self.okButton = QPushButton("OK")

@@ -20,7 +20,7 @@ def check_openai_api_key(openai_api_key: str) -> bool:
 
         openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "Test message"}]
+            messages=[{"role": "user", "content": "Test message"}],
         )
         aprint("API key is valid.")
         return True

@@ -1,13 +1,8 @@
-from langchain.chains.summarize import load_summarize_chain
-from langchain.docstore.document import Document
-from langchain.llms import BaseLLM
-from langchain.text_splitter import CharacterTextSplitter
-
-from napari_chatgpt.utils.openai.default_model import \
-    get_default_openai_model_name
+from napari_chatgpt.llm.litemind_api import get_llm
+from napari_chatgpt.llm.llm import LLM
 
 
-def summarize(text: str, llm: BaseLLM = None):
+def summarize(text: str, llm: LLM = None):
     # Clean up text:
     text = text.strip()
 
@@ -16,20 +11,20 @@ def summarize(text: str, llm: BaseLLM = None):
         return text
 
     # Instantiates LLM if needed:
-    from langchain_openai import ChatOpenAI
-    llm = llm or ChatOpenAI(model_name=get_default_openai_model_name(), temperature=0)
+    llm = llm or get_llm()
 
-    # Splits the text:
-    text_splitter = CharacterTextSplitter()
-    texts = text_splitter.split_text(text)
+    # Prepare the prompt for summarization:
+    prompt = (
+        "Please summarize the following text retaining all the key ideas and information:\n\n"
+        f"```text\n{text}\n```\n\n"
+        "**Important** Please do not include any prefix, postfix, additional information or explanations, *just* the summary.**\n\n"
+        "Summary:"
+    )
 
-    # Make documents from the text:
-    docs = [Document(page_content=t) for t in texts[:3]]
+    # Call the LLM to get the summary:
+    summary = llm.generate(prompt)
 
-    # Load summariser:
-    chain = load_summarize_chain(llm, chain_type="map_reduce")
+    # get the last message and extract plain text:
+    summary_text = summary[-1].to_plain_text()
 
-    # Summarize:
-    summary = chain.invoke(docs)['output_text']
-
-    return summary
+    return summary_text

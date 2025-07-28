@@ -1,4 +1,3 @@
-
 def is_port_available(port: int):
     """
     Checks if a TCP port is available on localhost.
@@ -13,8 +12,10 @@ def is_port_available(port: int):
     """
     # Checks if TCP port is available on localhost:
     import socket
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        return s.connect_ex(('localhost', port)) != 0
+        return s.connect_ex(("localhost", port)) != 0
+
 
 def find_first_port_available(start: int, end: int):
     """

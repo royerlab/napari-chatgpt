@@ -1,1 +1,5 @@
-napari-chatgpt(Omega) is a napari plugin that utilizes OpenAI's Large Language Model (LLM) called ChatGPT. It introduces an agent named Omega, which is aware of napari and capable of engaging in conversational image processing and analysis tasks. Omega utilizes the ChatGPT API through the LangChain Python library and napari. Omega demonstrates the potential of LLMs by performing tasks such as writing image processing code, creating napari widgets, correcting coding mistakes, conducting follow-up analysis, and controlling the napari viewer.
+napari-chatgpt(Omega) is a napari plugin that utilizes OpenAI's Large Language Model (LLM) called ChatGPT. It introduces
+an agent named Omega, which is aware of napari and capable of engaging in conversational image processing and analysis
+tasks. Omega utilizes the ChatGPT API through the LangChain Python library and napari. Omega demonstrates the potential
+of LLMs by performing tasks such as writing image processing code, creating napari widgets, correcting coding mistakes,
+conducting follow-up analysis, and controlling the napari viewer.

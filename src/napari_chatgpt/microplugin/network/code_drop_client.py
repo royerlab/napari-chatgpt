@@ -43,8 +43,7 @@ class CodeDropClient(QObject):
         self.discover_worker.moveToThread(self.discover_thread)
 
         # Ensure the thread is properly stopped and cleaned up before exiting
-        self.discover_thread.started.connect(
-            self.discover_worker.discover_servers)
+        self.discover_thread.started.connect(self.discover_worker.discover_servers)
         self.discover_worker.server_discovered.connect(self.update_servers)
         self.discover_worker.error.connect(self.handle_error)
 
@@ -66,8 +65,7 @@ class CodeDropClient(QObject):
             self.discover_thread.wait()
             self.discover_thread = None
 
-    def update_servers(self, user_name, server_name, server_address,
-                       server_port):
+    def update_servers(self, user_name, server_name, server_address, server_port):
 
         # Server name and port are the key:
         key = f"{server_name}:{server_port}"
@@ -75,11 +73,9 @@ class CodeDropClient(QObject):
         self.servers[key] = (user_name, server_address, server_port)
         # Update your GUI or data structure with new server information here
 
-    def send_code_message(self,
-                          server_address: str,
-                          server_port: int,
-                          filename: str,
-                          code: str):
+    def send_code_message(
+        self, server_address: str, server_port: int, filename: str, code: str
+    ):
 
         # get hostname:
         hostname = socket.gethostname()
@@ -89,23 +85,21 @@ class CodeDropClient(QObject):
 
         # Message dict:
         message_dict = {
-            'hostname': hostname,
-            'username': username,
-            'filename': filename,
-            'code': code}
+            "hostname": hostname,
+            "username": username,
+            "filename": filename,
+            "code": code,
+        }
 
         # Convert dict to JSON string:
         message_str = json.dumps(message_dict)
 
         # Send message:
-        self.send_message_by_address(server_address,
-                                     server_port,
-                                     message_str)
+        self.send_message_by_address(server_address, server_port, message_str)
 
-    def send_message_by_address(self,
-                                server_address: str,
-                                server_port: int,
-                                message: str):
+    def send_message_by_address(
+        self, server_address: str, server_port: int, message: str
+    ):
 
         with self.sending_lock:
             # Check if there's already a thread running for sending messages:
@@ -114,15 +108,13 @@ class CodeDropClient(QObject):
                 self.send_thread.quit()
                 self.send_thread.wait()
 
-                aprint(
-                    "A send thread is already running. Wait for it to finish.")
+                aprint("A send thread is already running. Wait for it to finish.")
                 sleep(0.1)
                 max_number_of_attempts -= 1
 
                 # If the thread is taking too long, stop waiting and don't send the message:
                 if max_number_of_attempts == 0:
-                    aprint(
-                        "Max number of attempts reached. Can't send message.")
+                    aprint("Max number of attempts reached. Can't send message.")
                     return
 
             # Create a QThread each time for sending messages
@@ -131,8 +123,9 @@ class CodeDropClient(QObject):
             self.send_thread.setObjectName("SendThread")
 
             # Create a worker to send the message and move it to the thread:
-            self.send_worker = self.create_send_worker(server_address,
-                                                       server_port, message)
+            self.send_worker = self.create_send_worker(
+                server_address, server_port, message
+            )
             self.send_worker.moveToThread(self.send_thread)
 
             # Connect the thread started signal to the worker's send method:
@@ -141,7 +134,8 @@ class CodeDropClient(QObject):
             # Start the thread:
             self.send_thread.start()
             aprint(
-                f"Sending message of length: {len(message)} to {server_address}:{server_port}")
+                f"Sending message of length: {len(message)} to {server_address}:{server_port}"
+            )
 
     def create_send_worker(self, server_address, server_port, message):
 
@@ -158,11 +152,13 @@ class CodeDropClient(QObject):
                         sock.connect((server_address, server_port))
                         sock.sendall(message.encode())
                         aprint(
-                            f"Message of length: {len(message)} sent to {server_address}:{server_port}")
+                            f"Message of length: {len(message)} sent to {server_address}:{server_port}"
+                        )
 
                     except Exception as e:
                         aprint(f"Error sending message: {e}")
                         import traceback
+
                         traceback.print_exc()
                         parent_self.handle_error(e)
                     finally:
@@ -177,6 +173,3 @@ class CodeDropClient(QObject):
 
     def stop(self):
         self.stop_discovering()
-
-
-

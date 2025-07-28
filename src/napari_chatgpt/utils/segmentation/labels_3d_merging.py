@@ -5,29 +5,36 @@ import numpy as np
 from arbol import aprint, asection
 
 
-def segment_3d_from_segment_2d(image,
-                               segment_2d_func: Callable,
-                               min_segment_size: int = 32,
-                               overlap_threshold: float = 0.5,
-                               iterations: int = 2,
-                               debug_view: bool = False):
-
+def segment_3d_from_segment_2d(
+    image,
+    segment_2d_func: Callable,
+    min_segment_size: int = 32,
+    overlap_threshold: float = 0.5,
+    iterations: int = 2,
+    debug_view: bool = False,
+):
     # Segment the 2D slices along z axis:
-    aprint('Segmenting 2D slices along z axis')
-    labels_z = segment_2d_z_slices(image, segment_2d_func, min_segment_size=min_segment_size)
+    aprint("Segmenting 2D slices along z axis")
+    labels_z = segment_2d_z_slices(
+        image, segment_2d_func, min_segment_size=min_segment_size
+    )
 
     # Segment the 2D slices along y axis:
-    aprint('Segmenting 2D slices along y axis')
+    aprint("Segmenting 2D slices along y axis")
     image = np.transpose(image, (1, 2, 0))
-    labels_y = segment_2d_z_slices(image, segment_2d_func, min_segment_size=min_segment_size)
+    labels_y = segment_2d_z_slices(
+        image, segment_2d_func, min_segment_size=min_segment_size
+    )
 
     # Transpose the labels back to the original orientation:
     labels_y = np.transpose(labels_y, (2, 0, 1))
 
     # Segment the 2D slices along x axis:
-    aprint('Segmenting 2D slices along x axis')
+    aprint("Segmenting 2D slices along x axis")
     image = np.transpose(image, (1, 2, 0))
-    labels_x = segment_2d_z_slices(image, segment_2d_func, min_segment_size=min_segment_size)
+    labels_x = segment_2d_z_slices(
+        image, segment_2d_func, min_segment_size=min_segment_size
+    )
 
     # transpose the labels back to the original orientation:
     labels_x = np.transpose(labels_x, (1, 2, 0))
@@ -42,29 +49,27 @@ def segment_3d_from_segment_2d(image,
 
     # Apply morphological closing operator n times to fill in the holes, and then the erosion operator n times to remove the noise:
     from skimage.morphology import binary_dilation, binary_erosion
+
     for _ in range(iterations):
         mask = binary_dilation(mask)
     for _ in range(iterations):
         mask = binary_erosion(mask)
 
-    #Apply the mask to the labels:
+    # Apply the mask to the labels:
     labels_z = labels_z * mask
 
-    #Merge the labels from the three axes:
+    # Merge the labels from the three axes:
     labels_z = make_slice_labels_different(labels_z)
 
     # Merge the labels:
-    labels = merge_2d_segments(labels_z,
-                               overlap_threshold=overlap_threshold,
-                               debug_view=debug_view)
+    labels = merge_2d_segments(
+        labels_z, overlap_threshold=overlap_threshold, debug_view=debug_view
+    )
 
     return labels
 
 
-def segment_2d_z_slices(image,
-                        segment_2d_func: Callable,
-                        min_segment_size: int = 32):
-
+def segment_2d_z_slices(image, segment_2d_func: Callable, min_segment_size: int = 32):
     # Initialize an empty list to collect the segmented slices
     segmented_slices = []
 
@@ -74,7 +79,9 @@ def segment_2d_z_slices(image,
         # Note: We are not setting optional parameters as instructed
         segmented_slice = segment_2d_func(image[i])
 
-        segmented_slice = remove_small_segments(segmented_slice, min_segment_size=min_segment_size)
+        segmented_slice = remove_small_segments(
+            segmented_slice, min_segment_size=min_segment_size
+        )
 
         # Append the segmented slice to the list
         segmented_slices.append(segmented_slice)
@@ -87,22 +94,22 @@ def segment_2d_z_slices(image,
 
     return segmented_image
 
+
 def remove_small_segments(labels, min_segment_size):
     # remove small segments:
     if min_segment_size > 0:
         from skimage.morphology import remove_small_objects
+
         labels = remove_small_objects(labels, min_segment_size)
     return labels
 
 
 def make_slice_labels_different(stack):
-
     # Max label index:
     max_label_index = 0
 
     # Iterate through each z-plane and ensure that the labels are unique over the entire stack:
     for z in range(stack.shape[0] - 1):
-
         # Save the positions of the background voxels in a binary array:
         background = stack[z, :, :] == 0
 
@@ -118,16 +125,14 @@ def make_slice_labels_different(stack):
 
     return stack
 
-def merge_2d_segments(stack,
-                      overlap_threshold: int = 1,
-                      debug_view: bool = True):
 
-    with asection('Merging 2D segments'):
+def merge_2d_segments(stack, overlap_threshold: int = 1, debug_view: bool = True):
+    with asection("Merging 2D segments"):
 
         # Iterate through each z-plane
         for z in range(stack.shape[0] - 1):
 
-            aprint(f'Processing z-plane {z} of {stack.shape[0] - 1}')
+            aprint(f"Processing z-plane {z} of {stack.shape[0] - 1}")
 
             # Get the current and next planes
             current_plane = stack[z, :, :]
@@ -157,7 +162,9 @@ def merge_2d_segments(stack,
                     current_mask = current_plane == current_label
 
                     # Calculate the overlap between the two masks:
-                    overlap = np.sum(next_mask & current_mask) / min(np.sum(next_mask), np.sum(current_mask))
+                    overlap = np.sum(next_mask & current_mask) / min(
+                        np.sum(next_mask), np.sum(current_mask)
+                    )
 
                     # If overlap exceeds threshold, add the label to the list:
                     if overlap >= overlap_threshold:
@@ -179,13 +186,15 @@ def merge_2d_segments(stack,
             if debug_view and len(next_labels) > 0:
                 # Open a napari instance:
                 from napari import Viewer
+
                 viewer = Viewer()
 
                 # Load the segmented cells into the viewer:
-                viewer.add_labels(stack, name='labels')
+                viewer.add_labels(stack, name="labels")
 
                 # Make the viewer visible
                 from napari import run
+
                 run()
 
     return stack

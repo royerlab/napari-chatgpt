@@ -3,7 +3,7 @@ import os
 
 def get_home_folder():
     # Get the home directory
-    home_dir = os.path.expanduser('~')
+    home_dir = os.path.expanduser("~")
 
     return home_dir
 

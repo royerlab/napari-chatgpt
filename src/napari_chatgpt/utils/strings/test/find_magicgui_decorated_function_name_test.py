@@ -1,6 +1,6 @@
-from napari_chatgpt.utils.strings.find_function_name import \
-    find_magicgui_decorated_function_name
-
+from napari_chatgpt.utils.strings.find_function_name import (
+    find_magicgui_decorated_function_name,
+)
 
 _some_code_1 = """
 import numpy as np
@@ -114,11 +114,13 @@ def wavelet_image_fusion(
 # Example usage:
 # fused_image = wavelet_image_fusion(image1, image2, 'haar', 1, 'average')
 """
+
+
 def test_find_magicgui_decorated_function_name():
     function_name = find_magicgui_decorated_function_name(_some_code_1)
 
-    assert function_name == 'generate_pattern_widget'
+    assert function_name == "generate_pattern_widget"
 
     function_name = find_magicgui_decorated_function_name(_some_code_2)
 
-    assert function_name == 'wavelet_image_fusion'
+    assert function_name == "wavelet_image_fusion"

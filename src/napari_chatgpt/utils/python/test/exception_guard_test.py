@@ -6,7 +6,7 @@ from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 def test_exceptions_guard():
     try:
         with ExceptionGuard() as g:
-            raise RuntimeError('something went wrong')
+            raise RuntimeError("something went wrong")
             pass
 
         aprint(g)

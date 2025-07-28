@@ -5,12 +5,12 @@ from napari_chatgpt.utils.openai.model_list import get_openai_model_list
 # cache result of function:
 _default_openai_model_name = None
 
-def get_default_openai_model_name() -> str:
 
+def get_default_openai_model_name() -> str:
     # Check if the model name is in the cache:
     global _default_openai_model_name
     if _default_openai_model_name is not None:
-        aprint(f'Using cached default OpenAI model name: {_default_openai_model_name}')
+        aprint(f"Using cached default OpenAI model name: {_default_openai_model_name}")
         return _default_openai_model_name
     else:
         model_list = get_openai_model_list()
@@ -20,12 +20,12 @@ def get_default_openai_model_name() -> str:
 
         def model_key(model):
             # Split the model name into parts
-            parts = model.split('-')
+            parts = model.split("-")
             # Get the main version (e.g., '3.5' or '4' from 'gpt-3.5' or 'gpt-4')
             main_version = parts[1]
 
-            if 'o' in main_version:
-                main_version = main_version.replace('o', '.25')
+            if "o" in main_version:
+                main_version = main_version.replace("o", ".25")
 
             # Use the length of the model name as a secondary sorting criterion
             length = len(model)
@@ -34,7 +34,7 @@ def get_default_openai_model_name() -> str:
                 key = (-float(main_version), length)
             except Exception:
                 # If conversion to float fails, return a tuple that ensures this model is sorted last
-                key = (float('inf'), length)
+                key = (float("inf"), length)
 
             return key
 

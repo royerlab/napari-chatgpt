@@ -8,11 +8,7 @@ from qtpy.QtCore import Slot, QObject, Signal
 class BroadcastWorker(QObject):
     error = Signal(Exception)
 
-    def __init__(self,
-                 sock,
-                 multicast_groups,
-                 port,
-                 broadcast_interval: int = 1):
+    def __init__(self, sock, multicast_groups, port, broadcast_interval: int = 1):
         super().__init__()
 
         # Store the socket object:
@@ -65,6 +61,7 @@ class BroadcastWorker(QObject):
             # Handle exceptions and emit an error signal:
             except Exception as e:
                 import traceback
+
                 traceback.print_exc()
                 self.error.emit(e)
 

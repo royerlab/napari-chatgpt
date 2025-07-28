@@ -28,7 +28,7 @@ class ReceiveWorker(QObject):
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             # Bind the socket to the port:
-            server_socket.bind(('', self.port))
+            server_socket.bind(("", self.port))
 
             # Listen for incoming connections:
             server_socket.listen(5)
@@ -52,7 +52,7 @@ class ReceiveWorker(QObject):
                         chunks.append(chunk)
 
                     # Combine the chunks to form the complete message:
-                    message = b''.join(chunks).decode()
+                    message = b"".join(chunks).decode()
 
                     # Emit the message received signal:
                     self.message_received.emit(addr, message)
@@ -64,6 +64,7 @@ class ReceiveWorker(QObject):
                 except Exception as e:
                     # That's a biggie! Emit the error signal:
                     import traceback
+
                     traceback.print_exc()
                     self.error.emit(e)
 
@@ -72,9 +73,9 @@ class ReceiveWorker(QObject):
                     if client_socket:
                         client_socket.close()
 
-
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             self.error.emit(e)
         finally:

@@ -1,13 +1,12 @@
 import pytest
 
-from napari_chatgpt.utils.api_keys.api_key import is_api_key_available
-from napari_chatgpt.utils.openai.default_model import \
-    get_default_openai_model_name
+from napari_chatgpt.llm.litemind_api import is_llm_available
+from napari_chatgpt.utils.openai.default_model import get_default_openai_model_name
 
 
-@pytest.mark.skipif(not is_api_key_available('OpenAI'),
-                    reason="requires OpenAI key to run")
+@pytest.mark.skipif(not is_llm_available(), reason="requires LLM to run")
 def test_default_model():
-    assert 'gpt-3' in get_default_openai_model_name() or 'gpt-4' in get_default_openai_model_name()
-
-
+    assert (
+        "gpt-3" in get_default_openai_model_name()
+        or "gpt-4" in get_default_openai_model_name()
+    )

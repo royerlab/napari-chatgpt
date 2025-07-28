@@ -13,29 +13,21 @@ dynamic = ["version"]
 
 # --- runtime deps (unchanged) ---
 dependencies = [
+    "litemind[documents,rag,tables]>=2025.07.26",
     "numpy",
     "magicgui",
     "scikit-image",
     "qtpy",
     "QtAwesome",
-    "langchain==0.2.15",
-    "langchain-community==0.2.14",
-    "langchain-openai==0.1.23",
-    "langchain-anthropic==0.1.23",
-    "openai==1.42.0",
-    "anthropic==0.34.1",
-    "fastapi", "uvicorn",
+    "fastapi",
+    "uvicorn",
     "websockets",
-    "tiktoken",
-    "wikipedia",
     "lxml",
     "matplotlib",
     "xarray",
     "arbol",
-    "playwright",
-    "duckduckgo-search==8.0.4",
+    "ddgs>=9.4.3",
     "ome-zarr",
-    "transformers",
     "cryptography",
     "tabulate",
     "numba",
@@ -43,8 +35,9 @@ dependencies = [
     "notebook",
     "nbformat",
     "jedi",
-    "httpx==0.27.2",
+    "httpx",
     "lxml_html_clean",
+    "black"
 ]
 
 [project.optional-dependencies]
@@ -52,8 +45,6 @@ testing = ["tox", "pytest", "pytest-cov", "pytest-qt", "napari", "pyqt5"]
 
 [project.entry-points]
 "napari.manifest" = { "napari-chatgpt" = "napari_chatgpt:napari.yaml" }
-"omega.tools"     = { "example_tool"  = "napari_chatgpt.omega.tools.examples.example_omega_tool:ExampleOmegaTool" }
-
 
 [project.urls]
 Homepage = "https://github.com/royerlab/napari-chatgpt"

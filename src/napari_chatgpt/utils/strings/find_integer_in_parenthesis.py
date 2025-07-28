@@ -26,9 +26,9 @@ def find_integer_in_parenthesis(string: str) -> Tuple[str, int]:
         return None
 
     # Get the integer between the parenthesis.
-    integer = int(string[start_index + 1:end_index])
+    integer = int(string[start_index + 1 : end_index])
 
     # Get the text without the number in parenthesis.
-    text = string[:start_index] + string[end_index + 1:]
+    text = string[:start_index] + string[end_index + 1 :]
 
     return text, integer

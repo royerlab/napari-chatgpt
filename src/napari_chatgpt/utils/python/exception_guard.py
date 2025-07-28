@@ -1,8 +1,7 @@
 import contextlib
 import traceback
 
-from napari_chatgpt.utils.python.exception_description import \
-    exception_description
+from napari_chatgpt.utils.python.exception_description import exception_description
 
 
 class ExceptionGuard(contextlib.AbstractContextManager):

@@ -1,6 +1,6 @@
 import pytest
 
-from napari_chatgpt.utils.api_keys.api_key import is_api_key_available
+from napari_chatgpt.llm.litemind_api import is_llm_available
 from napari_chatgpt.utils.python.check_code_safety import check_code_safety
 
 ___safe_python_code = """
@@ -41,21 +41,18 @@ for f in files:
 """
 
 
-@pytest.mark.skipif(not is_api_key_available('OpenAI'),
-                    reason="requires OpenAI key to run")
+@pytest.mark.skipif(not is_llm_available(), reason="requires LLM to run")
 def test_check_code_safety():
-
     # Check code safety of safe code:
     response, safety_rank = check_code_safety(___safe_python_code)
     print(safety_rank)
     print(response)
 
-    assert safety_rank == 'A' or safety_rank == 'B'
+    assert safety_rank == "A" or safety_rank == "B"
 
     # Check code safety of non-safe code:
     response, safety_rank = check_code_safety(___not_safe_python_code)
     print(safety_rank)
     print(response)
 
-    assert safety_rank == 'E'
-
+    assert safety_rank == "E"

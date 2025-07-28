@@ -15,6 +15,7 @@ def format_code(code: str) -> str:
 
     except Exception as e:
         import traceback
+
         print(traceback.format_exc())
         return code
 
@@ -31,13 +32,13 @@ def format_file(file_path: Union[str, Path]) -> None:
         from black import FileMode, format_file_in_place, WriteBack
 
         # Format the file using Black
-        format_file_in_place(file_path,
-                             fast=False,
-                             mode=FileMode(),
-                             write_back=WriteBack.YES)
+        format_file_in_place(
+            file_path, fast=False, mode=FileMode(), write_back=WriteBack.YES
+        )
 
     except Exception as e:
         import traceback
+
         print(traceback.format_exc())
 
     finally:

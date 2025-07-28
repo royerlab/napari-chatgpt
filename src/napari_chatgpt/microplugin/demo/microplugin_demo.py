@@ -16,7 +16,7 @@ def myExceptionHook(exctype, value, tb):
 sys.excepthook = myExceptionHook
 
 # Enable garbage collection debugging:
-#gc.set_debug(gc.DEBUG_LEAK)
+# gc.set_debug(gc.DEBUG_LEAK)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -28,8 +28,7 @@ if __name__ == "__main__":
     MicroPluginMainWindow._singleton_pattern_active = False
 
     # Instantiate the MicroPluginMainWindow:
-    mainWindow = MicroPluginMainWindow(napari_viewer=None,
-                                       folder_path=temp_folder.name)
+    mainWindow = MicroPluginMainWindow(napari_viewer=None, folder_path=temp_folder.name)
 
     # Show the MicroPluginMainWindow:
     mainWindow.show()

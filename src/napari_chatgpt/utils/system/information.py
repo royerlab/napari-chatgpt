@@ -9,10 +9,11 @@ def system_info(add_python_info: bool = False):
 
     # Get the system information:
     info = {
-        "Machine": platform.machine()+f" ({platform.processor()} {platform.architecture()[0]})",
-        "Version": platform.version().split(':')[0],
+        "Machine": platform.machine()
+        + f" ({platform.processor()} {platform.architecture()[0]})",
+        "Version": platform.version().split(":")[0],
         "Platform": platform.platform(),
-        "System": platform.system()
+        "System": platform.system(),
     }
 
     # Add additional Python information if requested:
@@ -21,7 +22,7 @@ def system_info(add_python_info: bool = False):
             "Python Version": sys.version,
             "Python Compiler": platform.python_compiler(),
             "Python Implementation": platform.python_implementation(),
-            "Python Build": platform.python_build()
+            "Python Build": platform.python_build(),
         }
 
     # Create a string with the information:

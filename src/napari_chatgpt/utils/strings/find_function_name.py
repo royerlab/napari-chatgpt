@@ -17,23 +17,22 @@ def find_function_name(code: str):
 
 
 def find_magicgui_decorated_function_name(code: str):
-
     # Split the code into lines:
-    lines = code.split('\n')
+    lines = code.split("\n")
 
     # Flag to indicate whether @magicgui has been found:
     found_magicgui = False
 
     for line in lines:
         # Check if the current line contains @magicgui:
-        if '@magicgui' in line.strip():
+        if "@magicgui" in line.strip():
             found_magicgui = True
 
         # If @magicgui was found, look for the next function definition
-        elif found_magicgui and line.strip().startswith('def'):
+        elif found_magicgui and line.strip().startswith("def"):
             # Extract the function name
-            start = line.find('def') + 4
-            end = line.find('(')
+            start = line.find("def") + 4
+            end = line.find("(")
 
             # Extract the function name from the line:
             function_name = line[start:end].strip()

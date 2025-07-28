@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING
 import os
 import tempfile
 import traceback
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from napari import Viewer
@@ -25,8 +25,13 @@ def open_in_napari(viewer: "Viewer", url: str, plugin: str = "napari") -> bool:
 def open_video_in_napari(viewer: "Viewer", url: str):
     try:
         # First we check if it is a file that we can resonable expect to open:
-        if not (url.endswith('mp4') or url.endswith('mpg') or url.endswith(
-                'mov') or url.endswith('avi') or url.endswith('m4v')):
+        if not (
+            url.endswith("mp4")
+            or url.endswith("mpg")
+            or url.endswith("mov")
+            or url.endswith("avi")
+            or url.endswith("m4v")
+        ):
             return False
 
         # temp folder:
@@ -34,6 +39,7 @@ def open_video_in_napari(viewer: "Viewer", url: str):
 
         # Download video file:
         from napari_chatgpt.utils.download.download_files import download_files
+
         files = download_files(urls=[url], path=temp_folder)
         file = files[0]
 
@@ -42,6 +48,7 @@ def open_video_in_napari(viewer: "Viewer", url: str):
 
         # open video:
         import imageio.v3 as iio
+
         videodata = iio.imread(f"imageio:{file_path}", plugin="pyav")
 
         # Add to napari:
@@ -80,7 +87,8 @@ def open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
 def _open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
     try:
         import zarr
-        z = zarr.convenience.open(url, mode='r')
+
+        z = zarr.convenience.open(url, mode="r")
 
         viewer.add_image(z)
 
