@@ -16,6 +16,12 @@ from napari_chatgpt.utils.strings.markdown import extract_markdown_blocks
 class JupyterNotebookFile:
 
     def __init__(self, notebook_folder_path: Optional[str] = None):
+        """
+        Initialize a new JupyterNotebookFile instance and start a fresh notebook session.
+        
+        Parameters:
+            notebook_folder_path (Optional[str]): Path to the folder where notebooks will be stored. If not provided, defaults to a folder named "omega_notebooks" on the user's Desktop.
+        """
         self._modified = False
         self.restart(
             notebook_folder_path=notebook_folder_path,
@@ -31,6 +37,11 @@ class JupyterNotebookFile:
     ):
 
         # If the notebook has not been modified since last restart then we don't need to restart again:
+        """
+        Restart the notebook session, optionally saving changes and updating the storage location.
+        
+        If the notebook has been modified or a forced restart is requested, writes the current notebook to disk (if specified), resets the notebook to a new empty state, and updates the default file path to a timestamped filename in the specified or default folder. Creates the target folder if it does not exist.
+        """
         if not force_restart and not self._modified:
             return
 
@@ -71,6 +82,12 @@ class JupyterNotebookFile:
         self._modified = False
 
     def write(self, file_path: Optional[str] = None):
+        """
+        Write the current notebook to disk at the specified file path or the default location.
+        
+        Parameters:
+            file_path (Optional[str]): The path where the notebook will be saved. If not provided, uses the default file path.
+        """
         file_path = file_path or self.default_file_path
         # Write the notebook to disk
         with open(file_path, "w") as f:
@@ -79,6 +96,13 @@ class JupyterNotebookFile:
 
     def add_code_cell(self, code: str, remove_quotes: bool = False):
 
+        """
+        Adds a code cell to the notebook with the provided code.
+        
+        Parameters:
+            code (str): The code to insert into the new cell.
+            remove_quotes (bool): If True, removes the first and last lines from the code before adding, typically to strip enclosing quotes.
+        """
         if remove_quotes:
             # Remove the quotes from the code block
             code = "\n".join(code.split("\n")[1:-1])
@@ -91,6 +115,11 @@ class JupyterNotebookFile:
 
     def add_markdown_cell(self, markdown: str, detect_code_blocks: bool = True):
 
+        """
+        Add a markdown cell to the notebook, optionally extracting and adding code blocks as separate code cells.
+        
+        If `detect_code_blocks` is True, code blocks within the markdown are extracted and added as code cells, while other blocks are added as markdown cells. If False, the entire input is added as a single markdown cell.
+        """
         if detect_code_blocks:
             # Extract code blocks from markdown:
             blocks = extract_markdown_blocks(markdown)
@@ -121,6 +150,13 @@ class JupyterNotebookFile:
 
     def add_image_cell(self, image_path: str, text: str = ""):
         # Read the image and convert it to base64
+        """
+        Adds an image cell to the notebook by embedding an image file from disk, optionally accompanied by descriptive text.
+        
+        Parameters:
+            image_path (str): Path to the image file to embed.
+            text (str, optional): Text to display alongside the image. Defaults to an empty string.
+        """
         image_type = guess_type(image_path)[0].split("/")[1]
         with open(image_path, "rb") as image_file:
             base64_string = b64encode(image_file.read()).decode()
@@ -130,6 +166,13 @@ class JupyterNotebookFile:
 
     def add_image_cell_from_PIL_image(self, pil_image: Image, text: str = ""):
         # Convert PIL image to base64
+        """
+        Adds a PNG image cell to the notebook from a given PIL Image object, optionally including accompanying text.
+        
+        Parameters:
+            pil_image (Image): The PIL Image to embed in the notebook.
+            text (str): Optional text to display with the image.
+        """
         buffered = BytesIO()
         pil_image.save(buffered, format="PNG")
         base64_string = b64encode(buffered.getvalue()).decode()
@@ -146,6 +189,12 @@ class JupyterNotebookFile:
     def take_snapshot(self, text: str = ""):
 
         # Call the snapshot function:
+        """
+        Captures an image using the registered snapshot function and adds it as an image cell to the notebook.
+        
+        Parameters:
+            text (str): Optional text to accompany the image in the notebook cell.
+        """
         pil_image = self._snapshot_function()
 
         # Add this image to the notebook
@@ -153,6 +202,9 @@ class JupyterNotebookFile:
 
     def delete_notebook_file(self):
         # Delete the notebook file
+        """
+        Delete the current notebook file from disk if it exists.
+        """
         if self.file_path is not None and path.exists(self.file_path):
             os.unlink(self.file_path)
             print(f"Deleted the notebook at {self.file_path}")

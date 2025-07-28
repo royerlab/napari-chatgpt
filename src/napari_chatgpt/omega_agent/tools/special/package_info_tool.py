@@ -16,6 +16,9 @@ class PythonPackageInfoTool(BaseOmegaTool):
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialize the PythonPackageInfoTool with a name and description for querying installed Python packages.
+        """
         super().__init__(**kwargs)
 
         self.name = "PackageInfoTool"
@@ -28,6 +31,17 @@ class PythonPackageInfoTool(BaseOmegaTool):
 
     def run_omega_tool(self, query: str = ""):
 
+        """
+        Searches installed Python packages by name substring and returns matching package names.
+        
+        If a query string is provided, only packages whose names contain the query (case-insensitive) are included. If the filtered list exceeds 50 packages, it is further restricted to a set of relevant packages. Returns a newline-separated string of package names, or an error message if an exception occurs.
+        
+        Parameters:
+            query (str): Substring to filter package names. If empty, all installed packages are listed.
+        
+        Returns:
+            str: Newline-separated package names matching the query, or an error message if an error occurs.
+        """
         with asection(f"PythonPackageInfoTool:"):
             with asection(f"Query:"):
                 aprint(query)

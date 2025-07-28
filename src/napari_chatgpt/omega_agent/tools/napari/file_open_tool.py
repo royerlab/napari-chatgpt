@@ -17,13 +17,9 @@ class NapariFileOpenTool(BaseNapariTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the NapariFileOpenTool.
-
-        Parameters
-        ----------
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+        Initialize a NapariFileOpenTool instance for opening image files in napari.
+        
+        Accepts additional keyword arguments for configuration, which are passed to the base class.
         """
         super().__init__(**kwargs)
 
@@ -42,6 +38,19 @@ class NapariFileOpenTool(BaseNapariTool):
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
 
+        """
+        Attempts to open one or more image files in the napari viewer based on a newline-delimited input query.
+        
+        The query should contain file paths or URLs, optionally followed by a napari reader plugin in brackets (e.g., `image.tif [my_plugin]`). Each file is opened in the provided napari viewer using the specified plugin if given. The method returns a summary string indicating which files were successfully opened and details of any errors encountered.
+        
+        Parameters:
+            query (str): Newline-delimited file paths or URLs, optionally with a plugin in brackets.
+            code (str): Unused parameter.
+            viewer (Viewer): The napari viewer instance in which to open the files.
+        
+        Returns:
+            str: A summary indicating the outcome of the file opening attempts, including error details if any.
+        """
         with asection(f"NapariFileOpenTool:"):
             with asection(f"Query:"):
                 aprint(query)

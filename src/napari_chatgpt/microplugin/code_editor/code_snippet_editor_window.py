@@ -28,19 +28,15 @@ class CodeSnippetEditorWindow(QMainWindow):
         **kwargs,
     ):
         """
-        Create a main window for the Python code snippet editor.
-
-        Parameters
-        ----------
-        folder_path : str
-            The path to the folder containing the Python code snippets.
-
-        args : list
-            Positional arguments to pass to the parent class.
-
-        kwargs : dict
-            Keyword arguments to pass to the parent class.
-
+        Initialize the main window for the Python code snippet editor.
+        
+        Creates and configures the central editor widget, sets the window title with folder path and server details, and resizes the window. The window title includes a shortened version of the folder path and the server's hostname and port.
+        
+        Parameters:
+            folder_path (str): Path to the folder containing Python code snippets.
+            title (str, optional): Prefix for the window title. Defaults to "Python Code Snippet Editor".
+            size (tuple of int, optional): Window size as (width, height). If not provided, uses the editor widget's size hint.
+            variables (dict, optional): Variables to pass to the editor widget.
         """
         super(CodeSnippetEditorWindow, self).__init__(parent=parent, *args, **kwargs)
 
@@ -70,6 +66,9 @@ class CodeSnippetEditorWindow(QMainWindow):
         self.resize(size or self.code_editor_widget.sizeHint())
 
     def close(self):
+        """
+        Closes the code editor widget and the main window.
+        """
         self.code_editor_widget.close()
         super().close()
 

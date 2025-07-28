@@ -24,6 +24,17 @@ def fix_code_given_error_message(
     llm: LLM = None,
     verbose: bool = False,
 ) -> Tuple[str, bool]:
+    """
+    Attempts to automatically fix a Python code snippet based on a provided error message using an LLM and optional context.
+    
+    Parameters:
+        code (str): The Python code to be fixed.
+        error (str): The error message associated with the code.
+        instructions (str, optional): Additional instructions to guide the fix.
+    
+    Returns:
+        Tuple[str, bool]: A tuple containing the fixed code and a boolean indicating whether a fix was attempted.
+    """
     with asection(
         f"Automatically fix code based on a given error message, code length: {len(code)}"
     ):
@@ -115,6 +126,20 @@ def _fix_code_given_error_message(
     verbose: bool = False,
 ):
     # Instantiates LLM if needed:
+    """
+    Attempts to automatically fix a Python code snippet based on an error message and contextual information using a language model.
+    
+    Parameters:
+        code (str): The Python code to be fixed.
+        error (str): The error message associated with the code.
+        instructions (str, optional): Additional instructions to guide the fix.
+        viewer (napari.Viewer, optional): An optional napari viewer instance to provide context about current layers.
+        llm (LLM, optional): The language model instance to use for code generation.
+        verbose (bool, optional): Whether to enable verbose output.
+    
+    Returns:
+        str: The fixed version of the input code, or the original code if no fix is generated.
+    """
     llm = llm or get_llm()
 
     # List all function calls in code:

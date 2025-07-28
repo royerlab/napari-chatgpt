@@ -29,27 +29,19 @@ def pip_install(
     ask_permission: bool = True,
 ) -> str:
     """
-    Install packages using pip.
-
-
-    Parameters
-    ----------
-    packages: List[str]
-        List of packages to install.
-    included: bool
-        If True, remove packages that are already included in Omega.
-    special_rules: bool
-        If True, apply special rules for some packages (e.g. substitutions).
-    skip_if_installed: bool
-        If True, skip packages that are already installed.
-    ask_permission: bool
-        If True, ask user for permission to install packages.
-
-    Returns
-    -------
-    str
-        Message indicating the result of the installation process.
-
+    Installs a list of Python packages using pip, with options for filtering, substitution, and user confirmation.
+    
+    Packages can be filtered to exclude those already included in the Omega environment or already installed. Special rules allow for package substitutions, installation of extra related packages, and delegation to conda-forge for certain packages. Optionally, the user can be prompted for permission before installation. Returns a summary message of the installation process and any errors encountered.
+    
+    Parameters:
+        packages (List[str]): List of package names to install.
+        included (bool): If True, removes packages assumed to be pre-installed with Omega.
+        special_rules (bool): If True, applies extra package additions, substitutions, and conda-forge delegation.
+        skip_if_installed (bool): If True, skips packages already installed in the environment.
+        ask_permission (bool): If True, prompts the user for permission before installing packages.
+    
+    Returns:
+        str: Summary message indicating the outcome of the installation process.
     """
 
     message = ""
@@ -142,6 +134,19 @@ def pip_install_single_package(
     package: str, upgrade: bool = False, skip_if_installed: bool = True
 ) -> str:
     # Upgrade is a special case:
+    """
+    Installs a single Python package using pip, with optional upgrade and skip-if-installed behavior.
+    
+    On macOS with ARM64 (M1) architecture, substitutes 'tensorflow' with 'tensorflow-macos' and 'tensorflow-gpu' with 'tensorflow-metal' for compatibility.
+    
+    Parameters:
+        package (str): The name of the package to install.
+        upgrade (bool): If True, forces upgrade of the package.
+        skip_if_installed (bool): If True, skips installation if the package is already installed.
+    
+    Returns:
+        str: A message indicating the result of the installation process.
+    """
     if upgrade:
         skip_if_installed = False
 
@@ -194,6 +199,15 @@ def pip_install_single_package(
 
 
 def pip_uninstall(list_of_packages: List[str]) -> bool:
+    """
+    Uninstalls the specified Python packages using pip.
+    
+    Parameters:
+        list_of_packages (List[str]): Names of packages to uninstall.
+    
+    Returns:
+        bool: True if all packages were uninstalled successfully or were not installed; False if any errors occurred during uninstallation.
+    """
     error_occurred = False
 
     # Ensure it is a list and remove duplicates:

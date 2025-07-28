@@ -12,17 +12,13 @@ __api_key_names["Gemini"] = "GOOGLE_GEMINI_API_KEY"
 
 def set_api_key(api_name: str) -> bool:
     """
-    Set an API key as an environment variable.
-
-    Parameters
-    ----------
-    api_name : str
-        Name of the API key to set.
-
-    Returns
-    -------
-    bool
-        True if the API key was set, False otherwise.
+    Prompt the user to provide an API key for the specified service and set it as an environment variable if not already present.
+    
+    Parameters:
+        api_name (str): The name of the API service for which to set the key.
+    
+    Returns:
+        bool: True if the API key was successfully set or already present; False otherwise.
     """
 
     with asection(f"Setting API key: '{api_name}': "):

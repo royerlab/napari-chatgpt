@@ -34,25 +34,13 @@ Given the Python code below (targeting Python {python_version}), identify the mi
 
 def required_packages(code: str, llm: Optional[LLM] = None) -> List[str]:
     """
-    Automatically determines the list of required packages to run the provided Python code.
-    The code is expected to be a valid Python code snippet that can be executed in a Python environment.
-    The function uses a language model to analyze the code and generate a list of packages that are required to run it.
-
-
-    Parameters
-    ----------
-    code: str
-        The Python code snippet for which the required packages are to be determined.
-    llm: LLM, optional
-        An instance of a language model to use for generating the list of required packages.
-        If not provided, a default language model will be used.
-
-    Returns
-    -------
-    list
-        A list of package names that are required to run the provided code.
-        If no packages are required, an empty list is returned.
-
+    Determine the minimal set of pip-installable packages required to run a given Python code snippet.
+    
+    Parameters:
+        code (str): The Python code snippet to analyze.
+    
+    Returns:
+        List[str]: A list of unique package names required to execute the code. Returns an empty list if no external packages are needed or if the input is empty.
     """
 
     with asection(

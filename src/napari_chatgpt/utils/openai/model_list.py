@@ -7,20 +7,14 @@ from napari_chatgpt.llm.api_keys.api_key import set_api_key
 
 def get_openai_model_list(filter: str = "gpt", verbose: bool = False) -> list:
     """
-    Get the list of all OpenAI ChatGPT models.
-
-    Parameters
-    ----------
-    filter : str
-        Filter to apply to the list of models.
-    verbose : bool
-        Verbosity flag.
-
-    Returns
-    -------
-    list
-        List of models.
-
+    Retrieve a filtered list of available OpenAI ChatGPT model IDs.
+    
+    Parameters:
+        filter (str): Substring to filter model IDs. Only models containing this substring are included.
+        verbose (bool): If True, prints each included model ID.
+    
+    Returns:
+        list: List of filtered model IDs, excluding those related to vision, instruct, turbo-instruct, preview, realtime, audio, transcribe, or image. Returns an empty list if an error occurs.
     """
 
     with asection(f"Enumerating all OpenAI ChatGPT models:"):
@@ -82,18 +76,15 @@ def get_openai_model_list(filter: str = "gpt", verbose: bool = False) -> list:
 
 def postprocess_openai_model_list(model_list: list) -> list:
     """
-    Postprocess the list of OpenAI models. This is usefull to remove problematic models from the list and sort models in decreasing order of quality.
-
-    Parameters
-    ----------
-    model_list : list
-        List of models.
-
-    Returns
-    -------
-    list
-        Postprocessed list of models.
-
+    Refines and reorders a list of OpenAI model IDs by removing problematic models and prioritizing higher-quality ones.
+    
+    The function excludes models known to be less desirable or unsupported, then reorders the list to place preferred models (such as those containing "gpt-4o" and other high-quality identifiers) at the top.
+    
+    Parameters:
+        model_list (list): List of OpenAI model IDs to process.
+    
+    Returns:
+        list: The filtered and reordered list of model IDs.
     """
 
     try:

@@ -111,12 +111,9 @@ class ImageDenoisingTool(BaseNapariTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the ImageDenoisingTool.
-
-        Parameters
-        ----------
-        **kwargs: Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+        Initialize an ImageDenoisingTool instance for denoising n-dimensional images in a napari viewer using Aydin's classic or FGR approaches.
+        
+        This sets up the tool's name, description, prompt, instructions, and disables saving of the last generated code. Additional keyword arguments are passed to the base class initializer.
         """
         super().__init__(**kwargs)
 
@@ -136,6 +133,19 @@ class ImageDenoisingTool(BaseNapariTool):
 
     def _run_code(self, request: str, code: str, viewer: Viewer) -> str:
 
+        """
+        Executes generated denoising code within the napari viewer context and integrates the denoised image as a new layer.
+        
+        This method prepares and analyzes the provided code to determine which Aydin denoising function is used, ensures the required package is installed, dynamically imports and executes the denoising function, and adds the resulting image to the viewer. It also logs activity, updates the notebook and snippet editor if applicable, and returns a status message indicating success or error.
+        
+        Parameters:
+            request (str): The original user request or prompt.
+            code (str): The generated Python code intended to perform denoising.
+            viewer (Viewer): The napari viewer instance to operate on.
+        
+        Returns:
+            str: A message indicating whether the denoising was successful or describing any error encountered.
+        """
         try:
             with asection(f"ImageDenoisingTool:"):
                 with asection(f"Request:"):
@@ -214,6 +224,12 @@ class ImageDenoisingTool(BaseNapariTool):
 
 @cache
 def install_aydin():
+    """
+    Install the Aydin package if it is not already installed.
+    
+    Raises:
+        NotImplementedError: If running on Apple M1/M2 (ARM64) Macs, where Aydin installation is not supported.
+    """
     with asection(f"Installing Aydin if not already present."):
         message = ""
         if platform.system() == "Darwin":

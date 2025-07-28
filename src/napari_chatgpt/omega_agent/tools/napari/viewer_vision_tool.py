@@ -20,15 +20,11 @@ class NapariViewerVisionTool(BaseNapariTool):
 
     def __init__(self, vision_model_name: str, **kwargs):
         """
-        Initialize the NapariViewerVisionTool.
-
-        Parameters
-        ----------
-        vision_model_name: str
-            The name of the vision model to use for image description.
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+        Initialize a NapariViewerVisionTool for describing napari viewer contents using a specified vision model.
+        
+        Parameters:
+            vision_model_name (str): Name of the vision model to use for generating image descriptions.
+            **kwargs: Additional keyword arguments forwarded to the base class.
         """
 
         super().__init__(**kwargs)
@@ -52,6 +48,10 @@ class NapariViewerVisionTool(BaseNapariTool):
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
 
+        """
+        Processes a textual query to describe the contents of a napari viewer or a specific layer using a vision model.
+        
+        Analyzes the query to determine if it references a specific layer, the selected/active/current layer, or the entire canvas. Extracts the relevant image, generates a description using the specified vision model, and returns the result. If the query references a non-existent layer, returns an error message. Handles exceptions by returning an error message with details.
         try:
             with asection(f"NapariViewerVisionTool:"):
                 with asection(f"Query:"):
@@ -147,6 +147,19 @@ class NapariViewerVisionTool(BaseNapariTool):
 def _get_description_for_selected_layer(
     query, viewer, vision_model_name: str, reset_view: bool = False
 ):
+    """
+    Generate a description of the currently selected layer in the napari viewer using a specified vision model.
+    
+    If no layer is selected but layers exist, defaults to the first layer. If multiple layers are selected, uses the current layer if available; otherwise, describes the visible canvas. Returns an error message if no layers are present.
+    
+    Parameters:
+        query (str): The textual prompt or question to guide the image description.
+        vision_model_name (str): The name of the vision model to use for generating the description.
+        reset_view (bool, optional): Whether to reset the viewer's view before capturing the image. Defaults to False.
+    
+    Returns:
+        str: The generated description or an error message.
+    """
     with asection(f"Getting description for selected layer. "):
         aprint(f"Query: '{query}'")
 
@@ -209,6 +222,16 @@ def _get_description_for_selected_layer(
 
 
 def _get_description_for_whole_canvas(query, viewer, vision_model_name):
+    """
+    Generate a description of the entire napari viewer canvas using the specified vision model.
+    
+    Parameters:
+        query: The textual prompt or question to guide the image description.
+        vision_model_name: The name of the vision model to use for generating the description.
+    
+    Returns:
+        A string containing the generated description of the whole canvas.
+    """
     with asection(f"Getting description for whole canvas.'"):
         aprint(f"Query: '{query}'")
 
@@ -232,6 +255,21 @@ def _get_layer_image_description(
 ) -> str:
     # Capture the image of the specific layer
 
+    """
+    Generates a textual description of a specified napari layer or the entire canvas using a vision model.
+    
+    Captures a snapshot of the given layer (or the whole canvas if no layer is specified), saves it as a temporary PNG file, and uses the specified vision model to generate a description based on the provided query.
+    
+    Parameters:
+        query (str): The textual prompt or question to guide the image description.
+        vision_model_name (str): The name of the vision model to use for generating the description.
+        layer_name (Optional[str]): The name of the layer to describe. If None, describes the entire canvas.
+        delete (bool): Whether to delete the temporary image file after use.
+        reset_view (bool): Whether to reset the viewer's view before capturing the snapshot.
+    
+    Returns:
+        str: A message containing the generated description, including the layer name if specified.
+    """
     from PIL import Image
 
     snapshot_image: Image = capture_canvas_snapshot(

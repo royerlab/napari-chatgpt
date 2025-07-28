@@ -5,14 +5,9 @@ from napari.utils.transforms import Affine
 
 def get_viewer_info(viewer):
     """
-    Returns a string describing the state of a Napari viewer instance.
-    Parameters
-    ----------
-    viewer
-
-    Returns
-    -------
-
+    Return a formatted string summarizing the current state and layers of a Napari viewer.
+    
+    The output includes viewer settings and detailed information about each layer, wrapped in a markdown-style code block.
     """
     info = "```viewer_info\n"
     info += get_viewer_state(viewer)
@@ -24,14 +19,9 @@ def get_viewer_info(viewer):
 
 def get_viewer_state(viewer):
     """
-    Returns a string describing the state of a Napari viewer instance.
-    Excludes information about layers.
-
-    Parameters:
-    viewer (napari.Viewer): The Napari viewer instance.
-
-    Returns:
-    str: A descriptive string of the viewer state.
+    Return a formatted string summarizing the current state of a Napari viewer, excluding layer details.
+    
+    The summary includes camera settings, canvas size, grid mode, display mode (2D or 3D), theme, status message, and the currently selected layer.
     """
 
     # Camera settings
@@ -88,13 +78,14 @@ def get_viewer_layers_info(
     viewer, max_layers: int = 20, max_layers_with_details: int = 4
 ):
     """
-    Lists all layers in a given Napari viewer and provides detailed information about each layer.
-
+    Return a formatted summary of layers in a Napari viewer, including detailed information for the most recent layers.
+    
     Parameters:
-    viewer (napari.Viewer): The Napari viewer instance.
-
+        max_layers (int): Maximum number of layers to include in the summary.
+        max_layers_with_details (int): Number of most recent layers to include with detailed information.
+    
     Returns:
-    str: A descriptive string of all layers and their details.
+        str: A formatted string describing up to `max_layers` layers, with extra details for the last `max_layers_with_details` layers. If no layers are present, indicates this in the output.
     """
 
     layer_descriptions = []
@@ -124,6 +115,16 @@ def get_viewer_layers_info(
 
 
 def layer_description(viewer, layer, details: bool = True):
+    """
+    Return a dictionary summarizing the properties of a Napari layer, including type-specific and detailed attributes.
+    
+    Parameters:
+        layer: The Napari layer to describe.
+        details (bool): If True, include additional properties such as opacity, blending, transforms, and type-specific details.
+    
+    Returns:
+        dict: A dictionary containing general and, if requested, detailed information about the layer's properties.
+    """
     layer_info = {
         "Type": type(layer).__name__,
         "Name": layer.name,
@@ -242,6 +243,15 @@ def affine_to_single_line_string(affine):
 
 
 def array_to_single_line_string(array):
+    """
+    Return a single-line string representation of a NumPy array with elements separated by commas.
+    
+    Parameters:
+        array (numpy.ndarray): The array to be converted.
+    
+    Returns:
+        str: The array formatted as a single line, with small values suppressed and no line breaks.
+    """
     the_string = numpy.array2string(
         array,
         threshold=numpy.inf,

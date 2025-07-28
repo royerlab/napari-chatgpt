@@ -19,6 +19,9 @@ class PythonFunctionsInfoTool(BaseOmegaTool):
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialize the PythonFunctionsInfoTool with a name and description for querying Python function signatures and docstrings.
+        """
         super().__init__(**kwargs)
 
         self.name = "PythonFunctionsInfoTool"
@@ -33,6 +36,17 @@ class PythonFunctionsInfoTool(BaseOmegaTool):
 
     def run_omega_tool(self, query: str = ""):
 
+        """
+        Processes a query to retrieve the signature and optionally the docstring of a Python function by its fully qualified name.
+        
+        If the query contains a '*', the full docstring is included in the result. If the retrieved information exceeds 512 characters, it is summarized before returning.
+        
+        Parameters:
+            query (str): The fully qualified name of the Python function to query. Prefix with '*' to request the full docstring.
+        
+        Returns:
+            str: The function's signature and docstring (or a summary), or an error message if the function cannot be found or an exception occurs.
+        """
         with asection(f"PythonFunctionsInfoTool:"):
             with asection(f"Query:"):
                 aprint(query)

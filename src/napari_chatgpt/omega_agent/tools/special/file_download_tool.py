@@ -12,6 +12,9 @@ class FileDownloadTool(BaseOmegaTool):
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialize the FileDownloadTool with a specific name and usage description.
+        """
         super().__init__(**kwargs)
 
         self.name = "UrlDownloadTool"
@@ -24,6 +27,17 @@ class FileDownloadTool(BaseOmegaTool):
 
     def run_omega_tool(self, query: str = ""):
 
+        """
+        Downloads files from URLs found in the input query string.
+        
+        Extracts all valid URLs from the provided query, downloads the corresponding files, and returns a message summarizing the number and names of files downloaded. If an error occurs during extraction or download, returns an error message with details.
+         
+        Parameters:
+            query (str): The input string potentially containing URLs to download.
+        
+        Returns:
+            str: A message indicating the result of the download operation or an error message if the process fails.
+        """
         try:
             with asection(f"FileDownloadTool:"):
                 with asection(f"Query:"):

@@ -36,6 +36,9 @@ class CodeDropClient(QObject):
 
         # Create a worker and move it to a thread
 
+        """
+        Initializes the server discovery mechanism by creating a worker in a dedicated thread and connecting relevant signals for server discovery and error handling.
+        """
         self.discover_thread = QThread()
         self.discover_thread.setTerminationEnabled(True)
         self.discover_thread.setObjectName("DiscoverThread")
@@ -58,6 +61,9 @@ class CodeDropClient(QObject):
             self.discover_thread.start()
 
     def stop_discovering(self):
+        """
+        Stops the server discovery process and cleans up the associated thread and worker.
+        """
         if self.discover_worker and self.discover_thread:
             # Ensure there's a stop method to signal the worker to terminate:
             self.discover_worker.stop()
@@ -68,6 +74,15 @@ class CodeDropClient(QObject):
     def update_servers(self, user_name, server_name, server_address, server_port):
 
         # Server name and port are the key:
+        """
+        Update the internal record of discovered servers with the provided server information.
+        
+        Parameters:
+            user_name (str): The username associated with the discovered server.
+            server_name (str): The name of the discovered server.
+            server_address (str): The network address of the server.
+            server_port (int): The port number on which the server is listening.
+        """
         key = f"{server_name}:{server_port}"
 
         self.servers[key] = (user_name, server_address, server_port)
@@ -78,6 +93,15 @@ class CodeDropClient(QObject):
     ):
 
         # get hostname:
+        """
+        Sends a code message containing the local hostname, system username, filename, and code content to a specified server.
+        
+        Parameters:
+            server_address (str): The IP address of the target server.
+            server_port (int): The port number of the target server.
+            filename (str): The name of the file associated with the code.
+            code (str): The code content to be sent.
+        """
         hostname = socket.gethostname()
 
         # Get username (login) from the system:
@@ -101,6 +125,11 @@ class CodeDropClient(QObject):
         self, server_address: str, server_port: int, message: str
     ):
 
+        """
+        Send a message to a specified server address and port using a dedicated thread.
+        
+        Ensures only one send operation occurs at a time by acquiring a lock and waiting for any existing send thread to finish, up to a maximum number of attempts. If unable to proceed, aborts the send. Otherwise, creates and starts a new thread to send the message asynchronously.
+        """
         with self.sending_lock:
             # Check if there's already a thread running for sending messages:
             max_number_of_attempts: int = 10
@@ -139,6 +168,11 @@ class CodeDropClient(QObject):
 
     def create_send_worker(self, server_address, server_port, message):
 
+        """
+        Create a worker object for asynchronously sending a message to a specified server address and port.
+        
+        The returned worker emits a `finished` signal upon completion and handles errors by invoking the parent's error handler.
+        """
         parent_self = self
 
         class SendWorker(QObject):
@@ -146,6 +180,11 @@ class CodeDropClient(QObject):
 
             @Slot()
             def send(self):
+                """
+                Sends a message to the specified server address and port over a TCP connection.
+                
+                Attempts to connect and transmit the encoded message. On completion or error, emits a finished signal and cleans up resources.
+                """
                 with parent_self.sending_lock:
                     try:
                         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -172,4 +211,7 @@ class CodeDropClient(QObject):
         aprint(f"Error: {e}")
 
     def stop(self):
+        """
+        Stops the client by halting the server discovery process.
+        """
         self.stop_discovering()

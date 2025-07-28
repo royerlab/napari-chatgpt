@@ -11,6 +11,17 @@ def installed_package_list(
     version: bool = True,
     filter=get_all_signal_processing_related_packages(),
 ):
+    """
+    Return a list of installed Python packages from both pip and conda environments, with optional filtering and version information.
+    
+    Parameters:
+        clean_up (bool): If True, excludes packages containing "aws-" or "lib" in their names.
+        version (bool): If True, includes package versions in the format "name==version".
+        filter (list, optional): If provided, only packages containing any of the specified substrings are included.
+    
+    Returns:
+        list: A deduplicated list of installed package names, optionally including version information.
+    """
     package_list = pip_list(version=version) + conda_list(version=version)
 
     if clean_up:
@@ -27,6 +38,15 @@ def installed_package_list(
 
 
 def pip_list(version: bool = False):
+    """
+    Retrieve a list of installed pip packages in the current Python environment.
+    
+    Parameters:
+        version (bool): If True, includes package versions in the format "name==version"; otherwise, returns only package names.
+    
+    Returns:
+        list: A list of installed package names or "name==version" strings. Returns an empty list if an error occurs.
+    """
     try:
         import importlib.metadata as metadata
 
@@ -47,6 +67,15 @@ def pip_list(version: bool = False):
 
 
 def conda_list(version: bool = False):
+    """
+    Return a list of installed conda packages, optionally including version numbers.
+    
+    Parameters:
+        version (bool): If True, each package is returned as "name==version"; otherwise, only the package name is returned.
+    
+    Returns:
+        list: A list of installed conda package names, with or without version information.
+    """
     try:
         import subprocess
 
@@ -80,6 +109,15 @@ from importlib.metadata import version, PackageNotFoundError
 
 
 def is_package_installed(package_name: str):
+    """
+    Check if a Python package is installed, optionally verifying a specific version.
+    
+    Parameters:
+        package_name (str): The package name, optionally with a version specifier (e.g., "numpy==1.21.0").
+    
+    Returns:
+        bool: True if the package (and version, if specified) is installed; otherwise, False.
+    """
     try:
         # Extract package name and version if provided
         version_required = None

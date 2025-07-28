@@ -29,15 +29,23 @@ marked.use(markedHighlight({
  ******************************************************************/
 const CODE_LINE_THRESHOLD = 10;
 
-/******************************************************************
- * Helpers
- ******************************************************************/
+/**
+ * Converts any value to a string, returning an empty string for undefined or null.
+ * Objects are converted using their default string representation.
+ * @param {*} value - The value to convert to a string.
+ * @return {string} The resulting string.
+ */
 function toPlainString(value) {
   // turns undefined / null into '', objects into '[object Object]'
   // which is still a string we can safely .split('\n') on
   return (typeof value === 'string') ? value : String(value ?? '');
 }
 
+/**
+ * Counts the number of lines in a string, ignoring a trailing newline.
+ * @param {string} str - The input string to count lines in.
+ * @return {number} The number of lines.
+ */
 function countLines(str) {
   return str.replace(/\n$/, '').split('\n').length;  // ignore trailing \n
 }
@@ -76,12 +84,24 @@ marked.use({ renderer: wrapperRenderer });
 
 
 
+/**
+ * Escapes HTML special characters in a string to prevent HTML injection.
+ * @param {string} unsafeText - The text to escape.
+ * @return {string} The escaped HTML string.
+ */
 function escapeHTML(unsafeText) {
     let div = document.createElement('div');
     div.innerText = unsafeText;
     return div.innerHTML;
 }
 
+/**
+ * Converts a Markdown string to HTML with syntax highlighting, styled ordered lists, and enhanced link attributes.
+ * 
+ * The returned HTML ensures ordered lists use Tailwind's decimal style and all links open in a new tab with security and styling attributes.
+ * @param {string} str - The Markdown string to convert.
+ * @returns {string} The resulting HTML string.
+ */
 function parse_markdown(str) {
   // 1️⃣ Turn Markdown into HTML (already highlighted etc.)
   str = marked.parse(str);
@@ -266,7 +286,11 @@ ws.onmessage = function (event) {
 };
 
 
-// Send message to server
+/**
+ * Sends the user's message to the server via WebSocket and updates the UI to indicate loading.
+ * 
+ * Prevents the default form submission, retrieves the message input, sends it if not empty, clears the input field, and disables the send button while waiting for a response.
+ */
 function sendMessage(event) {
     event.preventDefault();
     var message = document.getElementById('messageText').value;
