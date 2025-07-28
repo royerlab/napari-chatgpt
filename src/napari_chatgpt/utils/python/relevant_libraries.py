@@ -474,7 +474,7 @@ _signal_processing_related_packages = [
     "napari-features",
     "napari-ndmeasure",
     "napari-pyclesperanto",
-    "napari-nddisplay" "napari-stardist",
+    "napari-nddisplay", "napari-stardist",
     "cellpose-napari",
     "cellpose",
     "stardist",
