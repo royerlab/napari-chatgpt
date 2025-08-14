@@ -568,6 +568,11 @@ class OmegaQWidget(QWidget):
 
 
 def main():
+    # Enable High DPI display with PyQt5
+    if hasattr(Qt, "AA_UseHighDpiPixmaps"):
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    if hasattr(Qt, "AA_EnableHighDpiScaling"):
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     app = QApplication(sys.argv)
 
     # You need to create an instance of napari.viewer.Viewer
