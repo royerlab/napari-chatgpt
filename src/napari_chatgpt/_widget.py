@@ -174,7 +174,8 @@ class OmegaQWidget(QWidget):
             if any(filter in model for filter in preferred_models_filter)
         ]
         # Exclude models that are in fact not preferred::
-        preferred_models.remove("chatgpt-4o-latest")
+        if "chatgpt-4o-latest" in preferred_models:
+            preferred_models.remove("chatgpt-4o-latest")
         # Sort the model list stably to have preferred models first:
         model_list.sort(key=lambda x: (x not in preferred_models, x))
 
