@@ -162,20 +162,22 @@ class OmegaQWidget(QWidget):
 
     @staticmethod
     def _prefered_models(model_list: List[str]):
-        # List of filters to identify preferred models:
-        preferred_models_filter = [
-            "gpt-4.1",
-            "gpt-4o",
-        ]  # , 'claude-3-7', 'opus-4', 'gemini-2.5-pro']
-        # List of preferred models:
+        # Define whitelist and blacklist for model selection
+        whitelist = ["gpt-4.1", "gpt-4o"]
+        blacklist = ["chatgpt-4o-latest"]
+
+        # Add models containing any whitelist string
         preferred_models = [
-            model
-            for model in model_list
-            if any(filter in model for filter in preferred_models_filter)
+            model for model in model_list if any(w in model for w in whitelist)
         ]
-        # Exclude models that are in fact not preferred::
-        if "chatgpt-4o-latest" in preferred_models:
-            preferred_models.remove("chatgpt-4o-latest")
+
+            # Remove any blacklisted models from model_list using remove with try/except
+        for b in blacklist:
+            try:
+                model_list.remove(b)
+            except ValueError:
+                pass
+
         # Sort the model list stably to have preferred models first:
         model_list.sort(key=lambda x: (x not in preferred_models, x))
 
