@@ -9,13 +9,6 @@ from napari_chatgpt.microplugin.code_editor.code_snippet_editor_widget import (
     CodeSnippetEditorWidget,
 )
 
-# Enable High DPI display with PyQt5
-if hasattr(Qt, "AA_UseHighDpiPixmaps"):
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-if hasattr(Qt, "AA_EnableHighDpiScaling"):
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-
-
 class CodeSnippetEditorWindow(QMainWindow):
     def __init__(
         self,
