@@ -45,24 +45,6 @@ The answer appears to be yes.
 The publication is available here: [10.1038/s41592-024-02310-w](https://doi.org/10.1038/s41592-024-02310-w).
 The preprint can be downloaded here: [10.5281/zenodo.10828225](https://doi.org/10.5281/zenodo.10828225).
 
-## 🚀 Next Generation: napari-mcp
-
-While Omega (napari-chatgpt) pioneered AI-powered napari control, we've evolved the approach with **[napari-mcp](https://github.com/royerlab/napari-mcp)** - a next-generation solution built on the **Model Context Protocol (MCP)** standard.
-
-### Why Consider napari-mcp?
-
-- **🤖 Multi-LLM Support** - Works with Claude Desktop, Claude Code, Cursor, ChatGPT, and more (not just OpenAI)
-- **📦 Zero Configuration** - One-command CLI setup: `napari-mcp-install <app-name>`
-- **🌐 Industry Standard** - Built on MCP, supported by Anthropic, OpenAI, and the broader AI ecosystem
-- **🔧 No Plugin Required** - Integrates directly through MCP clients
-- **✨ Modern Architecture** - Better error handling, session management, and extensibility
-
-Both projects complement each other - Omega excels at autonomous widget creation, while napari-mcp provides broader LLM compatibility and standardized tooling.
-
-**→ [Explore napari-mcp](https://github.com/royerlab/napari-mcp)** | **[Documentation](https://royerlab.github.io/napari-mcp/)**
-
----
-
 #### In this video, I ask Omega to segment an image using the [SLIC](https://www.iro.umontreal.ca/~mignotte/IFT6150/Articles/SLIC_Superpixels.pdf) algorithm. It makes a first attempt using the implementation in scikit-image but fails because of an inexistent 'multichannel' parameter. Realizing that, Omega tries again, and this time succeeds:
 
 https://user-images.githubusercontent.com/1870994/235768559-ca8bfa84-21f5-47b6-b2bd-7fcc07cedd92.mp4
