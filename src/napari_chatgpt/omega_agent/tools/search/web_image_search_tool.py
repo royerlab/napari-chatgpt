@@ -21,13 +21,9 @@ class WebImageSearchTool(BaseNapariTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the WebImageSearchTool.
-
-        Parameters
-        ----------
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+        Initialize the WebImageSearchTool with a name, description, and optional keyword arguments for the base class.
+        
+        Sets up the tool for searching and opening web images in napari, including a usage description and prompt attribute.
         """
         super().__init__(**kwargs)
 
@@ -43,20 +39,18 @@ class WebImageSearchTool(BaseNapariTool):
         self.prompt: str = None
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
-        """Run the code and return the result.
-        Parameters
-        ----------
-        query : str
-            The query to search for images.
-        code : str
-            The code to run.
-        viewer : Viewer
-            The napari viewer to add the images to.
-        Returns
-        -------
-        str
-            The result of running the code. This will be printed to the user.
-
+        """
+        Searches for images on the web based on the provided query and adds them to the napari viewer.
+        
+        The function parses the number of images to open from the query (defaulting to 1 if unspecified), performs a DuckDuckGo image search, downloads and loads the images, and adds them to the viewer. It returns a message indicating how many images were successfully opened or an error message if none could be opened.
+        
+        Parameters:
+            query (str): The search query, optionally including the number of images to open in parentheses.
+            code (str): Unused parameter; included for interface compatibility.
+            viewer (Viewer): The napari viewer instance to which images will be added.
+        
+        Returns:
+            str: A message summarizing the outcome of the image search and loading process.
         """
         try:
 

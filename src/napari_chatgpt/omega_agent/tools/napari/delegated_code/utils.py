@@ -3,6 +3,12 @@ from arbol import aprint
 
 
 def check_stardist_installed() -> bool:
+    """
+    Check if the StarDist package is installed.
+    
+    Returns:
+        bool: True if StarDist is available, False otherwise.
+    """
     try:
         import stardist
 
@@ -13,6 +19,12 @@ def check_stardist_installed() -> bool:
 
 # Function that checks if the packages cellpose or cellpose-napari are installed:
 def check_cellpose_installed() -> bool:
+    """
+    Check if the Cellpose package is installed.
+    
+    Returns:
+        bool: True if Cellpose is available, False otherwise.
+    """
     try:
         import cellpose
 
@@ -22,6 +34,12 @@ def check_cellpose_installed() -> bool:
 
 
 def get_list_of_algorithms() -> str:
+    """
+    Return a list of available image segmentation algorithms based on installed packages.
+    
+    Returns:
+        algos (list of str): Names of segmentation algorithms available for use, such as "cellpose", "stardist", and "classic".
+    """
     algos = []
     if check_cellpose_installed():
         aprint("Cellpose is installed!")
@@ -35,6 +53,12 @@ def get_list_of_algorithms() -> str:
 
 
 def get_description_of_algorithms() -> str:
+    """
+    Generate a descriptive summary of available image segmentation algorithms and their recommended use cases.
+    
+    Returns:
+        str: A string describing example requests for each available segmentation algorithm and guidance on when to use each one.
+    """
     description = ""
 
     algos = get_list_of_algorithms()

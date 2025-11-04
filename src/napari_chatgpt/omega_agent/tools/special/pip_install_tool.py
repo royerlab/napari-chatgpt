@@ -16,6 +16,11 @@ class PipInstallTool(BaseOmegaTool):
     """
 
     def __init__(self, **kwargs):
+        """
+        Initialize the PipInstallTool with a name and description for installing Python packages via pip.
+        
+        The tool expects a comma-separated list of package names, optionally with version specifiers, to facilitate installation of packages not included by default in the napari environment.
+        """
         super().__init__(**kwargs)
 
         self.name = "PipInstallTool"
@@ -30,6 +35,15 @@ class PipInstallTool(BaseOmegaTool):
 
     def run_omega_tool(self, query: str = ""):
 
+        """
+        Installs specified Python packages via pip if they are not already present in the environment.
+        
+        Parameters:
+            query (str): Comma-separated list of package names, optionally with version specifiers.
+        
+        Returns:
+            str: Message indicating the result of the installation process or an error message if an exception occurs.
+        """
         with asection(f"PipInstallTool:"):
             with asection(f"Query:"):
                 aprint(query)

@@ -19,22 +19,16 @@ def fix_all_bad_function_calls(
     code: str, llm: Optional[LLM] = None, verbose: bool = False
 ) -> Tuple[str, bool, str]:
     """
-    Automatically fix bad function calls in the provided code.
-    This function checks if the function calls in the code correspond to existing functions within the installed packages.
-    If a function call refers to a non-existing function, it uses the LLM to propose a fix and updates the code accordingly.
-
-    Parameters
-    ----------
-    code: str
-        The code to analyze and fix.
-    llm: Optional[LLM]
-        The LLM to use for proposing fixes for non-existing function calls.
-    verbose:
-        If True, print additional information about the process.
-
-    Returns
-    -------
-
+    Analyzes Python code to detect and automatically fix calls to non-existent functions using a language model.
+    
+    This function scans the provided code for function calls that do not correspond to any function in the installed packages. For each such call, it uses an LLM to propose a corrected function call and updates the code accordingly, including adding necessary import statements. If no invalid calls are found, the code is returned unchanged.
+    
+    Parameters:
+        code (str): The Python code to analyze and fix.
+        verbose (bool): If True, prints detailed information about the fixing process.
+    
+    Returns:
+        Tuple[str, bool, str]: A tuple containing the potentially fixed code, a boolean indicating whether any changes were made, and a report describing any non-existent function calls found.
     """
 
     with asection(
@@ -166,6 +160,16 @@ def fix_function_call(
     verbose: bool = False,
 ):
     # List of installed packages with their versions:
+    """
+    Uses a language model to generate a corrected fully qualified function call for a given invalid or non-existent function call.
+    
+    Parameters:
+        original_function_call (str): The original function call string to be fixed.
+        fully_qual_fun_name (str): The fully qualified name of the function as found in the code.
+    
+    Returns:
+        str or None: The corrected fully qualified function call as proposed by the language model, or None if parsing fails.
+    """
     package_list = installed_package_list()
 
     # turn it into a string:
@@ -199,6 +203,17 @@ def fix_function_call(
 
 
 def _parse_function_call(string):
+    """
+    Extracts a fully qualified function call from a string enclosed in apostrophes.
+    
+    If the input string contains apostrophes, returns the first dot-separated identifier sequence found within them. If no such pattern is found, returns None. If the string does not contain apostrophes, returns the original string unchanged.
+    
+    Parameters:
+        string (str): The input string potentially containing a function call in apostrophes.
+    
+    Returns:
+        Optional[str]: The extracted function call, None if not found, or the original string if no apostrophes are present.
+    """
     if "'" in string:
         pattern = r"'([a-zA-Z]+(?:\.[a-zA-Z]+)*)'"
         match = re.search(pattern, string)

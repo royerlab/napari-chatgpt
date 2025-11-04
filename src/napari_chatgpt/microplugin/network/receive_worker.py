@@ -21,6 +21,11 @@ class ReceiveWorker(QObject):
 
     @Slot()
     def receive_messages(self):
+        """
+        Continuously listens for incoming TCP messages on the specified port and emits received messages via a signal.
+        
+        While running, accepts client connections, reads complete messages, and emits the `message_received` signal with the sender's address and message content. Emits the `error` signal if an exception occurs. Stops listening when `is_running` is set to False.
+        """
         try:
             aprint(f"Listening for messages on port: {self.port}")
 

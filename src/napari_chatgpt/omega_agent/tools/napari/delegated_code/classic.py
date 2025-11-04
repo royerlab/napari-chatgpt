@@ -40,49 +40,26 @@ def classic_segmentation(
     min_distance: int = 15,
 ) -> ndarray:
     """
-    Classic cell segmentation function.
-
-    Parameters
-    ----------
-
-    image: ArrayLike
-            Image for which to segment cells. Can be 2D or 3D.
-
-    threshold_type: str
-            Algorithm to use for thresholding. Options include: 'otsu', 'yen', 'li', 'minimum', 'triangle', 'mean', 'isodata'.
-
-    normalize: Optional[bool]
-            If True, normalizes the image to a given percentile range.
-            If False, assumes that the image is already normalized to [0,1].
-
-    norm_range_low: Optional[float]
-            Lower percentile for normalization
-
-    norm_range_high: Optional[float]
-            Higher percentile for normalization
-
-    min_segment_size: Optional[int]
-            Minimum number of pixels in a segment. Segments smaller than this are removed.
-
-    erosion_steps: Optional[int]
-            Number of iterations of the erosion operator to apply to the image.
-
-    closing_steps: Optional[int]
-            Number of iterations of the closing operator to apply to the thresholded image.
-
-    opening_steps: Optional[int]
-            Number of iterations of the opening operator to apply to the thresholded image.
-
-    apply_watershed: Optional[bool]
-            If True, applies the watershed algorithm to the distance transform of the thresholded image.
-
-    min_distance: Optional[int]
-            Minimum number of pixels separating peaks in a region of `2 * min_distance + 1`
-
-    Returns
-    -------
-    Segmented image as a labels array that can be added to napari as a Labels layer.
-
+    Segments cells in a 2D or 3D image using thresholding, morphological operations, and optional watershed segmentation.
+    
+    Parameters:
+        image (ArrayLike): Input image to segment; must be 2D or 3D.
+        threshold_type (str): Thresholding algorithm to use. Supported values: 'otsu', 'yen', 'li', 'minimum', 'triangle', 'mean', 'isodata'.
+        normalize (Optional[bool]): If True, normalizes image intensity to the specified percentile range before processing.
+        norm_range_low (Optional[float]): Lower percentile for normalization.
+        norm_range_high (Optional[float]): Upper percentile for normalization.
+        min_segment_size (int): Minimum size (in pixels) for segments to keep; smaller segments are removed.
+        erosion_steps (int): Number of erosion operations to apply before thresholding.
+        closing_steps (int): Number of closing operations to apply after thresholding.
+        opening_steps (int): Number of opening operations to apply after thresholding.
+        apply_watershed (bool): If True, applies watershed segmentation on the distance transform of the binary image.
+        min_distance (int): Minimum distance between peaks for watershed segmentation.
+    
+    Returns:
+        ndarray: Labeled segmentation image as a uint32 NumPy array, suitable for use as a labels layer in napari.
+    
+    Raises:
+        ValueError: If an unsupported threshold_type is provided.
     """
 
     # Convert image to float

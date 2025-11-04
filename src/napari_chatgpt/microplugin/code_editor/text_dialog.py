@@ -7,6 +7,15 @@ class TextDialog(QDialog):
     def __init__(
         self, title, text, icon=None, parent=None
     ):  # icon parameter is optional and can be None
+        """
+        Initialize a modal dialog displaying read-only text with an optional window icon.
+        
+        Parameters:
+            title (str): The window title for the dialog.
+            text (str): The text content to display in the dialog.
+            icon (QIcon, optional): An optional icon to set as the window icon.
+            parent (QWidget, optional): The parent widget of the dialog.
+        """
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setWindowModality(Qt.ApplicationModal)

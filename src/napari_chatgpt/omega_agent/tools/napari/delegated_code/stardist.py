@@ -19,42 +19,22 @@ def stardist_segmentation(
     scale: float = None,
 ) -> ndarray:
     """
-    StarDist cell segmentation function.
-
-    Parameters
-    ----------
-
-    image: ArrayLike
-            Image for which to segment cells. Must be 2D or 3D.
-
-    model_type: str
-            Model type, pre-trained models include: 'versatile_fluo', 'versatile_he'.
-            'versatile_fluo' is trained on a broad range of fluorescent images.
-            'versatile_he' is trained on H&E stained tissue (but may generalize to other
-            staining modalities).
-
-
-    normalize: Optional[bool]
-            If True, normalizes the image to a given percentile range.
-            If False, assumes that the image is already normalized to [0,1].
-
-    norm_range_low: Optional[float]
-            Lower percentile for normalization
-
-    norm_range_high: Optional[float]
-            Higher percentile for normalization
-
-    min_segment_size: Optional[int]
-            Minimum number of pixels in a segment. Segments smaller than this are removed.
-
-    scale: Optional[float]
-            Scaling factor that gets applied to the input image before prediction.
-            This is useful if the input image has a different resolution than the model was trained on.
-
-    Returns
-    -------
-    Segmented image as a labels array that can be added to napari as a Labels layer.
-
+    Segments cells in a 2D or 3D image using a StarDist model and returns a labeled mask.
+    
+    Parameters:
+        image (ArrayLike): Input image to segment; must be 2D or 3D.
+        model_type (str, optional): Name of the pretrained StarDist model to use. Common options include 'versatile_fluo' and 'versatile_he'.
+        normalize (bool, optional): Whether to normalize the image intensity based on percentiles before segmentation.
+        norm_range_low (float, optional): Lower percentile for normalization if enabled.
+        norm_range_high (float, optional): Upper percentile for normalization if enabled.
+        min_segment_size (int, optional): Minimum size (in pixels) for segments to retain; smaller segments are removed.
+        scale (float, optional): Scaling factor to adjust image resolution before prediction.
+    
+    Returns:
+        ndarray: Labeled segmentation mask suitable for use as a napari Labels layer.
+    
+    Raises:
+        ValueError: If the input image is not 2D or 3D.
     """
     ### SIGNATURE
 
@@ -91,6 +71,18 @@ def stardist_segmentation(
 
 
 def stardist_2d(image, scale: float, model_type: str, model: Optional[Any] = None):
+    """
+    Segment a 2D image using a StarDist2D model and return the labeled mask.
+    
+    Parameters:
+        image: The 2D image to segment.
+        scale (float): Optional scaling factor for the image.
+        model_type (str): Name of the pretrained StarDist2D model to use.
+        model (Any, optional): An existing StarDist2D model instance. If not provided, the specified pretrained model is loaded.
+    
+    Returns:
+        labels (ndarray): Labeled segmentation mask of the input image.
+    """
     if model is None:
         # Get the StarDist model:
         from stardist.models import StarDist2D
@@ -105,12 +97,30 @@ def stardist_2d(image, scale: float, model_type: str, model: Optional[Any] = Non
 
 def stardist_3d(image, scale: float, model_type: str, min_segment_size: int):
     # Get the StarDist model once:
+    """
+    Performs 3D cell segmentation by applying a StarDist2D model to each 2D slice and merging the results.
+    
+    Parameters:
+        image: The 3D image array to segment.
+        scale (float): Scaling factor for the input image.
+        model_type (str): Name of the pretrained StarDist2D model to use.
+        min_segment_size (int): Minimum size (in pixels) for segmented objects to retain.
+    
+    Returns:
+        ndarray: A 3D labeled array with unique integer labels for each segmented object.
+    """
     from stardist.models import StarDist2D
 
     model = StarDist2D.from_pretrained(model_type)
 
     # Define a function to segment 2D slices:
     def segment_2d(image):
+        """
+        Segments a 2D image using a StarDist2D model.
+        
+        Returns:
+            ndarray: Labeled segmentation mask of the input 2D image.
+        """
         return stardist_2d(image, scale=scale, model_type=model_type, model=model)
 
     segmented_image = segment_3d_from_segment_2d(
@@ -122,6 +132,16 @@ def stardist_3d(image, scale: float, model_type: str, min_segment_size: int):
 
 def remove_small_segments(labels, min_segment_size):
     # remove small segments:
+    """
+    Remove connected components smaller than a specified size from a labeled segmentation mask.
+    
+    Parameters:
+        labels (ndarray): Labeled array where each integer represents a segmented object.
+        min_segment_size (int): Minimum size (in pixels or voxels) for segments to be retained.
+    
+    Returns:
+        ndarray: Labeled array with small segments removed.
+    """
     if min_segment_size > 0:
         from skimage.morphology import remove_small_objects
 

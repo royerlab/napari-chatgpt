@@ -32,6 +32,11 @@ class DiscoverWorker(QObject):
 
     @Slot()
     def discover_servers(self):
+        """
+        Listens for server announcements on available multicast groups and emits a signal when a server is discovered.
+        
+        Attempts to bind a UDP socket to one of the provided multicast groups, joins the group, and listens for incoming server discovery messages. When a message is received, parses the user name, server name, and server port, and emits the `server_discovered` signal with this information and the sender's IP address. Handles errors gracefully by emitting the `error` signal and ensures the `finished` signal is emitted when the operation completes.
+        """
         try:
             available_multicast_group = None
             # Trying to bind to any of multicast groups (usefull for testing purposes):

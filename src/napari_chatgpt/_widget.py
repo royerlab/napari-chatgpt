@@ -43,6 +43,13 @@ class OmegaQWidget(QWidget):
     # 1. use a parameter called `napari_viewer`, as done here
     # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
     def __init__(self, napari_viewer, add_code_editor=True):
+        """
+        Initialize the OmegaQWidget with UI components for configuring and launching the Omega conversational AI in napari.
+        
+        Parameters:
+            napari_viewer: The napari viewer instance to integrate with.
+            add_code_editor (bool): If True, includes the Omega code editor window in the UI.
+        """
         super().__init__()
         aprint("OmegaQWidget instantiated!")
 
@@ -106,6 +113,11 @@ class OmegaQWidget(QWidget):
 
     def _main_model_selection(self):
 
+        """
+        Add a labeled combo box to the UI for selecting the main conversational LLM model.
+        
+        The combo box is populated with available models from the litemind API, reordered to prioritize preferred models.
+        """
         aprint("Setting up main model selection UI.")
 
         # Create a QLabel instance
@@ -134,6 +146,11 @@ class OmegaQWidget(QWidget):
 
     def _tool_model_selection(self):
 
+        """
+        Add a combo box to the UI for selecting the coding tool LLM model.
+        
+        The combo box is populated with available models, prioritizing preferred options, and includes a tooltip describing its purpose.
+        """
         aprint("Setting up tool model selection UI.")
 
         # Create a QLabel instance
@@ -163,6 +180,11 @@ class OmegaQWidget(QWidget):
     @staticmethod
     def _prefered_models(model_list: List[str]):
         # List of filters to identify preferred models:
+        """
+        Reorders the model list to prioritize preferred models at the beginning.
+        
+        Preferred models are identified by matching substrings (e.g., "gpt-4.1", "gpt-4o") and are sorted to appear first, except for "chatgpt-4o-latest", which is explicitly excluded.
+        """
         preferred_models_filter = [
             "gpt-4.1",
             "gpt-4o",
@@ -179,6 +201,11 @@ class OmegaQWidget(QWidget):
         model_list.sort(key=lambda x: (x not in preferred_models, x))
 
     def _creativity_level(self):
+        """
+        Add a combo box to the UI for selecting Omega's creativity level.
+        
+        Provides users with options to adjust the AI's creativity, affecting the determinism and inventiveness of its responses.
+        """
         aprint("Setting up creativity level UI.")
 
         # Create a QLabel instance
@@ -205,6 +232,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.creativity_combo_box)
 
     def _memory_type_selection(self):
+        """
+        Add a combo box to the UI for selecting the conversational memory type.
+        
+        The combo box allows users to choose between 'hybrid', 'bounded', and 'infinite' memory modes, each with a tooltip explaining its behavior.
+        """
         aprint("Setting up memory type UI.")
 
         # Create a QLabel instance
@@ -226,6 +258,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.memory_type_combo_box)
 
     def _personality_selection(self):
+        """
+        Add a combo box to the UI for selecting the conversational agent's personality.
+        
+        The combo box provides predefined personality options that influence the style of the AI's responses.
+        """
         aprint("Setting up personality UI.")
 
         # Create a QLabel instance
@@ -249,6 +286,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.agent_personality_combo_box)
 
     def _fix_imports(self):
+        """
+        Adds a checkbox to enable or disable automatic fixing of missing imports using an LLM.
+        
+        The checkbox reflects the current configuration and includes a tooltip explaining the implications of enabling this feature.
+        """
         aprint("Setting up fix imports UI.")
 
         # Get app configuration:
@@ -266,6 +308,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.fix_imports_checkbox)
 
     def _fix_bad_version_calls(self):
+        """
+        Adds a checkbox to enable automatic fixing of function calls that may fail due to library version mismatches using an LLM.
+        
+        The checkbox state is initialized from the application configuration and includes a tooltip explaining the feature and its potential costs.
+        """
         aprint("Setting up bad version imports UI.")
 
         # Get app configuration:
@@ -286,6 +333,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.fix_bad_calls_checkbox)
 
     def _install_missing_packages(self):
+        """
+        Add a checkbox to enable automatic installation of missing packages using the LLM.
+        
+        The checkbox reflects the current configuration and includes a tooltip explaining that enabling this option may incur additional time and cost due to LLM usage.
+        """
         aprint("Setting up install missing packages UI.")
 
         # Get app configuration:
@@ -305,6 +357,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.install_missing_packages_checkbox)
 
     def _autofix_mistakes(self):
+        """
+        Adds a checkbox to enable automatic fixing of coding mistakes during Omega's data processing and napari interactions.
+        
+        The checkbox allows users to let Omega attempt to resolve coding errors automatically, excluding widget creation. Enabling this option may result in additional LLM calls, potentially increasing processing time and cost.
+        """
         aprint("Setting up autofix mistakes UI.")
 
         # Get app configuration:
@@ -324,6 +381,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.autofix_mistakes_checkbox)
 
     def _autofix_widgets(self):
+        """
+        Add a checkbox to enable automatic fixing of widget coding mistakes by Omega.
+        
+        When selected, Omega will attempt to correct its own coding errors when generating widgets, potentially incurring additional API usage and associated costs.
+        """
         aprint("Setting up autofix widgets UI.")
 
         # Get app configuration:
@@ -343,6 +405,9 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.autofix_widgets_checkbox)
 
     def _tutorial_mode(self):
+        """
+        Add a checkbox to enable tutorial mode, allowing Omega to provide clarifying questions and didactic responses.
+        """
         aprint("Setting up tutorial mode UI.")
 
         # Get app configuration:
@@ -362,6 +427,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.tutorial_mode_checkbox)
 
     def _builtin_websearch_tool(self):
+        """
+        Add a checkbox to enable or disable Omega's built-in web search tool in the UI.
+        
+        The checkbox reflects the current configuration and provides a tooltip explaining its purpose and limitations.
+        """
         aprint("Setting up builtin web search UI.")
 
         # Get app configuration:
@@ -383,6 +453,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.builtin_websearch_tool_checkbox)
 
     def _save_chats_as_notebooks(self):
+        """
+        Add a checkbox to enable saving Omega chat sessions as Jupyter notebooks.
+        
+        The checkbox allows users to choose whether chats are automatically saved as Jupyter notebooks in a default folder on the user's desktop.
+        """
         aprint("Setting up save notebooks UI.")
 
         # Get app configuration:
@@ -401,6 +476,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.save_chats_as_notebooks)
 
     def _verbose(self):
+        """
+        Adds a checkbox to enable or disable high verbosity logging in the console.
+        
+        The checkbox reflects the current configuration and, when enabled, increases the amount of internal logging output, including detailed prompts and langchain library logs.
+        """
         aprint("Setting up verbose UI.")
 
         # Get app configuration:
@@ -421,6 +501,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.verbose_checkbox)
 
     def _start_omega_button(self):
+        """
+        Add a button to the UI that starts or restarts the Omega conversational AI session.
+        
+        The button is labeled "Start Conversing with Omega" and includes a tooltip explaining its behavior. When clicked, it initiates or restarts the Omega chat server with the current configuration.
+        """
         aprint("Setting up start Omega button UI.")
 
         # Start Omega button:
@@ -436,6 +521,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.start_omega_button)
 
     def _show_editor_button(self):
+        """
+        Adds a button to the widget that opens Omega's code editor window.
+        
+        The button provides access to the microplugin code snippet editor, allowing users to view, edit, and manage code generated by Omega.
+        """
         aprint("Setting up open editor button UI.")
 
         # Start Omega button:
@@ -454,6 +544,11 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.show_editor_button)
 
     def _start_omega(self):
+        """
+        Launches the Omega conversational AI server with the current UI configuration.
+        
+        Displays a one-time disclaimer dialog, stops any existing Omega server instance, and starts a new chat server using the selected models, creativity level, and various user-configurable options from the widget. Handles and logs exceptions if server startup fails.
+        """
         try:
             with asection("Starting Omega now!"):
 
@@ -518,6 +613,11 @@ class OmegaQWidget(QWidget):
             traceback.print_exc()
 
     def _show_editor(self):
+        """
+        Displays the Omega code editor window and updates its LLM model selection to match the current main model.
+        
+        If the code editor window is not instantiated, the function exits without action.
+        """
         try:
             if not self.micro_plugin_main_window:
                 aprint("MicroPluginMainWindow not instantiated.")
@@ -546,6 +646,12 @@ class OmegaQWidget(QWidget):
     def setStyleSheet(self, style):
 
         # Set the stylesheet for the micro plugin main window:
+        """
+        Apply the given stylesheet to both this widget and the associated code editor window, if present.
+        
+        Parameters:
+            style (str): The stylesheet to apply.
+        """
         if self.micro_plugin_main_window:
             self.micro_plugin_main_window.setStyleSheet(style)
 
@@ -554,6 +660,11 @@ class OmegaQWidget(QWidget):
 
     def close(self):
 
+        """
+        Closes the OmegaQWidget and performs cleanup of associated resources.
+        
+        Stops the Omega chat server if running, hides and closes the code editor window if present, and then closes the widget itself.
+        """
         if self.server:
             self.server.stop()
 
@@ -565,6 +676,11 @@ class OmegaQWidget(QWidget):
 
 
 def main():
+    """
+    Launches the OmegaQWidget as a standalone Qt application with a dummy napari viewer.
+    
+    This function creates a QApplication, instantiates a napari Viewer, and displays the OmegaQWidget for interactive configuration and control of the Omega conversational AI system. The Qt event loop is started and runs until the application exits.
+    """
     app = QApplication(sys.argv)
 
     # You need to create an instance of napari.viewer.Viewer

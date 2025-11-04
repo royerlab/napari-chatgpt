@@ -14,6 +14,22 @@ def segment_3d_from_segment_2d(
     debug_view: bool = False,
 ):
     # Segment the 2D slices along z axis:
+    """
+    Performs 3D image segmentation by applying a 2D segmentation function along all three principal axes and merging the results.
+    
+    This function segments 2D slices of a 3D image along the z, y, and x axes using the provided 2D segmentation function. The resulting segmentations are combined into a consensus mask using logical operations and refined with morphological closing and erosion. Unique labels are enforced across slices, and overlapping segments are merged based on a specified overlap threshold.
+    
+    Parameters:
+        image (np.ndarray): The 3D image to segment.
+        segment_2d_func (Callable): Function to segment individual 2D slices.
+        min_segment_size (int, optional): Minimum segment size to retain. Defaults to 32.
+        overlap_threshold (float, optional): Minimum overlap ratio for merging segments. Defaults to 0.5.
+        iterations (int, optional): Number of morphological closing and erosion iterations. Defaults to 2.
+        debug_view (bool, optional): If True, enables visualization during merging. Defaults to False.
+    
+    Returns:
+        np.ndarray: 3D array of labeled segments after merging and refinement.
+    """
     aprint("Segmenting 2D slices along z axis")
     labels_z = segment_2d_z_slices(
         image, segment_2d_func, min_segment_size=min_segment_size
@@ -71,6 +87,17 @@ def segment_3d_from_segment_2d(
 
 def segment_2d_z_slices(image, segment_2d_func: Callable, min_segment_size: int = 32):
     # Initialize an empty list to collect the segmented slices
+    """
+    Applies a 2D segmentation function to each slice along the z-axis of a 3D image and removes small segments.
+    
+    Parameters:
+        image (numpy.ndarray): 3D image array to segment.
+        segment_2d_func (Callable): Function to segment individual 2D slices.
+        min_segment_size (int): Minimum segment size to retain in each slice.
+    
+    Returns:
+        numpy.ndarray: 3D array of segmented labels with small segments removed.
+    """
     segmented_slices = []
 
     # Iterate over each slice of the 3D image
@@ -97,6 +124,16 @@ def segment_2d_z_slices(image, segment_2d_func: Callable, min_segment_size: int 
 
 def remove_small_segments(labels, min_segment_size):
     # remove small segments:
+    """
+    Remove connected components smaller than a specified size from a labeled array.
+    
+    Parameters:
+        labels: A 2D or 3D labeled array where each unique integer represents a segment.
+        min_segment_size: Minimum number of pixels or voxels required for a segment to be retained.
+    
+    Returns:
+        A labeled array with small segments removed.
+    """
     if min_segment_size > 0:
         from skimage.morphology import remove_small_objects
 
@@ -106,6 +143,15 @@ def remove_small_segments(labels, min_segment_size):
 
 def make_slice_labels_different(stack):
     # Max label index:
+    """
+    Assigns unique label indices to each slice in a 3D labeled stack to prevent label collisions across slices.
+    
+    Parameters:
+        stack (ndarray): 3D array of labeled slices.
+    
+    Returns:
+        ndarray: 3D labeled array with unique labels for each slice.
+    """
     max_label_index = 0
 
     # Iterate through each z-plane and ensure that the labels are unique over the entire stack:
@@ -127,6 +173,19 @@ def make_slice_labels_different(stack):
 
 
 def merge_2d_segments(stack, overlap_threshold: int = 1, debug_view: bool = True):
+    """
+    Merge overlapping labeled segments between consecutive slices in a 3D stack based on a specified overlap threshold.
+    
+    Segments in adjacent slices are merged if their overlap ratio exceeds the given threshold, ensuring consistent labeling across the stack. Optionally, a napari viewer can be launched for visual inspection during the merging process.
+    
+    Parameters:
+        stack (np.ndarray): 3D labeled array where each slice contains integer segment labels.
+        overlap_threshold (int): Minimum overlap ratio required to merge segments between slices.
+        debug_view (bool): If True, launches a napari viewer to visualize the merging process.
+    
+    Returns:
+        np.ndarray: 3D labeled array with merged segments across slices.
+    """
     with asection("Merging 2D segments"):
 
         # Iterate through each z-plane

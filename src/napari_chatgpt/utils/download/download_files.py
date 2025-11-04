@@ -6,6 +6,16 @@ from arbol import aprint, asection
 
 def download_files(urls, path=None) -> List[str]:
     # Defaults to working directory:
+    """
+    Download multiple files from the provided URLs to a specified directory.
+    
+    Parameters:
+        urls (List[str]): List of URLs to download files from.
+        path (str, optional): Directory to save the downloaded files. Defaults to the current working directory.
+    
+    Returns:
+        List[str]: Filenames of the downloaded files.
+    """
     path = path or os.getcwd()
 
     filenames = []
@@ -33,6 +43,16 @@ import os
 
 
 def download_file_stealth(url, file_path=None) -> str:
+    """
+    Download a file from a URL using browser-like HTTP headers, saving to a specified path or a temporary file.
+    
+    Parameters:
+        url (str): The URL of the file to download.
+        file_path (str, optional): The path where the file should be saved. If not provided, a temporary file is used.
+    
+    Returns:
+        str: The path to the downloaded file if successful; otherwise, None.
+    """
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",

@@ -7,6 +7,14 @@ from qtpy.QtWidgets import QHBoxLayout, QWidget, QPushButton, QLabel, QSizePolic
 class YesNoCancelQuestionWidget(QWidget):
     def __init__(self, max_height: int = 50, margin: int = 0, parent=None):
 
+        """
+        Initialize the YesNoCancelQuestionWidget with optional maximum height, margin, and parent widget.
+        
+        Parameters:
+            max_height (int): Maximum height of the widget in pixels. Defaults to 50.
+            margin (int): Margin around the widget layout. Defaults to 0.
+            parent: Optional parent widget.
+        """
         super().__init__(parent=parent)
 
         # Initialize callbacks:
@@ -19,6 +27,13 @@ class YesNoCancelQuestionWidget(QWidget):
         self.initUI(max_height=max_height, margin=margin)
 
     def initUI(self, max_height: int, margin: int):
+        """
+        Set up the widget's user interface with a message label and Yes, No, and Cancel buttons in a horizontal layout.
+        
+        Parameters:
+            max_height (int): The maximum height for the widget.
+            margin (int): The margin to apply around the layout.
+        """
         layout = QHBoxLayout()
 
         # Set message:
@@ -67,6 +82,19 @@ class YesNoCancelQuestionWidget(QWidget):
         do_after_callable=None,
     ):
 
+        """
+        Display the widget with a specified message and custom button texts, assigning callbacks for each button and an optional post-action callable.
+        
+        Parameters:
+            message (str): The question or message to display.
+            yes_text (str, optional): Text for the Yes button. Defaults to "Yes".
+            no_text (str, optional): Text for the No button. Defaults to "No".
+            cancel_text (Optional[str], optional): Text for the Cancel button. If None or empty, the Cancel button is hidden. Defaults to "Cancel".
+            yes_callback (callable, optional): Function to call when the Yes button is pressed.
+            no_callback (callable, optional): Function to call when the No button is pressed.
+            cancel_callback (callable, optional): Function to call when the Cancel button is pressed.
+            do_after_callable (callable, optional): Function to call after any button is pressed.
+        """
         self.message_label.setText(message)
         self.yes_button.setText(yes_text)
         self.no_button.setText(no_text)
@@ -84,6 +112,11 @@ class YesNoCancelQuestionWidget(QWidget):
         self.show()
 
     def on_yes(self):
+        """
+        Handles the Yes button click event by invoking the assigned callback and hiding the widget.
+        
+        If a Yes callback is set, it is executed; any exceptions are logged and printed. Afterward, the widget is hidden and an optional post-action callable is invoked if provided.
+        """
         try:
             if self.yes_callback:
                 self.yes_callback()
@@ -98,6 +131,11 @@ class YesNoCancelQuestionWidget(QWidget):
                 self.do_after_callable()
 
     def on_no(self):
+        """
+        Handles the No button click event by invoking the assigned callback, hiding the widget, and executing any post-action callable.
+        
+        If an exception occurs in the No callback, it is logged and the traceback is printed.
+        """
         try:
             if self.no_callback:
                 self.no_callback()
@@ -112,6 +150,11 @@ class YesNoCancelQuestionWidget(QWidget):
                 self.do_after_callable()
 
     def on_cancel(self):
+        """
+        Handles the Cancel button click event by invoking the assigned cancel callback and hiding the widget.
+        
+        If a post-action callable is set, it is executed after the widget is hidden. Exceptions in the cancel callback are caught and logged.
+        """
         try:
             if self.cancel_callback:
                 self.cancel_callback()

@@ -19,6 +19,16 @@ class CodeDropServer(QObject):
         multicast_groups=None,
         server_port: Optional[int] = None,
     ):
+        """
+        Initialize a CodeDropServer instance for multicast UDP broadcasting and receiving.
+        
+        Parameters:
+            callback (Callable): Function to invoke when a message is received. Receives the sender's address and the message.
+            multicast_groups (optional): List of multicast group (address, port) tuples to use. Defaults to predefined groups if not provided.
+            server_port (int, optional): Port number for receiving messages. If not specified, a free port is selected automatically.
+        
+        Sets up UDP sockets and worker threads for asynchronous multicast broadcasting and message reception.
+        """
         super().__init__()
 
         if multicast_groups is None:
@@ -73,6 +83,12 @@ class CodeDropServer(QObject):
         self.receive_worker.error.connect(self.handle_error)
 
     def _find_port(self):
+        """
+        Find and return an available TCP port between 5000 and 5100.
+        
+        Returns:
+            int: A free port number within the specified range.
+        """
         port = 5000 + random.randint(0, 100)
         while True:
             try:
@@ -106,8 +122,14 @@ class CodeDropServer(QObject):
             self.receive_thread.wait()
 
     def stop(self):
+        """
+        Stops both broadcasting and receiving operations, terminating all network activity managed by the server.
+        """
         self.stop_broadcasting()
         self.stop_receiving()
 
     def handle_error(self, e):
+        """
+        Logs the provided error using the asynchronous print function.
+        """
         aprint(f"Error: {e}")

@@ -62,42 +62,27 @@ class NapariChatServer(BaseToolCallbacks):
         verbose: bool = False,
     ):
         """
-        Initializes the NapariChatServer with the provided parameters.
-        This server will run a FastAPI application that listens for WebSocket
-        connections and allows users to interact with the Omega Agent.
-
-        Parameters
-        ----------
-        notebook: JupyterNotebookFile
-            The Jupyter notebook file to save the chat history and snapshots.
-        napari_bridge: NapariBridge
-            The bridge to communicate with the napari viewer.
-        main_llm_model_name: str
-            The name of the main LLM model to use for the Omega Agent.
-        tool_llm_model_name: str
-            The name of the LLM model to use for tools.
-        temperature: float
-            The temperature for the main LLM model.
-        tool_temperature: float
-            The temperature for the tool LLM model.
-        memory_type: str
-            The type of memory to use for the Omega Agent.
-        agent_personality: str
-            The personality of the Omega Agent.
-        fix_imports: bool
-            Whether to fix imports in the code execution tool.
-        install_missing_packages: bool
-            Whether to install missing packages in the code execution tool.
-        fix_bad_calls: bool
-            Whether to fix bad calls in the code execution tool.
-        autofix_mistakes: bool
-            Whether to autofix mistakes in the code execution tool.
-        autofix_widget: bool
-            Whether to use a widget for autofixing mistakes.
-        be_didactic: bool
-            Whether the agent should be didactic in its responses.
-        verbose: bool
-            Whether to enable verbose logging for the server.
+        Initialize a FastAPI-based WebSocket chat server for real-time interaction with the Omega Agent and napari viewer.
+        
+        This constructor sets up the chat server, configures agent and tool behavior, manages notebook logging, and prepares the server for asynchronous communication with web clients. The server enables users to interact with the Omega Agent, which can process requests, execute actions in the napari environment, and log chat history and snapshots.
+        
+        Parameters:
+            notebook (JupyterNotebookFile): Notebook file for saving chat history and snapshots.
+            napari_bridge (NapariBridge): Bridge for communication with the napari viewer.
+            main_llm_model_name (str, optional): Name of the main LLM model for the Omega Agent.
+            tool_llm_model_name (str, optional): Name of the LLM model used by tools.
+            temperature (float, optional): Sampling temperature for the main LLM model.
+            tool_temperature (float, optional): Sampling temperature for the tool LLM model.
+            has_builtin_websearch_tool (bool, optional): Whether to enable the built-in web search tool.
+            memory_type (str, optional): Type of memory to use for the Omega Agent.
+            agent_personality (str, optional): Personality setting for the Omega Agent.
+            fix_imports (bool, optional): Whether to automatically fix import statements in executed code.
+            install_missing_packages (bool, optional): Whether to install missing packages during code execution.
+            fix_bad_calls (bool, optional): Whether to attempt to fix invalid function or method calls.
+            autofix_mistakes (bool, optional): Whether to automatically fix mistakes in code execution.
+            autofix_widget (bool, optional): Whether to use a widget for autofixing mistakes.
+            be_didactic (bool, optional): Whether the agent should provide didactic explanations.
+            verbose (bool, optional): Enable verbose logging for debugging and tracing.
         """
 
         # Flag to keep server running, or stop it:
@@ -150,11 +135,25 @@ class NapariChatServer(BaseToolCallbacks):
         # Default path:
         @self.app.get("/")
         async def get(request: Request):
+            """
+            Serves the main chat interface HTML page in response to a GET request.
+            
+            Parameters:
+                request (Request): The incoming HTTP request object.
+            
+            Returns:
+                TemplateResponse: The rendered 'index.html' template for the chat interface.
+            """
             return templates.TemplateResponse("index.html", {"request": request})
 
         # Chat path:
         @self.app.websocket("/chat")
         async def websocket_endpoint(websocket: WebSocket):
+            """
+            Handles the main WebSocket chat loop, facilitating real-time communication between the user and the Omega Agent.
+            
+            Upon connection, this endpoint manages the dialog flow: it receives user prompts, processes them through the Omega Agent (which interacts with the napari viewer), and sends responses and status updates back to the user. It also logs chat history and snapshots to the notebook if enabled, and gracefully handles disconnects and errors.
+            """
             await websocket.accept()
 
             # Get the event event_loop:
@@ -261,6 +260,15 @@ class NapariChatServer(BaseToolCallbacks):
         async def receive_from_user(websocket: WebSocket) -> str:
 
             # Receive a question from the user via WebSocket:
+            """
+            Receives a text message from the user over the WebSocket and sends acknowledgment responses.
+            
+            Parameters:
+                websocket (WebSocket): The active WebSocket connection.
+            
+            Returns:
+                str: The user's input message.
+            """
             question = await websocket.receive_text()
 
             # Format the question as a ChatResponse:
@@ -281,6 +289,11 @@ class NapariChatServer(BaseToolCallbacks):
         def send_final_response_to_user(result: List[Message], websocket: WebSocket):
 
             # Filter out non-text messages:
+            """
+            Send the final agent response to the user over the WebSocket connection.
+            
+            Filters the agent's response messages to include only text, concatenates them, and sends the result as a final chat message to the user interface.
+            """
             text_result = [m for m in result if m.has(Text)]
 
             # Extract the last message from the result:
@@ -293,7 +306,9 @@ class NapariChatServer(BaseToolCallbacks):
             self.sync_handler(websocket.send_json, end_resp.dict())
 
         def notify_user_omega_thinking(websocket: WebSocket):
-            """Notify user that Omega is thinking."""
+            """
+            Sends a typing indicator to the user via WebSocket to signal that Omega is processing the request.
+            """
 
             # Format the response as a typing indicator:
             resp = ChatResponse(sender="agent", message="", type="thinking")
@@ -304,7 +319,14 @@ class NapariChatServer(BaseToolCallbacks):
         def notify_user_omega_tool_start(
             websocket: WebSocket, tool: BaseTool, query: str
         ):
-            """Notify user that Omega started using a tool."""
+            """
+            Sends a notification to the user indicating that Omega has started using a specific tool to address their request.
+            
+            Parameters:
+                websocket (WebSocket): The WebSocket connection to the user.
+                tool (BaseTool): The tool Omega is using.
+                query (str): The user's original request being processed.
+            """
 
             # Convert name of the tool to a human-readable format:
             tool_name = camel_case_to_lower_case_with_space(tool.name)
@@ -326,7 +348,18 @@ class NapariChatServer(BaseToolCallbacks):
         def notify_user_omega_tool_activity(
             websocket: WebSocket, tool: BaseTool, activity_type: str, code: str
         ):
-            """Notify user that Omega started using a tool."""
+            """
+            Sends a notification to the user about Omega's tool activity, specifically when code is generated and executed.
+            
+            Parameters:
+                websocket (WebSocket): The WebSocket connection to the user.
+                tool (BaseTool): The tool being used by Omega.
+                activity_type (str): The type of activity performed; must be "coding".
+                code (str): The code that was generated and executed.
+            
+            Raises:
+                ValueError: If the activity_type is not "coding".
+            """
             aprint(f"Tool {tool.name} is {activity_type}...")
             if activity_type == "coding":
                 # Convert name of the tool to a human-readable format:
@@ -353,7 +386,11 @@ class NapariChatServer(BaseToolCallbacks):
         def notify_user_omega_tool_end(
             websocket: WebSocket, tool: BaseTool, result: Any
         ):
-            """Notify user that Omega's tool usage ended."""
+            """
+            Sends a notification to the user indicating that Omega has finished using a tool and provides the tool's result.
+            
+            The result is sent as a message over the WebSocket and optionally logged in the notebook if available.
+            """
 
             # Convert to string if result is not a string:
             message = str(result)
@@ -370,7 +407,11 @@ class NapariChatServer(BaseToolCallbacks):
                 self.notebook.add_markdown_cell("### Omega:\n" + message)
 
         def notify_user_omega_error(websocket: WebSocket, error: Exception):
-            """Notify user that Omega's tool encountered an error."""
+            """
+            Sends an error notification to the user when Omega's tool encounters an exception.
+            
+            The error type and message are formatted and sent to the user via WebSocket, and the error is also logged in the notebook if available.
+            """
 
             # Get the type and message of the error:
             error_type = type(error).__name__
@@ -391,20 +432,36 @@ class NapariChatServer(BaseToolCallbacks):
                 self.notebook.add_markdown_cell("### Omega:\n" + "Error:\n" + message)
 
         def notify_user_omega_done_thinking(websocket: WebSocket):
-            """Notify user that Omega has finished processing."""
+            """
+            Sends a notification to the user indicating that Omega has finished processing the current request.
+            """
             # resp = ChatResponse(sender="agent", message=message, type="finish")
             # await self.websocket.send_json(resp.dict())
 
     def _start_uvicorn_server(self, app):
+        """
+        Start the Uvicorn server on the assigned port using the provided FastAPI app.
+        
+        Parameters:
+            app: The FastAPI application instance to serve.
+        """
         with asection(f"Starting Uvicorn server on port {self.port}"):
             config = Config(app, port=self.port)
             self.uvicorn_server = Server(config=config)
             self.uvicorn_server.run()
 
     def run(self):
+        """
+        Starts the Uvicorn server to run the FastAPI chat application.
+        """
         self._start_uvicorn_server(self.app)
 
     def stop(self):
+        """
+        Stops the Uvicorn server and marks the chat server as no longer running.
+        
+        This method signals the Uvicorn server to exit and waits briefly to ensure shutdown.
+        """
         with asection("Stopping Uvicorn server"):
             self.running = False
             if self.uvicorn_server:
@@ -414,14 +471,25 @@ class NapariChatServer(BaseToolCallbacks):
 
     def sync_handler(self, _callable, *args, **kwargs):
         """
-        A helper function to run a callable synchronously in the current event event_loop.
+        Schedules a coroutine to run asynchronously in the server's event loop.
+        
+        Parameters:
+            _callable: The coroutine function to execute.
+            *args: Positional arguments to pass to the coroutine.
+            **kwargs: Keyword arguments to pass to the coroutine.
         """
         self.event_loop.create_task(_callable(*args, **kwargs))
 
     def async_run_in_executor(self, func, *args):
         """
-        Run a function in the default executor and return the result.
-        This is a helper function to run blocking code in an async context.
+        Runs a blocking function asynchronously in the event loop's default executor.
+        
+        Parameters:
+            func (callable): The blocking function to execute.
+            *args: Arguments to pass to the function.
+        
+        Returns:
+            concurrent.futures.Future: A future representing the execution of the function.
         """
         return self.event_loop.run_in_executor(None, func, *args)
 
@@ -444,6 +512,14 @@ def start_chat_server(
     save_chats_as_notebooks: bool = False,
     verbose: bool = False,
 ):
+    """
+    Initialize and launch the NapariChatServer, integrating a napari viewer, Omega Agent, and optional notebook logging.
+    
+    Creates and configures a napari viewer if not provided, sets up notebook logging if enabled, and starts the chat server in a separate thread. Waits for the server to become available, optionally opens the chat interface in a web browser, and returns the running server instance.
+    
+    Returns:
+        NapariChatServer: The running chat server instance.
+    """
     with asection("Starting chat server"):
 
         # get configuration:

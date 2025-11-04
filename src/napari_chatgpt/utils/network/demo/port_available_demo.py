@@ -6,6 +6,15 @@ if __name__ == "__main__":
 
     # Define a simple handler that returns a simple response:
     async def handle(request):
+        """
+        Handle incoming HTTP GET requests and respond with "Hello, world" as plain text.
+        
+        Parameters:
+            request: The incoming HTTP request object.
+        
+        Returns:
+            An HTTP response with the body "Hello, world" and content type text/plain.
+        """
         return web.Response(text="Hello, world")
 
     # Start the server:

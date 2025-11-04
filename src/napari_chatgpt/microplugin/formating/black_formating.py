@@ -3,7 +3,17 @@ from typing import Union
 
 
 def format_code(code: str) -> str:
-    """Format the code using black."""
+    """
+    Formats a Python code string using the Black code formatter.
+    
+    If formatting fails due to an import or runtime error, returns the original unformatted code.
+        
+    Parameters:
+        code (str): The Python code to format.
+    
+    Returns:
+        str: The formatted code, or the original code if formatting fails.
+    """
     try:
 
         from black import format_str, FileMode, InvalidInput
@@ -21,7 +31,12 @@ def format_code(code: str) -> str:
 
 
 def format_file(file_path: Union[str, Path]) -> None:
-    """Format the file using black."""
+    """
+    Format a Python source file in place using the Black code formatter.
+    
+    Parameters:
+        file_path (Union[str, Path]): Path to the Python file to be formatted. Accepts a string or Path object.
+    """
 
     try:
         # Ensure file_path is a Path object

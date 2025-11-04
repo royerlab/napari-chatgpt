@@ -17,18 +17,13 @@ class ClickableIcon(QLabel):
         parent=None,
     ):
         """
-        Create a clickable icon label.
-        The icon can be: QIcon, QPixmap, or a string with the path to the image.
-        For example:
-        icon = QApplication.style().standardIcon(QStyle.SP_FileIcon)
-
-        Parameters
-        ----------
-        icon : QIcon, QPixmap, or str
-            The icon to display
-        parent : QWidget, optional
-            The parent widget, by default None
-
+        Initialize a ClickableIcon label displaying an icon with optional color inversion and hover highlighting.
+        
+        Parameters:
+            icon (QIcon, QPixmap, or str): The icon to display, provided as a QIcon, QPixmap, or file path.
+            size (int, optional): The size (in pixels) to scale the icon to. Defaults to 24.
+            invert_colors (bool, optional): Whether to invert the icon's colors for dark UI themes. Defaults to True.
+            parent (QWidget, optional): The parent widget. Defaults to None.
         """
         super().__init__(parent)
 
@@ -65,6 +60,9 @@ class ClickableIcon(QLabel):
         self.is_hovered = False
 
     def mousePressEvent(self, event):
+        """
+        Emits the clicked signal when the left mouse button is pressed on the icon.
+        """
         if event.button() == Qt.LeftButton:
             self.clicked.emit()
 
@@ -77,6 +75,9 @@ class ClickableIcon(QLabel):
         self.update()
 
     def paintEvent(self, event):
+        """
+        Handles the widget's paint event and draws a semi-transparent highlight overlay when hovered.
+        """
         super().paintEvent(event)
 
         if self.is_hovered:

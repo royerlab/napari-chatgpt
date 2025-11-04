@@ -23,6 +23,14 @@ def open_in_napari(viewer: "Viewer", url: str, plugin: str = "napari") -> bool:
 
 
 def open_video_in_napari(viewer: "Viewer", url: str):
+    """
+    Attempts to open a video file from the given URL in the napari viewer.
+    
+    Checks if the URL corresponds to a supported video file extension, downloads the file to a temporary directory, reads the video frames using imageio with the "pyav" plugin, and adds the frames as an image layer to the viewer.
+    
+    Returns:
+        bool: True if the video was successfully opened and added to the viewer; False otherwise.
+    """
     try:
         # First we check if it is a file that we can resonable expect to open:
         if not (
@@ -85,6 +93,12 @@ def open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
 
 
 def _open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
+    """
+    Open a generic Zarr dataset from the specified URL and add it as an image layer to the napari viewer.
+    
+    Returns:
+        bool: True if the dataset is successfully opened and added; False otherwise.
+    """
     try:
         import zarr
 

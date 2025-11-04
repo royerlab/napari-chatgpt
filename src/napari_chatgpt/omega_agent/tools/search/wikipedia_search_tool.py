@@ -14,12 +14,9 @@ class WikipediaSearchTool(BaseOmegaTool):
 
     def __init__(self, **kwargs):
         """
-        Initialize the WikipediaSearchTool.
-
-        Parameters
-        ----------
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
+        Initialize the WikipediaSearchTool with a name and description for performing general Wikipedia searches.
+        
+        Additional keyword arguments are passed to the base class initializer.
         """
         super().__init__(**kwargs)
 
@@ -35,7 +32,15 @@ class WikipediaSearchTool(BaseOmegaTool):
         )
 
     def run_omega_tool(self, query: str = ""):
-        """Use the tool."""
+        """
+        Searches Wikipedia for the given query and returns the result.
+        
+        Parameters:
+            query (str): The search term to look up on Wikipedia.
+        
+        Returns:
+            str: The search result from Wikipedia, or an error message if the search fails.
+        """
         try:
 
             with asection(f"WikipediaSearchTool:"):
