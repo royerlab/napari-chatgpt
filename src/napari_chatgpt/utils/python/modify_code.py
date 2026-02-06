@@ -8,41 +8,29 @@ from napari_chatgpt.utils.python.installed_packages import installed_package_lis
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 
 _change_code_prompt = """
-## Context
-You are an expert Python programmer and software engineer with a specialization in modifying and improving code based on specific requests. Your expertise includes understanding complex Python code and making precise adjustments to fulfill given requirements without altering the original intent or functionality.
+## Task
+Modify the Python code below to fulfill the request. Make minimal, focused changes.
 
-## Your Task
-You are presented with a snippet of Python code and a specific request for changes. Your primary objective is to modify the code so it meets the request's requirements. The modifications should be minimal and focused, ensuring the code remains functional and aligned with the initial purpose.
+### Rules
+- Preserve the code's original intent, structure, and formatting unless changes are required by the request.
+- Only introduce new functions, classes, or variables if the request demands it.
+- Keep imports at the top; add new ones only if needed.
+- Ensure the modified code is complete, correct, and runs without errors.
+- If the task involves a napari viewer, assume `viewer` is already provided.
 
-### Requirements
-- **Preserve Original Intent:** Do not alter the core ideas, purpose, semantics, implementation details, or calculations of the code unless explicitly required by the request or absolutely necessary for functionality.
-- **Minimal Changes:** Only introduce new functions, methods, classes, types, or variables if the request demands it or they are essential for the solution.
-- **Code Structure:** Maintain the existing code structure, indentation, and formatting unless changes are necessary to fulfill the request.
-- **Imports:** Keep all import statements at the top. Only add new ones if required by the request or necessary for the solution.
-- **Functionality:** Ensure the modified code is complete, correct, and runs without errors. Address any TODOs or FIXMEs within the context of the request.
-- **Commentary:** Before implementing changes, briefly explain your approach in comments to clarify the rationale behind your modifications.
+### Environment
+- Python {python_version}
+- Installed packages: {installed_packages}
 
-### Special Instructions for Napari Viewer
-If the task involves a napari viewer:
-- Assume a napari viewer instance `viewer` is provided. There's no need to instantiate a new one.
-- For code that defines a napari widget using `@magicgui`, integrate the widget into the viewer using `viewer.window.add_dock_widget()`.
-
-### Python Environment
-- **Python Version:** The code is intended to run on Python version `{python_version}`.
-- **Installed Packages:** A list of installed packages is available for reference: `{installed_packages}`.
-
-## Provided Code
+## Code
 ```python
 {code}
 ```
 
-## Modification Request
+## Request
 {request}
 
-## Submission Format
-Please submit the modified code in Markdown format, ensuring it adheres to the above guidelines and fulfills the request accurately.
-
-## Changed Code in Markdown Format:
+## Modified code in markdown format:
 
 """
 

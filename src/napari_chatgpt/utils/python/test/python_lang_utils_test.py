@@ -1,7 +1,13 @@
 from napari_chatgpt.utils.python.python_lang_utils import (
-    enumerate_methods, extract_fully_qualified_function_names,
-    find_function_info_in_package, function_exists, get_function_info,
-    get_function_signature, get_imported_modules, object_info_str)
+    enumerate_methods,
+    extract_fully_qualified_function_names,
+    find_function_info_in_package,
+    function_exists,
+    get_function_info,
+    get_function_signature,
+    get_imported_modules,
+    object_info_str,
+)
 
 
 def test_object_info():

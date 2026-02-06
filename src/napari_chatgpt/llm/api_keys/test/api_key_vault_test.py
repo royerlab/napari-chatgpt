@@ -1,7 +1,6 @@
 import pytest
 
-from napari_chatgpt.llm.api_keys.api_key_vault import (KeyVault, _decode64,
-                                                       _encode64)
+from napari_chatgpt.llm.api_keys.api_key_vault import KeyVault, _decode64, _encode64
 
 
 def test_b64_encode_decode():

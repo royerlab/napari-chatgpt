@@ -14,14 +14,13 @@
 }
 
 .sunlight-highlighted, .sunlight-container, .sunlight-container textarea, .sunlight-container pre {
-    /*font-family: Consolas, Inconsolata, Monaco, "Courier New" !important;*/
-    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji' !important;
+    font-family: Consolas, Inconsolata, Monaco, "Courier New", monospace !important;
     font-size: 10px !important;
     line-height: 13px !important;
 }
 
 code {
-    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji' !important;
+    font-family: Consolas, Inconsolata, Monaco, "Courier New", monospace !important;
 }
 
 .sunlight-highlighted, .sunlight-container textarea {

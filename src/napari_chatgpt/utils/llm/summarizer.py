@@ -15,9 +15,10 @@ def summarize(text: str, llm: LLM = None):
 
     # Prepare the prompt for summarization:
     prompt = (
-        "Please summarize the following text retaining all the key ideas and information:\n\n"
+        "Summarize the following text, retaining all key ideas and information.\n"
+        "Keep the summary concise (no more than 3 paragraphs). Use plain text.\n"
+        "Return only the summary with no prefix, postfix, or additional explanations.\n\n"
         f"```text\n{text}\n```\n\n"
-        "**Important** Please do not include any prefix, postfix, additional information or explanations, *just* the summary.**\n\n"
         "Summary:"
     )
 

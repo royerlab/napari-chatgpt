@@ -54,11 +54,6 @@ class NapariChatServer(BaseToolCallbacks):
         has_builtin_websearch_tool: bool = True,
         memory_type: str = "standard",
         agent_personality: str = "neutral",
-        fix_imports: bool = True,
-        install_missing_packages: bool = True,
-        fix_bad_calls: bool = True,
-        autofix_mistakes: bool = False,
-        autofix_widget: bool = False,
         be_didactic: bool = False,
         verbose: bool = False,
     ):
@@ -85,16 +80,6 @@ class NapariChatServer(BaseToolCallbacks):
             The type of memory to use for the Omega Agent.
         agent_personality: str
             The personality of the Omega Agent.
-        fix_imports: bool
-            Whether to fix imports in the code execution tool.
-        install_missing_packages: bool
-            Whether to install missing packages in the code execution tool.
-        fix_bad_calls: bool
-            Whether to fix bad calls in the code execution tool.
-        autofix_mistakes: bool
-            Whether to autofix mistakes in the code execution tool.
-        autofix_widget: bool
-            Whether to use a widget for autofixing mistakes.
         be_didactic: bool
             Whether the agent should be didactic in its responses.
         verbose: bool
@@ -102,7 +87,7 @@ class NapariChatServer(BaseToolCallbacks):
         """
 
         # Flag to keep server running, or stop it:
-        self.running = True
+        self.running = False
         self.uvicorn_server = None
 
         # Notebook:
@@ -194,11 +179,6 @@ class NapariChatServer(BaseToolCallbacks):
                 has_builtin_websearch_tool=has_builtin_websearch_tool,
                 notebook=self.notebook,
                 agent_personality=agent_personality,
-                fix_imports=fix_imports,
-                install_missing_packages=install_missing_packages,
-                fix_bad_calls=fix_bad_calls,
-                autofix_mistakes=autofix_mistakes,
-                autofix_widget=autofix_widget,
                 be_didactic=be_didactic,
                 tool_callbacks=tool_callbacks,
                 verbose=verbose,
@@ -229,7 +209,6 @@ class NapariChatServer(BaseToolCallbacks):
                         notify_user_omega_thinking(websocket)
                         # result = agent(prompt)
                         result = await self.async_run_in_executor(agent, prompt)
-                        notify_user_omega_done_thinking(websocket)
 
                         with asection(f"Agent response:"):
                             # Extract text from result:
@@ -395,15 +374,11 @@ class NapariChatServer(BaseToolCallbacks):
             if self.notebook:
                 self.notebook.add_markdown_cell("### Omega:\n" + "Error:\n" + message)
 
-        def notify_user_omega_done_thinking(websocket: WebSocket):
-            """Notify user that Omega has finished processing."""
-            # resp = ChatResponse(sender="agent", message=message, type="finish")
-            # await self.websocket.send_json(resp.dict())
-
     def _start_uvicorn_server(self, app):
         with asection(f"Starting Uvicorn server on port {self.port}"):
             config = Config(app, port=self.port)
             self.uvicorn_server = Server(config=config)
+            self.running = True
             self.uvicorn_server.run()
 
     def run(self):
@@ -419,9 +394,11 @@ class NapariChatServer(BaseToolCallbacks):
 
     def sync_handler(self, _callable, *args, **kwargs):
         """
-        A helper function to run a callable synchronously in the current event event_loop.
+        A helper function to schedule an async callable from a synchronous
+        (executor) thread.  ``run_coroutine_threadsafe`` is the thread-safe
+        counterpart of ``create_task``.
         """
-        self.event_loop.create_task(_callable(*args, **kwargs))
+        asyncio.run_coroutine_threadsafe(_callable(*args, **kwargs), self.event_loop)
 
     def async_run_in_executor(self, func, *args):
         """
@@ -440,11 +417,6 @@ def start_chat_server(
     has_builtin_websearch_tool: bool = True,
     memory_type: str = "standard",
     agent_personality: str = "neutral",
-    fix_imports: bool = True,
-    install_missing_packages: bool = True,
-    fix_bad_calls: bool = True,
-    autofix_mistakes: bool = False,
-    autofix_widget: bool = False,
     be_didactic: bool = False,
     save_chats_as_notebooks: bool = False,
     verbose: bool = False,
@@ -485,11 +457,6 @@ def start_chat_server(
             has_builtin_websearch_tool=has_builtin_websearch_tool,
             memory_type=memory_type,
             agent_personality=agent_personality,
-            fix_imports=fix_imports,
-            install_missing_packages=install_missing_packages,
-            fix_bad_calls=fix_bad_calls,
-            autofix_mistakes=autofix_mistakes,
-            autofix_widget=autofix_widget,
             be_didactic=be_didactic,
             verbose=verbose,
         )

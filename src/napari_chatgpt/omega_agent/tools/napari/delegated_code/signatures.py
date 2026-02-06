@@ -1,5 +1,5 @@
 cellpose_signature = """
-# Cellpose is better for segmenting non-convex cells, in particular their cytoplasm, it is a deep learning based method that only work in 2D and are better for small images. 
+# Cellpose is better for segmenting non-convex cells, in particular their cytoplasm. It is a deep learning method. The wrapper handles both 2D and 3D images.
 def cellpose_segmentation( image: ArrayLike,
                            model_type: str = 'cyto',
                            normalize: Optional[bool] = True,
@@ -11,7 +11,7 @@ def cellpose_segmentation( image: ArrayLike,
 """
 
 stardist_signature = """
-# StarDist is better for segmenting nearly convex nuclei, it is a deep learning based method that only work in 2D and are better for small images. 
+# StarDist is better for segmenting nearly convex nuclei. It is a deep learning method. The wrapper handles both 2D and 3D images.
 def stardist_segmentation(image: ArrayLike,
                           model_type: str = '2D_versatile_fluo',
                           normalize: Optional[bool] = True,

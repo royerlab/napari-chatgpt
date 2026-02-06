@@ -99,6 +99,9 @@ packages = ["src/napari_chatgpt"]     # wheel only contains code; others auto-ex
 extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "napari", "pyqt5", "black", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
 default-args = ["src/"]
 
+[tool.isort]
+profile = "black"
+
 [tool.pytest.ini_options]
 markers = [
     "integration: tests that make live HTTP requests or require external services",

@@ -79,11 +79,6 @@ class OmegaQWidget(QWidget):
             self._creativity_level()
             # self._memory_type_selection()
             self._personality_selection()
-            self._fix_imports()
-            self._fix_bad_version_calls()
-            self._install_missing_packages()
-            self._autofix_mistakes()
-            self._autofix_widgets()
             self._builtin_websearch_tool()
             self._tutorial_mode()
             self._save_chats_as_notebooks()
@@ -258,100 +253,6 @@ class OmegaQWidget(QWidget):
         # Add the combo box to the layout
         self.layout.addWidget(self.agent_personality_combo_box)
 
-    def _fix_imports(self):
-        aprint("Setting up fix imports UI.")
-
-        # Get app configuration:
-        config = AppConfiguration("omega")
-
-        # Create a QLabel instance
-        self.fix_imports_checkbox = QCheckBox("Fix missing imports")
-        self.fix_imports_checkbox.setChecked(config.get("fix_missing_imports", False))
-        self.fix_imports_checkbox.setToolTip(
-            "Uses LLM to check for missing imports.\n"
-            "This involves a LLM call which can incur additional\n"
-            "cost in time and possibly money."
-        )
-        # Add the fix_imports checkbox to the layout:
-        self.layout.addWidget(self.fix_imports_checkbox)
-
-    def _fix_bad_version_calls(self):
-        aprint("Setting up bad version imports UI.")
-
-        # Get app configuration:
-        config = AppConfiguration("omega")
-
-        # Create a QLabel instance
-        self.fix_bad_calls_checkbox = QCheckBox("Fix bad function calls")
-        self.fix_bad_calls_checkbox.setChecked(config.get("fix_bad_calls", False))
-        self.fix_bad_calls_checkbox.setToolTip(
-            "Uses LLM to fix function calls.\n"
-            "When turned on, this detects wrong function calls, \n"
-            "possibly because of library version mismatch and fixes,"
-            "replaces the offending code with the right version! "
-            "This involves a LLM call which can incurr additional\n"
-            "cost in time and possibly money."
-        )
-        # Add the fix_code checkbox to the layout:
-        self.layout.addWidget(self.fix_bad_calls_checkbox)
-
-    def _install_missing_packages(self):
-        aprint("Setting up install missing packages UI.")
-
-        # Get app configuration:
-        config = AppConfiguration("omega")
-
-        # Create a QLabel instance
-        self.install_missing_packages_checkbox = QCheckBox("Install missing packages")
-        self.install_missing_packages_checkbox.setChecked(
-            config.get("install_missing_packages", False)
-        )
-        self.install_missing_packages_checkbox.setToolTip(
-            "Uses LLM to figure out which packages to install.\n"
-            "This involves a LLM call which can incur additional\n"
-            "cost in time and possibly money."
-        )
-        # Add the install_missing_packages checkbox to the layout:
-        self.layout.addWidget(self.install_missing_packages_checkbox)
-
-    def _autofix_mistakes(self):
-        aprint("Setting up autofix mistakes UI.")
-
-        # Get app configuration:
-        config = AppConfiguration("omega")
-
-        # Create a QLabel instance
-        self.autofix_mistakes_checkbox = QCheckBox("Autofix coding mistakes")
-        self.autofix_mistakes_checkbox.setChecked(config.get("autofix_mistakes", True))
-        self.autofix_mistakes_checkbox.setToolTip(
-            "When checked Omega will try to fix on its own coding mistakes\n"
-            "when processing data and interacting with the napari viewer.\n"
-            "This does not include making widgets!\n"
-            "This involves a LLM call which can incur additional\n"
-            "cost in time and possibly money."
-        )
-        # Add the install_missing_packages checkbox to the layout:
-        self.layout.addWidget(self.autofix_mistakes_checkbox)
-
-    def _autofix_widgets(self):
-        aprint("Setting up autofix widgets UI.")
-
-        # Get app configuration:
-        config = AppConfiguration("omega")
-
-        # Create a QLabel instance
-        self.autofix_widgets_checkbox = QCheckBox("Autofix widget coding mistakes")
-        self.autofix_widgets_checkbox.setChecked(config.get("autofix_widgets", True))
-        self.autofix_widgets_checkbox.setToolTip(
-            "When checked Omega will try to fix its own \n"
-            "coding mistakes when making widgets. \n"
-            "Works so-so with ChatGPT 3.5, but works well with ChatGPT 4.\n"
-            "This requires API calls which may incur additional\n"
-            "cost in time and possibly money."
-        )
-        # Add the install_missing_packages checkbox to the layout:
-        self.layout.addWidget(self.autofix_widgets_checkbox)
-
     def _tutorial_mode(self):
         aprint("Setting up tutorial mode UI.")
 
@@ -368,7 +269,7 @@ class OmegaQWidget(QWidget):
             "to clarify and disambiguate the request, will propose \n"
             "multiple options and try to be as didactic as possible. "
         )
-        # Add the install_missing_packages checkbox to the layout:
+        # Add the tutorial mode checkbox to the layout:
         self.layout.addWidget(self.tutorial_mode_checkbox)
 
     def _builtin_websearch_tool(self):
@@ -389,7 +290,7 @@ class OmegaQWidget(QWidget):
             "Note: This is for built-in web search only!\n"
             "This is not supported by all models, \n"
         )
-        # Add the install_missing_packages checkbox to the layout:
+        # Add the web search tool checkbox to the layout:
         self.layout.addWidget(self.builtin_websearch_tool_checkbox)
 
     def _save_chats_as_notebooks(self):
@@ -407,7 +308,7 @@ class OmegaQWidget(QWidget):
             "When checked Omega will save the chats as Jupyter notebooks \n"
             "by default in a folder on the user's desktop."
         )
-        # Add the install_missing_packages checkbox to the layout:
+        # Add the save notebooks checkbox to the layout:
         self.layout.addWidget(self.save_chats_as_notebooks)
 
     def _verbose(self):
@@ -427,7 +328,7 @@ class OmegaQWidget(QWidget):
             "if you are interested to see the prompts\n"
             "in action..."
         )
-        # Add the install_missing_packages checkbox to the layout:
+        # Add the verbose checkbox to the layout:
         self.layout.addWidget(self.verbose_checkbox)
 
     def _start_omega_button(self):
@@ -510,11 +411,6 @@ class OmegaQWidget(QWidget):
                     has_builtin_websearch_tool=self.builtin_websearch_tool_checkbox.isChecked(),
                     memory_type="standard",
                     agent_personality=self.agent_personality_combo_box.currentText(),
-                    fix_imports=self.fix_imports_checkbox.isChecked(),
-                    install_missing_packages=self.install_missing_packages_checkbox.isChecked(),
-                    fix_bad_calls=self.fix_bad_calls_checkbox.isChecked(),
-                    autofix_mistakes=self.autofix_mistakes_checkbox.isChecked(),
-                    autofix_widget=self.autofix_widgets_checkbox.isChecked(),
                     be_didactic=self.tutorial_mode_checkbox.isChecked(),
                     save_chats_as_notebooks=self.save_chats_as_notebooks.isChecked(),
                     verbose=self.verbose_checkbox.isChecked(),

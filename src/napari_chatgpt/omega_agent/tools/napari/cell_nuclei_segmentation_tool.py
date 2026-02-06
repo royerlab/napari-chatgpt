@@ -28,17 +28,11 @@ from napari_chatgpt.utils.python.pip_utils import pip_install, pip_uninstall
 
 _cell_segmentation_prompt = """
 **Context**
-You are an expert python programmer with deep expertise in bioimage processing and analysis.
-You are working on a project that requires you to segment cells and/or nuclei in 2D or 3D images.
+You write Python code to segment cells and/or nuclei in 2D or 3D images using a napari viewer.
 
 **Task:**
-Given a plain text request, you competently write a python function segment(viewer) that calls the 'cellpose_segmentation()', 'stardist_segmentation()' or 'classic_segmentation()' functions.
-Segmentation is performed on images present as layers of the instantiated napari viewer.
-The napari viewer instance is immediately available by using the variable: 'viewer'. 
-For example, you can directly write: 'viewer.add_image(np.zeros((10,10)))' without preamble. 
-Therefore, DO NOT use 'napari.Viewer()' or 'with napari.gui_qt():' in your code. 
-DO NOT CREATE A NEW INSTANCE OF A NAPARI VIEWER, use the one provided in the variable: 'viewer'.
-Make sure the calls to the viewer are correct.
+Write a function `segment(viewer) -> ArrayLike` that calls one of the available segmentation functions below.
+The napari viewer instance is available as `viewer`.
 
 **ONLY AVAILABLE SEGMENTATION FUNCTIONS:**
 The only segmentation functions that you can use are 'cellpose_segmentation()', 'stardist_segmentation()' and 'classic_segmentation()':
@@ -59,7 +53,7 @@ Here is an explanation of the parameters:
     model_type: str, 
             Valid parameter for both StarDist and Cellpose. 
             Segmentation model: 
-            - For Cellpose it can be: cyto, nuclei. cyto -> cytoplasm (whole cell) model, nuclei -> nucleus model.
+            - For Cellpose it can be: cyto, cyto2, cyto3, nuclei. cyto/cyto2/cyto3 -> cytoplasm (whole cell) models, nuclei -> nucleus model.
             - For StarDist can be: 'versatile_fluo', 'versatile_he'. 'versatile_fluo' is trained on a broad range of fluorescent images. 'versatile_he' is trained on H&E stained tissue (but may generalize to other staining modalities).
             
     normalize: Optional[bool]
@@ -133,7 +127,7 @@ Here is an explanation of the parameters:
 **Instructions:**
 {instructions}
 
-- If the request (below) asks for segmentation with a specific algorithm that is not available (above), then .
+- If the request asks for segmentation with an algorithm that is not available, inform the user and suggest using one of the available functions instead.
 - Answer with a single function 'segment(viewer)->ArrayLike' that takes the viewer and returns the segmented image.
 
 {last_generated_code}
@@ -179,17 +173,13 @@ def _get_segmentation_prompt() -> str:
 
 
 _instructions = """
-    
+
 **Instructions specific to calling the segmentation functions:**
-- DO NOT include code for the functions 'cellpose_segmentation()', 'stardist_segmentation()', or 'classic_segmentation()' in your answer.
-- INSTEAD, DIRECTLY call the segmentation functions 'cellpose_segmentation()', 'stardist_segmentation()', or 'classic_segmentation()'  provided above after import.
-- Assume that the functions 'cellpose_segmentation()', 'stardist_segmentation()', and 'classic_segmentation()' are available and within scope of your code.
-- DO NOT add the segmentation to the napari viewer, this is done automatically by the system.
-- DO NOT directly use the Cellpose or StarDist APIs: 'models.cellpose(...', 'model.predict_instances(...', etc.
-- Response must be only the python function: 'segment(viewer)' that returns an array.
-- Convert arrays to float type before processing. Intermediate or local arrays should be of type float. Constants for: np.full(), np.ones(), np.zeros(), ... should be floats (for example 1.0).
-- If the request mentions 'this/that/the image/layer' then most likely it refers to the last added image or layer.
-- Convert the segmented image to 'np.uint32' before returning the segmentation.
+- Call `cellpose_segmentation()`, `stardist_segmentation()`, or `classic_segmentation()` directly — they are already available in scope, do not redefine them.
+- Use only these wrapper functions; do not call Cellpose or StarDist APIs directly (e.g., `models.Cellpose(...)`, `model.predict_instances(...)`).
+- The system adds the result to the viewer automatically — do not call `viewer.add_labels()`.
+- Return only the function `segment(viewer) -> ArrayLike`.
+- Convert the segmented image to `np.uint32` before returning.
 """
 
 
@@ -207,7 +197,7 @@ class CellNucleiSegmentationTool(BaseNapariTool):
         ----------
         **kwargs: dict
             Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+            This can include parameters like `notebook`, etc.
         """
         super().__init__(**kwargs)
 
@@ -231,11 +221,7 @@ class CellNucleiSegmentationTool(BaseNapariTool):
                 aprint(f"Resulting in code of length: {len(code)}")
 
                 # prepare code:
-                code = super()._prepare_code(
-                    code,
-                    do_fix_bad_calls=self.fix_bad_calls,
-                    do_install_missing_packages=False,
-                )
+                code = super()._prepare_code(code)
 
                 # lower case code:
                 code_lower = code.lower()

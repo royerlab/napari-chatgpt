@@ -28,11 +28,6 @@ def initialize_omega_agent(
     has_builtin_websearch_tool: bool = True,
     notebook: JupyterNotebookFile = None,
     agent_personality: str = "neutral",
-    fix_imports: bool = True,
-    install_missing_packages: bool = True,
-    fix_bad_calls: bool = True,
-    autofix_mistakes: bool = False,
-    autofix_widget: bool = False,
     be_didactic: bool = False,
     tool_callbacks: BaseToolCallbacks | None = None,
     verbose: bool = False,
@@ -50,11 +45,6 @@ def initialize_omega_agent(
             "to_napari_queue": to_napari_queue,
             "from_napari_queue": from_napari_queue,
             "notebook": notebook,
-            "fix_imports": fix_imports,
-            "install_missing_packages": install_missing_packages,
-            "fix_bad_calls": fix_bad_calls,
-            "autofix_mistakes": autofix_mistakes,
-            "autofix_widget": autofix_widget,
             "verbose": verbose,
             "callback": None,  # This will be set later
         }

@@ -9,13 +9,8 @@ from napari_chatgpt.omega_agent.tools.base_napari_tool import BaseNapariTool
 
 _napari_viewer_control_prompt = """
 **Context**
-You are an expert python programmer strong coding skills and deep expertise in image processing and analysis.
-You can solve all kinds of programming problems by writing high-quality python code.
-You have perfect knowledge of the napari viewer's API.
-
-**Task:**
-Your task is to write Python code to control an already instantiated napari viewer instance based on a plain text request. 
-The viewer instance is accessible using the variable `viewer`, so you can directly use methods like `viewer.add_image(np.zeros((10,10)))` without any preamble.
+You write Python code to control a napari viewer instance for image processing and analysis tasks.
+The viewer instance is accessible as `viewer`, so you can directly use methods like `viewer.add_image(np.zeros((10,10)))` without any preamble.
 
 **Instructions:**
 {instructions}
@@ -39,19 +34,6 @@ _instructions = r"""
 **Instructions for controlling the napari viewer:**
 - When adding images, labels, points, shapes, surfaces, tracks, or vectors, include code to load data from disk or download from a URL if needed.
 - By default, create new layers for results; do not modify existing layers unless the request is explicit.
-- Convert image arrays to float type before processing when appropriate.
-- Use float type for intermediate or local image arrays. For constants like `np.full()`, `np.ones()`, or `np.zeros()`, use floats (e.g., `1.0`).
-- Output images should be float type, except for RGB images and label layers.
-- RGB or RGBA images must be `uint8` in the range \[0, 255\] to display correctly in napari.
-- If the request refers to "this," "that," or "the image/layer," assume it means the most recently added layer.
-- If unsure which layer is referenced, use the last layer of the most relevant type for the request.
-- If the request mentions the "selected image," use the active or selected image layer.
-- Access the selected layer with: `viewer.layers.selection.active`
-- Write only safe code that does not delete or damage files or the computer.
-- Always end your code with a print statement that clearly summarizes what was (or was not) accomplished.
-- Never create a new `napari.Viewer()` instance; always use the provided `viewer` variable.
-- Double-check that all calls to viewer methods are correct and valid.
-- Ensure your code is correct, robust, and ready to run.
 """
 
 _code_prefix = """
@@ -98,13 +80,9 @@ class NapariViewerControlTool(BaseNapariTool):
                 aprint(f"Resulting in code of length: {len(code)}")
 
                 # Prepare code:
-                code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)
+                code = super()._prepare_code(code)
 
-                captured_output = self._run_code_catch_errors_fix_and_try_again(
-                    code,
-                    viewer=viewer,
-                    instructions=self.instructions,
-                )
+                captured_output = self._execute_code(code, viewer=viewer)
 
                 # Message:
                 if len(captured_output) > 0:

@@ -1,5 +1,4 @@
 import sys
-import traceback
 from pathlib import Path
 from queue import Queue
 from typing import Any
@@ -14,18 +13,9 @@ from napari_chatgpt.omega_agent.tools.generic_coding_instructions import (
     omega_generic_codegen_instructions,
 )
 from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
-from napari_chatgpt.utils.python.consolidate_imports import consolidate_imports
 from napari_chatgpt.utils.python.dynamic_import import execute_as_module
-from napari_chatgpt.utils.python.exception_description import exception_description
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
-from napari_chatgpt.utils.python.fix_bad_fun_calls import fix_all_bad_function_calls
-from napari_chatgpt.utils.python.fix_code_given_error import (
-    fix_code_given_error_message,
-)
 from napari_chatgpt.utils.python.installed_packages import installed_package_list
-from napari_chatgpt.utils.python.missing_packages import required_packages
-from napari_chatgpt.utils.python.pip_utils import pip_install
-from napari_chatgpt.utils.python.required_imports import required_imports
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
 from napari_chatgpt.utils.system.information import system_info
@@ -50,9 +40,6 @@ class BaseNapariTool(BaseOmegaTool):
         llm: LLM = None,
         return_direct: bool = False,
         save_last_generated_code: bool = True,
-        fix_imports: bool = True,
-        install_missing_packages: bool = True,
-        fix_bad_calls: bool = False,
         verbose: bool = False,
         notebook: JupyterNotebookFile | None = None,
         last_generated_code: str | None = None,
@@ -82,12 +69,6 @@ class BaseNapariTool(BaseOmegaTool):
             If True, the tool will return the generated code directly, otherwise it will send it to napari.
         save_last_generated_code: bool
             If True, the tool will save the last generated code for reference in future calls.
-        fix_imports: bool
-            If True, the tool will attempt to fix missing imports in the generated code.
-        install_missing_packages: bool
-            If True, the tool will attempt to install any missing packages required by the generated code.
-        fix_bad_calls: bool
-            If True, the tool will attempt to fix bad function calls in the generated code.
         verbose: bool
             If True, the tool will print additional information about the process.
         last_generated_code: str
@@ -106,9 +87,6 @@ class BaseNapariTool(BaseOmegaTool):
         self.llm = llm
         self.return_direct = return_direct
         self.save_last_generated_code = save_last_generated_code
-        self.fix_imports = fix_imports
-        self.install_missing_packages = install_missing_packages
-        self.fix_bad_calls = fix_bad_calls
         self.verbose = verbose
         self.last_generated_code = last_generated_code
 
@@ -200,9 +178,6 @@ class BaseNapariTool(BaseOmegaTool):
         self,
         code: str,
         markdown: bool = True,
-        do_fix_imports: bool = True,
-        do_fix_bad_calls: bool = True,
-        do_install_missing_packages: bool = True,
     ) -> str:
 
         with asection(f"NapariBaseTool: _prepare_code(markdown={markdown}) "):
@@ -220,29 +195,6 @@ class BaseNapariTool(BaseOmegaTool):
             # Add spaces around code:
             code = "\n\n" + code + "\n\n"
 
-            if self.fix_imports and do_fix_imports:
-                # Are there any missing imports?
-                imports = required_imports(code, llm=self.llm)
-
-                # prepend missing imports:
-                code = "\n".join(imports) + "\n\n" + code
-
-                # consolidate imports:
-                code = consolidate_imports(code)
-
-                # notify that code was modified for missing imports:
-                code = "# Note: code was modified to add missing imports:\n" + code
-
-            # Fix code, this takes care of wrong function calls and more:
-            if self.fix_bad_calls and do_fix_bad_calls:
-                code, fixed, _ = fix_all_bad_function_calls(code)
-
-                if fixed:
-                    # notify that code was fixed for bad calls:
-                    code = (
-                        "# Note: code was modified to fix bad function calls.\n" + code
-                    )
-
             # Remove any offending lines:
             code = filter_lines(
                 code,
@@ -254,74 +206,36 @@ class BaseNapariTool(BaseOmegaTool):
                 ],
             )
 
-            with asection(f"code after all preparations and fixes:"):
+            with asection(f"code after all preparations:"):
                 aprint(code)
 
-            if self.install_missing_packages and do_install_missing_packages:
-                # Are there missing libraries that need to be installed?
-                packages = required_packages(code, llm=self.llm)
-
-                # Install them:
-                pip_install(packages)
-
-                # Notify that some packages might be missing and that Omega attempted to install them:
-                code = (
-                    f"# Note: some packages ({','.join(packages)}) might be missing and Omega attempted to install them.\n"
-                    + code
-                )
-
-            # Return fully prepared and fixed code:
             return code
 
-    def _run_code_catch_errors_fix_and_try_again(
-        self, code, viewer, error: str = "", instructions: str = "", nb_tries: int = 3
-    ) -> str:
+    def _execute_code(self, code, viewer) -> str:
 
-        try:
-            with asection(f"Running code:"):
+        with asection(f"Running code:"):
 
-                # Run the code:
-                aprint(f"Code:\n{code}")
-                captured_output = execute_as_module(code, viewer=viewer)
+            # Run the code:
+            aprint(f"Code:\n{code}")
+            captured_output = execute_as_module(code, viewer=viewer)
 
-                # Call the activity callback. At this point we assume the code is correct because it ran!
-                self.callbacks.on_tool_activity(self, "coding", code=code)
+            # Call the activity callback. At this point we assume the code is correct because it ran!
+            self.callbacks.on_tool_activity(self, "coding", code=code)
 
-                # Come up with a filename:
-                filename = f"generated_code_{self.__class__.__name__}.py"
+            # Come up with a filename:
+            filename = f"generated_code_{self.__class__.__name__}.py"
 
-                # Add the snippet to the code snippet editor:
-                from napari_chatgpt.microplugin.microplugin_window import (
-                    MicroPluginMainWindow,
-                )
+            # Add the snippet to the code snippet editor:
+            from napari_chatgpt.microplugin.microplugin_window import (
+                MicroPluginMainWindow,
+            )
 
-                MicroPluginMainWindow.add_snippet(filename=filename, code=code)
+            MicroPluginMainWindow.add_snippet(filename=filename, code=code)
 
-                # Add successfully run code to notebook:
-                if self.notebook:
-                    self.notebook.add_code_cell(code)
-                aprint(f"This is what the code returned:\n{captured_output}")
-
-        except Exception as e:
-            if nb_tries >= 1:
-                traceback.print_exc()
-                description = error + "\n\n" + exception_description(e)
-                description = description.strip()
-                fixed_code = fix_code_given_error_message(
-                    code=code,
-                    error=description,
-                    instructions=instructions,
-                    viewer=viewer,
-                    llm=self.llm,
-                    verbose=self.verbose,
-                )
-                # We try again:
-                return self._run_code_catch_errors_fix_and_try_again(
-                    fixed_code, viewer=viewer, error=error, nb_tries=nb_tries - 1
-                )
-            else:
-                # No more tries available, we give up!
-                raise e
+            # Add successfully run code to notebook:
+            if self.notebook:
+                self.notebook.add_code_cell(code)
+            aprint(f"This is what the code returned:\n{captured_output}")
 
         return captured_output
 

@@ -27,7 +27,7 @@ class WebImageSearchTool(BaseNapariTool):
         ----------
         kwargs: dict
             Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+            This can include parameters like `notebook`, etc.
         """
         super().__init__(**kwargs)
 

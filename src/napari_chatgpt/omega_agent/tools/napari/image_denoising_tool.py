@@ -17,20 +17,14 @@ from napari_chatgpt.utils.python.pip_utils import pip_install
 
 _image_denoising_prompt = """
 **Context**
-You are an expert python programmer with deep expertise in image processing and analysis.
-You are working on a project that requires you to denoise images.
+You write Python code to denoise images using a napari viewer.
 
 **Task:**
-Given a plain text request, you competently write a python function 'denoise(viewer)' that calls the 'aydin_classic_denoise()' or 'aydin_fgr_denoise()' functions.
-Denoising is performed on images present as layers of the instantiated napari viewer.
-The napari viewer instance is immediately available by using the variable: 'viewer'. 
-For example, you can directly write: 'viewer.add_image(np.zeros((10,10)))' without preamble. 
-Therefore, DO NOT use 'napari.Viewer()' or 'with napari.gui_qt():' in your code. 
-DO NOT CREATE A NEW INSTANCE OF A NAPARI VIEWER, use the one provided in the variable: 'viewer'.
-Make sure the calls to the viewer are correct.
+Write a function `denoise(viewer) -> ArrayLike` that calls `aydin_classic_denoising()` or `aydin_fgr_denoising()`.
+The napari viewer instance is available as `viewer`.
 
-**ONLY AVAILABLE DENOISING FUNCTION(S):**
-The only denoising function that you can use are 'aydin_classic_denoise()' or 'aydin_fgr_denoise()':
+**ONLY AVAILABLE DENOISING FUNCTIONS:**
+The only denoising functions you can use are `aydin_classic_denoising()` and `aydin_fgr_denoising()`:
 
 ```python
 def aydin_classic_denoising(   image: ArrayLike,
@@ -72,8 +66,7 @@ Here is an explanation of the parameters:
 
 {instructions}
 
-- Answer in markdown with a single function 'denoise(viewer)->ArrayLike' that takes the viewer and returns the denoised image.
-- Make sure that the code is correct!
+- Answer in markdown with a single function `denoise(viewer) -> ArrayLike` that takes the viewer and returns the denoised image.
 
 {last_generated_code}
 
@@ -92,14 +85,10 @@ Here is an explanation of the parameters:
 _instructions = """
 
 **Instructions specific to calling the denoising functions:**
-- DO NOT include code for the functions 'aydin_classic_denoising()' and 'aydin_fgr_denoising()' in your answer.
-- INSTEAD, DIRECTLY call the denoising functions 'aydin_classic_denoising()' or 'aydin_fgr_denoising()' provided above after import.
-- Assume that the denoising functions 'aydin_classic_denoising()' and 'aydin_fgr_denoising()' are available and within scope of your code.
-- DO NOT add the denoised image to the napari viewer, this is done automatically by the system.
-- DO NOT directly use the Aydin API, only use the 'aydin_classic_denoising()' or 'aydin_fgr_denoising()' functions!
-- DO NOT use functions from skimage.restoration or any other denoising library, only use the 'aydin_classic_denoising()' or 'aydin_fgr_denoising()' functions!
-- Response must be only the python function: 'denoise(viewer)->ArrayLike'.
-- If the request mentions 'this/that/the image/layer' then most likely it refers to the last added image or layer.
+- Call `aydin_classic_denoising()` or `aydin_fgr_denoising()` directly — they are already available in scope, do not redefine them.
+- Use only these wrapper functions; do not call the Aydin API directly or use `skimage.restoration` or other denoising libraries.
+- The system adds the result to the viewer automatically — do not call `viewer.add_image()`.
+- Return only the function `denoise(viewer) -> ArrayLike`.
 """
 
 
@@ -115,7 +104,7 @@ class ImageDenoisingTool(BaseNapariTool):
         Parameters
         ----------
         **kwargs: Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+            This can include parameters like `notebook`, etc.
         """
         super().__init__(**kwargs)
 
@@ -142,7 +131,7 @@ class ImageDenoisingTool(BaseNapariTool):
                 aprint(f"Resulting in code of length: {len(code)}")
 
                 # prepare code:
-                code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)
+                code = super()._prepare_code(code)
 
                 # lower case code:
                 code_lower = code.lower()

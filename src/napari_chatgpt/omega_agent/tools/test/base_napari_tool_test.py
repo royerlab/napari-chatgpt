@@ -33,9 +33,6 @@ def _make_tool(**kwargs):
         to_napari_queue=kwargs.get("to_napari_queue", Queue()),
         from_napari_queue=kwargs.get("from_napari_queue", Queue()),
         llm=kwargs.get("llm", mock_llm),
-        fix_imports=kwargs.get("fix_imports", False),
-        install_missing_packages=kwargs.get("install_missing_packages", False),
-        fix_bad_calls=kwargs.get("fix_bad_calls", False),
     )
 
 
@@ -45,9 +42,6 @@ class TestPrepareCode:
         code = tool._prepare_code(
             "```python\nprint('hello')\n```",
             markdown=True,
-            do_fix_imports=False,
-            do_fix_bad_calls=False,
-            do_install_missing_packages=False,
         )
         assert "print('hello')" in code
 
@@ -56,9 +50,6 @@ class TestPrepareCode:
         code = tool._prepare_code(
             "x = 1",
             markdown=False,
-            do_fix_imports=False,
-            do_fix_bad_calls=False,
-            do_install_missing_packages=False,
         )
         assert "import os" in code
         assert "x = 1" in code
@@ -68,9 +59,6 @@ class TestPrepareCode:
         code = tool._prepare_code(
             "viewer = napari.Viewer()\nx = 1",
             markdown=False,
-            do_fix_imports=False,
-            do_fix_bad_calls=False,
-            do_install_missing_packages=False,
         )
         assert "napari.Viewer(" not in code
         assert "x = 1" in code
@@ -80,9 +68,6 @@ class TestPrepareCode:
         code = tool._prepare_code(
             "viewer.window.add_dock_widget(my_widget)\nx = 1",
             markdown=False,
-            do_fix_imports=False,
-            do_fix_bad_calls=False,
-            do_install_missing_packages=False,
         )
         assert "add_dock_widget" not in code
         assert "x = 1" in code

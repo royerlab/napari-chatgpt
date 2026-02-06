@@ -1,5 +1,4 @@
-from napari_chatgpt.utils.configuration.app_configuration import \
-    AppConfiguration
+from napari_chatgpt.utils.configuration.app_configuration import AppConfiguration
 
 
 def test_app_configuration(tmp_path, monkeypatch):

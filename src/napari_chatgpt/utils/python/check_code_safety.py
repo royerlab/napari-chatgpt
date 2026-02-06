@@ -8,25 +8,18 @@ from napari_chatgpt.llm.llm import LLM
 from napari_chatgpt.utils.python.installed_packages import installed_package_list
 
 _check_code_safety_prompt = """
-**Context:**
-You are an expert Python coder with extensive cybersecurity experience and knowledge. 
-You can analyse complex python code and assess its safety from an user standpoint.
-
 **Task:**
-You are given a piece of Python code. Your task is to first assess what the code does and whether it is a threat to the user's machine and files.
-You then rank the piece code as follows: 
-- A -> The code is super safe. It does not have any IO of any kind (no accessing or deleting files, no networking, etc... ), and is expected to use very little memory and cpu.
-- B -> The code is relatively safe. It does not have any IO of any kind, but it does some complex calculations and might use a lot of memory or cpu.
-- C -> The code is somewhat safe. It does read files but does nothing suspicious with them, and creates new files, It does not accesses the network. 
-- D -> The code is somewhat unsafe. It reads, writes files or accesses the network in ways that might be OK, or not.
-- E -> The code is unsafe. It writes or deletes files that might already exist, or accesses the network in a suspicious manner. 
+Assess the safety of the Python code below from the user's standpoint and assign a rank:
 
-**Notes:**
-- Code that is deceptive or malicious should be rated as unsafe. 
+- **A** — Pure computation, no I/O (no file access, no networking), low resource usage.
+- **B** — No I/O, but may use significant memory or CPU (e.g., large array operations, ML inference).
+- **C** — Reads existing files or creates new files in expected locations, but no network access and no modification/deletion of existing files.
+- **D** — Reads, writes, or modifies files in ways that could be benign or harmful, or accesses the network for plausible purposes (e.g., downloading a dataset).
+- **E** — Deletes or overwrites existing files, accesses the network suspiciously, or contains deceptive/malicious code.
 
-**Context:**
-- The code is written against Python version: {python_version}.
-- Here is the list of installed packages: {installed_packages}.
+**Environment:**
+- Python version: {python_version}
+- Installed packages: {installed_packages}
 
 **Code:**
 
@@ -35,11 +28,10 @@ You then rank the piece code as follows:
 ```
 
 **Response Format:**
-Please return an explanation for your ranking and snippets of code that support your judgement.
-The answer must contain the rank surrounded with asterisks. 
-For example you can write: 'For the reasons stated above, the code is rated *B*', or 'The code is rated *B* because...'.
+Explain your ranking with supporting code snippets.
+End your response with exactly: 'Rating: *X*' where X is A-E.
 
-**Explanation of ranking and rank itself:**
+**Explanation and rating:**
 """
 
 

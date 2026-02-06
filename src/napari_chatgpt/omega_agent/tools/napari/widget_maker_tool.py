@@ -15,18 +15,12 @@ from napari_chatgpt.utils.strings.trailing_code import remove_trailing_code
 
 _napari_widget_maker_prompt = """
 **Context**
-You are an expert python programmer with deep expertise in image processing and analysis.
-
-**Task:**
-Your task is to competently write image processing and image analysis functions in Python based on a plain text request. The functions should meet the following criteria:
-- The functions should be pure, self-contained, effective, well-written, and syntactically correct.
-- The functions should work on 2D and 3D images, and ideally on images of any number of dimensions (nD), unless the request explicitly specifies the number of dimensions.
-- The functions should perform all the required tasks precisely as requested, without adding any extra or unnecessary functionality.
+You write image processing and analysis functions as napari widgets using magicgui.
+Functions should work on 2D and 3D images (and ideally nD) unless the request specifies otherwise.
 
 **Instructions:**
 {instructions}
 
-- Make sure that the code is correct! 
 {last_generated_code}
 
 **Viewer Information:**
@@ -46,99 +40,60 @@ Your task is to competently write image processing and image analysis functions 
 
 _instructions = """
 
-## 📌 Preamble  
-*These instructions tell you how to write **one** napari + magicgui widget (function or class) that can be pasted directly into a Python cell. The caller will take care of docking the widget and launching napari.*
+## Preamble
+Write **one** napari + magicgui widget function. The caller handles docking the widget and launching napari.
 
 ---
 
 **General Rules**
-- Emit **only code** (plus minimal docstrings if helpful). No extra prose, comments, or examples.
-- Write **exactly one** widget.  If helper functions are needed, define them *inside* the main widget.
-- **Never** create or show a new `napari.Viewer()`; a `viewer` variable will be supplied when required.
+- Emit **only code** (plus minimal docstrings if helpful). No extra prose or examples.
+- Write **exactly one** widget. Define helper functions *inside* the main widget if needed.
 - Avoid side-effects (prints, file I/O, logging) unless explicitly asked.
 
 ---
 
-**Instructions for manipulating arrays from Image layers:**
-- Convert image data to `np.float32` before processing if necessary (`arr.astype(np.float32, copy=False)`).
-- Intermediate arrays you create should also be `float32`.
-- RGB/RGBA image arrays **must** be `uint8` in the 0-255 range to render correctly.
-- When creating arrays with `np.ones`, `np.zeros`, `np.full`, etc., pass float literals (`1.0`, `0.0`).
-- **Do not** clip (`np.clip`) or rescale results unless the user explicitly instructs.
-
----
-
-**Instructions for manipulating arrays from Label layers:**
+**Labels Arrays:**
 - Keep label data integer. Cast with `arr.astype(np.uint32, copy=False)` if needed.
 - **Never** convert labels to float.
 
 ---
 
-**Instructions for function parameters and `@magicgui` decorator:**
-- Decorate the widget function with `@magicgui(call_button='<action>')`; replace `<action>` with a concise verb phrase (e.g. `"Apply Threshold"`).
-- Use `result_widget=True` **only** if the return value is a small scalar, short string, or small tuple/list. Otherwise leave it `False`.
-- To expose a float as a slider:  
-  `some_float={"widget_type":"FloatSlider", "min":0.0, "max":1.0}` (adjust range as needed).
-- To expose a string parameter as a dropdown:  
-  `choice={"choices":["first","second","third"]}`.
+**`@magicgui` Decorator:**
+- Decorate with `@magicgui(call_button='<action>')` using a concise verb phrase (e.g. `"Apply Threshold"`).
+- Use `result_widget=True` **only** for small scalar/string/tuple return values.
+- Float slider: `some_float={"widget_type":"FloatSlider", "min":0.0, "max":1.0}`.
+- Dropdown: `choice={"choices":["first","second","third"]}`.
 - Do **not** use tuples, `*args`, or `**kwargs` as parameters.
-- Put layer/data parameters **first** so they appear at the top of the widget UI.
+- Put layer/data parameters **first** in the signature.
 
 ---
 
-**Instructions for returned images and/or layers:**
-- Return **exactly one** of the following:
-  1. **NumPy array** typed as `<LayerType>Data` (`ImageData`, `LabelsData`, …). napari will create a new layer automatically.  
-  2. **Concrete napari `Layer` instance** (`Image`, `Labels`, `Points`, …).  
-  3. **`napari.types.LayerDataTuple`** (or a *list* of tuples) for full control over data, metadata, and layer type.
+**Return Values:**
+- Return **exactly one** of:
+  1. NumPy array typed as `<LayerType>Data` (`ImageData`, `LabelsData`, etc.).
+  2. Concrete napari `Layer` instance (`Image`, `Labels`, `Points`, etc.).
+  3. `napari.types.LayerDataTuple` (or a list of tuples).
 
-- **Dtype & range rules**  
-  * Images: `float32`/`float64` in 0-1 **or** `uint8` in 0-255 (RGB/A).  
-  * Labels: keep `uint32`.
-
-- **Updating an existing layer**  
-  Include `metadata["name"]` in your `LayerDataTuple` and set it to the name of the layer you wish to update.
-
-- **Never** call `viewer.add_*` or `viewer.window.add_dock_widget()`; relying on the return value avoids duplicates.
+- To update an existing layer, include `metadata["name"]` in your `LayerDataTuple`.
+- **Never** call `viewer.add_*` or `viewer.window.add_dock_widget()`; use the return value instead.
 
 ---
 
-**Instructions for using the provided `viewer` instance:**
-- Do **not** create a new viewer; use the injected `viewer` only if needed for read-only tasks.
+**Viewer Usage:**
+- If the widget needs the viewer, use the injected `viewer` for read-only tasks only.
 - If the widget does not need the viewer, omit it from the signature.
 
 ---
 
-**Instructions for helper / delegated functions:**
-- Define helper functions **inside** the main widget function.
-- Don’t close over large arrays; pass them as arguments.
+**Type Hint Style:**
+Choose **one** style consistently:
 
----
+| Style | Parameter hints | Data access |
+|-------|-----------------|-------------|
+| *Array-oriented* | `ImageData`, `LabelsData`, etc. | Operate on the NumPy array directly. |
+| *Layer-oriented* | `Image`, `Labels`, etc. | Access data via `layer.data`. |
 
-**Instructions on how to choose function parameter type hints:**
-Choose **one** style and use it consistently within the function:
-
-| Style | Parameter hints | How you access data |
-|-------|-----------------|----------------------|
-| *Array-oriented* | `<LayerType>Data` (`ImageData`, `LabelsData`, …) | Operate on the NumPy array directly. |
-| *Layer-oriented* | Concrete `Layer` classes (`Image`, `Labels`, …) | Access data via `layer.data`. |
-
-*Do **not** mix these two styles in one function. The return type must follow the same convention.*
-
----
-
-**Imports (already provided by the framework):**
-```python
-from napari.types import (
-    ImageData, LabelsData, PointsData, ShapesData,
-    SurfaceData, TracksData, VectorsData
-)
-from napari.layers import (
-    Image, Labels, Points, Shapes, Surface, Tracks, Vectors
-)
-import numpy as np
-from magicgui import magicgui
-# Import any additional third-party libraries you need (e.g., skimage, scipy).
+Do **not** mix styles in one function.
 
 """
 
@@ -179,7 +134,7 @@ class NapariWidgetMakerTool(BaseNapariTool):
         ----------
         **kwargs: dict
             Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, `fix_bad_calls`, etc.
+            This can include parameters like `notebook`, etc.
         """
         super().__init__(**kwargs)
 
@@ -217,7 +172,7 @@ class NapariWidgetMakerTool(BaseNapariTool):
                 aprint(f"Resulting in code of length: {len(code)}")
 
                 # Prepare code:
-                code = super()._prepare_code(code, do_fix_bad_calls=self.fix_bad_calls)
+                code = super()._prepare_code(code)
 
                 # Extracts function name:
                 function_name = find_magicgui_decorated_function_name(code)
