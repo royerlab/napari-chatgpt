@@ -15,7 +15,7 @@ class ConcreteNapariTool(BaseNapariTool):
     """A concrete subclass of BaseNapariTool for testing."""
 
     def _run_code(self, query, code, viewer):
-        return f"Success: executed"
+        return "Success: executed"
 
 
 def _make_tool(**kwargs):

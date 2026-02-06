@@ -101,11 +101,8 @@ def test_wikipedia_num_results_clamping(mock_search):
     search_wikipedia("test", num_results=15, do_summarize=False)
 
     # search_ddg should be called with min(10, 15) = 10
-    call_kwargs = mock_search.call_args
-    assert (
-        call_kwargs[1]["num_results"] == 10
-        or call_kwargs.kwargs.get("num_results") == 10
-    )
+    call_kwargs = mock_search.call_args[1]
+    assert call_kwargs["num_results"] == 10
 
 
 @patch("napari_chatgpt.utils.web.wikipedia.search_ddg")
