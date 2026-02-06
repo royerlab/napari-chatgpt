@@ -1,6 +1,6 @@
-import napari
-from skimage import data
+import pytest
 
+from napari_chatgpt.llm.litemind_api import is_llm_available
 from napari_chatgpt.utils.python.fix_code_given_error import (
     fix_code_given_error_message,
 )
@@ -27,21 +27,9 @@ _error_1 = """
     """
 
 
-# @pytest.mark.skipif(not is_api_key_available('OpenAI'),
-#                     reason="requires OpenAI key to run")
-def _test_fix_code_given_error_1():
-    # Instantiating Napari viewer headlessly:
-    viewer = napari.Viewer(show=False)
-
-    # IMAGE LAYER:
-    cells = data.cells3d()[30, 1]  # grab some data
-    viewer.add_image(cells, name="cells", colormap="magma")
-    cells = data.coins()  # grab some data
-    viewer.add_image(cells, name="coins", colormap="viridis")
-    cells = data.astronaut()  # grab some data
-    viewer.add_image(cells, name="astronaut")
-
-    fixed_code = fix_code_given_error_message(_code_snippet_1, _error_1)
-    print(fixed_code)
-
-    assert ", channel_axis=None)" in fixed_code
+@pytest.mark.skipif(not is_llm_available(), reason="requires LLM to run")
+@pytest.mark.llm
+def test_fix_code_given_error_1():
+    fixed_code, was_fixed = fix_code_given_error_message(_code_snippet_1, _error_1)
+    assert was_fixed
+    assert "channel_axis" in fixed_code

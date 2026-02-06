@@ -1,3 +1,5 @@
+"""Tests for remove_trailing_code()."""
+
 from napari_chatgpt.utils.strings.trailing_code import remove_trailing_code
 
 ___code = """
@@ -19,8 +21,20 @@ viewer.add_image(result)
 def test_trailing_code():
     result = remove_trailing_code(___code)
 
-    print("")
-    print(result)
-
     assert "result = generate_gaussian_noise_image()" not in result
     assert "viewer.add_image(result)" not in result
+    assert "@magicgui" in result
+    assert "return image" in result
+
+
+def test_trailing_code_no_trailing():
+    code = "def foo():\n    return 1\n"
+    result = remove_trailing_code(code)
+    assert "return 1" in result
+
+
+def test_trailing_code_no_indented_lines():
+    code = "x = 1\ny = 2\n"
+    result = remove_trailing_code(code)
+    # No indented lines found, returns as-is
+    assert result == code

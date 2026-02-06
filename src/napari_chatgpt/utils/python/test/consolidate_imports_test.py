@@ -47,3 +47,38 @@ def test_consolidate_imports():
 
     # Check that the result is shorter than the original (duplicates removed)
     assert len(result.split("\n")) < len(code_to_consolidate_imports.split("\n"))
+
+
+def test_consolidate_imports_empty_string():
+    result = consolidate_imports("")
+    assert result == ""
+
+
+def test_consolidate_imports_no_imports():
+    code = "x = 1\ny = 2\n"
+    result = consolidate_imports(code)
+    assert "x = 1" in result
+    assert "y = 2" in result
+
+
+def test_consolidate_imports_only_imports():
+    code = "import os\nimport sys\nimport os\n"
+    result = consolidate_imports(code)
+    assert result.count("import os") == 1
+    assert result.count("import sys") == 1
+
+
+def test_consolidate_imports_deduplicates():
+    code = "import numpy\nimport numpy\nimport pandas\n\nx = 1\n"
+    result = consolidate_imports(code)
+    assert result.count("import numpy") == 1
+    assert result.count("import pandas") == 1
+    assert "x = 1" in result
+
+
+def test_consolidate_imports_blank_lines_between():
+    code = "import os\n\n\n\nimport sys\n\n\nx = 1\n"
+    result = consolidate_imports(code)
+    assert result.count("import os") == 1
+    assert result.count("import sys") == 1
+    assert "x = 1" in result

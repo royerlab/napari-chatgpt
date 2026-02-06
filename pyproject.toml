@@ -51,7 +51,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-testing = ["tox", "pytest", "pytest-cov", "pytest-qt", "napari", "pyqt5", "cellpose", "stardist", "tensorflow"]
+testing = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "napari", "pyqt5", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
 
 [project.entry-points]
 "napari.manifest" = { "napari-chatgpt" = "napari_chatgpt:napari.yaml" }
@@ -96,5 +96,12 @@ exclude = [
 packages = ["src/napari_chatgpt"]     # wheel only contains code; others auto-excluded :contentReference[oaicite:1]{index=1}
 
 [tool.hatch.envs.hatch-test]
-extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-qt", "napari", "pyqt5", "black", "cellpose", "stardist", "tensorflow"]
+extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "napari", "pyqt5", "black", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
 default-args = ["src/"]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: tests that make live HTTP requests or require external services",
+    "llm: tests that require an LLM API key",
+    "slow: tests that take more than 30 seconds",
+]

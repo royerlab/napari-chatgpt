@@ -1,7 +1,10 @@
 import pytest
 
 from napari_chatgpt.llm.litemind_api import is_llm_available
-from napari_chatgpt.utils.python.check_code_safety import check_code_safety
+from napari_chatgpt.utils.python.check_code_safety import (
+    _extract_safety_rank,
+    check_code_safety,
+)
 
 ___safe_python_code = """
 
@@ -65,3 +68,19 @@ def test_check_code_safety():
         "D",
         "E",
     ), f"Expected unsafe code to be rated D/E, got {safety_rank}"
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("The code is rated *A* because...", "A"),
+        ("rated **B**", "B"),
+        ("Rank: C", "C"),
+        ("rating: D because...", "D"),
+        ("is *E*: very dangerous", "E"),
+        ("no rank here", "Unknown"),
+        ("", "Unknown"),
+    ],
+)
+def test_extract_safety_rank(text, expected):
+    assert _extract_safety_rank(text) == expected

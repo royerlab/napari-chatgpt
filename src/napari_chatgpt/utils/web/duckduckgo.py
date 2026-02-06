@@ -40,7 +40,7 @@ def summary_ddg(
 
 def search_ddg(
     query: str, num_results: int = 3, lang: str = "en", safe_search: str = "moderate"
-) -> str:
+) -> list[dict]:
     lang = "en-us" if lang == "en" else lang
 
     results = DDGS().text(

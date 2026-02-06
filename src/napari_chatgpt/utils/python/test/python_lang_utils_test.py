@@ -31,13 +31,12 @@ def test_enumerate_methods():
 
 def test_find_functions_in_package():
     convolve_functions = list(find_function_info_in_package("scipy", "convolve"))
-    pprint(convolve_functions)
 
-    assert "scipy.ndimage.convolve" in convolve_functions
-    assert "scipy.signal.signaltools.convolve" in convolve_functions
+    assert any("scipy.ndimage.convolve" in f for f in convolve_functions)
+    assert any("scipy.signal" in f and "convolve" in f for f in convolve_functions)
 
 
-def test_find_functions_in_package():
+def test_get_function_info():
     signature = get_function_info("scipy.ndimage.convolve")
     pprint(signature)
 

@@ -1,3 +1,5 @@
+"""Tests for extract_markdown_blocks()."""
+
 from napari_chatgpt.utils.strings.markdown import extract_markdown_blocks
 
 markdown_1 = """
@@ -27,15 +29,15 @@ def color_space_explorer(
     value: float = 0.5,
     apply_conversion: bool = False
 ) -> ImageData:
-    
+
     selected_layer = viewer.layers.selection.active
     if not isinstance(selected_layer, ImageLayer):
         return "Please select an image layer."
-    
+
     image_data = np.copy(selected_layer.data)
     if image_data.dtype != np.float32:
         image_data = image_data.astype(np.float32) / 255.0
-    
+
     def convert_color_space(image, color_space, hue, saturation, value):
         if color_space == "HSV":
             hsv_image = rgb2hsv(image)
@@ -45,23 +47,19 @@ def color_space_explorer(
             return hsv_image
         elif color_space == "LAB":
             lab_image = rgb2lab(image)
-            # LAB adjustments are not straightforward like HSV
-            # Typically, users don't adjust LAB channels directly
             return lab_image
         elif color_space == "Grayscale":
             gray_image = rgb2gray(image)
             return gray_image[..., np.newaxis]
         else:
             return image
-    
+
     preview_image = convert_color_space(image_data, color_space, hue, saturation, value)
-    
+
     if apply_conversion:
-        # Update the selected layer with the converted image
         selected_layer.data = preview_image
         return "Conversion applied."
     else:
-        # Return the preview image without updating the layer
         return preview_image
 
 # This function would be added to the napari viewer as a widget
@@ -89,10 +87,10 @@ markdown_2 = """
     def invert_colors(image: ImageData) -> ImageData:
         # Convert the image to float for processing
         image_float = image.astype(float)
-        
+
         # Invert the image colors
         inverted_image = 255.0 - image_float
-        
+
         return inverted_image
     # The function `invert_colors` can now be used as a widget in napari.
     # When an image layer is selected, this widget will invert its colors.
@@ -104,10 +102,6 @@ markdown_2 = """
 def test_extract_markdown_blocks_1():
     blocks = extract_markdown_blocks(markdown_1)
 
-    print(blocks[0])
-    print(blocks[1])
-    print(blocks[2])
-
     assert len(blocks) == 3
     assert "```" not in blocks[0]
     assert "```" in blocks[1]
@@ -116,10 +110,6 @@ def test_extract_markdown_blocks_1():
 
 def test_extract_markdown_blocks_2():
     blocks = extract_markdown_blocks(markdown_2)
-
-    print(blocks[0])
-    print(blocks[1])
-    print(blocks[2])
 
     assert len(blocks) == 3
     assert "```" not in blocks[0]
