@@ -29,15 +29,11 @@ def test_filter_lines():
     filtered_text = filter_lines(
         text=___text, filter_out=["viewer.window.add_dock_widget"]
     )
-    print("")
-    print(filtered_text)
-    assert not "viewer.window.add_dock_widget" in filtered_text
+    assert "viewer.window.add_dock_widget" not in filtered_text
 
 
 def test_filter_lines_with_comments():
     filtered_text = filter_lines(
         text=___text, filter_out=["viewer.window.add_dock_widget"], comment_lines=True
     )
-    print("")
-    print(filtered_text)
     assert "# viewer.window.add_dock_widget" in filtered_text

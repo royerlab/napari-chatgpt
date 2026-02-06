@@ -1,13 +1,11 @@
 """Tests for NapariBridge functionality using mocked queues."""
 
-from queue import Empty, Queue
-from unittest.mock import MagicMock, patch
+from queue import Queue
+from unittest.mock import MagicMock
 
-from napari_chatgpt.omega_agent.napari_bridge import (
-    NapariBridge,
-    _get_viewer_info,
-    _set_viewer_info,
-)
+from napari_chatgpt.omega_agent.napari_bridge import (NapariBridge,
+                                                      _get_viewer_info,
+                                                      _set_viewer_info)
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 
 

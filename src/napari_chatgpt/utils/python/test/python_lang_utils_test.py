@@ -1,30 +1,18 @@
-from pprint import pprint
-
-from arbol import aprint
-
 from napari_chatgpt.utils.python.python_lang_utils import (
-    enumerate_methods,
-    extract_fully_qualified_function_names,
-    find_function_info_in_package,
-    function_exists,
-    get_function_info,
-    get_function_signature,
-    get_imported_modules,
-    object_info_str,
-)
+    enumerate_methods, extract_fully_qualified_function_names,
+    find_function_info_in_package, function_exists, get_function_info,
+    get_function_signature, get_imported_modules, object_info_str)
 
 
 def test_object_info():
     string = "string"
     info = object_info_str(string)
-    pprint(info)
     assert "Class <class 'str'>" in info
 
 
 def test_enumerate_methods():
     a_string = "string"
     methods = list(enumerate_methods(a_string))
-    pprint(methods)
     assert len(methods) > 0
     assert "capitalize" in methods[0]
 
@@ -38,8 +26,6 @@ def test_find_functions_in_package():
 
 def test_get_function_info():
     signature = get_function_info("scipy.ndimage.convolve")
-    pprint(signature)
-
     assert "scipy.ndimage.convolve" in signature
 
 
@@ -70,10 +56,6 @@ def find_straight_lines(image: ImageData) -> LabelsData:
 def test_extract_function_calls():
     function_names, _ = extract_fully_qualified_function_names(code, unzip_result=True)
 
-    print("\n")
-    for function_call in function_names:
-        print(function_call)
-
     assert "skimage.feature.canny" in function_names
     assert "skimage.transform.probabilistic_hough_line" in function_names
     assert "numpy.zeros_like" in function_names
@@ -83,13 +65,6 @@ def test_extract_function_calls():
 
 def test_function_exists():
     function_calls, _ = extract_fully_qualified_function_names(code, unzip_result=True)
-
-    print("\n")
-    for function_call in function_calls:
-        if function_exists(function_call):
-            print(function_call, "exists!")
-        else:
-            print(function_call, "does not exist!")
 
     assert function_exists("skimage.feature.canny")
     assert function_exists("skimage.transform.probabilistic_hough_line")
@@ -101,64 +76,35 @@ def test_function_exists():
 def test_get_imported_modules():
     modules = get_imported_modules(code)
 
-    print("\n")
-    pprint(modules)
-
     assert "magicgui" in modules
     assert "napari.types" in modules
     assert "numpy" in modules
     assert "skimage" in modules
 
 
-# def test_find_functions_with_name():
-#
-#     print('\n')
-#     modules = get_imported_modules(code)
-#
-#     functions = find_functions_with_name(modules, 'probabilistic_hough_line')
-#
-#     print('\n\n')
-#     pprint(functions)
-
-
 def test_get_function_signature():
-    print("\n")
-
     signature = get_function_signature(
         "napari_chatgpt.utils.python.python_lang_utils.get_function_signature"
     )
-    aprint(signature)
     assert (
         "get_function_signature(function_name: str, include_docstring: bool = False) -> str"
         in signature
     )
 
-    print("\n\n")
-
     signature = get_function_signature("numpy.zeros_like", include_docstring=True)
-    aprint(signature)
-
     assert (
         "zeros_like(a, dtype, order, subok, shape, device)" in signature
         or "zeros_like(a, dtype, order, subok, shape)" in signature
     )
     assert "shape : int or sequence of ints, optional." in signature
 
-    print("\n\n")
-
     signature = get_function_signature("skimage.draw.line", include_docstring=True)
-    aprint(signature)
     assert "line(r0, c0, r1, c1)" in signature
-
-    print("\n\n")
 
     signature = get_function_signature(
         "skimage.transform.probabilistic_hough_line", include_docstring=True
     )
-    aprint(signature)
     assert (
         "probabilistic_hough_line(image, threshold, line_length, line_gap, theta"
         in signature
     )
-
-    print("\n\n")

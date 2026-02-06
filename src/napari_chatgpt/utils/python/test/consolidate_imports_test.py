@@ -32,9 +32,6 @@ code_to_consolidate_imports = """
 def test_consolidate_imports():
     result = consolidate_imports(code_to_consolidate_imports)
 
-    print("")
-    print(result)
-
     # Check that duplicate imports were removed
     assert result.count("import napari") == 1
     assert result.count("import numpy as np") == 1
