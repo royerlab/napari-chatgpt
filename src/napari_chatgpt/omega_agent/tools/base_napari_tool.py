@@ -199,6 +199,7 @@ class BaseNapariTool(BaseOmegaTool):
             code = filter_lines(
                 code,
                 [
+                    "from __future__",
                     "napari.Viewer(",
                     "= Viewer(",
                     "gui_qt(",

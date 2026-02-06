@@ -72,6 +72,17 @@ class TestPrepareCode:
         assert "add_dock_widget" not in code
         assert "x = 1" in code
 
+    def test_filters_future_imports(self):
+        tool = _make_tool(code_prefix="import napari\n")
+        code = tool._prepare_code(
+            "from __future__ import annotations\nimport os\nx = 1",
+            markdown=False,
+        )
+        assert "from __future__" not in code
+        assert "import napari" in code
+        assert "import os" in code
+        assert "x = 1" in code
+
 
 class TestGetDelegatedCode:
     def test_get_cellpose_code(self):
