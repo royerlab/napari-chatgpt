@@ -6,6 +6,13 @@ try:
 except ImportError:
     pass  # Use the hardcoded version above
 
-from ._widget import OmegaQWidget
+
+def __getattr__(name: str):
+    if name == "OmegaQWidget":
+        from ._widget import OmegaQWidget
+
+        return OmegaQWidget
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__ = ("OmegaQWidget",)

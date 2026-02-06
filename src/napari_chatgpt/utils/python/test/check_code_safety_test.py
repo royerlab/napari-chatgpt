@@ -2,7 +2,9 @@ import pytest
 
 from napari_chatgpt.llm.litemind_api import is_llm_available
 from napari_chatgpt.utils.python.check_code_safety import (
-    _extract_safety_rank, check_code_safety)
+    _extract_safety_rank,
+    check_code_safety,
+)
 
 ___safe_python_code = """
 
@@ -43,6 +45,7 @@ for f in files:
 
 
 @pytest.mark.skipif(not is_llm_available(), reason="requires LLM to run")
+@pytest.mark.llm
 def test_check_code_safety():
     # Check code safety of safe code:
     response, safety_rank = check_code_safety(___safe_python_code)
