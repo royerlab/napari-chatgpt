@@ -14,7 +14,7 @@ dynamic = ["version"]
 # --- runtime dependencies ---
 dependencies = [
     # Core LLM library
-    "litemind[documents,rag,tables]>=2026.2.1",
+    "litemind>=2026.2.1",
 
     # Scientific computing
     "numpy>=1.26",

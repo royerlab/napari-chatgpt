@@ -89,6 +89,7 @@ class NapariChatServer(BaseToolCallbacks):
         # Flag to keep server running, or stop it:
         self.running = False
         self.uvicorn_server = None
+        self.server_thread = None
 
         # Notebook:
         self.notebook: JupyterNotebookFile = notebook
@@ -389,7 +390,10 @@ class NapariChatServer(BaseToolCallbacks):
             self.running = False
             if self.uvicorn_server:
                 self.uvicorn_server.should_exit = True
-            sleep(2)
+            if self.server_thread and self.server_thread.is_alive():
+                self.server_thread.join(timeout=5)
+                if self.server_thread.is_alive():
+                    aprint("Warning: Server thread did not stop gracefully")
             aprint("Uvicorn server stopped!")
 
     def sync_handler(self, _callable, *args, **kwargs):
@@ -469,8 +473,10 @@ def start_chat_server(
                 chat_server.run()
 
             # Create and start the thread that will run Omega:
-            server_thread = Thread(target=server_thread_function, args=())
-            server_thread.start()
+            chat_server.server_thread = Thread(
+                target=server_thread_function, daemon=True
+            )
+            chat_server.server_thread.start()
 
             # Wait for the server to start:
             aprint("Waiting for chat server to start...")

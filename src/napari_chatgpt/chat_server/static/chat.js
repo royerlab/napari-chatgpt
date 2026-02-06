@@ -18,8 +18,6 @@ marked.use(markedHighlight({
 
         const rawHtml = dummyElement.innerHTML + '<br>';
 
-        console.log(rawHtml)
-
         return rawHtml
     }
 }));
@@ -52,7 +50,9 @@ const stockRenderer = new marked.Renderer();
  ******************************************************************/
 const wrapperRenderer = {
   code(rawCode, lang, escaped) {
-    const plain = toPlainString(rawCode);       // ← fix for the crash
+    // marked v14+ passes a token object {text, lang, escaped} as first arg
+    const text = (typeof rawCode === 'object') ? rawCode.text : rawCode;
+    const plain = toPlainString(text);
     const lines = countLines(plain);
 
     // Let the original renderer build the highlighted HTML
@@ -78,12 +78,6 @@ marked.use({ renderer: wrapperRenderer });
 
 
 
-
-function escapeHTML(unsafeText) {
-    let div = document.createElement('div');
-    div.innerText = unsafeText;
-    return div.innerHTML;
-}
 
 function parse_markdown(str) {
   // 1️⃣ Turn Markdown into HTML (already highlighted etc.)
@@ -114,13 +108,15 @@ const default_subtitle = " Ask a question, ask for a widget, ask to process imag
 let ws = null;
 let reconnectDelay = 1000;          // start at 1 s, doubles on each failure
 const MAX_RECONNECT_DELAY = 30000;  // cap at 30 s
+let hasConnected = false;           // true after the first successful open
 
 function connect() {
     ws = new WebSocket(endpoint);
 
     ws.onopen = function () {
+        hasConnected = true;
         reconnectDelay = 1000;  // reset backoff on successful connect
-        // Remove any disconnect banner
+        // Remove any connect/disconnect banner
         const banner = document.getElementById('disconnect-banner');
         if (banner) banner.remove();
     };
@@ -143,7 +139,9 @@ function showDisconnectBanner() {
     const banner = document.createElement('div');
     banner.id = 'disconnect-banner';
     banner.style.cssText = 'background:#b91c1c;color:#fff;padding:8px 12px;margin:10px;border-radius:8px;text-align:center;';
-    banner.textContent = 'Disconnected from server. Reconnecting\u2026';
+    banner.textContent = hasConnected
+        ? 'Disconnected from server. Reconnecting\u2026'
+        : 'Connecting to server\u2026';
     messages.appendChild(banner);
     messages.scrollTop = messages.scrollHeight;
 
@@ -213,7 +211,7 @@ function onMessage(event) {
             p.parentElement.className = 'action-message';
 
             // Parse markdown and render as HTML:
-            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + marked.parse(data.message)
+            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + parse_markdown(data.message)
 
         }
         // Tool activity:
@@ -324,6 +322,9 @@ function sendMessage(event) {
     event.preventDefault();
     const message = document.getElementById('messageText').value;
     if (message === "") {
+        return;
+    }
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
         return;
     }
     ws.send(message);

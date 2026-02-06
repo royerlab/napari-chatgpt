@@ -73,7 +73,7 @@ class JupyterNotebookFile:
     def write(self, file_path: str | None = None):
         file_path = file_path or self.default_file_path
         # Write the notebook to disk
-        with open(file_path, "w") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             nbformat.write(self.notebook, f)
             self.file_path = file_path
 
