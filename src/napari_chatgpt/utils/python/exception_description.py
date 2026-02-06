@@ -1,5 +1,4 @@
 import traceback
-from typing import Dict
 
 
 def exception_description(
@@ -37,7 +36,7 @@ def get_exception_description_string(
     return description
 
 
-def exception_info(exception) -> Dict[str, str]:
+def exception_info(exception) -> dict[str, str]:
     # We make sure we have the root cause:
     exception = find_root_cause(exception)
 
@@ -45,13 +44,17 @@ def exception_info(exception) -> Dict[str, str]:
     tb_entries = traceback.extract_tb(exception.__traceback__)
 
     # Get the filename and line number of the last entry in the traceback
-    last_entry = tb_entries[-1]
-    filename = last_entry.filename
-    line_number = last_entry.lineno
+    if tb_entries:
+        last_entry = tb_entries[-1]
+        filename = last_entry.filename
+        line_number = last_entry.lineno
+    else:
+        filename = "<no traceback>"
+        line_number = 0
 
     try:
         # Read the code line from the file
-        with open(filename, "r") as file:
+        with open(filename) as file:
             code_lines = file.readlines()
             error_line = code_lines[line_number - 1].strip()
     except FileNotFoundError:

@@ -5,7 +5,7 @@ from threading import Lock
 from time import sleep
 
 from arbol import aprint
-from qtpy.QtCore import QObject, Signal, Slot, QThread
+from qtpy.QtCore import QObject, QThread, Signal, Slot
 
 from napari_chatgpt.microplugin.network.code_drop_server import CodeDropServer
 from napari_chatgpt.microplugin.network.discover_worker import DiscoverWorker

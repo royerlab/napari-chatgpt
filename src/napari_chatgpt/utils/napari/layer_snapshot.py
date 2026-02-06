@@ -1,11 +1,9 @@
-from typing import Optional
-
-from PIL import Image
 from napari import Viewer
+from PIL import Image
 
 
 def capture_canvas_snapshot(
-    viewer: Viewer, layer_name: Optional[str] = None, reset_view: Optional[bool] = True
+    viewer: Viewer, layer_name: str | None = None, reset_view: bool | None = True
 ) -> Image:
     """
     Capture a snapshot of the canvas of the napari viewer with only the given layer visible.

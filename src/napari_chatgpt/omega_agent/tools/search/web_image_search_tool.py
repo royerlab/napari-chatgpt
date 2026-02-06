@@ -1,7 +1,7 @@
 import traceback
 
 import numpy
-from arbol import asection, aprint
+from arbol import aprint, asection
 from imageio.v3 import imread
 from napari import Viewer
 
@@ -136,4 +136,4 @@ class WebImageSearchTool(BaseNapariTool):
 
         except Exception as e:
             traceback.print_exc()
-            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to search the web for images with this query: '{query}'."
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to search the web for images with this query: '{query}'."

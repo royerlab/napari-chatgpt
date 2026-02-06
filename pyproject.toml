@@ -8,40 +8,50 @@ description = "A napari plugin that brings an LLM-powered agent (Omega) to inter
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Loic A. Royer", email = "royerloic@gmail.com" }]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dynamic = ["version"]
 
-# --- runtime deps (unchanged) ---
+# --- runtime dependencies ---
 dependencies = [
-    "litemind[documents,rag,tables]>=2025.07.26",
-    "numpy",
-    "magicgui",
-    "scikit-image",
-    "qtpy",
-    "QtAwesome",
-    "fastapi",
-    "uvicorn",
-    "websockets",
-    "lxml",
-    "matplotlib",
-    "xarray",
-    "arbol",
-    "ddgs>=9.4.3",
-    "ome-zarr",
-    "cryptography",
-    "tabulate",
-    "numba",
-    "imageio[ffmpeg,pyav]",
-    "notebook",
-    "nbformat",
-    "jedi",
-    "httpx",
+    # Core LLM library
+    "litemind[documents,rag,tables]>=2026.2.1",
+
+    # Scientific computing
+    "numpy>=1.26",
+    "scikit-image>=0.21",
+    "numba>=0.60",
+    "xarray>=2024.1.0,<2025",  # Pin <2025: newer versions require Python 3.11+
+    "matplotlib>=3.7",
+
+    # Web/API
+    "fastapi>=0.109",
+    "uvicorn>=0.20",
+    "websockets>=11.0",
+    "httpx>=0.24",
+
+    # Qt/GUI
+    "magicgui>=0.7",
+    "qtpy>=2.0",
+    "QtAwesome>=1.0",
+
+    # Data/IO
+    "imageio[ffmpeg,pyav]>=2.31",
+    "ome-zarr>=0.8",
+    "nbformat>=5.7",
+    "lxml>=4.9",
     "lxml_html_clean",
-    "black"
+
+    # Utilities
+    "cryptography>=43.0",
+    "tabulate>=0.9",
+    "arbol",
+    "duckduckgo_search>=7.0.0",
+    "jedi>=0.18",
+    "black>=23.0",
 ]
 
 [project.optional-dependencies]
-testing = ["tox", "pytest", "pytest-cov", "pytest-qt", "napari", "pyqt5"]
+testing = ["tox", "pytest", "pytest-cov", "pytest-qt", "napari", "pyqt5", "cellpose", "stardist", "tensorflow"]
 
 [project.entry-points]
 "napari.manifest" = { "napari-chatgpt" = "napari_chatgpt:napari.yaml" }
@@ -86,5 +96,5 @@ exclude = [
 packages = ["src/napari_chatgpt"]     # wheel only contains code; others auto-excluded :contentReference[oaicite:1]{index=1}
 
 [tool.hatch.envs.hatch-test]
-extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-qt", "napari", "pyqt5", "black"]
+extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-qt", "napari", "pyqt5", "black", "cellpose", "stardist", "tensorflow"]
 default-args = ["src/"]

@@ -7,13 +7,19 @@ napari_chatgpt OmegaQWidget
 
 import sys
 import traceback
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from napari.viewer import Viewer
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QLabel, QCheckBox
-from qtpy.QtWidgets import QPushButton, QWidget
-from qtpy.QtWidgets import QVBoxLayout, QComboBox
+from qtpy.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from napari_chatgpt.llm.litemind_api import get_model_list
 from napari_chatgpt.microplugin.microplugin_window import MicroPluginMainWindow
@@ -23,7 +29,7 @@ from napari_chatgpt.utils.qt.one_time_disclaimer_dialog import (
 )
 
 if TYPE_CHECKING:
-    pass
+    from napari_chatgpt.chat_server.chat_server import NapariChatServer
 
 from arbol import aprint, asection
 
@@ -55,6 +61,9 @@ class OmegaQWidget(QWidget):
         # Napari chat server instance:
         # from napari_chatgpt.chat_server.chat_server import NapariChatServer
         self.server: "NapariChatServer" = None
+
+        # MicroPlugin code editor window (may be None if add_code_editor=False):
+        self.micro_plugin_main_window: "MicroPluginMainWindow | None" = None
 
         # Create a QVBoxLayout instance
         self.layout = QVBoxLayout()
@@ -120,10 +129,10 @@ class OmegaQWidget(QWidget):
         )
 
         # Add All litemind API models to the combo box:
-        model_list: List[str] = list(get_model_list())
+        model_list: list[str] = list(get_model_list())
 
         # Filter and sort the models to have preferred models first:
-        self._prefered_models(model_list)
+        self._preferred_models(model_list)
 
         # Add models to combo box:
         for model in model_list:
@@ -148,10 +157,10 @@ class OmegaQWidget(QWidget):
         )
 
         # Add All litemind API models to the combo box:
-        model_list: List[str] = list(get_model_list())
+        model_list: list[str] = list(get_model_list())
 
         # Filter and sort the models to have preferred models first:
-        self._prefered_models(model_list)
+        self._preferred_models(model_list)
 
         # Add models to combo box:
         for model in model_list:
@@ -161,7 +170,7 @@ class OmegaQWidget(QWidget):
         self.layout.addWidget(self.tool_model_combo_box)
 
     @staticmethod
-    def _prefered_models(model_list: List[str]):
+    def _preferred_models(model_list: list[str]):
         # List of filters to identify preferred models:
         preferred_models_filter = [
             "gpt-4.1",
@@ -173,8 +182,9 @@ class OmegaQWidget(QWidget):
             for model in model_list
             if any(filter in model for filter in preferred_models_filter)
         ]
-        # Exclude models that are in fact not preferred::
-        preferred_models.remove("chatgpt-4o-latest")
+        # Exclude models that are in fact not preferred:
+        if "chatgpt-4o-latest" in preferred_models:
+            preferred_models.remove("chatgpt-4o-latest")
         # Sort the model list stably to have preferred models first:
         model_list.sort(key=lambda x: (x not in preferred_models, x))
 
@@ -413,7 +423,7 @@ class OmegaQWidget(QWidget):
             "High level of verbosity in the console\n"
             "This includes a lot of internal logging\n"
             "from the langchain library.\n"
-            "Nearly incomprehensible, but usefull\n"
+            "Nearly incomprehensible, but useful\n"
             "if you are interested to see the prompts\n"
             "in action..."
         )

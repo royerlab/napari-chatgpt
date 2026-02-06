@@ -4,7 +4,7 @@ from threading import Thread
 
 def run_async(func, *args, **kwargs):
     """
-    Runs a function asynchronously, usefull for when you are in an async context.
+    Runs a function asynchronously, useful for when you are in an async context.
 
     Parameters
     ----------

@@ -1,8 +1,8 @@
-from typing import Callable, Tuple
+from collections.abc import Callable
 
 from arbol import aprint
 from qtpy.QtCore import QTimer
-from qtpy.QtWidgets import QWidget, QPushButton, QComboBox, QSizePolicy, QHBoxLayout
+from qtpy.QtWidgets import QComboBox, QHBoxLayout, QPushButton, QSizePolicy, QWidget
 
 from napari_chatgpt.microplugin.network.code_drop_client import CodeDropClient
 
@@ -170,7 +170,7 @@ class CodeDropSendWidget(QWidget):
             self.timer.deleteLater()
             self.timer = None
 
-    def show_send_dialog(self, get_code_callable: Callable[[], Tuple[str, str]]):
+    def show_send_dialog(self, get_code_callable: Callable[[], tuple[str, str]]):
 
         # Store the filename and code:
         self.get_code_callable = get_code_callable

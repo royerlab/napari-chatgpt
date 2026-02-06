@@ -1,5 +1,4 @@
-omega_generic_codegen_instructions = \
-"""
+omega_generic_codegen_instructions = """
 **Coding Strategy:**
 1. Carefully plan your approach step by step before coding.
 2. Clearly describe each step of your implementation.

@@ -1,13 +1,11 @@
 import sys
-from typing import Optional, List
 
 from arbol import aprint, asection
 
 from napari_chatgpt.llm.litemind_api import get_llm
 from napari_chatgpt.llm.llm import LLM
 
-_required_packages_prompt =\
-"""
+_required_packages_prompt = """
 **Context:**
 You are a highly knowledgeable Python expert, familiar with all pip-installable libraries and their dependencies.
 
@@ -32,7 +30,7 @@ Given the Python code below (targeting Python {python_version}), identify the mi
 """
 
 
-def required_packages(code: str, llm: Optional[LLM] = None) -> List[str]:
+def required_packages(code: str, llm: LLM | None = None) -> list[str]:
     """
     Automatically determines the list of required packages to run the provided Python code.
     The code is expected to be a valid Python code snippet that can be executed in a Python environment.

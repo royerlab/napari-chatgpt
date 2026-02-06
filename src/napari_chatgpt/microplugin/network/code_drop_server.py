@@ -1,7 +1,7 @@
 import random
 import socket
 import struct
-from typing import Optional, Callable
+from collections.abc import Callable
 
 from arbol import aprint
 from qtpy.QtCore import QObject, QThread
@@ -17,7 +17,7 @@ class CodeDropServer(QObject):
         self,
         callback: Callable,
         multicast_groups=None,
-        server_port: Optional[int] = None,
+        server_port: int | None = None,
     ):
         super().__init__()
 

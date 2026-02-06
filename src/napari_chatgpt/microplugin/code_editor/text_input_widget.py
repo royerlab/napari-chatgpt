@@ -1,14 +1,12 @@
-from typing import Optional
-
 from arbol import aprint
 from qtpy.QtWidgets import (
     QHBoxLayout,
-    QWidget,
-    QPushButton,
     QLabel,
-    QSizePolicy,
     QLineEdit,
+    QPushButton,
+    QSizePolicy,
     QTextEdit,
+    QWidget,
 )
 
 
@@ -79,7 +77,7 @@ class TextInputWidget(QWidget):
         cancel_callback=None,
         do_after_callable=None,
         multi_line: bool = False,
-        max_height: Optional[int] = None,
+        max_height: int | None = None,
     ):
 
         # Set multi_line:

@@ -1,6 +1,6 @@
 import os
 from threading import Lock
-from typing import Union, Any
+from typing import Any
 
 import yaml
 
@@ -14,7 +14,7 @@ class AppConfiguration:
             if app_name not in cls._instances:
 
                 # Instantiate class:
-                instance = super(AppConfiguration, cls).__new__(cls)
+                instance = super().__new__(cls)
 
                 # Save instance in class level dictionary:
                 cls._instances[app_name] = instance
@@ -25,9 +25,7 @@ class AppConfiguration:
 
             return cls._instances[app_name]
 
-    def __init__(
-        self, app_name, default_config: Union[str, dict] = "default_config.yaml"
-    ):
+    def __init__(self, app_name, default_config: str | dict = "default_config.yaml"):
         self.app_name = app_name
         self.default_config = default_config
         self.config_file = os.path.expanduser(f"~/.{app_name}/config.yaml")
@@ -40,7 +38,7 @@ class AppConfiguration:
         elif isinstance(self.default_config, str):
             default_config_path = os.path.abspath(self.default_config)
             if os.path.exists(default_config_path):
-                with open(default_config_path, "r") as default_file:
+                with open(default_config_path) as default_file:
                     return yaml.safe_load(default_file)
         return {}
 
@@ -50,7 +48,7 @@ class AppConfiguration:
 
         # Load user-specific configurations
         if os.path.exists(self.config_file):
-            with open(self.config_file, "r") as user_file:
+            with open(self.config_file) as user_file:
                 user_config = yaml.safe_load(user_file)
         else:
             user_config = {}

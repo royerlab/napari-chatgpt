@@ -7,8 +7,7 @@ from napari_chatgpt.llm.llm import LLM
 from napari_chatgpt.utils.python.installed_packages import installed_package_list
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 
-_add_comments_prompt = \
-f"""
+_add_comments_prompt = f"""
 **Context:**
 You are an expert Python coder specialised in documenting code, writing docstrings, and inferring type hints.
 You can understand the purpose of complex code and write detailed explanations for it.

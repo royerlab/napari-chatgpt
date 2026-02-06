@@ -1,8 +1,12 @@
-from typing import Callable
+from collections.abc import Callable
 
 import numpy
 import numpy as np
 from arbol import aprint, asection
+
+from napari_chatgpt.utils.segmentation.remove_small_segments import (
+    remove_small_segments,
+)
 
 
 def segment_3d_from_segment_2d(
@@ -95,15 +99,6 @@ def segment_2d_z_slices(image, segment_2d_func: Callable, min_segment_size: int 
     return segmented_image
 
 
-def remove_small_segments(labels, min_segment_size):
-    # remove small segments:
-    if min_segment_size > 0:
-        from skimage.morphology import remove_small_objects
-
-        labels = remove_small_objects(labels, min_segment_size)
-    return labels
-
-
 def make_slice_labels_different(stack):
     # Max label index:
     max_label_index = 0
@@ -162,9 +157,15 @@ def merge_2d_segments(stack, overlap_threshold: int = 1, debug_view: bool = True
                     current_mask = current_plane == current_label
 
                     # Calculate the overlap between the two masks:
-                    overlap = np.sum(next_mask & current_mask) / min(
-                        np.sum(next_mask), np.sum(current_mask)
-                    )
+                    next_mask_sum = np.sum(next_mask)
+                    current_mask_sum = np.sum(current_mask)
+                    min_mask_sum = min(next_mask_sum, current_mask_sum)
+
+                    # Avoid division by zero if either mask is empty:
+                    if min_mask_sum == 0:
+                        overlap = 0.0
+                    else:
+                        overlap = np.sum(next_mask & current_mask) / min_mask_sum
 
                     # If overlap exceeds threshold, add the label to the list:
                     if overlap >= overlap_threshold:

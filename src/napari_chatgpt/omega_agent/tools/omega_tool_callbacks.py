@@ -1,6 +1,12 @@
-from typing import Any, Callable
+from __future__ import annotations
+
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 from litemind.agent.tools.callbacks.base_tool_callbacks import BaseToolCallbacks
+
+if TYPE_CHECKING:
+    from litemind.agent.tools.base_tool import BaseTool
 
 
 class OmegaToolCallbacks(BaseToolCallbacks):

@@ -2,7 +2,7 @@
 
 import traceback
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
 from napari_chatgpt.utils.python.installed_packages import installed_package_list

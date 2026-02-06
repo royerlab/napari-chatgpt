@@ -1,5 +1,3 @@
-from typing import Optional
-
 from litemind.agent.agent import Agent
 from litemind.agent.tools.toolset import ToolSet
 from litemind.apis.base_api import BaseApi
@@ -11,9 +9,9 @@ class OmegaAgent(Agent):
         self,
         api: BaseApi,
         name: str = "Agent",
-        model_name: Optional[str] = None,
+        model_name: str | None = None,
         temperature: float = 0.0,
-        toolset: Optional[ToolSet] = None,
+        toolset: ToolSet | None = None,
         **kwargs,
     ):
         """

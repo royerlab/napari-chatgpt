@@ -7,7 +7,6 @@ def test_exceptions_guard():
     try:
         with ExceptionGuard() as g:
             raise RuntimeError("something went wrong")
-            pass
 
         aprint(g)
 

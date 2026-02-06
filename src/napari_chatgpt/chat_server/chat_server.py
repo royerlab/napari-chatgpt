@@ -4,12 +4,13 @@ import asyncio
 import os
 import traceback
 import webbrowser
+from contextlib import asynccontextmanager
 from threading import Thread
 from time import sleep
-from typing import List, Any
+from typing import Any
 
 import napari
-from arbol import aprint, asection, acapture
+from arbol import aprint, asection
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
 from litemind.agent.messages.message import Message
@@ -113,8 +114,15 @@ class NapariChatServer(BaseToolCallbacks):
         # UV event loop:
         self.event_loop = None
 
-        # Instantiate FastAPI:
-        self.app = FastAPI()
+        # Define lifespan context manager for FastAPI:
+        @asynccontextmanager
+        async def lifespan(app: FastAPI):
+            # Startup: nothing needed currently
+            yield
+            # Shutdown: nothing needed currently (handled by stop() method)
+
+        # Instantiate FastAPI with lifespan:
+        self.app = FastAPI(lifespan=lifespan)
 
         # Get configuration
         config = AppConfiguration("omega")
@@ -142,15 +150,12 @@ class NapariChatServer(BaseToolCallbacks):
         # Load Jinja2 templates:
         templates = Jinja2Templates(directory=templates_files_path)
 
-        # Server startup event:
-        @self.app.on_event("startup")
-        async def startup_event():
-            pass
-
         # Default path:
         @self.app.get("/")
         async def get(request: Request):
-            return templates.TemplateResponse("index.html", {"request": request})
+            return templates.TemplateResponse(
+                "index.html", {"request": request, "port": self.port}
+            )
 
         # Chat path:
         @self.app.websocket("/chat")
@@ -278,7 +283,7 @@ class NapariChatServer(BaseToolCallbacks):
             # Return the question for further processing:
             return question
 
-        def send_final_response_to_user(result: List[Message], websocket: WebSocket):
+        def send_final_response_to_user(result: list[Message], websocket: WebSocket):
 
             # Filter out non-text messages:
             text_result = [m for m in result if m.has(Text)]

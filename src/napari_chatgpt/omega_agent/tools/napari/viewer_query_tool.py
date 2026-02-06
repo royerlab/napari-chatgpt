@@ -4,14 +4,13 @@ import traceback
 from contextlib import redirect_stdout
 from io import StringIO
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 from napari import Viewer
 
 from napari_chatgpt.omega_agent.tools.base_napari_tool import BaseNapariTool
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 
-_napari_viewer_query_prompt = \
-"""
+_napari_viewer_query_prompt = """
 **Context**
 You are an expert python programmer with deep expertise in image processing and analysis.
 You have perfect knowledge of the napari viewer's API.
@@ -82,7 +81,7 @@ class NapariViewerQueryTool(BaseNapariTool):
             "its state, or its layers (images, labels, points, tracks, shapes, and meshes). "
             "The input must be a plain text description of what you want to do, it should not contain code, it must not assume knowledge of our conversation, and it must be explicit about what is asked."
             "For instance, you can request to 'return the number of segments in the selected labels layer', 'return the total number of pixels/voxels in all image layers', or 'the number of unique colors' (selected layer is assumed by default). "
-            "Important: this tool should not be used for requests that are expected to return large ampounts of data, entire files, large tables or arrays (>60 entries). "
+            "Important: this tool should not be used for requests that are expected to return large amounts of data, entire files, large tables or arrays (>60 entries)."
             "For instance, do not use this tool to list pixels of an image, to return the coordinates of all points in a points layer, or to list segments in a labels layer. "
             "This tool returns a short answer to the request. "
         )

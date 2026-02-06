@@ -1,8 +1,7 @@
 import traceback
-from typing import Optional
 
-from arbol import asection, aprint
-from ddgs import DDGS
+from arbol import aprint, asection
+from duckduckgo_search import DDGS
 
 from napari_chatgpt.utils.llm.summarizer import summarize
 from napari_chatgpt.utils.python.pip_utils import pip_install_single_package
@@ -35,10 +34,8 @@ def summary_ddg(
         return text
 
     except Exception as e:
-        traceback.format_exc()
+        traceback.print_exc()
         return f"Web search failed for: '{query}'"
-
-        install_latest_ddg
 
 
 def search_ddg(
@@ -47,7 +44,7 @@ def search_ddg(
     lang = "en-us" if lang == "en" else lang
 
     results = DDGS().text(
-        query=query, region=lang, safesearch=safe_search, max_results=num_results
+        keywords=query, region=lang, safesearch=safe_search, max_results=num_results
     )
 
     if results:
@@ -60,11 +57,11 @@ def search_ddg(
 
 def search_images_ddg(
     query: str, num_results: int = 3, lang: str = "en", safesearch: str = "moderate"
-) -> list[dict[str, Optional[str]]]:
+) -> list[dict[str, str | None]]:
     lang = "en-us" if lang == "en" else lang
 
     results = DDGS().images(
-        query=query,
+        keywords=query,
         region=lang,
         safesearch=safesearch,
         size=None,

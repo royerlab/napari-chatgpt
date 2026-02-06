@@ -1,6 +1,6 @@
 def is_apple_silicon():
-    import platform
     import os
+    import platform
 
     if platform.system() != "Darwin":
         return False  # Not OSX, so it can't be M1/M2

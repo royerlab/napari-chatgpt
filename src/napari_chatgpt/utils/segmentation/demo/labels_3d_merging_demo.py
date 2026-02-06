@@ -1,5 +1,3 @@
-from typing import Optional
-
 import napari
 import skimage
 
@@ -16,8 +14,8 @@ def main():
     cells = skimage.data.cells3d()[:, 1]
 
     # Normalize the image:
-    norm_range_low: Optional[float] = 1.0
-    norm_range_high: Optional[float] = 99.8
+    norm_range_low: float | None = 1.0
+    norm_range_high: float | None = 99.8
     cells = normalize_img(cells, norm_range_low, norm_range_high)
 
     # Get the StarDist model once:

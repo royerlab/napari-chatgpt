@@ -34,5 +34,4 @@ def classic_segmentation(image: ArrayLike,
                           opening_steps: int = 0,
                           apply_watershed: bool = False,
                           min_distance: int = 10) -> ArrayLike
-```
 """

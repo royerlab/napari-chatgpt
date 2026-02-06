@@ -1,6 +1,6 @@
 import traceback
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
 from napari_chatgpt.utils.web.metasearch import metasearch
@@ -51,4 +51,4 @@ class WebSearchTool(BaseOmegaTool):
 
         except Exception as e:
             traceback.print_exc()
-            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to search the web for: '{query}'."
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to search the web for: '{query}'."

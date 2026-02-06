@@ -1,5 +1,5 @@
 import numpy
-from napari.layers import Image, Labels, Points, Vectors, Tracks, Surface
+from napari.layers import Image, Labels, Points, Surface, Tracks, Vectors
 from napari.utils.transforms import Affine
 
 

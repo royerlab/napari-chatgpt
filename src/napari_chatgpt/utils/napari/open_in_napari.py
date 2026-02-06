@@ -11,7 +11,7 @@ def open_in_napari(viewer: "Viewer", url: str, plugin: str = "napari") -> bool:
     try:
         viewer.open(url, plugin=plugin)
         return True
-    except:
+    except Exception:
         if open_zarr_in_napari(viewer, url):
             return True
         elif _open_imageio_in_napari(viewer, url):
@@ -24,7 +24,7 @@ def open_in_napari(viewer: "Viewer", url: str, plugin: str = "napari") -> bool:
 
 def open_video_in_napari(viewer: "Viewer", url: str):
     try:
-        # First we check if it is a file that we can resonable expect to open:
+        # First we check if it is a file that we can reasonably expect to open:
         if not (
             url.endswith("mp4")
             or url.endswith("mpg")
@@ -56,7 +56,7 @@ def open_video_in_napari(viewer: "Viewer", url: str):
 
         return True
 
-    except:
+    except Exception:
         traceback.print_exc()
         return False
 
@@ -70,7 +70,7 @@ def _open_imageio_in_napari(viewer: "Viewer", url: str) -> bool:
 
         return True
 
-    except:
+    except Exception:
         traceback.print_exc()
         return False
 
@@ -94,14 +94,13 @@ def _open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
 
         return True
 
-    except:
+    except Exception:
         traceback.print_exc()
         return False
 
 
 def _open_ome_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
     try:
-        import zarr
         from ome_zarr.io import parse_url
         from ome_zarr.reader import Reader
 
@@ -125,6 +124,6 @@ def _open_ome_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
 
         return True
 
-    except:
+    except Exception:
         traceback.print_exc()
         return False

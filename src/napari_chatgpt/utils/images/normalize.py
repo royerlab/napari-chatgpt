@@ -1,6 +1,6 @@
 import numpy as np
 from napari.types import ArrayLike
-from numpy import ravel, percentile
+from numpy import percentile, ravel
 
 
 def normalize_img(

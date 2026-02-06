@@ -4,7 +4,7 @@ from arbol import aprint
 from skimage import data
 from skimage.filters import threshold_otsu
 from skimage.measure import label
-from skimage.morphology import closing, square, remove_small_objects
+from skimage.morphology import closing, remove_small_objects, square
 from skimage.segmentation import clear_border
 
 from napari_chatgpt.utils.napari.napari_viewer_info import get_viewer_info

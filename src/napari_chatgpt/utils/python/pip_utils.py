@@ -1,5 +1,3 @@
-from typing import List
-
 from arbol import aprint, asection
 
 from napari_chatgpt.utils.python.conda_utils import conda_install
@@ -22,7 +20,7 @@ ___conda_forge_substitutions = {"cupy": ["cupy"]}
 
 
 def pip_install(
-    packages: List[str],
+    packages: list[str],
     included: bool = True,
     special_rules: bool = True,
     skip_if_installed: bool = True,
@@ -125,11 +123,11 @@ def pip_install(
         except CalledProcessError as e:
             traceback.print_exc()
             # return error message:
-            return f"{message}\nError: {type(e).__name__} with message: '{str(e)}' occured while trying to install these packages: '{','.join(packages)}'.\n"
+            return f"{message}\nError: {type(e).__name__} with message: '{str(e)}' occurred while trying to install these packages: '{','.join(packages)}'.\n"
 
     else:
-        messsage = f"No packages to install!\n"
-        return messsage
+        message = f"No packages to install!\n"
+        return message
 
 
 import subprocess
@@ -179,9 +177,7 @@ def pip_install_single_package(
                 command.append("--upgrade")
 
             # Running the command and capturing the output
-            result = subprocess.run(
-                command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-            )
+            result = subprocess.run(command, capture_output=True, text=True)
 
             # Handling the captured output
             if result.returncode == 0:
@@ -193,7 +189,7 @@ def pip_install_single_package(
         return message
 
 
-def pip_uninstall(list_of_packages: List[str]) -> bool:
+def pip_uninstall(list_of_packages: list[str]) -> bool:
     error_occurred = False
 
     # Ensure it is a list and remove duplicates:
@@ -208,11 +204,9 @@ def pip_uninstall(list_of_packages: List[str]) -> bool:
                 try:
                     aprint(f"removing: {package}")
                     process = subprocess.run(
-                        f"pip uninstall -y {package}",
+                        [sys.executable, "-m", "pip", "uninstall", "-y", package],
                         check=True,
-                        shell=True,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
+                        capture_output=True,
                     )
                     if process.returncode != 0:
                         print(

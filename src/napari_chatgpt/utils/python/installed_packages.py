@@ -1,3 +1,4 @@
+import traceback
 from functools import lru_cache
 
 from napari_chatgpt.utils.python.relevant_libraries import (
@@ -42,7 +43,7 @@ def pip_list(version: bool = False):
         return package_list
 
     except Exception as e:
-        print(traceback.format_exc())
+        traceback.print_exc()
         return []
 
 
@@ -70,13 +71,12 @@ def conda_list(version: bool = False):
         return package_list
 
     except Exception as e:
-        print(traceback.format_exc())
+        traceback.print_exc()
         return []
 
 
-import traceback
+from importlib.metadata import PackageNotFoundError, version
 from pkgutil import find_loader
-from importlib.metadata import version, PackageNotFoundError
 
 
 def is_package_installed(package_name: str):

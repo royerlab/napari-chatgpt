@@ -22,6 +22,7 @@ def _get_useragent():
 
 """googlesearch is a Python library for searching Google, easily."""
 from time import sleep
+
 from bs4 import BeautifulSoup
 from requests import get
 

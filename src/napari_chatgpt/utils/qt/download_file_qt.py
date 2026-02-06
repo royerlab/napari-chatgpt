@@ -7,12 +7,12 @@ from arbol import aprint
 from qtpy.QtCore import QThread, QTimer
 from qtpy.QtWidgets import (
     QApplication,
-    QWidget,
-    QProgressBar,
-    QLabel,
-    QVBoxLayout,
-    QPushButton,
     QDialog,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
 
 

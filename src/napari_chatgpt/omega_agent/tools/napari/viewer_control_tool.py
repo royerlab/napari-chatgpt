@@ -2,13 +2,12 @@
 
 import traceback
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 from napari import Viewer
 
 from napari_chatgpt.omega_agent.tools.base_napari_tool import BaseNapariTool
 
-_napari_viewer_control_prompt = \
-"""
+_napari_viewer_control_prompt = """
 **Context**
 You are an expert python programmer strong coding skills and deep expertise in image processing and analysis.
 You can solve all kinds of programming problems by writing high-quality python code.
@@ -35,7 +34,7 @@ The viewer instance is accessible using the variable `viewer`, so you can direct
 **Answer in markdown:**
 """
 
-_instructions = """
+_instructions = r"""
 
 **Instructions for controlling the napari viewer:**
 - When adding images, labels, points, shapes, surfaces, tracks, or vectors, include code to load data from disk or download from a URL if needed.

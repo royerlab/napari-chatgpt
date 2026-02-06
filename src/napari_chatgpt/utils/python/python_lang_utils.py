@@ -4,7 +4,7 @@ import inspect
 import re
 import traceback
 from functools import lru_cache
-from typing import get_type_hints, Any, List
+from typing import Any, get_type_hints
 
 from arbol import aprint
 
@@ -102,7 +102,7 @@ def object_info_str(
 @lru_cache
 def enumerate_methods(
     obj: Any, add_docstrings: bool = True, show_hidden: bool = False
-) -> List[str]:
+) -> list[str]:
     # List to hold methods:
     methods = []
 
@@ -115,7 +115,7 @@ def enumerate_methods(
             method = getattr(obj, method_name)
             if callable(method):
                 methods.append(method_name)
-        except:
+        except Exception:
             continue
 
     # Print the signature for each method with type hints
@@ -243,7 +243,7 @@ def extract_package_path(path: str):
 @lru_cache
 def extract_fully_qualified_function_names(
     code: str, unzip_result: bool = False
-) -> List[str]:
+) -> list[str]:
     try:
         function_calls = []
         import_statements = {}
@@ -285,7 +285,7 @@ def extract_fully_qualified_function_names(
             function_calls = unzip(function_calls)
 
         return function_calls
-    except:
+    except Exception:
         traceback.print_exc()
         return None
 
@@ -308,7 +308,7 @@ def function_exists(function_name: str) -> bool:
 
 
 @lru_cache
-def get_imported_modules(code: str) -> List[str]:
+def get_imported_modules(code: str) -> list[str]:
     tree = ast.parse(code)
     imported_modules = set()
 

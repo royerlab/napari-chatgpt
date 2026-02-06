@@ -2,7 +2,7 @@ import os
 import socket
 import time
 
-from qtpy.QtCore import Slot, QObject, Signal
+from qtpy.QtCore import QObject, Signal, Slot
 
 
 class BroadcastWorker(QObject):
@@ -40,7 +40,7 @@ class BroadcastWorker(QObject):
         while self.is_running:
             try:
                 if self.is_enabled:
-                    for self.multicast_group in self.multicast_groups:
+                    for multicast_group in self.multicast_groups:
                         # get hostname:
                         hostname = socket.gethostname()
 
@@ -51,7 +51,7 @@ class BroadcastWorker(QObject):
                         message = f"{username}:{hostname}:{self.port}".encode()
 
                         # Send the message to the multicast group:
-                        self.sock.sendto(message, self.multicast_group)
+                        self.sock.sendto(message, multicast_group)
                 else:
                     # If the broadcast is disabled, just sleep for a while
                     pass

@@ -1,9 +1,8 @@
 import sys
 import traceback
-from typing import Tuple
 
 import napari
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.llm.litemind_api import get_llm
 from napari_chatgpt.llm.llm import LLM
@@ -23,7 +22,7 @@ def fix_code_given_error_message(
     viewer: "napari.Viewer" = None,
     llm: LLM = None,
     verbose: bool = False,
-) -> Tuple[str, bool]:
+) -> tuple[str, bool]:
     with asection(
         f"Automatically fix code based on a given error message, code length: {len(code)}"
     ):
@@ -55,14 +54,14 @@ def fix_code_given_error_message(
                 verbose=verbose,
             )
 
-            return fixed_code
+            return fixed_code, True
 
         except Exception as e:
             traceback.print_exc()
             aprint(
-                f"Encoutered exception: {str(e)} while trying to fix code! Returning code unchanged!"
+                f"Encountered exception: {str(e)} while trying to fix code! Returning code unchanged!"
             )
-            return fixed_code
+            return fixed_code, False
 
 
 _fix_bad_fun_calls_prompt = f"""

@@ -1,15 +1,14 @@
 import importlib.util
-import importlib.util
 import tempfile
 from contextlib import redirect_stdout
 from io import StringIO
 from random import randint
-from typing import Optional, Any
+from typing import Any
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 
-def dynamic_import(module_code: str, name: str = None) -> Optional[Any]:
+def dynamic_import(module_code: str, name: str = None) -> Any | None:
     # Module name:
     if not name:
         name = f"some_code_{randint(0, 999999999)}"
@@ -32,8 +31,7 @@ def dynamic_import(module_code: str, name: str = None) -> Optional[Any]:
 
 
 # This should not have spurious whitespace, as it is used to format the code:
-__execution_harness =\
-"""
+__execution_harness = """
 def execute_code({}):
 {}
 """

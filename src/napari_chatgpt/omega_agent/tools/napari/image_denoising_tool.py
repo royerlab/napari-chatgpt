@@ -5,7 +5,7 @@ import sys
 import traceback
 from functools import cache
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 from napari import Viewer
 
 from napari_chatgpt.omega_agent.tools.base_napari_tool import (
@@ -15,8 +15,7 @@ from napari_chatgpt.omega_agent.tools.base_napari_tool import (
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 from napari_chatgpt.utils.python.pip_utils import pip_install
 
-_image_denoising_prompt = \
-"""
+_image_denoising_prompt = """
 **Context**
 You are an expert python programmer with deep expertise in image processing and analysis.
 You are working on a project that requires you to denoise images.
@@ -209,7 +208,7 @@ class ImageDenoisingTool(BaseNapariTool):
 
         except Exception as e:
             traceback.print_exc()
-            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to fulfill the request. "  # \n```python\n{code}\n```\n
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to fulfill the request. "  # \n```python\n{code}\n```\n
 
 
 @cache
@@ -217,7 +216,7 @@ def install_aydin():
     with asection(f"Installing Aydin if not already present."):
         message = ""
         if platform.system() == "Darwin":
-            if "arm64" in sys.platform.uname():
+            if "arm64" in platform.machine():
                 aprint("Cannot install Aydin on M1/M2 macs!")
                 raise NotImplementedError("Cannot install Aydin on M1/M2 macs!")
 

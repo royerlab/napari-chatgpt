@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 from functools import lru_cache
-from typing import List, Optional
+from typing import TYPE_CHECKING
 
 from litemind.apis.model_features import ModelFeatures
 
 from napari_chatgpt.llm.api_keys.api_key import set_api_key
 from napari_chatgpt.llm.llm import LLM
+
+if TYPE_CHECKING:
+    from litemind.apis.combined_api import CombinedApi
 
 __litemind_api = None
 
@@ -20,30 +25,34 @@ def is_llm_available() -> bool:
     Returns:
         bool: True if the LiteMind API is available, False otherwise.
     """
+    try:
+        # Check that the list API_IMPLEMENTATIONS contains at least one API implementation except for DefaultApi and CombinedApi:
+        from litemind import API_IMPLEMENTATIONS
 
-    # Check that the list API_IMPLEMENTATIONS contains at least one API implementation except for DefaultApi and CombinedApi:
-    from litemind import API_IMPLEMENTATIONS
+        api_implementations = list(API_IMPLEMENTATIONS)
 
-    api_implementations = list(API_IMPLEMENTATIONS)
+        # Remove DefaultApi and CombinedApi from the list:
+        from litemind.apis.combined_api import CombinedApi
+        from litemind.apis.default_api import DefaultApi
 
-    # Remove DefaultApi and CombinedApi from the list:
-    from litemind.apis.default_api import DefaultApi
-    from litemind.apis.combined_api import CombinedApi
+        api_implementations = [
+            api for api in api_implementations if api not in (DefaultApi, CombinedApi)
+        ]
 
-    api_implementations = [
-        api for api in api_implementations if api not in (DefaultApi, CombinedApi)
-    ]
+        # If there are no API implementations available, return False:
+        if len(api_implementations) == 0:
+            return False
 
-    # If there are no API implementations available, return False:
-    if len(api_implementations) == 0:
+        # If the global LiteMind API instance is initialized, return True:
+        if get_litemind_api() is not None:
+            return True
+
+        # Otherwise, return False:
         return False
 
-    # If the global LiteMind API instance is initialized, return True:
-    if get_litemind_api() is not None:
-        return True
-
-    # Otherwise, return False:
-    return False
+    except (ImportError, ModuleNotFoundError):
+        # If any required module is not installed (e.g., docling), return False
+        return False
 
 
 def get_litemind_api() -> "CombinedApi":
@@ -75,7 +84,7 @@ def get_litemind_api() -> "CombinedApi":
 
 
 @lru_cache
-def get_model_list() -> List[str]:
+def get_model_list() -> list[str]:
     """
     Returns a list of available models from the LiteMind API.
 
@@ -91,7 +100,7 @@ def get_model_list() -> List[str]:
     return api.list_models(features=[ModelFeatures.TextGeneration])
 
 
-def has_model_support_for(model_name: str, features: List[ModelFeatures]) -> bool:
+def has_model_support_for(model_name: str, features: list[ModelFeatures]) -> bool:
     """
     Checks if a specific model supports the given features.
 
@@ -111,9 +120,9 @@ def has_model_support_for(model_name: str, features: List[ModelFeatures]) -> boo
 
 
 def get_llm(
-    model_name: Optional[str] = None,
+    model_name: str | None = None,
     temperature: float = 0.0,
-    features: Optional[List[ModelFeatures]] = None,
+    features: list[ModelFeatures] | None = None,
 ) -> LLM:
     """
     Returns an LLM instance based on the provided features.

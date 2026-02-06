@@ -18,4 +18,5 @@ def filter_lines(text:str, filter_out: List[str]=None) -> str:
 def test_extract_urls():
     code = extract_code_from_markdown(markdown)
 
-    print(code)
+    assert code is not None
+    assert "def filter_lines" in code

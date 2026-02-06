@@ -18,6 +18,7 @@ def test_port_available():
     else:
         # now start a simple server asynchronously on that port to occupy it:
         import asyncio
+
         from aiohttp import web
 
         # Define a simple handler that returns a simple response:

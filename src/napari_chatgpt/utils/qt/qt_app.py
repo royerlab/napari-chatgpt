@@ -1,5 +1,5 @@
 import sys
-from typing import Callable
+from collections.abc import Callable
 
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QApplication

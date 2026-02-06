@@ -2,7 +2,7 @@ import sys
 import traceback
 from pathlib import Path
 from queue import Queue
-from typing import Optional, Any
+from typing import Any
 
 from arbol import aprint, asection
 from napari import Viewer
@@ -54,8 +54,8 @@ class BaseNapariTool(BaseOmegaTool):
         install_missing_packages: bool = True,
         fix_bad_calls: bool = False,
         verbose: bool = False,
-        notebook: Optional[JupyterNotebookFile] = None,
-        last_generated_code: Optional[str] = None,
+        notebook: JupyterNotebookFile | None = None,
+        last_generated_code: str | None = None,
         **kwargs: dict,
     ):
         """
@@ -123,14 +123,13 @@ class BaseNapariTool(BaseOmegaTool):
             # Instantiate message
 
             if self.last_generated_code:
-                last_generated_code = ("**Previously Generated Code:**\n",)
-                last_generated_code += (
-                    "Use this code for reference, usefull if you need to modify or fix the code. ",
+                last_generated_code = (
+                    "**Previously Generated Code:**\n"
+                    "Use this code for reference, useful if you need to modify or fix the code. "
                     "IMPORTANT: This code might not be relevant to the current request or task! "
-                    "You should ignore it, unless you are explicitely asked to fix or modify the last generated widget!",
-                    "```python\n",
-                    self.last_generated_code + "\n",
-                    "```\n",
+                    "You should ignore it, unless you are explicitly asked to fix or modify the last generated widget!\n"
+                    "```python\n" + self.last_generated_code + "\n"
+                    "```\n"
                 )
             else:
                 last_generated_code = ""

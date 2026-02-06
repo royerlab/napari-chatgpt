@@ -1,11 +1,7 @@
 import jedi  # Make sure jedi is installed
-from qtpy.QtCore import QStringListModel
-from qtpy.QtCore import Qt
+from qtpy.QtCore import QStringListModel, Qt
 from qtpy.QtGui import QTextCursor
-from qtpy.QtWidgets import (
-    QPlainTextEdit,
-    QCompleter,
-)
+from qtpy.QtWidgets import QCompleter, QPlainTextEdit
 
 from napari_chatgpt.microplugin.code_editor.python_syntax_highlighting import (
     PythonSyntaxHighlighter,

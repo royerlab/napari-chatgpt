@@ -1,9 +1,7 @@
 import sys
-from typing import Tuple, Optional
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication
-from qtpy.QtWidgets import QMainWindow
+from qtpy.QtWidgets import QApplication, QMainWindow
 
 from napari_chatgpt.microplugin.code_editor.code_snippet_editor_widget import (
     CodeSnippetEditorWidget,
@@ -20,9 +18,9 @@ class CodeSnippetEditorWindow(QMainWindow):
     def __init__(
         self,
         folder_path: str,
-        title: Optional[str] = "Python Code Snippet Editor",
-        size: Optional[Tuple[int, int]] = None,
-        variables: Optional[dict] = None,
+        title: str | None = "Python Code Snippet Editor",
+        size: tuple[int, int] | None = None,
+        variables: dict | None = None,
         parent=None,
         *args,
         **kwargs,
@@ -42,7 +40,7 @@ class CodeSnippetEditorWindow(QMainWindow):
             Keyword arguments to pass to the parent class.
 
         """
-        super(CodeSnippetEditorWindow, self).__init__(parent=parent, *args, **kwargs)
+        super().__init__(parent=parent, *args, **kwargs)
 
         # Create the code snippet editor widget:
         self.code_editor_widget = CodeSnippetEditorWidget(

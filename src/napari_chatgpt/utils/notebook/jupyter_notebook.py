@@ -1,21 +1,21 @@
 import os
 from base64 import b64encode
+from collections.abc import Callable
 from datetime import datetime
 from io import BytesIO
 from mimetypes import guess_type
-from os import path, makedirs
-from typing import Optional, Callable
+from os import makedirs, path
 
 import nbformat
+from nbformat.v4 import new_code_cell, new_markdown_cell, new_notebook
 from PIL import Image
-from nbformat.v4 import new_notebook, new_code_cell, new_markdown_cell
 
 from napari_chatgpt.utils.strings.markdown import extract_markdown_blocks
 
 
 class JupyterNotebookFile:
 
-    def __init__(self, notebook_folder_path: Optional[str] = None):
+    def __init__(self, notebook_folder_path: str | None = None):
         self._modified = False
         self.restart(
             notebook_folder_path=notebook_folder_path,
@@ -25,7 +25,7 @@ class JupyterNotebookFile:
 
     def restart(
         self,
-        notebook_folder_path: Optional[str] = None,
+        notebook_folder_path: str | None = None,
         write_before_restart: bool = True,
         force_restart: bool = False,
     ):
@@ -70,7 +70,7 @@ class JupyterNotebookFile:
         # Mark as not modified:
         self._modified = False
 
-    def write(self, file_path: Optional[str] = None):
+    def write(self, file_path: str | None = None):
         file_path = file_path or self.default_file_path
         # Write the notebook to disk
         with open(file_path, "w") as f:

@@ -1,6 +1,6 @@
 import pytest
 from arbol import aprint
-from ddgs.exceptions import RatelimitException
+from duckduckgo_search.exceptions import DuckDuckGoSearchException
 
 from napari_chatgpt.llm.litemind_api import is_llm_available
 from napari_chatgpt.utils.web.metasearch import metasearch
@@ -12,14 +12,13 @@ def test_metasearch_summary():
         query = "Mickey Mouse"
         text = metasearch(query, do_summarize=True)
         aprint(text)
+        # Skip if search returned no useful results (flaky external dependency)
+        if "No results" in text and "Mickey" not in text:
+            pytest.skip("Metasearch returned no results")
         assert "Mickey" in text
-        # assert 'Web search failed' not in text
 
-    except RatelimitException as e:
-        aprint(f"RatelimitException: {e}")
-        import traceback
-
-        traceback.print_exc()
+    except DuckDuckGoSearchException as e:
+        pytest.skip(f"DuckDuckGo search unavailable: {e}")
 
 
 def test_metasearch():
@@ -27,11 +26,10 @@ def test_metasearch():
         query = "Mickey Mouse"
         text = metasearch(query, do_summarize=False)
         aprint(text)
+        # Skip if search returned no useful results (flaky external dependency)
+        if "No results" in text and "Mickey" not in text:
+            pytest.skip("Metasearch returned no results")
         assert "Mickey" in text
-        # assert 'Web search failed' not in text
 
-    except RatelimitException as e:
-        aprint(f"RatelimitException: {e}")
-        import traceback
-
-        traceback.print_exc()
+    except DuckDuckGoSearchException as e:
+        pytest.skip(f"DuckDuckGo search unavailable: {e}")

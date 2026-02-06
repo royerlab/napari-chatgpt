@@ -1,8 +1,5 @@
-from typing import List
-
-
 def filter_lines(
-    text: str, filter_out: List[str] = None, comment_lines: bool = False
+    text: str, filter_out: list[str] | None = None, comment_lines: bool = False
 ) -> str:
     """
     Filters out lines in `text` that contain any of the substrings in `substrings`.
@@ -15,6 +12,7 @@ def filter_lines(
         str: The filtered text string.
     """
     lines = text.split("\n")
+    filter_out = filter_out or []
     if comment_lines:
         filtered_lines = [
             f"# {line}" if any(substring in line for substring in filter_out) else line

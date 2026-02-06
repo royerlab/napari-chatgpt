@@ -58,10 +58,10 @@ class ExceptionCatcherTool(BaseOmegaTool):
         # Tool name and description:
         self.name = "ExceptionCatcherTool"
         self.description = (
-            "This tool is usefull when the user is having problems with a widget ."
+            "This tool is useful when the user is having problems with a widget ."
             "This tool returns information about the exception that happened. "
             "Traceback information is also provided to help find the source of the issue. "
-            "Input should be the number of expeptions to report on, should be a single integer (>0). "
+            "Input should be the number of exceptions to report on, should be a single integer (>0)."
         )
         self.prompt: str = None
 

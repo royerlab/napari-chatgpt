@@ -4,7 +4,7 @@ import sys
 import traceback
 from functools import cache
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 from napari import Viewer
 
 from napari_chatgpt.omega_agent.tools.base_napari_tool import (
@@ -12,9 +12,9 @@ from napari_chatgpt.omega_agent.tools.base_napari_tool import (
     _get_delegated_code,
 )
 from napari_chatgpt.omega_agent.tools.napari.delegated_code.signatures import (
+    cellpose_signature,
     classic_signature,
     stardist_signature,
-    cellpose_signature,
 )
 from napari_chatgpt.omega_agent.tools.napari.delegated_code.utils import (
     check_cellpose_installed,
@@ -26,8 +26,7 @@ from napari_chatgpt.utils.python.conda_utils import conda_uninstall
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
 from napari_chatgpt.utils.python.pip_utils import pip_install, pip_uninstall
 
-_cell_segmentation_prompt =\
-"""
+_cell_segmentation_prompt = """
 **Context**
 You are an expert python programmer with deep expertise in bioimage processing and analysis.
 You are working on a project that requires you to segment cells and/or nuclei in 2D or 3D images.
@@ -179,8 +178,7 @@ def _get_segmentation_prompt() -> str:
     return prompt
 
 
-_instructions =\
-"""
+_instructions = """
     
 **Instructions specific to calling the segmentation functions:**
 - DO NOT include code for the functions 'cellpose_segmentation()', 'stardist_segmentation()', or 'classic_segmentation()' in your answer.
@@ -303,7 +301,7 @@ class CellNucleiSegmentationTool(BaseNapariTool):
 
         except Exception as e:
             traceback.print_exc()
-            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to fulfill the request. "  # \n```python\n{code}\n```\n
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to fulfill the request. "  # \n```python\n{code}\n```\n
 
 
 @cache

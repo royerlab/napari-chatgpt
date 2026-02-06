@@ -2,24 +2,23 @@ import json
 import os
 import sys
 from datetime import datetime
-from typing import Optional
 
 import qtawesome
 from arbol import aprint
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFontMetrics
 from qtpy.QtWidgets import (
-    QApplication,
-    QSplitter,
-    QListWidget,
-    QWidget,
-    QMainWindow,
-    QVBoxLayout,
-    QToolBar,
-    QMenu,
     QAction,
-    QSizePolicy,
+    QApplication,
+    QListWidget,
     QListWidgetItem,
+    QMainWindow,
+    QMenu,
+    QSizePolicy,
+    QSplitter,
+    QToolBar,
+    QVBoxLayout,
+    QWidget,
 )
 
 from napari_chatgpt.llm.litemind_api import is_llm_available
@@ -42,7 +41,7 @@ from napari_chatgpt.microplugin.network.code_drop_server import CodeDropServer
 
 
 class CodeSnippetEditorWidget(QWidget):
-    def __init__(self, folder_path: str, variables: Optional[dict] = None, parent=None):
+    def __init__(self, folder_path: str, variables: dict | None = None, parent=None):
         """
         Create a widget for editing Python code snippets.
 
@@ -275,7 +274,7 @@ class CodeSnippetEditorWidget(QWidget):
         filename = message_dict["filename"]
         code = message_dict["code"]
 
-        # Prepend a comment line to the code that gives the date and time it was recieved and from where?
+        # Prepend a comment line to the code that gives the date and time it was received and from where
         code = (
             f"# File '{filename}' of length: {len(code)} received from {username} at {hostname} ({ip_address}:{port})  at {datetime.now()}\n"
             + code
@@ -292,7 +291,7 @@ class CodeSnippetEditorWidget(QWidget):
             message=message, yes_callback=_accept_file, cancel_text=None
         )
 
-    def populate_list(self, selected_filename: Optional[str] = None):
+    def populate_list(self, selected_filename: str | None = None):
 
         # Clear the list widget and dictionaries:
         self.list_widget.clear()
@@ -363,7 +362,7 @@ class CodeSnippetEditorWidget(QWidget):
                 self.load_snippet()
 
     def truncate_filename(
-        self, filename: str, index: Optional[int] = None, max_length: int = 40
+        self, filename: str, index: int | None = None, max_length: int = 40
     ) -> str:
 
         # Convert index to string if it is not None:
@@ -406,7 +405,7 @@ class CodeSnippetEditorWidget(QWidget):
         self.currently_open_filename = filename
 
         # Load the snippet from the file:
-        with open(os.path.join(self.folder_path, filename), "r") as file:
+        with open(os.path.join(self.folder_path, filename)) as file:
             self.editor_manager.current_editor.setPlainTextUndoable(file.read())
 
     def save_current_file(self):
@@ -425,9 +424,7 @@ class CodeSnippetEditorWidget(QWidget):
             with open(full_path, "w") as file:
                 file.write(self.editor_manager.current_editor.toPlainText())
 
-    def new_file(
-        self, filename: str, code: Optional[str] = "", postfix_if_exists="_copy"
-    ):
+    def new_file(self, filename: str, code: str | None = "", postfix_if_exists="_copy"):
 
         # Make sure the file has '.py' extension:
         if not filename.endswith(".py"):
@@ -536,7 +533,7 @@ class CodeSnippetEditorWidget(QWidget):
 
             # Copy the file on disk
             with open(
-                os.path.join(self.folder_path, original_filename), "r"
+                os.path.join(self.folder_path, original_filename)
             ) as original_file:
                 with open(
                     os.path.join(self.folder_path, new_filename), "w"
@@ -860,7 +857,7 @@ class CodeSnippetEditorWidget(QWidget):
     def current_list_item_changed(self, current, previous):
 
         # If the current item is different from the previous one, load the snippet:
-        if current and (previous == None or current.text != previous.text()):
+        if current and (previous is None or current.text() != previous.text()):
             # Load the snippet:
             self.load_snippet()
 

@@ -3,7 +3,7 @@ import struct
 from time import sleep
 
 from arbol import aprint
-from qtpy.QtCore import Slot, QObject, Signal
+from qtpy.QtCore import QObject, Signal, Slot
 
 
 class DiscoverWorker(QObject):
@@ -34,7 +34,7 @@ class DiscoverWorker(QObject):
     def discover_servers(self):
         try:
             available_multicast_group = None
-            # Trying to bind to any of multicast groups (usefull for testing purposes):
+            # Trying to bind to any of multicast groups (useful for testing purposes):
             for multicast_group in self.multicast_groups:
 
                 try:
@@ -102,7 +102,7 @@ class DiscoverWorker(QObject):
                                 )
                             else:
                                 break  # No more data, stop the loop
-                        except socket.timeout:
+                        except TimeoutError:
                             counter = counter + 1
                             if counter > 30:
                                 aprint(

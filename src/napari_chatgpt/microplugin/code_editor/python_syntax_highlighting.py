@@ -1,7 +1,6 @@
 # syntax.py
 
-from qtpy import QtCore
-from qtpy import QtGui
+from qtpy import QtCore, QtGui
 
 
 def format(color, style=""):
@@ -84,38 +83,38 @@ class PythonSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         ">",
         ">=",
         # Arithmetic
-        "\+",
+        r"\+",
         "-",
-        "\*",
+        r"\*",
         "/",
         "//",
-        "\%",
-        "\*\*",
+        r"\%",
+        r"\*\*",
         # In-place
-        "\+=",
+        r"\+=",
         "-=",
-        "\*=",
+        r"\*=",
         "/=",
-        "\%=",
+        r"\%=",
         # Bitwise
-        "\^",
-        "\|",
-        "\&",
-        "\~",
+        r"\^",
+        r"\|",
+        r"\&",
+        r"\~",
         ">>",
         "<<",
         # Dict:
-        "\|=",
+        r"\|=",
     ]
 
     # Python braces
     braces = [
-        "\{",
-        "\}",
-        "\(",
-        "\)",
-        "\[",
-        "\]",
+        r"\{",
+        r"\}",
+        r"\(",
+        r"\)",
+        r"\[",
+        r"\]",
     ]
 
     def __init__(self, parent: QtGui.QTextDocument) -> None:

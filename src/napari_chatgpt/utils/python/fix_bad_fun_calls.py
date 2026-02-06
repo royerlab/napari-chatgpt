@@ -2,9 +2,8 @@ import re
 import sys
 import traceback
 from difflib import Differ
-from typing import Tuple, Optional
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.llm.litemind_api import get_llm
 from napari_chatgpt.llm.llm import LLM
@@ -16,8 +15,8 @@ from napari_chatgpt.utils.python.python_lang_utils import (
 
 
 def fix_all_bad_function_calls(
-    code: str, llm: Optional[LLM] = None, verbose: bool = False
-) -> Tuple[str, bool, str]:
+    code: str, llm: LLM | None = None, verbose: bool = False
+) -> tuple[str, bool, str]:
     """
     Automatically fix bad function calls in the provided code.
     This function checks if the function calls in the code correspond to existing functions within the installed packages.
@@ -106,7 +105,7 @@ def fix_all_bad_function_calls(
                         # Prepend import:
                         package_name = fixed_function_call.split(".")[0]
                         import_statement = f"import {package_name}\n"
-                        aprint(f"Adding this import statemet: {import_statement}")
+                        aprint(f"Adding this import statement: {import_statement}")
                         fixed_code = import_statement + fixed_code
 
                 with asection(f"Fixed code:"):
@@ -133,9 +132,9 @@ def fix_all_bad_function_calls(
         except Exception as e:
             traceback.print_exc()
             aprint(
-                f"Encoutered exception: {str(e)} while trying to fix code! Returning code unchanged!"
+                f"Encountered exception: {str(e)} while trying to fix code! Returning code unchanged!"
             )
-            # TOODOO: if code does not compile maybe use LLM to fix it?
+            # TODO: if code does not compile maybe use LLM to fix it?
             return code, False, ""
 
 
@@ -162,7 +161,7 @@ please enclose the returned fixed function call using apostrophes: '<fully_quali
 def fix_function_call(
     original_function_call: str,
     fully_qual_fun_name: str,
-    llm: Optional[LLM] = None,
+    llm: LLM | None = None,
     verbose: bool = False,
 ):
     # List of installed packages with their versions:

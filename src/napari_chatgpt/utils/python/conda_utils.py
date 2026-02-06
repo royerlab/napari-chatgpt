@@ -1,19 +1,13 @@
 import subprocess
-from typing import List
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.utils.python.installed_packages import is_package_installed
 
 
-def conda_install(list_of_packages: List[str], channel: str = None) -> bool:
+def conda_install(list_of_packages: list[str], channel: str | None = None) -> bool:
     # Ensure it is a list and remove duplicates:
     list_of_packages = list(set(list_of_packages))
-
-    base_command = "conda install -y"
-
-    if channel:
-        base_command += f" -c {channel}"
 
     error_occurred = False
 
@@ -23,15 +17,18 @@ def conda_install(list_of_packages: List[str], channel: str = None) -> bool:
             if is_package_installed(package):
                 aprint(f"Package {package} is already installed!")
             else:
-                command = f"{base_command} {package}"
+                # Build command as list to avoid shell injection
+                cmd = ["conda", "install", "-y"]
+                if channel:
+                    cmd.extend(["-c", channel])
+                cmd.append(package)
+
                 try:
-                    aprint(f"Pip installing package: {package}")
+                    aprint(f"Conda installing package: {package}")
                     process = subprocess.run(
-                        command,
+                        cmd,
                         check=True,
-                        shell=True,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
+                        capture_output=True,
                     )
                     if process.returncode != 0:
                         aprint(
@@ -46,27 +43,24 @@ def conda_install(list_of_packages: List[str], channel: str = None) -> bool:
     return not error_occurred
 
 
-def conda_uninstall(list_of_packages):
-    base_command = "conda uninstall -y"
-
+def conda_uninstall(list_of_packages: list[str]) -> bool:
     error_occurred = False
 
-    with asection(f"Installing up to {len(list_of_packages)} packages with conda:"):
+    with asection(f"Uninstalling up to {len(list_of_packages)} packages with conda:"):
         for package in list_of_packages:
 
             if not is_package_installed(package):
                 aprint(f"Package {package} is not installed!")
             else:
+                # Build command as list to avoid shell injection
+                cmd = ["conda", "uninstall", "-y", package]
 
-                command = f"{base_command} {package}"
                 try:
                     aprint(f"removing: {package}")
                     process = subprocess.run(
-                        command,
+                        cmd,
                         check=True,
-                        shell=True,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
+                        capture_output=True,
                     )
                     if process.returncode != 0:
                         aprint(

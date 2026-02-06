@@ -2,7 +2,7 @@
 
 import traceback
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
 from napari_chatgpt.utils.llm.summarizer import summarize
@@ -26,7 +26,7 @@ class PythonFunctionsInfoTool(BaseOmegaTool):
             "Use this tool for querying the signature and docstrings of python and library functions from their fully qualified name. "
             "For example, send: 'scipy.ndimage.convolve' and this tool will returns the full signature of this function "
             "with all its parameters and if possible corresponding type hints. "
-            "You can use this tool to check the correct signature of functions before writing python code, or when errors are encoutered. "
+            "You can use this tool to check the correct signature of functions before writing python code, or when errors are encountered."
             "If you want the whole docstring to get a better understanding of the function, its parameters, "
             "and example usages, please prefix your request with the single star character '*'."
         )
@@ -66,6 +66,6 @@ class PythonFunctionsInfoTool(BaseOmegaTool):
                 return result
 
             except Exception as e:
-                error_info = f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to get information about: '{function_path_and_name}'."
+                error_info = f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to get information about: '{function_path_and_name}'."
                 traceback.print_exc()
                 return error_info

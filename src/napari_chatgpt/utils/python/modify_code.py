@@ -1,5 +1,4 @@
 import sys
-from typing import Optional
 
 from arbol import aprint, asection
 
@@ -8,8 +7,7 @@ from napari_chatgpt.llm.llm import LLM
 from napari_chatgpt.utils.python.installed_packages import installed_package_list
 from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 
-_change_code_prompt =\
-"""
+_change_code_prompt = """
 ## Context
 You are an expert Python programmer and software engineer with a specialization in modifying and improving code based on specific requests. Your expertise includes understanding complex Python code and making precise adjustments to fulfill given requirements without altering the original intent or functionality.
 
@@ -52,8 +50,8 @@ Please submit the modified code in Markdown format, ensuring it adheres to the a
 def modify_code(
     code: str,
     request: str,
-    llm: Optional[LLM] = None,
-    model_name: Optional[str] = None,
+    llm: LLM | None = None,
+    model_name: str | None = None,
     verbose: bool = False,
 ) -> str:
     with asection(f"Modifying code upon request for code of length: {len(code)}"):

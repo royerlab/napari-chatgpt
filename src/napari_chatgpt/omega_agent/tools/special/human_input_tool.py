@@ -1,8 +1,8 @@
 """Tool for asking human input."""
 
-from typing import Callable
+from collections.abc import Callable
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 from pydantic import Field
 
 from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool

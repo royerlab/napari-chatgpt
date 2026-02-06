@@ -1,12 +1,13 @@
-from queue import Queue
-from typing import Callable
+import threading
+from collections.abc import Callable
+from queue import Empty, Queue
 
 import napari
 import napari.viewer
-from PIL.Image import fromarray
 from arbol import aprint, asection
 from napari import Viewer
 from napari.qt.threading import thread_worker
+from PIL.Image import fromarray
 
 from napari_chatgpt.omega_agent.tools.special.exception_catcher_tool import (
     enqueue_exception,
@@ -14,18 +15,20 @@ from napari_chatgpt.omega_agent.tools.special.exception_catcher_tool import (
 from napari_chatgpt.utils.napari.napari_viewer_info import get_viewer_info
 from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
 
-# global Variable to exchange information with the viewer:
+# Thread-safe global variable to exchange information with the viewer:
+_viewer_info_lock = threading.Lock()
 _viewer_info = None
 
 
 def _set_viewer_info(viewer_info):
     global _viewer_info
-    _viewer_info = viewer_info
+    with _viewer_info_lock:
+        _viewer_info = viewer_info
 
 
 def _get_viewer_info():
-    global _viewer_info
-    return _viewer_info
+    with _viewer_info_lock:
+        return _viewer_info
 
 
 class NapariBridge:
@@ -102,14 +105,31 @@ class NapariBridge:
         # Execute delegated function in napari context and return result:
         return self._execute_in_napari_context(_delegated_snapshot_function)
 
-    def _execute_in_napari_context(self, delegated_function):
-        try:
+    def _execute_in_napari_context(self, delegated_function, timeout: float = 300.0):
+        """Execute a function in napari's Qt context.
 
+        Parameters
+        ----------
+        delegated_function : Callable
+            Function to execute in napari context.
+        timeout : float
+            Maximum time to wait for response in seconds. Default 300s (5 min).
+
+        Returns
+        -------
+        Any
+            Result from the delegated function, or error message/None on failure.
+        """
+        try:
             # Send code to napari:
             self.to_napari_queue.put(delegated_function)
 
-            # Get response:
-            response = self.from_napari_queue.get()
+            # Get response with timeout to prevent deadlocks:
+            try:
+                response = self.from_napari_queue.get(timeout=timeout)
+            except Empty:
+                aprint(f"Timeout waiting for napari response after {timeout}s")
+                return f"Error: Timeout waiting for napari to respond after {timeout} seconds."
 
             if isinstance(response, ExceptionGuard):
                 exception_guard = response

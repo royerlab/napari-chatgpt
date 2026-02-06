@@ -1,7 +1,5 @@
-from typing import Optional
-
 from arbol import aprint
-from qtpy.QtWidgets import QHBoxLayout, QWidget, QPushButton, QLabel, QSizePolicy
+from qtpy.QtWidgets import QHBoxLayout, QLabel, QPushButton, QSizePolicy, QWidget
 
 
 class YesNoCancelQuestionWidget(QWidget):
@@ -60,7 +58,7 @@ class YesNoCancelQuestionWidget(QWidget):
         message: str,
         yes_text: str = "Yes",
         no_text: str = "No",
-        cancel_text: Optional[str] = "Cancel",
+        cancel_text: str | None = "Cancel",
         yes_callback=None,
         no_callback=None,
         cancel_callback=None,

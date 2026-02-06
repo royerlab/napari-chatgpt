@@ -1,10 +1,10 @@
+import os
 import urllib.request
-from typing import List
 
 from arbol import aprint, asection
 
 
-def download_files(urls, path=None) -> List[str]:
+def download_files(urls, path=None) -> list[str]:
     # Defaults to working directory:
     path = path or os.getcwd()
 
@@ -27,9 +27,9 @@ def download_files(urls, path=None) -> List[str]:
     return filenames
 
 
-import requests
 import tempfile
-import os
+
+import requests
 
 
 def download_file_stealth(url, file_path=None) -> str:

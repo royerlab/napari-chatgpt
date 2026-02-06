@@ -19,6 +19,5 @@ def remove_invalid_python_lines(code: str):
             valid_lines.append(line)
         except SyntaxError:
             aprint(f"Removed this line because not valid python:\n{line}\n")
-            pass
 
     return "\n".join(valid_lines)

@@ -38,6 +38,4 @@ def find_magicgui_decorated_function_name(code: str):
             function_name = line[start:end].strip()
             return function_name
 
-            # Stop after finding the first function definition:
-            break
     return None

@@ -1,6 +1,6 @@
 import os
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.utils.qt.qt_app import get_or_create_qt_app
 
@@ -39,6 +39,7 @@ def set_api_key(api_name: str) -> bool:
         # Something technical required for Qt to be happy:
         app = get_or_create_qt_app()
 
+        api_key = None
         if app:
             # Get the key from vault or via user, password protected:
             from napari_chatgpt.llm.api_keys.api_key_vault_dialog import (

@@ -2,7 +2,7 @@
 
 import traceback
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 from napari import Viewer
 
 from napari_chatgpt.omega_agent.tools.base_napari_tool import BaseNapariTool
@@ -109,7 +109,7 @@ class NapariFileOpenTool(BaseNapariTool):
                 return result
             else:
                 result = (
-                    f"Failure: none of the image files could not be opened!\n"
+                    f"Failure: none of the image files could be opened!\n"
                     f"Here are the exceptions, if any, that occurred:\n"
                     f"{encountered_errors_str}.\n"
                 )

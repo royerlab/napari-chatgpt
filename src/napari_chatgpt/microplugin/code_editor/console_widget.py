@@ -1,11 +1,11 @@
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
-    QVBoxLayout,
-    QWidget,
-    QTextEdit,
     QApplication,
     QHBoxLayout,
     QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
 
 

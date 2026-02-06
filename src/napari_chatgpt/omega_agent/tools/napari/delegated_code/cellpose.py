@@ -1,19 +1,23 @@
-from typing import Sequence, Optional
+from collections.abc import Sequence
 
 from napari.types import ArrayLike
 from numpy import ndarray
+
+from napari_chatgpt.utils.segmentation.remove_small_segments import (
+    remove_small_segments,
+)
 
 
 ### SIGNATURE
 def cellpose_segmentation(
     image: ArrayLike,
     model_type: str = "cyto",
-    normalize: Optional[bool] = True,
-    norm_range_low: Optional[float] = 1.0,
-    norm_range_high: Optional[float] = 99.8,
+    normalize: bool | None = True,
+    norm_range_low: float | None = 1.0,
+    norm_range_high: float | None = 99.8,
     min_segment_size: int = 32,
-    channel: Optional[Sequence[int]] = None,
-    diameter: Optional[float] = None,
+    channel: Sequence[int] | None = None,
+    diameter: float | None = None,
 ) -> ndarray:
     """
     CP cell segmentation function.
@@ -84,11 +88,13 @@ def cellpose_segmentation(
     # Load cellpose models:
     from cellpose import models
 
-    model = models.Cellpose(model_type=model_type)
+    model = models.CellposeModel(model_type=model_type)
 
     if len(image.shape) == 2:
         # Run cellpose in 2D mode:
-        labels, _, _, _ = model.eval([image], diameter=diameter, channels=[channel])
+        labels = model.eval(
+            image, diameter=diameter, channels=channel, min_size=min_segment_size
+        )[0]
     elif len(image.shape) == 3:
 
         # If no diameter is provided, use a default value:
@@ -96,22 +102,16 @@ def cellpose_segmentation(
             diameter = 30.0
 
         # Run cellpose in 3D mode:
-        labels, _, _, _ = model.eval(
-            [image], diameter=diameter, channels=[channel], do_3D=True, z_axis=0
-        )
-    # Get the first label array from the list:
-    labels = labels[0]
+        labels = model.eval(
+            image,
+            diameter=diameter,
+            channels=channel,
+            do_3D=True,
+            z_axis=0,
+            min_size=min_segment_size,
+        )[0]
 
     # Remove small segments:
     labels = remove_small_segments(labels, min_segment_size)
 
-    return labels
-
-
-def remove_small_segments(labels, min_segment_size):
-    # remove small segments:
-    if min_segment_size > 0:
-        from skimage.morphology import remove_small_objects
-
-        labels = remove_small_objects(labels, min_segment_size)
     return labels

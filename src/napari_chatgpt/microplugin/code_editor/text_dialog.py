@@ -1,6 +1,6 @@
 # Custom dialog for displaying large amounts of text within reasonable limits
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QDialog, QTextEdit, QSizePolicy, QVBoxLayout, QPushButton
+from qtpy.QtWidgets import QDialog, QPushButton, QSizePolicy, QTextEdit, QVBoxLayout
 
 
 class TextDialog(QDialog):

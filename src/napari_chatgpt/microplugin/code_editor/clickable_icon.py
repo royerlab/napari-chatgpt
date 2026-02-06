@@ -1,8 +1,5 @@
-from typing import Union
-
 from qtpy.QtCore import Qt, Signal
-from qtpy.QtGui import QIcon, QPixmap, QColor, QImage
-from qtpy.QtGui import QPainter
+from qtpy.QtGui import QColor, QIcon, QImage, QPainter, QPixmap
 from qtpy.QtWidgets import QLabel
 
 
@@ -11,7 +8,7 @@ class ClickableIcon(QLabel):
 
     def __init__(
         self,
-        icon: Union[QIcon, QPixmap, str],
+        icon: QIcon | QPixmap | str,
         size: int = 24,
         invert_colors: bool = True,
         parent=None,

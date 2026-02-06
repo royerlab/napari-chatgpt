@@ -1,14 +1,12 @@
-from typing import Optional
-
-from arbol import asection, aprint
+from arbol import aprint, asection
 from litemind import CombinedApi
 from litemind.apis.base_api import BaseApi
 from litemind.apis.model_features import ModelFeatures
 
 
 def is_vision_available(
-    api: Optional[BaseApi] = None,
-    model_name: Optional[str] = None,
+    api: BaseApi | None = None,
+    model_name: str | None = None,
 ) -> bool:
     """
     Check if vision is available.
@@ -55,8 +53,8 @@ def is_vision_available(
 def describe_image(
     image_path: str,
     query: str = "Here is an image, please carefully describe it in detail.",
-    api: Optional[BaseApi] = None,
-    model_name: Optional[str] = None,
+    api: BaseApi | None = None,
+    model_name: str | None = None,
     number_of_tries: int = 4,
 ) -> str:
     """

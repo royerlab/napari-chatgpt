@@ -8,7 +8,6 @@ _default_openai_model_name = None
 
 def get_default_openai_model_name() -> str:
     # Check if the model name is in the cache:
-    global _default_openai_model_name
     if _default_openai_model_name is not None:
         aprint(f"Using cached default OpenAI model name: {_default_openai_model_name}")
         return _default_openai_model_name

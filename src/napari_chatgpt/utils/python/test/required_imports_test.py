@@ -3,8 +3,8 @@ from arbol import aprint
 
 from napari_chatgpt.llm.litemind_api import is_llm_available
 from napari_chatgpt.utils.python.required_imports import (
-    required_imports,
     check_import_statement,
+    required_imports,
 )
 
 _code_snippet_1 = """

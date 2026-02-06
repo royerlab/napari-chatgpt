@@ -1,7 +1,6 @@
 import random
 import re
 import time
-from typing import Optional
 
 from bs4 import BeautifulSoup
 from bs4.element import Comment
@@ -28,7 +27,7 @@ def _tag_visible(element):
 def text_from_html(
     body,
     cleanup: bool = True,
-    max_text_snippets: Optional[int] = None,
+    max_text_snippets: int | None = None,
     min_words: int = 5,
     sort_snippets_by_decreasing_size: bool = True,
 ):
@@ -87,6 +86,8 @@ def text_from_url(
     sort_snippets_by_decreasing_size: bool = True,
     max_query_freq_hz: float = 100,
 ) -> str:
+    global _last_query_time_ms
+
     with Session() as session:
         # Instantiates a session so that websites that request to set cookies can be happy:
         response = session.get(url, headers=_scrapping_request_headers)
@@ -110,5 +111,8 @@ def text_from_url(
         # Release wait if deadline passed:
         while _current_time_ms() < deadline_ms:
             time.sleep(0.005)
+
+        # Update the last query time for rate limiting
+        _last_query_time_ms = _current_time_ms()
 
         return text

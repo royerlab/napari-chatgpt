@@ -6,7 +6,7 @@ from napari_chatgpt.utils.openai.default_model import get_default_openai_model_n
 
 @pytest.mark.skipif(not is_llm_available(), reason="requires LLM to run")
 def test_default_model():
-    assert (
-        "gpt-3" in get_default_openai_model_name()
-        or "gpt-4" in get_default_openai_model_name()
-    )
+    model_name = get_default_openai_model_name()
+    # Check that the model name is a valid GPT model (gpt-3, gpt-4, gpt-5, etc.)
+    assert model_name is not None
+    assert model_name.startswith("gpt-")

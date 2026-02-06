@@ -1,5 +1,5 @@
 from arbol import aprint
-from ddgs.exceptions import RatelimitException
+from duckduckgo_search.exceptions import DuckDuckGoSearchException
 
 from napari_chatgpt.utils.web.google import search_overview
 
@@ -11,8 +11,8 @@ def test_google_search_overview():
 
         aprint(text)
 
-    except RatelimitException as e:
-        aprint(f"RatelimitException: {e}")
+    except DuckDuckGoSearchException as e:
+        aprint(f"DuckDuckGoSearchException: {e}")
         import traceback
 
         traceback.print_exc()

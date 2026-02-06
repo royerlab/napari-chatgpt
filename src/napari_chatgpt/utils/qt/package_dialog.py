@@ -1,13 +1,11 @@
-from typing import Optional
-
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
     QDialog,
-    QVBoxLayout,
+    QLabel,
     QListWidget,
     QPushButton,
-    QLabel,
     QSizePolicy,
+    QVBoxLayout,
 )
 
 from napari_chatgpt.utils.qt.qt_app import get_or_create_qt_app, run_on_main_thread
@@ -17,7 +15,7 @@ class PackageDialog(QDialog):
     def __init__(self, packages, parent=None):
         super().__init__(parent, flags=Qt.WindowStaysOnTopHint)
         self.packages = packages
-        self.user_response: Optional[bool] = None
+        self.user_response: bool | None = None
         self.initUI()
 
     def initUI(self):
@@ -27,7 +25,7 @@ class PackageDialog(QDialog):
         message_label = QLabel(
             "The following packages need to be installed. \n"
             "Please review the list and accept or refuse. \n"
-            "If you refuse Omega might not be able to fullfill the task.",
+            "If you refuse Omega might not be able to fulfill the task.",
             self,
         )
 

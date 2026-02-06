@@ -35,4 +35,15 @@ def test_consolidate_imports():
     print("")
     print(result)
 
-    assert len(result.split("\n")) == 20
+    # Check that duplicate imports were removed
+    assert result.count("import napari") == 1
+    assert result.count("import numpy as np") == 1
+    assert result.count("from scipy.ndimage import gaussian_filter") == 1
+
+    # Check that code content is preserved
+    assert "selected_image_layer = viewer.layers.selection.active" in result
+    assert "gaussian_filter(image_data, sigma=2)" in result
+    assert "viewer.add_image" in result
+
+    # Check that the result is shorter than the original (duplicates removed)
+    assert len(result.split("\n")) < len(code_to_consolidate_imports.split("\n"))

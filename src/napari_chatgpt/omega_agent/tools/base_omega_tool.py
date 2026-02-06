@@ -34,7 +34,6 @@ class BaseOmegaTool(FunctionTool):
         -------
 
         """
-        pass
 
     def normalise_to_string(self, kwargs):
 

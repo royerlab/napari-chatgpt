@@ -2,7 +2,7 @@
 
 import traceback
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
 from napari_chatgpt.utils.python.installed_packages import is_package_installed
@@ -73,6 +73,6 @@ class PipInstallTool(BaseOmegaTool):
                 return message
 
             except Exception as e:
-                error_info = f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to install these packages: '{','.join(packages)}'."
+                error_info = f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to install these packages: '{','.join(packages)}'."
                 traceback.print_exc()
                 return error_info

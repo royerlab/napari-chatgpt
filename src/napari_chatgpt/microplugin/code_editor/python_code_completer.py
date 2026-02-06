@@ -5,7 +5,7 @@ from qtpy.QtWidgets import QCompleter
 
 class PythonCodeCompleter(QCompleter):
     def __init__(self, parent=None):
-        super(PythonCodeCompleter, self).__init__(parent)
+        super().__init__(parent)
 
         # Set the completion mode to PopupCompletion to display the completions in a popup:
         self.setCompletionMode(QCompleter.PopupCompletion)

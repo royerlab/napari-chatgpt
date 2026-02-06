@@ -4,7 +4,7 @@ from arbol import aprint
 
 def check_stardist_installed() -> bool:
     try:
-        import stardist
+        import stardist  # noqa: F401
 
         return True
     except ImportError:
@@ -14,14 +14,14 @@ def check_stardist_installed() -> bool:
 # Function that checks if the packages cellpose or cellpose-napari are installed:
 def check_cellpose_installed() -> bool:
     try:
-        import cellpose
+        import cellpose  # noqa: F401
 
         return True
     except ImportError:
         return False
 
 
-def get_list_of_algorithms() -> str:
+def get_list_of_algorithms() -> list:
     algos = []
     if check_cellpose_installed():
         aprint("Cellpose is installed!")
@@ -43,7 +43,7 @@ def get_description_of_algorithms() -> str:
 
     for algo in algos:
         if "cellpose" in algo:
-            description += "'segment cell's cytoplams in given layer with Cellpose', "
+            description += "'segment cell's cytoplasms in given layer with Cellpose', "
 
         elif "stardist" in algo:
             description += "'segment cell nuclei in selected 3D layer with StarDist', "

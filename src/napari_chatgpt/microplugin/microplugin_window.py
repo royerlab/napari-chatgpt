@@ -1,6 +1,5 @@
 import os
 import sys
-from typing import Tuple, Optional
 
 from arbol import aprint
 from napari._qt.qt_resources import get_current_stylesheet
@@ -22,7 +21,7 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
         if cls._singleton_pattern_active:
             if cls._singleton_instance is None:
                 # Call __new__ of the parent class and save the instance:
-                cls._singleton_instance = super(MicroPluginMainWindow, cls).__new__(cls)
+                cls._singleton_instance = super().__new__(cls)
 
             return cls._singleton_instance
 
@@ -34,8 +33,8 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
     def __init__(
         self,
         napari_viewer,
-        folder_path: Optional[str] = None,
-        size: Optional[Tuple[int, int]] = None,
+        folder_path: str | None = None,
+        size: tuple[int, int] | None = None,
         parent=None,
         *args,
         **kwargs,
@@ -68,7 +67,7 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        super(MicroPluginMainWindow, self).__init__(
+        super().__init__(
             folder_path=folder_path,
             title="Micro-Plugins Editor",
             size=size,
@@ -111,7 +110,7 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
         MicroPluginMainWindow._singleton_instance_initialized = True
 
     @staticmethod
-    def add_snippet(filename: str, code: Optional[str] = None):
+    def add_snippet(filename: str, code: str | None = None):
 
         # Create a new file with the given code:
         MicroPluginMainWindow._singleton_instance.code_editor_widget.new_file(

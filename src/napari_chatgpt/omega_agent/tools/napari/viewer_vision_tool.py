@@ -3,14 +3,13 @@
 import re
 import tempfile
 import traceback
-from typing import Optional
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 from napari import Viewer
 
 from napari_chatgpt.omega_agent.tools.base_napari_tool import BaseNapariTool
-from napari_chatgpt.utils.napari.layer_snapshot import capture_canvas_snapshot
 from napari_chatgpt.utils.llm.vision import describe_image
+from napari_chatgpt.utils.napari.layer_snapshot import capture_canvas_snapshot
 
 
 class NapariViewerVisionTool(BaseNapariTool):
@@ -57,9 +56,6 @@ class NapariViewerVisionTool(BaseNapariTool):
                 with asection(f"Query:"):
                     aprint(query)
 
-                import napari
-                from PIL import Image
-
                 # list of layers in the viewer:
                 present_layer_names = list(layer.name for layer in viewer.layers)
 
@@ -68,7 +64,7 @@ class NapariViewerVisionTool(BaseNapariTool):
 
                 # If there is no match, look for words that start with '*':
                 if not match:
-                    # This sometimes happens if the LLM gets confused about teh exact syntax requested:
+                    # This sometimes happens if the LLM gets confused about the exact syntax requested:
 
                     # We find a match with just one star '*' and a word:
                     match = re.search(r"\*(.*?)[\s]+", query)
@@ -141,7 +137,7 @@ class NapariViewerVisionTool(BaseNapariTool):
 
         except Exception as e:
             traceback.print_exc()
-            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to query the napari viewer."  # with code:\n```python\n{code}\n```\n.
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to query the napari viewer."  # with code:\n```python\n{code}\n```\n.
 
 
 def _get_description_for_selected_layer(
@@ -226,7 +222,7 @@ def _get_layer_image_description(
     viewer,
     query,
     vision_model_name: str,
-    layer_name: Optional[str] = None,
+    layer_name: str | None = None,
     delete: bool = False,
     reset_view: bool = False,
 ) -> str:

@@ -1,6 +1,6 @@
 import traceback
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.llm.api_keys.api_key import set_api_key
 
@@ -72,7 +72,7 @@ def get_openai_model_list(filter: str = "gpt", verbose: bool = False) -> list:
         except Exception as e:
             # Error message:
             aprint(
-                f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to get the list of OpenAI models. "
+                f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to get the list of OpenAI models. "
             )
             # print stacktrace:
             traceback.print_exc()
@@ -82,7 +82,7 @@ def get_openai_model_list(filter: str = "gpt", verbose: bool = False) -> list:
 
 def postprocess_openai_model_list(model_list: list) -> list:
     """
-    Postprocess the list of OpenAI models. This is usefull to remove problematic models from the list and sort models in decreasing order of quality.
+    Postprocess the list of OpenAI models. This is useful to remove problematic models from the list and sort models in decreasing order of quality.
 
     Parameters
     ----------

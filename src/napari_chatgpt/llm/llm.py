@@ -1,5 +1,3 @@
-from typing import Optional, List
-
 from litemind.agent.messages.message import Message
 from litemind.apis.base_api import BaseApi
 
@@ -10,7 +8,7 @@ class LLM:
     """
 
     def __init__(
-        self, api: BaseApi, model_name: Optional[str] = None, temperature: float = 0.0
+        self, api: BaseApi, model_name: str | None = None, temperature: float = 0.0
     ):
         """
         Initializes the LLM with the given API and model name.
@@ -31,11 +29,11 @@ class LLM:
     def generate(
         self,
         prompt: str,
-        system: Optional[str] = None,
-        variables: Optional[dict[str, str]] = None,
-        model_name: Optional[str] = None,
-        temperature: Optional[float] = None,
-    ) -> List[Message]:
+        system: str | None = None,
+        variables: dict[str, str] | None = None,
+        model_name: str | None = None,
+        temperature: float | None = None,
+    ) -> list[Message]:
         """
         Generates a response from the LLM based on the provided prompt and instructions.
         Parameters
@@ -72,6 +70,9 @@ class LLM:
 
         if temperature is None:
             temperature = self.temperature
+
+        if model_name is None:
+            model_name = self.model_name
 
         # Append the user message to the messages list:
         messages.append(message)

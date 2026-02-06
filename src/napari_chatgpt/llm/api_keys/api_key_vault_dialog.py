@@ -57,12 +57,12 @@ class APIKeyDialog(QDialog):
             layout.addWidget(self.api_key_textbox)
 
         # Create the label, text field, and button
-        passsword_label_text = (
+        password_label_text = (
             "Enter password to unlock key:"
             if self.key_vault.is_key_present()
             else "Enter password to secure key:"
         )
-        self.password_label = QLabel(passsword_label_text, self)
+        self.password_label = QLabel(password_label_text, self)
         self.password_textbox = QLineEdit(self)
         self.password_textbox.setEchoMode(QLineEdit.Password)
         # Set tooltip text:

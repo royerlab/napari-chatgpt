@@ -1,7 +1,7 @@
 import socket
 
 from arbol import aprint
-from qtpy.QtCore import Slot, QObject, Signal
+from qtpy.QtCore import QObject, Signal, Slot
 
 
 class ReceiveWorker(QObject):
@@ -57,7 +57,7 @@ class ReceiveWorker(QObject):
                     # Emit the message received signal:
                     self.message_received.emit(addr, message)
 
-                except socket.timeout:
+                except TimeoutError:
                     # No biggie! Just keep listening:
                     pass
 

@@ -21,5 +21,5 @@ def test_summarizer():
 
     aprint(summary)
 
-    assert len(text) > 0
-    assert "Einstein" in text
+    assert len(summary) > 0
+    assert "Einstein" in summary or "physicist" in summary

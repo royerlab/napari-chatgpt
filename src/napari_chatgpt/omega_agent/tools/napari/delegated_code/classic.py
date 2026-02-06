@@ -1,26 +1,24 @@
-from typing import Optional
-
 from napari.types import ArrayLike
-from numpy import zeros, uint32, ndarray
-from scipy.ndimage import label, distance_transform_edt, gaussian_filter
+from numpy import ndarray, uint32, zeros
+from scipy.ndimage import distance_transform_edt, gaussian_filter
 from skimage.feature import peak_local_max
 from skimage.filters import (
-    threshold_otsu,
-    threshold_yen,
-    threshold_li,
-    threshold_minimum,
-    threshold_triangle,
-    threshold_mean,
     threshold_isodata,
+    threshold_li,
+    threshold_mean,
+    threshold_minimum,
+    threshold_otsu,
+    threshold_triangle,
+    threshold_yen,
 )
 from skimage.measure import label
 from skimage.morphology import (
+    ball,
     closing,
     disk,
-    ball,
-    remove_small_objects,
     erosion,
     opening,
+    remove_small_objects,
 )
 from skimage.segmentation import watershed
 
@@ -29,9 +27,9 @@ from skimage.segmentation import watershed
 def classic_segmentation(
     image: ArrayLike,
     threshold_type: str = "otsu",
-    normalize: Optional[bool] = True,
-    norm_range_low: Optional[float] = 1.0,
-    norm_range_high: Optional[float] = 99.8,
+    normalize: bool | None = True,
+    norm_range_low: float | None = 1.0,
+    norm_range_high: float | None = 99.8,
     min_segment_size: int = 32,
     erosion_steps: int = 1,
     closing_steps: int = 1,

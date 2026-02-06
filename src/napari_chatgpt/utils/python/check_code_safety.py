@@ -1,3 +1,4 @@
+import re
 import sys
 
 from arbol import aprint, asection
@@ -6,8 +7,7 @@ from napari_chatgpt.llm.litemind_api import get_llm
 from napari_chatgpt.llm.llm import LLM
 from napari_chatgpt.utils.python.installed_packages import installed_package_list
 
-_check_code_safety_prompt = \
-"""
+_check_code_safety_prompt = """
 **Context:**
 You are an expert Python coder with extensive cybersecurity experience and knowledge. 
 You can analyse complex python code and assess its safety from an user standpoint.
@@ -86,19 +86,9 @@ def check_code_safety(
             # Cleanup:
             response = response.strip()
 
-            # Find the upper case letter between asterisks, for example A in *A*, buy serachinhg for the four ranks: *A*, *B*, *C*, *D*, *E*:
-            if "*A*" in response or "*Rank: A*" in response:
-                safety_rank = "A"
-            elif "*B*" in response or "*Rank: B*" in response:
-                safety_rank = "B"
-            elif "*C*" in response or "*Rank: C*" in response:
-                safety_rank = "C"
-            elif "*D*" in response or "*Rank: D*" in response:
-                safety_rank = "D"
-            elif "*E*" in response or "*Rank: E*" in response:
-                safety_rank = "E"
-            else:
-                safety_rank = "Unknown"
+            # Find the safety rank in the response using various patterns
+            # The LLM may format the rank as *A*, **A**, \*A\*, rated A, Rank: A, etc.
+            safety_rank = _extract_safety_rank(response)
 
             return response, safety_rank
 
@@ -108,3 +98,24 @@ def check_code_safety(
             traceback.print_exc()
             aprint(e)
             return "", "Unknown"
+
+
+def _extract_safety_rank(response: str) -> str:
+    """Extract safety rank (A-E) from LLM response using multiple patterns."""
+    # Patterns to match various LLM formatting styles:
+    # *A*, **A**, \*A\*, rated A, Rank: A, rating: A, etc.
+    patterns = [
+        r"\*+\\?\*?([A-E])\\?\*?\*+",  # *A*, **A**, \*A\*, etc.
+        r"rated\s+\*?([A-E])\*?",  # rated A, rated *A*
+        r"rank[:\s]+\*?([A-E])\*?",  # Rank: A, rank A
+        r"rating[:\s]+\*?([A-E])\*?",  # rating: A
+        r"is\s+\*?([A-E])\*?[:\s]",  # is A:, is *A*:
+        r"\*\*([A-E])\*\*",  # **A** (bold markdown)
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, response, re.IGNORECASE)
+        if match:
+            return match.group(1).upper()
+
+    return "Unknown"

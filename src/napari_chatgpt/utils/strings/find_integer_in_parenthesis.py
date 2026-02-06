@@ -1,7 +1,4 @@
-from typing import Tuple
-
-
-def find_integer_in_parenthesis(string: str) -> Tuple[str, int]:
+def find_integer_in_parenthesis(string: str) -> tuple[str, int]:
     """Finds an integer surrounded by parenthesis in a string and returns that integer and the text without the number in parenthesis.
 
     Args:

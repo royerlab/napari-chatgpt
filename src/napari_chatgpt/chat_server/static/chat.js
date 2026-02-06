@@ -100,7 +100,7 @@ function parse_markdown(str) {
 }
 
 // Endpoint for websocket:
-var endpoint = "ws://localhost:9000/chat";
+var endpoint = "ws://localhost:" + WS_PORT + "/chat";
 var ws = new WebSocket(endpoint);
 
 // Default subtitle:

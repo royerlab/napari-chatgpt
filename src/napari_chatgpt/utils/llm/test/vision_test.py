@@ -2,10 +2,7 @@ import pytest
 from arbol import aprint
 
 from napari_chatgpt.llm.litemind_api import is_llm_available
-from napari_chatgpt.utils.llm.vision import (
-    is_vision_available,
-    describe_image,
-)
+from napari_chatgpt.utils.llm.vision import describe_image, is_vision_available
 
 
 @pytest.mark.skipif(not is_llm_available(), reason="requires LLM to run")

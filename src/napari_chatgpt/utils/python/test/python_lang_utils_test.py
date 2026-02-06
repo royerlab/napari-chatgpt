@@ -4,13 +4,13 @@ from arbol import aprint
 
 from napari_chatgpt.utils.python.python_lang_utils import (
     enumerate_methods,
-    find_function_info_in_package,
-    get_function_info,
-    object_info_str,
     extract_fully_qualified_function_names,
+    find_function_info_in_package,
     function_exists,
-    get_imported_modules,
+    get_function_info,
     get_function_signature,
+    get_imported_modules,
+    object_info_str,
 )
 
 

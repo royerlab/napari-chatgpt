@@ -5,31 +5,32 @@ def check_openai_api_key(openai_api_key: str) -> bool:
     """
     Check if the OpenAI API key is valid.
 
-    Args:
-    api_key (
+    Parameters
+    ----------
+    openai_api_key : str
+        The OpenAI API key to check.
+
+    Returns
+    -------
+    bool
+        True if the API key is valid, False otherwise.
     """
-
-    import openai
-
-    # Save existing API key:
-    existing_api_key = openai.api_key
-
     try:
-        # Tries to use the API key:
-        import openai
+        from openai import AuthenticationError, OpenAI
 
-        openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "Test message"}],
-        )
+        # Create a client with the provided API key:
+        client = OpenAI(api_key=openai_api_key)
+
+        # Try a minimal API call to validate the key:
+        client.models.list()
+
         aprint("API key is valid.")
         return True
 
-    except openai.error.AuthenticationError:
+    except AuthenticationError:
         aprint("Invalid API key.")
         return False
 
-    finally:
-        # Restore existing API key:
-        if existing_api_key:
-            openai.api_key = existing_api_key
+    except Exception as e:
+        aprint(f"Error checking API key: {e}")
+        return False

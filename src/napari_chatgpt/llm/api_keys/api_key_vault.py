@@ -1,11 +1,13 @@
 import base64
 import json
 import os
-from typing import Union
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+# Legacy salt for backward compatibility with existing keys
+_LEGACY_SALT = b"123456789"
 
 
 class KeyVault:
@@ -28,16 +30,18 @@ class KeyVault:
             pass
 
     def write_api_key(self, api_key: str, password: str) -> str:
+        # Generate a random salt for new keys (16 bytes)
+        salt = os.urandom(16)
 
-        cipher_suite = Fernet(_normalise_password(password))
+        cipher_suite = Fernet(_normalise_password(password, salt=salt))
 
         # Write the encrypted key to the file
         with open(self.keys_file, "w") as f:
             # Compute encrypted key:
             encrypted_key = _encode64(cipher_suite.encrypt(bytes(api_key, "ascii")))
 
-            # Create a dictionary containing the encrypted key
-            data = {"api_key": encrypted_key}
+            # Create a dictionary containing the encrypted key and salt
+            data = {"api_key": encrypted_key, "salt": _encode64(salt)}
 
             # Write the dictionary to the file
             json.dump(data, f)
@@ -47,7 +51,7 @@ class KeyVault:
     def is_key_present(self) -> bool:
 
         try:
-            with open(self.keys_file, "r") as f:
+            with open(self.keys_file) as f:
 
                 # Load the dictionary from the file
                 data = json.load(f)
@@ -58,11 +62,17 @@ class KeyVault:
             return False
 
     def read_api_key(self, password: str) -> str:
-        cipher_suite = Fernet(_normalise_password(password))
-
-        with open(self.keys_file, "r") as f:
+        with open(self.keys_file) as f:
             # Load the dictionary from the file
             data = json.load(f)
+
+            # Check if salt exists (new format) or use legacy salt (backward compat)
+            if "salt" in data:
+                salt = _decode64(data["salt"], to_string=False)
+            else:
+                salt = _LEGACY_SALT
+
+            cipher_suite = Fernet(_normalise_password(password, salt=salt))
 
             # Get the encrypted key from the dictionary
             encrypted_key = _decode64(data["api_key"], to_string=False)
@@ -73,7 +83,7 @@ class KeyVault:
             return api_key
 
 
-def _normalise_password(password: str, salt: bytes = b"123456789"):
+def _normalise_password(password: str, salt: bytes):
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
@@ -86,7 +96,7 @@ def _normalise_password(password: str, salt: bytes = b"123456789"):
     return key
 
 
-def _encode64(message: Union[str, bytes]):
+def _encode64(message: str | bytes):
     if type(message) == str:
         message = message.encode("ascii")
 

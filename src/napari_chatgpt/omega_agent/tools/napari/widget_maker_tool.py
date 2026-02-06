@@ -2,7 +2,7 @@
 
 import traceback
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 from napari import Viewer
 
 from napari_chatgpt.omega_agent.tools.base_napari_tool import BaseNapariTool
@@ -13,8 +13,7 @@ from napari_chatgpt.utils.strings.find_function_name import (
 )
 from napari_chatgpt.utils.strings.trailing_code import remove_trailing_code
 
-_napari_widget_maker_prompt = \
-"""
+_napari_widget_maker_prompt = """
 **Context**
 You are an expert python programmer with deep expertise in image processing and analysis.
 
@@ -153,7 +152,8 @@ from typing import Union
 
 _code_lines_to_filter_out = [
     "viewer = napari.Viewer(",
-    "viewer = Viewer(" "viewer.window.add_dock_widget(",
+    "viewer = Viewer(",
+    "viewer.window.add_dock_widget(",
     "napari.run(",
     "viewer.add_image(",
     "viewer.add_labels(",
@@ -272,4 +272,4 @@ class NapariWidgetMakerTool(BaseNapariTool):
 
         except Exception as e:
             traceback.print_exc()
-            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to create the requested widget. "  # with code:\n```python\n{code}\n```\n.
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to create the requested widget. "  # with code:\n```python\n{code}\n```\n.

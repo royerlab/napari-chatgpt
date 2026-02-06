@@ -3,7 +3,7 @@ import re
 from contextlib import redirect_stdout
 from io import StringIO
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
 
@@ -52,25 +52,23 @@ class PythonCodeExecutionTool(BaseOmegaTool):
                 try:
                     with redirect_stdout(io_buffer):
                         ret = eval(module_end_str, _globals, _locals)
-                        if ret is None:
-                            return io_buffer.getvalue()
-                        else:
-                            return ret
-
+                        output = io_buffer.getvalue() if ret is None else ret
                 except Exception:
                     with redirect_stdout(io_buffer):
                         exec(module_end_str, _globals, _locals)
-                    return io_buffer.getvalue()
+                    output = io_buffer.getvalue()
 
                 # Call the activity callback. At this point we assume the code is correct because it ran!
-                self.callbacks.on_tool_activity(self, "coding", code=code)
+                self.callbacks.on_tool_activity(self, "coding", code=query)
 
                 # add code cell to notebook if available:
                 if self.notebook:
                     self.notebook.add_code_cell(query)
 
+                return output
+
             except Exception as e:
-                return "{}: {}".format(type(e).__name__, str(e))
+                return f"{type(e).__name__}: {str(e)}"
 
 
 def sanitize_input(query: str) -> str:

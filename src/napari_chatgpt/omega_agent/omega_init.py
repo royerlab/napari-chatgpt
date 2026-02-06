@@ -1,7 +1,6 @@
 from queue import Queue
-from typing import Optional
 
-from arbol import asection, aprint
+from arbol import aprint, asection
 from litemind.agent.agent import Agent
 from litemind.agent.messages.message import Message
 from litemind.agent.tools.callbacks.base_tool_callbacks import BaseToolCallbacks
@@ -9,12 +8,12 @@ from litemind.agent.tools.toolset import ToolSet
 from litemind.apis.model_features import ModelFeatures
 
 from napari_chatgpt.llm.litemind_api import (
-    get_llm,
     get_litemind_api,
+    get_llm,
     has_model_support_for,
 )
 from napari_chatgpt.omega_agent.omega_agent import OmegaAgent
-from napari_chatgpt.omega_agent.prompts import SYSTEM, PERSONALITY, DIDACTICS
+from napari_chatgpt.omega_agent.prompts import DIDACTICS, PERSONALITY, SYSTEM
 from napari_chatgpt.utils.configuration.app_configuration import AppConfiguration
 from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
 
@@ -35,7 +34,7 @@ def initialize_omega_agent(
     autofix_mistakes: bool = False,
     autofix_widget: bool = False,
     be_didactic: bool = False,
-    tool_callbacks: Optional[BaseToolCallbacks] = None,
+    tool_callbacks: BaseToolCallbacks | None = None,
     verbose: bool = False,
 ) -> Agent:
     with asection("Initialising Omega Agent"):
@@ -187,7 +186,6 @@ def _append_all_napari_tools(tool_context, tools, vision_llm_model_name):
 
 def _append_basic_tools(tool_context, tools):
     from napari_chatgpt.omega_agent.tools.search.web_search_tool import WebSearchTool
-
     from napari_chatgpt.omega_agent.tools.special.exception_catcher_tool import (
         ExceptionCatcherTool,
     )

@@ -1,4 +1,4 @@
-from arbol import asection, aprint
+from arbol import aprint, asection
 
 from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
 from napari_chatgpt.utils.download.download_files import download_files
@@ -16,7 +16,7 @@ class FileDownloadTool(BaseOmegaTool):
 
         self.name = "UrlDownloadTool"
         self.description = (
-            "Use this tool to download file(s) by writing: download(<urls>) where <urls> is a list of valid and syntatically correct URLs. "
+            "Use this tool to download file(s) by writing: download(<urls>) where <urls> is a list of valid and syntactically correct URLs."
             "The file(s) is(are) stored in the current folder using its(their) filename as found in the URL, "
             "and thus is(are) directly accessible using its(their) filename. "
             "Use this tool to download files before any subsequent operations on these files."
@@ -47,4 +47,4 @@ class FileDownloadTool(BaseOmegaTool):
                 return message
 
         except Exception as e:
-            return f"Error: {type(e).__name__} with message: '{str(e)}' occured while trying to download files from: '{query}'."
+            return f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to download files from: '{query}'."
