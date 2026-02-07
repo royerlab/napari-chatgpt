@@ -356,7 +356,7 @@ class OmegaQWidget(QWidget):
         self.verbose_checkbox.setToolTip(
             "High level of verbosity in the console\n"
             "This includes a lot of internal logging\n"
-            "from the langchain library.\n"
+            "from the litemind library.\n"
             "Nearly incomprehensible, but useful\n"
             "if you are interested to see the prompts\n"
             "in action..."

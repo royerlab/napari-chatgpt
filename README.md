@@ -8,27 +8,26 @@
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10828225.svg)](https://doi.org/10.5281/zenodo.10828225)
 [![GitHub stars](https://img.shields.io/github/stars/royerlab/napari-chatgpt?style=social)](https://github.com/royerlab/napari-chatgpt/)
-[![GitHub forks](https://img.shields.io/github/forks/royerlab/napari-chatgpt?style=social)](https://git:hub.com/royerlab/napari-chatgpt/)
+[![GitHub forks](https://img.shields.io/github/forks/royerlab/napari-chatgpt?style=social)](https://github.com/royerlab/napari-chatgpt/)
 
 <img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/c85185d2-6d16-472d-a2c8-5680ea869bf2' height='300'>
 <img height="300" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/f3ea245e-dd86-4ff2-802e-48c2073cb6f9">
 
 
-A [napari](napari.org) plugin that leverages OpenAI's Large Language Model
-ChatGPT to implement _Omega_
-a napari-aware agent capable of performing image processing and analysis tasks
+A [napari](napari.org) plugin that leverages Large Language Models
+to implement _Omega_, a napari-aware agent capable of performing image processing and analysis tasks
 in a conversational manner.
 
 This repository started as a 'week-end project'
 by [Loic A. Royer](https://twitter.com/loicaroyer)
 who leads a [research group](https://royerlab.org) at
 the [Chan Zuckerberg Biohub](https://royerlab.org). It
-leverages [OpenAI](https://openai.com)'s ChatGPT API via
-the [LangChain](https://python.langchain.com/en/latest/index.html) Python
-library, as well as [napari](https://napari.org), a fast, interactive,
-multi-dimensional
-image viewer for
-Python, [another](https://ilovesymposia.com/2019/10/24/introducing-napari-a-fast-n-dimensional-image-viewer-in-python/)
+uses [LiteMind](https://github.com/royerlab/litemind), an LLM abstraction library
+supporting multiple providers including [OpenAI](https://openai.com),
+[Anthropic](https://anthropic.com) (Claude), and [Google Gemini](https://deepmind.google/technologies/gemini/),
+as well as [napari](https://napari.org), a fast, interactive,
+multi-dimensional image viewer for Python,
+[another](https://ilovesymposia.com/2019/10/24/introducing-napari-a-fast-n-dimensional-image-viewer-in-python/)
 week-end project, initially started by Loic and [Juan Nunez-Iglesias](https://github.com/jni).
 
 # What is Omega?
@@ -56,18 +55,16 @@ https://user-images.githubusercontent.com/1870994/235769990-a281a118-1369-47aa-8
 https://github.com/royerlab/napari-chatgpt/assets/1870994/bb9b35a4-d0aa-4f82-9e7c-696ef5859a2f
 
 As LLMs improve, Omega will become even more adept at handling complex
-image processing and analysis tasks. GPT 4.0 has been a significant upgrade
-compared to GPT 3.5, and many of the videos (see below and here) are highly reproducible,
+image processing and analysis tasks. Through the [LiteMind](https://github.com/royerlab/litemind) library,
+Omega supports multiple LLM providers including OpenAI (GPT-4, GPT-4o), Anthropic (Claude),
+and Google Gemini. Many of the videos (see below and here) are highly reproducible,
 with a typically 90% success rate (see preprint for a reproducibility analysis).
-While open-source models are promising and rapidly improving, they must get better to run Omega reliably.
-More recent models by OpenAI's competitors, such as Google and Anthropic, are great news,
-but Omega still needs to support these newer models fully -- it seems every week comes with a new batch of models.
 
 Omega could eventually help non-experts process and analyze images, especially
 in the bioimage domain.
 It is also potentially valuable for educative purposes as it could
 assist in teaching image processing and analysis, making it more accessible.
-Although ChatGPT, which powers Omega, may still need to be on par with an expert image
+Although the LLMs powering Omega may still need to be on par with an expert image
 analyst or computer vision expert, it is just a matter of time...
 
 Omega holds a conversation with the user and uses different tools to answer questions,
@@ -118,11 +115,13 @@ of our wiki.
 
 ## Requirements:
 
-You need an OpenAI key; there is no way around this, I have been experimenting with
-other models, including open-source models, but right now, the best results, by far, are obtained with ChatGPT 4 (and to
-a lesser extent 3.5). Check [here](https://github.com/royerlab/napari-chatgpt/wiki/OpenAIKey) for details on how to get
-your OpenAI key. In particular, check [this](https://github.com/royerlab/napari-chatgpt/wiki/AccessToGPT4) for how to
-gain access to GPT-4 models.
+You need an API key from at least one supported LLM provider:
+- **OpenAI** - Get your key at [platform.openai.com](https://platform.openai.com)
+- **Anthropic (Claude)** - Get your key at [console.anthropic.com](https://console.anthropic.com)
+- **Google Gemini** - Get your key at [aistudio.google.com](https://aistudio.google.com)
+
+Check [here](https://github.com/royerlab/napari-chatgpt/wiki/APIKeys) for details on API key setup.
+Omega will automatically detect which providers you have configured.
 
 ## Usage:
 
@@ -148,13 +147,12 @@ and our [wiki page](https://github.com/royerlab/napari-chatgpt/wiki/OmegaDesign)
 
 ## Cost:
 
-Developing the initial version of Omega cost me $13.97, hardly a fortune.
-OpenAI [pricing](https://openai.com/pricing) on ChatGPT 4 is very reasonable at 0.01 dollars per 1K tokens, which means $
-1 per 750000 words.
+LLM API costs vary by provider and model. For reference:
+- **OpenAI** pricing: [openai.com/pricing](https://openai.com/pricing)
+- **Anthropic** pricing: [anthropic.com/pricing](https://anthropic.com/pricing)
+- **Google Gemini** pricing: [ai.google.dev/pricing](https://ai.google.dev/pricing)
 
-Note: you can limit the burn rate to a certain amount of dollars per month, just
-in case you let Omega think over the weekend and forget to stop it (don't worry,
-this is actually **not** possible).
+Most providers allow you to set spending limits to control costs.
 
 ## Disclaimer:
 
@@ -180,13 +178,19 @@ THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Best Practices for Managing Your API Keys:
 
-- **Host Computer Hygiene:** Ensure that the machine you’re installing napari-chagot/Onega on is secure, free of malware
+- **Host Computer Hygiene:** Ensure that the machine you're installing napari-chatgpt/Omega on is secure, free of malware
   and viruses, and otherwise not compromised. Make sure to install antivirus software on Windows.
 - **Security:**  Treat your API key like a password. Do not share it with others or expose it in public repositories or
   forums.
-- **Cost Control:** Set spending limits on your OpenAI account (see [here](https://platform.openai.com/account/limits)).
-- **Regenerate Keys:** If you believe your API key has been compromised, cancel and regenerate it from the OpenAI API
-  dashboard immediately.
+- **Cost Control:** Set spending limits on your LLM provider account:
+  [OpenAI](https://platform.openai.com/account/limits) |
+  [Anthropic](https://console.anthropic.com/settings/limits) |
+  [Google Gemini](https://console.cloud.google.com/billing)
+- **Regenerate Keys:** If you believe your API key has been compromised, revoke and regenerate it from your provider's
+  console immediately:
+  [OpenAI](https://platform.openai.com/api-keys) |
+  [Anthropic](https://console.anthropic.com/settings/keys) |
+  [Google Gemini](https://aistudio.google.com/apikey)
 - **Key Storage:** Omega has a built-in 'API Key Vault' that encrypts keys using a password, this is the preferred
   approach. You can also store the key in an environment variable, but that is not encrypted and could compromise the
   key.
