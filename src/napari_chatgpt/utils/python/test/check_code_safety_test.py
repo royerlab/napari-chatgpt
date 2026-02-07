@@ -9,7 +9,8 @@ from napari_chatgpt.utils.python.check_code_safety import (
 ___safe_python_code = """
 
 from magicgui import magicgui
-from napari.types import ImageData, LabelsData, PointsData, ShapesData, SurfaceData, TracksData, VectorsData
+from napari.types import (ImageData, LabelsData, PointsData,
+    ShapesData, SurfaceData, TracksData, VectorsData)
 import numpy as np
 from typing import Union
 from napari.types import ImageData
@@ -18,7 +19,10 @@ import numpy as np
 import cv2
 
 @magicgui(call_button='Run')
-def denoise_bilateral(image: ImageData, d: int = 15, sigmaColor: float = 75, sigmaSpace: float = 75) -> ImageData:
+def denoise_bilateral(
+    image: ImageData, d: int = 15,
+    sigmaColor: float = 75,
+    sigmaSpace: float = 75) -> ImageData:
     img = image.astype(np.float32)
     img = cv2.bilateralFilter(img, d, sigmaColor, sigmaSpace)
     return img
@@ -75,6 +79,7 @@ def test_check_code_safety():
         ("Rank: C", "C"),
         ("rating: D because...", "D"),
         ("is *E*: very dangerous", "E"),
+        ("Rating: *A*", "A"),
         ("no rank here", "Unknown"),
         ("", "Unknown"),
     ],
