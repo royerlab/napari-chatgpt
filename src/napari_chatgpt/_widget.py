@@ -166,22 +166,55 @@ class OmegaQWidget(QWidget):
 
     @staticmethod
     def _preferred_models(model_list: list[str]):
-        # List of filters to identify preferred models:
-        preferred_models_filter = [
-            "gpt-4.1",
-            "gpt-4o",
-        ]  # , 'claude-3-7', 'opus-4', 'gemini-2.5-pro']
-        # List of preferred models:
-        preferred_models = [
-            model
-            for model in model_list
-            if any(filter in model for filter in preferred_models_filter)
+        # Models to exclude (retired or way too old):
+        _excluded = {
+            "claude-3-opus",  # Retired Jan 2026
+            "gpt-3.5",  # Ancient
+            "chatgpt-4o-latest",  # Unstable alias
+        }
+        model_list[:] = [m for m in model_list if not any(ex in m for ex in _excluded)]
+
+        # Preferred substrings in priority order (best first).
+        # More-specific patterns MUST precede less-specific
+        # ones because first match wins.
+        preferred_tiers = [
+            # ── Frontier (interleaved across providers) ──
+            "opus-4-6",  # Claude Opus 4.6 (Feb 2026)
+            "gpt-5.2",  # GPT-5.2 (Dec 2025)
+            "gemini-3",  # Gemini 3 Pro/Flash (Dec 2025)
+            # ── Recent flagships (interleaved) ──
+            "opus-4-5",  # Claude Opus 4.5 (Nov 2025)
+            "gpt-5.1",  # GPT-5.1 (Nov 2025)
+            "sonnet-4-5",  # Claude Sonnet 4.5 (Sep 2025)
+            "gemini-2.5-pro",  # Gemini 2.5 Pro
+            # ── Fast / efficient (interleaved) ──
+            "haiku-4-5",  # Claude Haiku 4.5 (Oct 2025)
+            "gemini-2.5-flash",  # Gemini 2.5 Flash
+            "gpt-5-mini",  # GPT-5 Mini (Aug 2025)
+            "gpt-5-nano",  # GPT-5 Nano (Aug 2025)
+            # ── Anthropic older (grouped, recent first) ──
+            "opus-4-1",  # Claude Opus 4.1 (Aug 2025)
+            "sonnet-4",  # Claude Sonnet 4 (May 2025)
+            "opus-4",  # Claude Opus 4 (May 2025)
+            "claude-3-7",  # Claude 3.7 Sonnet (Feb 2025)
+            "claude-3-5",  # Claude 3.5 family (2024)
+            "claude-3-haiku",  # Claude 3 Haiku (2024)
+            # ── OpenAI older (grouped, recent first) ──
+            "gpt-5",  # GPT-5 base (Aug 2025)
+            "gpt-4.1",  # GPT-4.1 family (Apr 2025)
+            "gpt-4o",  # GPT-4o (2024)
+            # ── Gemini older (grouped) ──
+            "gemini-2.5",  # Remaining 2.5 variants
+            "gemini-2.0",  # Deprecated (Mar 2026)
         ]
-        # Exclude models that are in fact not preferred:
-        if "chatgpt-4o-latest" in preferred_models:
-            preferred_models.remove("chatgpt-4o-latest")
-        # Sort the model list stably to have preferred models first:
-        model_list.sort(key=lambda x: (x not in preferred_models, x))
+
+        def _sort_key(model: str) -> tuple[int, str]:
+            for tier, substring in enumerate(preferred_tiers):
+                if substring in model:
+                    return (tier, model)
+            return (len(preferred_tiers), model)
+
+        model_list.sort(key=_sort_key)
 
     def _creativity_level(self):
         aprint("Setting up creativity level UI.")

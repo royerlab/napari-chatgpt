@@ -121,7 +121,8 @@ class JupyterNotebookFile:
 
     def add_image_cell(self, image_path: str, text: str = ""):
         # Read the image and convert it to base64
-        image_type = guess_type(image_path)[0].split("/")[1]
+        mime_type = guess_type(image_path)[0]
+        image_type = mime_type.split("/")[1] if mime_type else "png"
         with open(image_path, "rb") as image_file:
             base64_string = b64encode(image_file.read()).decode()
 

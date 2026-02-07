@@ -32,6 +32,9 @@ def initialize_omega_agent(
     tool_callbacks: BaseToolCallbacks | None = None,
     verbose: bool = False,
 ) -> Agent:
+    if to_napari_queue is None or from_napari_queue is None:
+        raise ValueError("to_napari_queue and from_napari_queue must not be None")
+
     with asection("Initialising Omega Agent"):
         # Get app configuration:
         config = AppConfiguration("omega")
@@ -172,28 +175,3 @@ def _append_all_napari_tools(tool_context, tools, vision_llm_model_name):
         )
 
         tools.append(ImageDenoisingTool(**tool_context))
-
-
-def _append_basic_tools(tool_context, tools):
-    from napari_chatgpt.omega_agent.tools.search.web_search_tool import WebSearchTool
-    from napari_chatgpt.omega_agent.tools.special.exception_catcher_tool import (
-        ExceptionCatcherTool,
-    )
-    from napari_chatgpt.omega_agent.tools.special.functions_info_tool import (
-        PythonFunctionsInfoTool,
-    )
-    from napari_chatgpt.omega_agent.tools.special.package_info_tool import (
-        PythonPackageInfoTool,
-    )
-    from napari_chatgpt.omega_agent.tools.special.pip_install_tool import PipInstallTool
-    from napari_chatgpt.omega_agent.tools.special.python_repl import (
-        PythonCodeExecutionTool,
-    )
-
-    tools.append(WebSearchTool(**tool_context))
-    tools.append(PythonFunctionsInfoTool(**tool_context))
-    tools.append(ExceptionCatcherTool(**tool_context))
-    # tools.append(FileDownloadTool(**tool_context))
-    tools.append(PythonCodeExecutionTool(**tool_context))
-    tools.append(PythonPackageInfoTool(**tool_context))
-    tools.append(PipInstallTool(**tool_context))

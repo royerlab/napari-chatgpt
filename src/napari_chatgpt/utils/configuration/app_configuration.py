@@ -26,6 +26,9 @@ class AppConfiguration:
             return cls._instances[app_name]
 
     def __init__(self, app_name, default_config: str | dict = "default_config.yaml"):
+        if getattr(self, "_initialized", False):
+            return
+        self._initialized = True
         self.app_name = app_name
         self.default_config = default_config
         self.config_file = os.path.expanduser(f"~/.{app_name}/config.yaml")

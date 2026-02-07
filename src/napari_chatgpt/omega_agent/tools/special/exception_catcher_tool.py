@@ -12,29 +12,16 @@ from napari_chatgpt.utils.python.exception_description import exception_descript
 # Create a queue to store exception information
 exception_queue = queue.Queue()
 
-# existing exception handler:
-_original_exception_handler = sys.excepthook
 
-
-# New handler:
 def _uncaught_exception_handler(exctype, value, _traceback):
     # Store the exception information in the queue
-
     enqueue_exception(value)
     aprint(value)
     traceback.print_exc()
 
-    # if _original_exception_handler != sys.__excepthook__:
-    #     # Call the existing uncaught exception handler
-    #     _original_exception_handler(exctype, value, traceback)
-
 
 def enqueue_exception(exception):
     exception_queue.put(exception)
-
-
-# Set the new uncaught exception handler
-sys.excepthook = _uncaught_exception_handler
 
 
 class ExceptionCatcherTool(BaseOmegaTool):
@@ -54,6 +41,10 @@ class ExceptionCatcherTool(BaseOmegaTool):
             This can include parameters like `notebook`, etc.
         """
         super().__init__(**kwargs)
+
+        # Install the uncaught exception handler:
+        self._original_excepthook = sys.excepthook
+        sys.excepthook = _uncaught_exception_handler
 
         # Tool name and description:
         self.name = "ExceptionCatcherTool"

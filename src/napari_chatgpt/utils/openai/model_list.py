@@ -97,53 +97,39 @@ def postprocess_openai_model_list(model_list: list) -> list:
     """
 
     try:
-        # First, sort the list of models:
-        model_list = sorted(model_list)
-
-        # get list of bad models for main LLM:
-        bad_models_filters = {
+        # Substrings that mark models to exclude entirely:
+        excluded_filters = {
             "0613",
             "vision",
             "turbo-instruct",
-            "gpt-3.5-turbo",
-            "gpt-3.5-turbo-0613",
-            "gpt-3.5-turbo-0301",
-            "gpt-3.5-turbo-1106",
-            "gpt-3.5-turbo-0125",
-            "gpt-3.5-turbo-16k",
+            "gpt-3.5",
             "chatgpt-4o-latest",
         }
 
-        # get list of best models for main LLM:
-        best_models_filters = {"0314", "0301", "1106", "gpt-4", "gpt-4o"}
+        # Remove excluded models:
+        model_list = [
+            m for m in model_list if not any(ex in m for ex in excluded_filters)
+        ]
 
-        # Ensure that some 'bad' or unsupported models are excluded:
-        bad_models = [
-            m for m in model_list if any(bm in m for bm in bad_models_filters)
+        # Preferred substrings, most recent first:
+        preferred = [
+            "gpt-5.2",
+            "gpt-5.1",
+            "gpt-5",
+            "gpt-4.1",
+            "gpt-4o",
         ]
-        for bad_model in bad_models:
-            if bad_model in model_list:
-                model_list.remove(bad_model)
-                # model_list.append(bad_model)
 
-        # Ensure that the best models are at the top of the list:
-        best_models = [
-            m for m in model_list if any(bm in m for bm in best_models_filters)
-        ]
-        model_list = best_models + [m for m in model_list if m not in best_models]
+        def _sort_key(model: str) -> tuple[int, str]:
+            for tier, sub in enumerate(preferred):
+                if sub in model:
+                    return (tier, model)
+            return (len(preferred), model)
 
-        # Ensure that the very best models are at the top of the list:
-        very_best_models = [
-            m for m in model_list if ("gpt-4o" in m and "mini" not in m)
-        ]
-        model_list = very_best_models + [
-            m for m in model_list if m not in very_best_models
-        ]
+        model_list.sort(key=_sort_key)
 
     except Exception as exc:
         aprint(f"Error occurred: {exc}")
-
-        # print stacktrace:
         traceback.print_exc()
 
     return model_list

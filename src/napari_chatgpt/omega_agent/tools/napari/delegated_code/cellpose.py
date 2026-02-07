@@ -88,7 +88,11 @@ def cellpose_segmentation(
     # Load cellpose models:
     from cellpose import models
 
-    model = models.CellposeModel(model_type=model_type)
+    # Try to use GPU if available
+    import torch
+
+    gpu = torch.cuda.is_available()
+    model = models.CellposeModel(model_type=model_type, gpu=gpu)
 
     if len(image.shape) == 2:
         # Run cellpose in 2D mode:

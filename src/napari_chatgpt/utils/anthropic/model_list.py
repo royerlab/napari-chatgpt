@@ -5,16 +5,19 @@ def get_anthropic_model_list() -> list[str]:
     """
     Return a list of all *current, non-deprecated* Anthropic Claude models.
 
-    Snapshot dates ensure deterministic behaviour.  Last verified: 2025-06-25.
+    Snapshot dates ensure deterministic behaviour.  Last verified: 2026-02-07.
     """
     with asection("Enumerating active Anthropic models"):
         return [
-            "claude-3-opus-20240229",
-            "claude-3-haiku-20240307",
-            "claude-3-5-sonnet-20240620",
-            "claude-3-5-sonnet-20241022",
-            "claude-3-5-haiku-20241022",
-            "claude-3-7-sonnet-20250219",
+            # Current (recommended):
+            "claude-opus-4-6",
+            "claude-sonnet-4-5-20250929",
+            "claude-haiku-4-5-20251001",
+            # Legacy (still available):
+            "claude-opus-4-5-20251101",
+            "claude-opus-4-1-20250805",
             "claude-sonnet-4-20250514",
             "claude-opus-4-20250514",
+            "claude-3-7-sonnet-20250219",
+            "claude-3-haiku-20240307",
         ]

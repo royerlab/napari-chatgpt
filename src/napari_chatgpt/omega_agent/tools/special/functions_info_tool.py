@@ -44,6 +44,7 @@ class PythonFunctionsInfoTool(BaseOmegaTool):
                 add_docstrings = True
                 aprint("Agent asked for docstrings!")
 
+            function_path_and_name = query
             try:
                 function_path_and_name = extract_package_path(query)
                 if function_path_and_name:

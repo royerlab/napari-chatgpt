@@ -29,3 +29,24 @@ def test_app_configuration(tmp_path, monkeypatch):
 
     # Clean up singleton cache
     AppConfiguration._instances.clear()
+
+
+def test_singleton_no_reinit(tmp_path, monkeypatch):
+    """Fix 9: singleton __init__ should not reset config."""
+    monkeypatch.setattr(
+        "os.path.expanduser",
+        lambda p: str(tmp_path / p.removeprefix("~/").removeprefix("~")),
+    )
+    AppConfiguration._instances.clear()
+
+    config = AppConfiguration("test_reinit", default_config={"key1": "val1"})
+    config["runtime_key"] = "runtime_value"
+    assert config["runtime_key"] == "runtime_value"
+
+    # Get the "same" singleton again — __init__ should be skipped
+    config2 = AppConfiguration("test_reinit", default_config={"key1": "val1"})
+    assert config2 is config
+    assert config2["runtime_key"] == "runtime_value"
+
+    # Clean up
+    AppConfiguration._instances.clear()

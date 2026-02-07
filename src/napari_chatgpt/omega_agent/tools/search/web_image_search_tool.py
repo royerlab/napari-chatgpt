@@ -102,6 +102,10 @@ class WebImageSearchTool(BaseNapariTool):
                         # Download the image:
                         file_path = download_file_stealth(url)
 
+                        if file_path is None:
+                            aprint(f"Image {i} download failed (None path), skipping.")
+                            continue
+
                         # Open the image:
                         image = imread(file_path)
 

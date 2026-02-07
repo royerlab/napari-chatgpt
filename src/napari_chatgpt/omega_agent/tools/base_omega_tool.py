@@ -60,9 +60,11 @@ class BaseOmegaTool(FunctionTool):
 
         # Shorten description to the first period _after_ 80 characters:
         if len(self.description) > 80:
-            description = (
-                self.description[: self.description.find(".", 80) + 1] + "[...]"
-            )
+            period_pos = self.description.find(".", 80)
+            if period_pos == -1:
+                description = self.description[:80] + "..."
+            else:
+                description = self.description[: period_pos + 1] + "[...]"
         else:
             description = self.description
 

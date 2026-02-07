@@ -29,6 +29,9 @@ dependencies = [
     "websockets>=11.0",
     "httpx>=0.24",
 
+    # napari (host application)
+    "napari>=0.5",
+
     # Qt/GUI
     "magicgui>=0.7",
     "qtpy>=2.0",

@@ -34,6 +34,7 @@ class PipInstallTool(BaseOmegaTool):
             with asection(f"Query:"):
                 aprint(query)
 
+            packages = []
             try:
                 # Split the input into a list of packages:
                 packages = query.split(",")

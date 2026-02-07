@@ -28,7 +28,7 @@ from requests import get
 
 
 def _req(term, results, lang, start, timeout):
-    headers = _scrapping_request_headers
+    headers = {**_scrapping_request_headers}
     headers["User-Agent"] = _get_useragent()
 
     resp = get(
@@ -84,7 +84,10 @@ def search_google(
 
     # Fetch
     start = 0
-    while start < num_results:
+    fetched_pages = 0
+    max_pages = 10
+    while start < num_results and fetched_pages < max_pages:
+        fetched_pages += 1
         # Send request
         resp = _req(escaped_term, num_results - start, lang, start, timeout)
 
