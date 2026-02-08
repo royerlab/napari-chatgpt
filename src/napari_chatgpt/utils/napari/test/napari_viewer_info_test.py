@@ -4,7 +4,11 @@ from arbol import aprint
 from skimage import data
 from skimage.filters import threshold_otsu
 from skimage.measure import label
-from skimage.morphology import closing, remove_small_objects, square
+from skimage.morphology import (
+    closing,
+    footprint_rectangle,
+    remove_small_objects,
+)
 from skimage.segmentation import clear_border
 
 from napari_chatgpt.utils.napari.napari_viewer_info import get_viewer_info
@@ -24,9 +28,9 @@ def test_napari_viewer_info():
     coins = data.coins()[50:-50, 50:-50]
     # apply threshold
     thresh = threshold_otsu(coins)
-    bw = closing(coins > thresh, square(4))
+    bw = closing(coins > thresh, footprint_rectangle((4, 4)))
     # remove artifacts connected to image border
-    cleared = remove_small_objects(clear_border(bw), 20)
+    cleared = remove_small_objects(clear_border(bw), max_size=19)
     # label image regions
     label_image = label(cleared)
     viewer.add_labels(label_image, name="segmentation")

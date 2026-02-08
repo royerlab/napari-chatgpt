@@ -15,6 +15,7 @@ omega_generic_codegen_instructions = """
 - A napari viewer instance is available as `viewer`. Never create a new `napari.Viewer()`.
 - Do not call `gui_qt()`.
 - To get the selected layer: `viewer.layers.selection.active`.
+- To access a layer by name: `viewer.layers["layer_name"]` (raises `KeyError` if not found). Do NOT use `viewer.layers.get(...)` — `LayerList` has no `.get()` method.
 - Napari layers do not have a 'type' field. To check a layer's type, use: `isinstance(layer, napari.layers.Shapes)`.
 - To rotate the camera: `viewer.camera.angles = (angle_z, angle_y, angle_x)`.
 - Write only safe code that does not delete files or perform destructive actions.

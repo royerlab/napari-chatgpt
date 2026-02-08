@@ -55,9 +55,9 @@ tox -e py311-linux  # specific environment
 Tools in `omega_agent/tools/`:
 - `base_omega_tool.py`: Abstract base for all tools
 - `base_napari_tool.py`: Base for napari-aware code generation/execution tools
-- `napari/`: Viewer manipulation, widget creation, file operations, segmentation
+- `napari/`: Viewer manipulation, widget creation, file operations, segmentation, plugin discovery (`napari_plugin_tool.py`)
 - `search/`: Web search, Wikipedia search, image search
-- `special/`: Python REPL execution, pip install, exception handling
+- `special/`: Python REPL execution, pip install (with user permission), exception handling, file download, function/package info
 
 ### Key Pattern: Thread-Safe napari Integration
 
@@ -83,4 +83,6 @@ Pre-commit enforces: black (formatting), isort (imports), flake8 (style), pyupgr
 - **FastAPI/Uvicorn**: WebSocket chat server
 - **QtPy/PyQt5**: UI framework
 - **scikit-image**: Image processing
+- **beautifulsoup4**: Web scraping
+- **requests**: HTTP downloads
 - **Python 3.10+** supported

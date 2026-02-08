@@ -2,150 +2,399 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Omega -- a chatGPT agent for image processing and analysis with
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omega -- LLM agent for image processing and analysis with
         napari</title>
 
     <link rel="icon" type="image/png" href="static/OmegaLogoIcon.png" sizes="192x192">
 
-    <!-- tailwind -->
+    <!-- tailwind (needed for dynamic list-decimal class added by JS) -->
     <link href="static/tailwind.min.css" rel="stylesheet"/>
 
-    <!-- tailwind style overrides -->
     <style>
-        .chat-body {
-            width: 90%;
-            height: 90%;
-            margin: 50px auto;
+        /* ── Reset & Layout ───────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: #0d1017;
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                         Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
 
-        .card-body {
-            background-color: #333;
-            color: #fff;
-            border-radius: 10px;
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* ── Header ───────────────────────────────────────────── */
+        .chat-header {
+            padding: 20px 0 14px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .header-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .header-subtitle {
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .chat-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #2d3748, transparent);
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+
+        /* ── Messages Area ────────────────────────────────────── */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            /* Firefox scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: #374151 transparent;
+        }
+
+        /* Custom scrollbar */
+        .messages-area::-webkit-scrollbar { width: 6px; }
+        .messages-area::-webkit-scrollbar-track { background: transparent; }
+        .messages-area::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 3px;
+        }
+        .messages-area::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+        /* ── Message Bubbles ──────────────────────────────────── */
+        .server-message,
+        .client-message,
+        .error-message,
+        .action-message {
+            padding: 12px 16px;
+            margin: 4px 0;
+            border-radius: 16px;
+            line-height: 1.6;
+            max-width: 85%;
+            animation: msg-in 0.3s ease-out;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .server-message {
-            background-color: #444;
-            padding: 10px;
-            margin: 10px;
-            border-radius: 10px;
+            background: #1e2130;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .server-message strong {
+            color: #22d3ee;
         }
 
         .client-message {
-            background-color: #555;
-            padding: 10px;
-            margin: 10px;
-            border-radius: 10px;
+            background: #1a2f4d;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            border: 1px solid rgba(59, 130, 246, 0.15);
+        }
+
+        .client-message strong {
+            color: #60a5fa;
         }
 
         .error-message {
-            background-color: #F4856D;
-            padding: 10px;
-            margin: 10px;
-            border-radius: 10px;
+            background: #2d1215;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .error-message strong {
+            color: #f87171;
         }
 
         .action-message {
-            background-color: #354d5d;
-            padding: 10px;
-            margin: 10px;
-            border-radius: 10px;
+            background: #162033;
+            border: 1px solid rgba(6, 182, 212, 0.12);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            max-width: 90%;
         }
 
-        .form-inline {
+        .action-message strong {
+            color: #22d3ee;
+        }
+
+        /* Message entrance animation */
+        @keyframes msg-in {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Thinking Animation ───────────────────────────────── */
+        .thinking {
+            animation: pulse-text 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-text {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ── Input Area ───────────────────────────────────────── */
+        .chat-input {
+            flex-shrink: 0;
+            padding: 12px 0 16px;
+        }
+
+        .input-wrapper {
             display: flex;
-            justify-content: space-between;
+            align-items: flex-end;
+            gap: 8px;
+            background: #161b22;
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            padding: 4px 4px 4px 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .form-control {
-            width: 80%;
-            height: auto;
-            background-color: #333;
-            color: #fff;
+        .input-wrapper:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-wrapper textarea {
+            flex: 1;
+            background: transparent;
+            color: #e2e8f0;
             border: none;
-            border-radius: 5px;
-            padding: 10px;
-            margin-right: 10px;
-            white-space: pre-wrap;
-            resize: vertical;
+            outline: none;
+            padding: 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            resize: none;
+            min-height: 24px;
+            max-height: 150px;
+            font-family: inherit;
+        }
+
+        .input-wrapper textarea::placeholder {
+            color: #4b5563;
         }
 
         #send {
-            background-color: #4C4CFF;
+            background: #3b82f6;
             color: #fff;
             border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
-        .form-message {
-            margin-top: 10px;
+        #send:hover:not(:disabled) {
+            background: #2563eb;
         }
 
-        .wrapper .entry-content ol {
+        #send:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        #send:disabled {
+            background: #374151;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        /* ── Links ────────────────────────────────────────────── */
+        .chat-link {
+            color: #60a5fa;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(96, 165, 250, 0.3);
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .chat-link:hover {
+            color: #93c5fd;
+            border-bottom-color: #93c5fd;
+        }
+
+        /* ── Inline code & pre blocks inside messages ────────── */
+        .server-message pre,
+        .client-message pre,
+        .action-message pre,
+        .error-message pre {
+            overflow-x: auto;
+        }
+
+        .server-message code,
+        .client-message code,
+        .action-message code,
+        .error-message code {
+            font-size: 0.85em;
+        }
+
+        /* ── Code Collapse ────────────────────────────────────── */
+        details.code-collapse {
+            background-color: #151922;
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            margin-block: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        details.code-collapse pre {
+            max-height: 0;
+            overflow-x: auto;
+            transition: max-height 0.3s ease;
+        }
+
+        details.code-collapse[open] pre {
+            max-height: 60vh;
+        }
+
+        details.code-collapse summary {
+            background-color: #1e2433;
+            color: #94a3b8;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 8px 8px 0 0;
+            transition: color 0.2s;
+        }
+
+        details.code-collapse[open] summary {
+            background-color: #151922;
+            color: #818cf8;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        details.code-collapse pre code {
+            display: block;
+            padding: 0 0.75rem 0.75rem;
+        }
+
+        /* ── Tool Collapse ────────────────────────────────────── */
+        details.tool-collapse summary {
+            cursor: pointer;
+            user-select: none;
+            list-style: revert;
+        }
+
+        details.tool-collapse summary::marker {
+            color: #22d3ee;
+        }
+
+        .tool-collapse-body {
+            padding: 0.5rem 0.75rem;
+            border-top: 1px solid #2d3748;
+            margin-top: 0.5rem;
+        }
+
+        /* ── Disconnect Banner ────────────────────────────────── */
+        .disconnect-banner {
+            background: #7f1d1d;
+            color: #fecaca;
+            padding: 10px 16px;
+            margin: 8px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.85rem;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            animation: msg-in 0.3s ease-out;
+        }
+
+        /* ── Paragraphs inside messages (Markdown produces <p>) ─ */
+        .server-message p + p,
+        .client-message p + p,
+        .action-message p + p,
+        .error-message p + p {
+            margin-top: 0.5em;
+        }
+
+        /* ── Lists ────────────────────────────────────────────── */
+        .wrapper .entry-content ol,
+        ol.list-decimal {
             list-style-type: decimal;
             margin: 0;
             padding-left: 25px;
         }
+
+        .server-message ul,
+        .client-message ul,
+        .action-message ul,
+        .error-message ul {
+            list-style-type: disc;
+            padding-left: 25px;
+        }
+
+        /* ── Responsive ───────────────────────────────────────── */
+        @media (max-width: 640px) {
+            .chat-container {
+                padding: 0 8px;
+            }
+            .server-message,
+            .client-message,
+            .error-message,
+            .action-message {
+                max-width: 95%;
+            }
+            .header-logo {
+                width: 36px;
+                height: 36px;
+            }
+            .header-title {
+                font-size: 1.25rem;
+            }
+        }
     </style>
 
-    <style>
-      /* Apply to links the renderer tags with class="chat-link" */
-      .chat-link {
-        color: #8787ca;
-        text-decoration: underline;
-      }
-      .chat-link:hover {
-        color: #c494c6;          /* lighter on hover */
-      }
-    </style>
-
-
-    <style>
-
-      /* Smooth height animation for the <pre> */
-      details.code-collapse pre {
-        max-height: 0;
-        overflow-x: auto;
-        transition: max-height 0.3s ease;
-      }
-      details.code-collapse[open] pre {
-        max-height: 60vh;              /* plenty but finite */
-      }
-
-      /* Optional: highlight the header when open */
-      details.code-collapse summary {
-        background-color: #374151;     /* gray-700 */
-        color: #d1d5db;                /* gray-300 */
-        padding: 0.5rem 0.75rem;       /* px-3 py-2 */
-        cursor: pointer;
-        user-select: none;
-        border-radius: 0.375rem 0.375rem 0 0;  /* match Tailwind rounded-t-md */
-      }
-      details.code-collapse[open] summary {
-        background-color: #1f2937;     /* gray-800 */
-        color: #818cf8;                /* indigo-400 */
-      }
-
-      /* Match the body of the block with Tailwind-ish colours */
-      details.code-collapse {
-        background-color: #1f2937;     /* gray-800 */
-        border-radius: 0.375rem;       /* rounded-md */
-        margin-block: 0.5rem;          /* my-2 */
-        font-size: 0.875rem;           /* text-sm */
-      }
-      details.code-collapse pre code {
-        display: block;
-        padding: 0 0.75rem 0.75rem;    /* px-3 pb-3 */
-      }
-    </style>
+    <!-- Sunlight syntax highlighting theme -->
+    <link rel="stylesheet" type="text/css" href="static/sunlight.dark.css"/>
 
     <!-- Marked  -->
     <script type="text/javascript" src="static/marked.min.js"></script>
     <script type="text/javascript" src="static/marked-highlight.js"></script>
 
     <!-- Sunlight  -->
-    <link rel="stylesheet" type="text/css" href="static/sunlight.dark.css"/>
     <script type="text/javascript" src="static/sunlight-min.js"></script>
     <script type="text/javascript" src="static/sunlight.python-min.js"></script>
 
@@ -156,28 +405,36 @@
     <script src="static/chat.js"></script>
 
 </head>
-<body class="bg-black">
-<div class="chat-body card">
-    <div class="card-body p-5">
-        <h4 class="card-title text-center text-xl font-medium"> Omega </h4>
-        <p class="card-text text-center text-sm" id="header"> Ask a question,
-            ask for a widget, or control the napari viewer, or anything
-            else! <br> <a href="https://github.com/royerlab/napari-chatgpt/wiki/Tips&Tricks"
-                          class="text-blue-500 underline">How to Prompt Omega - Tips & Tricks</a></p>
-        <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
-        <div id="messages" class="leading-tight overflow-auto"
-             style="max-height: 600px;">
+<body>
+<div class="chat-container">
+    <header class="chat-header">
+        <div class="header-brand">
+            <img src="static/OmegaLogoIcon.png" alt="Omega" class="header-logo">
+            <h1 class="header-title">Omega</h1>
         </div>
-        <form action="" class="form-inline mt-5" id="chat-form"
-              onsubmit="sendMessage(event)">
-            <textarea class="form-control"
+        <p class="header-subtitle" id="header">
+            Ask a question, ask for a widget, ask to process images, or control the napari viewer!<br>
+            <a href="https://github.com/royerlab/napari-chatgpt/wiki/Tips&Tricks"
+               class="chat-link" target="_blank"
+               rel="noopener noreferrer">How to Prompt Omega - Tips &amp; Tricks</a>
+        </p>
+    </header>
+
+    <div class="chat-divider"></div>
+
+    <main id="messages" class="messages-area">
+    </main>
+
+    <form id="chat-form" class="chat-input"
+          onsubmit="sendMessage(event)">
+        <div class="input-wrapper">
+            <textarea id="messageText"
                       placeholder="Enter your question or request here."
-                      id="messageText" wrap="soft"
+                      wrap="soft"
                       onkeydown="if(event.keyCode === 13 && !event.shiftKey) { sendMessage(event); return false; } else if(event.keyCode === 13 && event.shiftKey) { this.value += ''; }"></textarea>
-            <button id="send" type="submit" class="btn btn-primary">Send
-            </button>
-        </form>
-    </div>
+            <button id="send" type="submit">Send</button>
+        </div>
+    </form>
 </div>
 </body>
 </html>

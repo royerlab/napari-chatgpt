@@ -163,7 +163,7 @@ def classic_segmentation(
         labels = label(binary_image)
 
     # Remove small objects:
-    labels = remove_small_objects(labels, min_segment_size)
+    labels = remove_small_objects(labels, max_size=min_segment_size - 1)
 
     # Convert the segmented image to np.uint32 before returning the segmentation
     labels = labels.astype(uint32)

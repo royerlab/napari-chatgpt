@@ -15,7 +15,6 @@ from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
 from litemind.agent.messages.message import Message
 from litemind.agent.tools.base_tool import BaseTool
-from litemind.agent.tools.callbacks.base_tool_callbacks import BaseToolCallbacks
 from litemind.media.types.media_text import Text
 from qtpy.QtCore import QTimer
 from starlette.staticfiles import StaticFiles
@@ -33,7 +32,7 @@ from napari_chatgpt.utils.strings.camel_case_to_normal import (
 )
 
 
-class NapariChatServer(BaseToolCallbacks):
+class NapariChatServer:
     """
     A chat server that allows users to interact with a napari viewer
     through a web interface, using Omega Agent to process requests and
@@ -207,7 +206,7 @@ class NapariChatServer(BaseToolCallbacks):
                         _set_viewer_info(viewer_info)
 
                         # call LLM:
-                        notify_user_omega_thinking(websocket)
+                        await notify_user_omega_thinking(websocket)
                         # result = agent(prompt)
                         result = await self.async_run_in_executor(agent, prompt)
 
@@ -217,7 +216,7 @@ class NapariChatServer(BaseToolCallbacks):
                                 with asection(f"Message Block #{i}"):
                                     aprint(message.to_plain_text())
 
-                        send_final_response_to_user(result, websocket)
+                        await send_final_response_to_user(result, websocket)
 
                         if self.notebook:
                             # Add agent response to notebook:
@@ -263,7 +262,9 @@ class NapariChatServer(BaseToolCallbacks):
             # Return the question for further processing:
             return question
 
-        def send_final_response_to_user(result: list[Message], websocket: WebSocket):
+        async def send_final_response_to_user(
+            result: list[Message], websocket: WebSocket
+        ):
 
             # Filter out non-text messages:
             text_result = [m for m in result if m.has(Text)]
@@ -275,16 +276,16 @@ class NapariChatServer(BaseToolCallbacks):
             end_resp = ChatResponse(sender="agent", message=message_str, type="final")
 
             # Send the response to the user via WebSocket:
-            self.sync_handler(websocket.send_json, end_resp.dict())
+            await websocket.send_json(end_resp.dict())
 
-        def notify_user_omega_thinking(websocket: WebSocket):
+        async def notify_user_omega_thinking(websocket: WebSocket):
             """Notify user that Omega is thinking."""
 
             # Format the response as a typing indicator:
             resp = ChatResponse(sender="agent", message="", type="thinking")
 
             # Send the typing response to the user via WebSocket:
-            self.sync_handler(websocket.send_json, resp.dict())
+            await websocket.send_json(resp.dict())
 
         def notify_user_omega_tool_start(
             websocket: WebSocket, tool: BaseTool, query: str
@@ -344,7 +345,7 @@ class NapariChatServer(BaseToolCallbacks):
             message = str(result)
 
             # Create a ChatResponse object to send to the user:
-            resp = ChatResponse(sender="agent", message=message, type="tool_end")
+            resp = ChatResponse(sender="agent", message=message, type="tool_result")
 
             # Send the message to the user via WebSocket:
             self.sync_handler(websocket.send_json, resp.dict())
@@ -359,7 +360,7 @@ class NapariChatServer(BaseToolCallbacks):
 
             # Get the type and message of the error:
             error_type = type(error).__name__
-            error_message = ", ".join(error.args)
+            error_message = ", ".join(str(a) for a in error.args)
 
             # Format the error message:
             message = f"Failed because:\n'{error_message}'\nException: '{error_type}'\n"

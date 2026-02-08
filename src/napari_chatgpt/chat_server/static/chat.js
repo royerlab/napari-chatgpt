@@ -100,7 +100,7 @@ function parse_markdown(str) {
 const endpoint = "ws://localhost:" + WS_PORT + "/chat";
 
 // Default subtitle:
-const default_subtitle = " Ask a question, ask for a widget, ask to process images, or control the napari viewer ! ";
+const default_subtitle = 'Ask a question, ask for a widget, ask to process images, or control the napari viewer!<br><a href="https://github.com/royerlab/napari-chatgpt/wiki/Tips&Tricks" class="chat-link" target="_blank" rel="noopener noreferrer">How to Prompt Omega - Tips &amp; Tricks</a>';
 
 /******************************************************************
  * WebSocket connection with reconnection logic
@@ -138,7 +138,7 @@ function showDisconnectBanner() {
     const messages = document.getElementById('messages');
     const banner = document.createElement('div');
     banner.id = 'disconnect-banner';
-    banner.style.cssText = 'background:#b91c1c;color:#fff;padding:8px 12px;margin:10px;border-radius:8px;text-align:center;';
+    banner.className = 'disconnect-banner';
     banner.textContent = hasConnected
         ? 'Disconnected from server. Reconnecting\u2026'
         : 'Connecting to server\u2026';
@@ -152,6 +152,7 @@ function showDisconnectBanner() {
 
     const header = document.getElementById('header');
     header.innerHTML = default_subtitle;
+    header.classList.remove('thinking');
 }
 
 function scheduleReconnect() {
@@ -183,6 +184,7 @@ function onMessage(event) {
             // Set subtitle:
             const header = document.getElementById('header');
             header.innerHTML = "Thinking... please wait!";
+            header.classList.add('thinking');
 
         }
         // agent is thinking:
@@ -190,6 +192,7 @@ function onMessage(event) {
             // Set subtitle:
             const header = document.getElementById('header');
             header.innerHTML = 'Thinking...';
+            header.classList.add('thinking');
         }
         // tool start:
         else if (data.type === "tool_start") {
@@ -197,49 +200,59 @@ function onMessage(event) {
             // Set subtitle:
             const header = document.getElementById('header');
             header.innerHTML = "Using a tool... please wait!";
+            header.classList.add('thinking');
 
-            // Create a new message entry:
+            // Create a collapsible container for tool output:
             const div = document.createElement('div');
-            div.className = 'server-message';
-            const p = document.createElement('p');
+            div.className = 'action-message';
 
-            // Add this new message into message list:
-            div.appendChild(p);
+            const details = document.createElement('details');
+            details.className = 'tool-collapse';
+
+            const summary = document.createElement('summary');
+            summary.innerHTML = "<strong>" + "Omega: " + "</strong>" + parse_markdown(data.message);
+            details.appendChild(summary);
+
+            // Body element for tool activity and results:
+            const body = document.createElement('div');
+            body.className = 'tool-collapse-body';
+            details.appendChild(body);
+
+            div.appendChild(details);
             messages.appendChild(div);
-
-            // Set background color:
-            p.parentElement.className = 'action-message';
-
-            // Parse markdown and render as HTML:
-            p.innerHTML = "<strong>" + "Omega: " + "</strong>" + parse_markdown(data.message)
 
         }
         // Tool activity:
         else if (data.type === "tool_activity") {
-            // Current (last) message:
-            const p = messages.lastChild.lastChild;
+            // Find the tool collapse body in the last message:
+            const last = messages.lastChild;
+            const body = last && last.querySelector
+                       ? last.querySelector('.tool-collapse-body')
+                       : null;
+            if (!body) return;
 
             // Parse markdown and render as HTML:
-            p.innerHTML += "<br>" + parse_markdown(data.message)
+            body.innerHTML += parse_markdown(data.message)
 
         }
-        // Tool end:
-        else if (data.type === "tool_end") {
-            // Current (last) message:
-            const p = messages.lastChild.lastChild;
-
-            // Parse markdown and render as HTML:
-            p.innerHTML += parse_markdown(data.message)
-
-        }
-        // tool result message:
+        // Tool result:
         else if (data.type === "tool_result") {
-
-            // Current (last) message:
-            const p = messages.lastChild.lastChild;
+            // Find the tool collapse body in the last message:
+            const last = messages.lastChild;
+            const body = last && last.querySelector
+                       ? last.querySelector('.tool-collapse-body')
+                       : null;
+            if (!body) return;
 
             // Parse markdown and render as HTML:
-            p.innerHTML += "<br>" + parse_markdown(data.message);
+            body.innerHTML += "<br>" + parse_markdown(data.message)
+
+            // Auto-expand tool details if the result indicates an error:
+            if (/error|failed|exception/i.test(data.message)) {
+                const details = last.querySelector('details.tool-collapse');
+                if (details) details.open = true;
+            }
+
         }
         // end message, this is sent once the agent has a final response:
         else if (data.type === "final") {
@@ -261,6 +274,7 @@ function onMessage(event) {
             // Reset subtitle:
             const header = document.getElementById('header');
             header.innerHTML = default_subtitle;
+            header.classList.remove('thinking');
 
             // Reset button text and state:
             const button = document.getElementById('send');
@@ -272,11 +286,22 @@ function onMessage(event) {
             // Reset subtitle:
             const header = document.getElementById('header');
             header.innerHTML = default_subtitle;
+            header.classList.remove('thinking');
 
             // Reset button text and state:
             const button = document.getElementById('send');
             button.innerHTML = "Send";
             button.disabled = false;
+
+            // Auto-expand the preceding tool-collapse so the user
+            // can see what code/action caused the error:
+            const prev = messages.lastChild;
+            if (prev) {
+                const details = prev.querySelector
+                              ? prev.querySelector('details.tool-collapse')
+                              : null;
+                if (details) details.open = true;
+            }
 
             // Create a new message entry:
             const div = document.createElement('div');

@@ -97,6 +97,7 @@ class NapariViewerVisionTool(BaseNapariTool):
                         message = _get_layer_image_description(
                             viewer=viewer,
                             query=augmented_query,
+                            vision_model_name=self.vision_model_name,
                             layer_name=layer_name,
                             reset_view=True,
                         )
@@ -162,6 +163,7 @@ def _get_description_for_selected_layer(
                 message = _get_layer_image_description(
                     viewer=viewer,
                     query=query,
+                    vision_model_name=vision_model_name,
                     layer_name=first_layer_name,
                     reset_view=reset_view,
                 )
@@ -176,6 +178,7 @@ def _get_description_for_selected_layer(
             message = _get_layer_image_description(
                 viewer=viewer,
                 query=query,
+                vision_model_name=vision_model_name,
                 layer_name=selected_layer_name,
                 reset_view=reset_view,
             )
@@ -191,6 +194,7 @@ def _get_description_for_selected_layer(
                 message = _get_layer_image_description(
                     viewer=viewer,
                     query=query,
+                    vision_model_name=vision_model_name,
                     layer_name=current_layer_name,
                     reset_view=reset_view,
                 )
@@ -199,7 +203,11 @@ def _get_description_for_selected_layer(
                     f"Multiple layers are selected, looking at what is currently visible in the viewer's canvas. "
                 )
 
-                message = _get_layer_image_description(viewer=viewer, query=query)
+                message = _get_layer_image_description(
+                    viewer=viewer,
+                    query=query,
+                    vision_model_name=vision_model_name,
+                )
 
         return message
 

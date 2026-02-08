@@ -43,6 +43,8 @@ dependencies = [
     "nbformat>=5.7",
     "lxml>=4.9",
     "lxml_html_clean",
+    "beautifulsoup4>=4.12",
+    "requests>=2.28",
 
     # Utilities
     "cryptography>=43.0",

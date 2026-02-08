@@ -30,6 +30,9 @@ requirements:
     - xarray >=2024.1.0,<2025  # Pin <2025: newer versions require Python 3.11+
     - matplotlib-base >=3.7
 
+    # napari (host application)
+    - napari >=0.5
+
     # Web/API
     - fastapi >=0.109
     - uvicorn >=0.20
@@ -43,9 +46,14 @@ requirements:
 
     # Data/IO
     - imageio >=2.31
+    - imageio-ffmpeg
+    - av
     - ome-zarr >=0.8
     - nbformat >=5.7
     - lxml >=4.9
+    - lxml_html_clean
+    - beautifulsoup4 >=4.12
+    - requests >=2.28
 
     # Utilities
     - cryptography >=43.0

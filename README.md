@@ -70,6 +70,24 @@ analyst or computer vision expert, it is just a matter of time...
 Omega holds a conversation with the user and uses different tools to answer questions,
 download and operate on images, write widgets for napari, and more.
 
+## Omega's Tools
+
+Omega comes with a comprehensive set of built-in tools:
+
+- **Viewer Control** -- manipulate the napari viewer (camera, layers, rendering)
+- **Widget Creation** -- generate custom napari widgets from natural language
+- **Image Segmentation** -- classic (Otsu/watershed), Cellpose, and StarDist segmentation
+- **Image Denoising** -- AI-powered denoising via Aydin
+- **Viewer Vision** -- screenshot-based visual analysis of the viewer contents
+- **napari Plugin Integration** -- discover and use any installed napari plugin (readers, writers, widgets)
+- **File Download** -- download files from URLs for subsequent processing
+- **Python Functions Info** -- query signatures and docstrings of any Python function
+- **Package Info** -- search installed Python packages
+- **Pip Install** -- install Python packages (with user permission)
+- **Exception Catcher** -- catch and report uncaught exceptions for debugging
+- **Web Search** -- search the web, Wikipedia, and find images
+- **Python REPL** -- execute arbitrary Python code
+
 ## Omega's Built-in AI-Augmented Code Editor
 
 The Omega AI-Augmented Code Editor is a new feature within Omega, designed to enhance the Omega's user experience. This
@@ -112,6 +130,16 @@ Or install the plugin from napari's plugin installer.
 
 For detailed instructions and variations, check [this page](http://github.com/royerlab/napari-chatgpt/wiki/InstallOmega)
 of our wiki.
+
+### Key Dependencies
+
+- **[LiteMind](https://github.com/royerlab/litemind)** -- LLM abstraction (OpenAI, Anthropic, Gemini)
+- **[napari](https://napari.org)** >= 0.5
+- **FastAPI/Uvicorn** -- WebSocket chat server
+- **scikit-image** -- image processing
+- **beautifulsoup4** -- web scraping
+- **requests** -- HTTP downloads
+- **Python 3.10+** supported
 
 ## Requirements:
 

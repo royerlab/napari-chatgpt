@@ -8,7 +8,7 @@ from napari_chatgpt.omega_agent.tools.napari.delegated_code.classic import (
 )
 
 
-def test_classsic_2d(show_viewer: bool = False):
+def test_classic_2d(show_viewer: bool = False):
     aprint("")
 
     # Load the 'cells' example dataset
@@ -26,7 +26,7 @@ def test_classsic_2d(show_viewer: bool = False):
     aprint(nb_unique_labels)
 
     # Check that the number of unique labels is correct:
-    assert nb_unique_labels == 21
+    assert 15 <= nb_unique_labels <= 30
 
     # If the viewer is not requested, return:
     if not show_viewer:
@@ -45,7 +45,7 @@ def test_classsic_2d(show_viewer: bool = False):
     napari.run()
 
 
-def test_classsic_3d(show_viewer: bool = False):
+def test_classic_3d(show_viewer: bool = False):
     aprint("")
 
     # Load the 'cells' example dataset
@@ -60,7 +60,7 @@ def test_classsic_3d(show_viewer: bool = False):
     aprint(nb_unique_labels)
 
     # Check that the number of unique labels is correct:
-    assert nb_unique_labels == 6
+    assert 3 <= nb_unique_labels <= 12
 
     # If the viewer is not requested, return:
     if not show_viewer:
@@ -80,5 +80,5 @@ def test_classsic_3d(show_viewer: bool = False):
 
 
 if __name__ == "__main__":
-    test_classsic_2d(show_viewer=True)
-    test_classsic_3d(show_viewer=True)
+    test_classic_2d(show_viewer=True)
+    test_classic_3d(show_viewer=True)

@@ -35,7 +35,7 @@ def text_from_html(
     soup = BeautifulSoup(body, "html.parser")
 
     # scraps all text snippets from page:
-    texts = soup.findAll(string=True)
+    texts = soup.find_all(string=True)
 
     # Removes text that is not visible on the page:
     visible_texts = filter(_tag_visible, texts)

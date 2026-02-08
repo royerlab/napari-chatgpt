@@ -23,5 +23,5 @@ def remove_small_segments(labels: ndarray, min_segment_size: int) -> ndarray:
     if min_segment_size > 0:
         from skimage.morphology import remove_small_objects
 
-        labels = remove_small_objects(labels, min_segment_size)
+        labels = remove_small_objects(labels, max_size=min_segment_size - 1)
     return labels

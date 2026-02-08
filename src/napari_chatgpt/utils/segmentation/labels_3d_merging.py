@@ -52,12 +52,12 @@ def segment_3d_from_segment_2d(
     mask = binary_labels_z * binary_labels_y * binary_labels_x
 
     # Apply morphological closing operator n times to fill in the holes, and then the erosion operator n times to remove the noise:
-    from skimage.morphology import binary_dilation, binary_erosion
+    from skimage.morphology import dilation, erosion
 
     for _ in range(iterations):
-        mask = binary_dilation(mask)
+        mask = dilation(mask)
     for _ in range(iterations):
-        mask = binary_erosion(mask)
+        mask = erosion(mask)
 
     # Apply the mask to the labels:
     labels_z = labels_z * mask

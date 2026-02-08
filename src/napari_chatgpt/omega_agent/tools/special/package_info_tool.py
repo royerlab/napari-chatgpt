@@ -1,18 +1,21 @@
-"""A tool for running python code in a REPL."""
+"""A tool for querying the list of installed packages."""
 
 import traceback
 
 from arbol import aprint, asection
 
 from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
-from napari_chatgpt.utils.python.installed_packages import installed_package_list
-from napari_chatgpt.utils.python.relevant_libraries import get_all_relevant_packages
+from napari_chatgpt.utils.python.installed_packages import (
+    installed_package_list,
+)
+
+_MAX_PACKAGES = 200
 
 
 class PythonPackageInfoTool(BaseOmegaTool):
     """
-    A tool for querying and searching the list of installed packages.
-    This tool can be used to get information about installed packages in the system.
+    A tool for querying and searching the list of
+    installed packages.
     """
 
     def __init__(self, **kwargs):
@@ -20,43 +23,51 @@ class PythonPackageInfoTool(BaseOmegaTool):
 
         self.name = "PackageInfoTool"
         self.description = (
-            "Use this tool for querying and searching the list of installed package sin the system. "
-            "You can provide a substring to search for a specific package or list of packages. "
-            "For example, send and empty string to get the full list of installed packages. "
-            "For example, send: `numpy` to get the information about the numpy package. "
+            "Use this tool to search the list of installed Python "
+            "packages. Provide a substring to filter (e.g. 'numpy' "
+            "to find numpy and its version). "
+            "An empty query returns all installed packages."
         )
 
     def run_omega_tool(self, query: str = ""):
 
-        with asection(f"PythonPackageInfoTool:"):
-            with asection(f"Query:"):
+        with asection("PythonPackageInfoTool:"):
+            with asection("Query:"):
                 aprint(query)
 
             try:
-                # remove white spaces and other non alphanumeric characters from the query:
                 query = query.strip()
 
-                # Get list of all python packages installed
-                packages = installed_package_list(filter=None)
+                # Get all installed packages (no hardcoded filter):
+                packages = installed_package_list(filter=None, clean_up=False)
 
-                # If query is not empty, filter the list of packages:
+                # Filter by query substring if provided:
                 if query:
-                    packages = [p for p in packages if query.lower() in p.lower()]
+                    q = query.lower()
+                    packages = [p for p in packages if q in p.lower()]
 
-                # If the list of packages is too long, restrict to signal processing related packages,
-                # then take the intersection of packages and get_all_relevant_packages():
-                if len(packages) > 50:
-                    packages = [
-                        p for p in packages if p.lower() in get_all_relevant_packages()
-                    ]
+                # Sort alphabetically for consistent output:
+                packages = sorted(set(packages))
 
-                # convert the list of packages to a string:
+                # Truncate if too many:
+                if len(packages) > _MAX_PACKAGES:
+                    packages = packages[:_MAX_PACKAGES]
+                    packages.append(
+                        f"... ({len(packages)} shown, "
+                        f"use a search term to narrow results)"
+                    )
+
                 result = "\n".join(packages)
 
                 aprint(result)
                 return result
 
             except Exception as e:
-                error_info = f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to get information about packages containing: '{query}'."
+                error_info = (
+                    f"Error: {type(e).__name__} with message: "
+                    f"'{str(e)}' occurred while trying to get "
+                    f"information about packages containing: "
+                    f"'{query}'."
+                )
                 traceback.print_exc()
                 return error_info

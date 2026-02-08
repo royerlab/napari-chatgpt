@@ -1,5 +1,8 @@
+import importlib.util
 import traceback
 from functools import lru_cache
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as pkg_version
 
 from napari_chatgpt.utils.python.relevant_libraries import (
     get_all_signal_processing_related_packages,
@@ -75,10 +78,6 @@ def conda_list(version: bool = False):
         return []
 
 
-from importlib.metadata import PackageNotFoundError, version
-from pkgutil import find_loader
-
-
 def is_package_installed(package_name: str):
     try:
         # Extract package name and version if provided
@@ -87,13 +86,13 @@ def is_package_installed(package_name: str):
             package_name, version_required = package_name.split("==")
 
         # Check if the package is installed
-        loader = find_loader(package_name)
-        if loader is None:
+        spec = importlib.util.find_spec(package_name)
+        if spec is None:
             return False
 
         # If a version was provided, check it
         if version_required:
-            installed_version = version(package_name)
+            installed_version = pkg_version(package_name)
             return installed_version == version_required
 
         return True

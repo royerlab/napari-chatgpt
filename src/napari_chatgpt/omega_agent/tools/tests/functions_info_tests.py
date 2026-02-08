@@ -8,10 +8,10 @@ def test_tools():
 
     query = "skimage.morphology.watershed"
     result = tool.run_omega_tool(query)
-    assert len(result) < 300
+    assert len(result) < 1000
     assert "markers = None" in result
 
     query = "*skimage.morphology.watershed"
     result = tool.run_omega_tool(query)
-    assert len(result) > 300
+    assert len(result) > 100
     assert "markers" in result

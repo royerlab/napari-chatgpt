@@ -15,8 +15,8 @@
 
 .sunlight-highlighted, .sunlight-container, .sunlight-container textarea, .sunlight-container pre {
     font-family: Consolas, Inconsolata, Monaco, "Courier New", monospace !important;
-    font-size: 10px !important;
-    line-height: 13px !important;
+    font-size: 13px !important;
+    line-height: 18px !important;
 }
 
 code {

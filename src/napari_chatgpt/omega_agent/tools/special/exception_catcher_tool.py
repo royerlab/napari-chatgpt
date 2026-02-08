@@ -1,4 +1,4 @@
-"""A tool for opening ome-zarr files in napari"""
+"""A tool for catching and reporting uncaught exceptions."""
 
 import queue
 import sys
@@ -7,7 +7,9 @@ import traceback
 from arbol import aprint, asection
 
 from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
-from napari_chatgpt.utils.python.exception_description import exception_description
+from napari_chatgpt.utils.python.exception_description import (
+    exception_description,
+)
 
 # Create a queue to store exception information
 exception_queue = queue.Queue()
@@ -26,8 +28,10 @@ def enqueue_exception(exception):
 
 class ExceptionCatcherTool(BaseOmegaTool):
     """
-    A tool that catches all uncaught exceptions and makes them available to Omega.
-    This tool is useful for debugging and understanding issues that occur during the execution of Omega tools.
+    A tool that catches all uncaught exceptions and
+    makes them available to Omega. This tool is useful
+    for debugging and understanding issues that occur
+    during the execution of Omega tools.
     """
 
     def __init__(self, **kwargs):
@@ -49,16 +53,19 @@ class ExceptionCatcherTool(BaseOmegaTool):
         # Tool name and description:
         self.name = "ExceptionCatcherTool"
         self.description = (
-            "This tool is useful when the user is having problems with a widget ."
-            "This tool returns information about the exception that happened. "
-            "Traceback information is also provided to help find the source of the issue. "
-            "Input should be the number of exceptions to report on, should be a single integer (>0)."
+            "This tool is useful when uncaught exceptions have occurred. "
+            "It returns information about exceptions including traceback "
+            "details to help find the source of the issue. "
+            "Input should be the number of exceptions to report on, "
+            "should be a single integer (>0)."
         )
-        self.prompt: str = None
 
     def run_omega_tool(self, query: str = ""):
 
         with asection("ExceptionCatcherTool:"):
+
+            if exception_queue.qsize() == 0:
+                return "No exceptions recorded."
 
             text = "Here is the list of exceptions that occurred:\n\n"
             text += "```\n"
@@ -66,8 +73,8 @@ class ExceptionCatcherTool(BaseOmegaTool):
             try:
                 # We try to convert the input to an integer:
                 number_of_exceptions = int(query.strip())
-            except Exception as e:
-                # If the input is not an integer, or anything else goes wrong, we set the number of exceptions to the maximum:
+            except Exception:
+                # If the input is not an integer, report all:
                 number_of_exceptions = exception_queue.qsize()
 
             # ensure that the number of exceptions is strictly positive:

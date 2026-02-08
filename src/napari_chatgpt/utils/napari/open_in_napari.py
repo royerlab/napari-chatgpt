@@ -1,4 +1,3 @@
-import os
 import tempfile
 import traceback
 from typing import TYPE_CHECKING
@@ -40,11 +39,8 @@ def open_video_in_napari(viewer: "Viewer", url: str):
         # Download video file:
         from napari_chatgpt.utils.download.download_files import download_files
 
-        files = download_files(urls=[url], path=temp_folder)
-        file = files[0]
-
-        # make full path:
-        file_path = os.path.join(temp_folder, file)
+        file_paths = download_files(urls=[url], path=temp_folder)
+        file_path = file_paths[0]
 
         # open video:
         import imageio.v3 as iio

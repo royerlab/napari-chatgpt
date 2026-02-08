@@ -59,11 +59,11 @@ class PipInstallTool(BaseOmegaTool):
                     aprint(message)
                     return message
 
-                # Install the packages:
+                # Install the packages (with user permission dialog):
                 message = pip_install(
                     packages,
                     skip_if_installed=True,
-                    ask_permission=False,
+                    ask_permission=True,
                     included=False,
                 )
 

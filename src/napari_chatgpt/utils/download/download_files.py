@@ -1,49 +1,66 @@
 import os
-import urllib.request
+import tempfile
+import urllib.parse
 
+import requests
 from arbol import aprint, asection
+
+_DOWNLOAD_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    ),
+    "Accept": (
+        "text/html,application/xhtml+xml," "application/xml;q=0.9,image/webp,*/*;q=0.8"
+    ),
+    "Accept-Language": "en-US,en;q=0.5",
+    "DNT": "1",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+}
+
+
+def _download_file(url, file_path) -> str:
+    """Download a single file using proper HTTP headers."""
+    response = requests.get(url, headers=_DOWNLOAD_HEADERS, stream=True, timeout=60)
+    response.raise_for_status()
+
+    with open(file_path, "wb") as f:
+        for chunk in response.iter_content(8192):
+            f.write(chunk)
+
+    return file_path
 
 
 def download_files(urls, path=None) -> list[str]:
     # Defaults to working directory:
     path = path or os.getcwd()
 
-    filenames = []
+    file_paths = []
 
     with asection("Downloading files:"):
         # Iterates through urls:
         for url in urls:
-            # builds the filepath from the url:
-            file_name = url.split("/")[-1]
-            file_path = path + "/" + file_name
+            # Extract filename from URL using proper URL parsing:
+            parsed = urllib.parse.urlparse(url)
+            file_name = os.path.basename(parsed.path) or "downloaded_file"
 
-            # Downloads
+            # Build the full file path:
+            file_path = os.path.join(path, file_name)
+
+            # Download:
             aprint(f"Downloading file at {url} to {file_path}...")
-            urllib.request.urlretrieve(url, file_path)
+            _download_file(url, file_path)
 
-            # Add filenames to list:
-            filenames.append(file_name)
+            # Add full file paths to list:
+            file_paths.append(file_path)
 
-    return filenames
-
-
-import tempfile
-
-import requests
+    return file_paths
 
 
 def download_file_stealth(url, file_path=None) -> str:
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate, br",
-        "DNT": "1",  # Do Not Track Request Header
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-    }
-
-    response = requests.get(url, headers=headers, stream=True)
+    response = requests.get(url, headers=_DOWNLOAD_HEADERS, stream=True, timeout=60)
 
     if response.status_code == 200:
         if file_path is None:
@@ -56,11 +73,11 @@ def download_file_stealth(url, file_path=None) -> str:
             file_obj = open(file_path, "wb")
 
         with file_obj as f:
-            for chunk in response.iter_content(1024):
+            for chunk in response.iter_content(8192):
                 f.write(chunk)
 
-        print(f"File downloaded: {file_path}")
+        aprint(f"File downloaded: {file_path}")
         return file_path
     else:
-        print(f"Failed to download file: status code {response.status_code}")
+        aprint(f"Failed to download file: " f"status code {response.status_code}")
         return None

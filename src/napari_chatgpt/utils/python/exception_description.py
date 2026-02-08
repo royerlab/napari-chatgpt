@@ -2,12 +2,16 @@ import traceback
 
 
 def exception_description(
-    exception, include_filename: bool = False, include_line_number: bool = False
+    exception,
+    include_filename: bool = False,
+    include_line_number: bool = False,
 ) -> str:
     info = exception_info(exception)
 
     description = get_exception_description_string(
-        info, include_filename=include_filename, include_line_number=include_line_number
+        info,
+        include_filename=include_filename,
+        include_line_number=include_line_number,
     )
 
     return description
@@ -22,7 +26,7 @@ def get_exception_description_string(
     message = info["exception_message"]
     line = info["error_line"]
 
-    description = f""
+    description = ""
     description += f"Error Message: {message} ({name})"
     if line and "code line unavailable" not in line:
         description += f" at: '{line}'"
@@ -57,9 +61,9 @@ def exception_info(exception) -> dict[str, str]:
         with open(filename) as file:
             code_lines = file.readlines()
             error_line = code_lines[line_number - 1].strip()
-    except FileNotFoundError:
-        # File not found error handling
-        error_line = "<code line unavailable - file not found>"
+    except (FileNotFoundError, IndexError):
+        # File not found or line number out of range
+        error_line = "<code line unavailable>"
 
     # Get exception name and message
     exception_name = type(exception).__name__
@@ -77,8 +81,8 @@ def exception_info(exception) -> dict[str, str]:
     return details
 
 
-def find_root_cause(exception):
-    if exception.__cause__ is None:
+def find_root_cause(exception, _depth=0):
+    if _depth > 100 or exception.__cause__ is None:
         return exception
     else:
-        return find_root_cause(exception.__cause__)
+        return find_root_cause(exception.__cause__, _depth + 1)

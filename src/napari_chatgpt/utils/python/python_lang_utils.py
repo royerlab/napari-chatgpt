@@ -79,7 +79,7 @@ def get_function_signature(function_name: str, include_docstring: bool = False) 
 
         return function_signature
 
-    except (ImportError, AttributeError):
+    except (ImportError, AttributeError, ValueError, TypeError):
         return None
 
 
@@ -163,19 +163,37 @@ def get_signature(method):
 
 @lru_cache
 def get_function_info(function_path: str, add_docstrings: bool = False):
-    splitted_function_path = function_path.split(".")
+    parts = function_path.split(".")
+    function_name = parts[-1]
 
-    function_name = splitted_function_path[-1]
-    pkg_name = ".".join(splitted_function_path[0:-2])
+    # Try direct import first (fast path):
+    sig = get_function_signature(function_path, include_docstring=add_docstrings)
+    if sig:
+        # Replace "def func(" with "def module.func(" for
+        # consistency with the recursive search path:
+        module_name = ".".join(parts[:-1])
+        if module_name and sig.startswith(f"def {function_name}("):
+            sig = sig.replace(
+                f"def {function_name}(",
+                f"def {function_path}(",
+                1,
+            )
+        return sig
 
-    info = find_function_info_in_package(
-        pkg_name=pkg_name, function_name=function_name, add_docstrings=add_docstrings
-    )
+    # Fallback: search progressively broader packages.
+    # e.g. for "skimage.morphology.watershed", try
+    # "skimage.morphology" first, then "skimage":
+    for depth in range(len(parts) - 1, 0, -1):
+        pkg_name = ".".join(parts[:depth])
+        info = find_function_info_in_package(
+            pkg_name=pkg_name,
+            function_name=function_name,
+            add_docstrings=add_docstrings,
+        )
+        if len(info) > 0:
+            return "\n\n".join(info)
 
-    if len(info) > 0:
-        return "\n\n".join(info)
-    else:
-        return f"Function {function_path} not found."
+    return f"Function {function_path} not found."
 
 
 def find_functions_in_package(pkg_name: str, function_name: str):
@@ -230,14 +248,23 @@ def find_function_info_in_package(
 
 @lru_cache
 def extract_package_path(path: str):
-    package_name_pattern = re.compile(r"\b\w+(\.\w+)*\b")
+    # Match dotted qualified names (e.g. scipy.ndimage.convolve)
+    # requiring at least one dot to distinguish from plain words:
+    dotted_pattern = re.compile(r"\b\w+(?:\.\w+)+\b")
+    matches = dotted_pattern.findall(path)
+    if matches:
+        # Return the longest match (most specific):
+        return max(matches, key=len)
 
-    match = package_name_pattern.search(path)
-    if match:
-        package_name = match.group()
-        return package_name
-    else:
-        return None
+    # Fallback: single word (e.g. just "numpy").
+    # Use the last word since query terms typically appear
+    # at the end of natural language requests:
+    word_pattern = re.compile(r"\b\w+\b")
+    matches = word_pattern.findall(path)
+    if matches:
+        return matches[-1]
+
+    return None
 
 
 @lru_cache

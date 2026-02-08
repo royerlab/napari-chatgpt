@@ -16,30 +16,42 @@ class FileDownloadTool(BaseOmegaTool):
 
         self.name = "UrlDownloadTool"
         self.description = (
-            "Use this tool to download file(s) by writing: download(<urls>) where <urls> is a list of valid and syntactically correct URLs."
-            "The file(s) is(are) stored in the current folder using its(their) filename as found in the URL, "
-            "and thus is(are) directly accessible using its(their) filename. "
-            "Use this tool to download files before any subsequent operations on these files."
+            "Use this tool to download files from URLs. "
+            "Provide the URLs in the input and the files will be "
+            "downloaded to the current folder. "
+            "The tool returns the full file paths of the downloaded files. "
+            "Use this tool to download files before any subsequent "
+            "operations on these files."
         )
 
     def run_omega_tool(self, query: str = ""):
 
         try:
-            with asection(f"FileDownloadTool:"):
-                with asection(f"Query:"):
+            with asection("FileDownloadTool:"):
+                with asection("Query:"):
                     aprint(query)
 
                 # extract urls from query
                 urls = extract_urls(query)
 
-                # Download files:
-                filenames = download_files(urls)
+                if not urls:
+                    return (
+                        "Error: No valid URLs found in the input. "
+                        "Please provide valid URLs to download."
+                    )
 
-                # Filename as string:
-                filenames_str = ", ".join(filenames)
+                # Download files:
+                file_paths = download_files(urls)
+
+                # File paths as string:
+                file_paths_str = ", ".join(file_paths)
 
                 # message:
-                message = f"Successfully downloaded {len(urls)} files: {filenames_str}"
+                message = (
+                    f"Successfully downloaded "
+                    f"{len(urls)} file(s): "
+                    f"{file_paths_str}"
+                )
 
                 aprint(message)
 
@@ -47,4 +59,7 @@ class FileDownloadTool(BaseOmegaTool):
                 return message
 
         except Exception as e:
-            return f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to download files from: '{query}'."
+            return (
+                f"Error: {type(e).__name__} with message: '{e}' "
+                f"occurred while trying to download files from: '{query}'."
+            )

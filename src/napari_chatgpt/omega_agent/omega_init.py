@@ -101,8 +101,8 @@ def initialize_omega_agent(
 def prepare_toolset(tool_context, vision_llm_model_name) -> ToolSet:
     tools = []
 
-    # Adding all napari tools:
-    _append_all_napari_tools(tool_context, tools, vision_llm_model_name)
+    # Adding all tools:
+    _append_all_tools(tool_context, tools, vision_llm_model_name)
 
     # Create Toolset from the list of tools:
     toolset = ToolSet(tools)
@@ -110,7 +110,7 @@ def prepare_toolset(tool_context, vision_llm_model_name) -> ToolSet:
     return toolset
 
 
-def _append_all_napari_tools(tool_context, tools, vision_llm_model_name):
+def _append_all_tools(tool_context, tools, vision_llm_model_name):
     from napari_chatgpt.omega_agent.tools.napari.viewer_control_tool import (
         NapariViewerControlTool,
     )
@@ -153,6 +153,12 @@ def _append_all_napari_tools(tool_context, tools, vision_llm_model_name):
 
     tools.append(CellNucleiSegmentationTool(**tool_context))
 
+    from napari_chatgpt.omega_agent.tools.napari.napari_plugin_tool import (
+        NapariPluginTool,
+    )
+
+    tools.append(NapariPluginTool(**tool_context))
+
     from napari_chatgpt.utils.llm.vision import is_vision_available
 
     if is_vision_available():
@@ -175,3 +181,33 @@ def _append_all_napari_tools(tool_context, tools, vision_llm_model_name):
         )
 
         tools.append(ImageDenoisingTool(**tool_context))
+
+    from napari_chatgpt.omega_agent.tools.special.file_download_tool import (
+        FileDownloadTool,
+    )
+
+    tools.append(FileDownloadTool(**tool_context))
+
+    from napari_chatgpt.omega_agent.tools.special.exception_catcher_tool import (
+        ExceptionCatcherTool,
+    )
+
+    tools.append(ExceptionCatcherTool(**tool_context))
+
+    from napari_chatgpt.omega_agent.tools.special.functions_info_tool import (
+        PythonFunctionsInfoTool,
+    )
+
+    tools.append(PythonFunctionsInfoTool(**tool_context))
+
+    from napari_chatgpt.omega_agent.tools.special.package_info_tool import (
+        PythonPackageInfoTool,
+    )
+
+    tools.append(PythonPackageInfoTool(**tool_context))
+
+    from napari_chatgpt.omega_agent.tools.special.pip_install_tool import (
+        PipInstallTool,
+    )
+
+    tools.append(PipInstallTool(**tool_context))

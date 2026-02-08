@@ -139,9 +139,13 @@ class ImageDenoisingTool(BaseNapariTool):
                 # Pick the right denoising code:
                 if "aydin_classic_denoising(" in code_lower:
                     install_aydin()
+                    if not _aydin_available():
+                        return _AYDIN_MISSING_MSG
                     denoising_code = _get_delegated_code("aydin_classic")
                 elif "aydin_fgr_denoising(" in code_lower:
                     install_aydin()
+                    if not _aydin_available():
+                        return _AYDIN_MISSING_MSG
                     denoising_code = _get_delegated_code("aydin_fgr")
                 else:
                     raise ValueError(
@@ -198,6 +202,20 @@ class ImageDenoisingTool(BaseNapariTool):
         except Exception as e:
             traceback.print_exc()
             return f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to fulfill the request. "  # \n```python\n{code}\n```\n
+
+
+_AYDIN_MISSING_MSG = (
+    "Error: The aydin denoising library could not "
+    "be installed. "
+    "Please install it manually: pip install aydin"
+)
+
+
+def _aydin_available() -> bool:
+    """Check if the aydin package is importable."""
+    import importlib.util
+
+    return importlib.util.find_spec("aydin") is not None
 
 
 @cache
