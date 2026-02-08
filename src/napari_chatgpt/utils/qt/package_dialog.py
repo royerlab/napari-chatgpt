@@ -70,6 +70,19 @@ def install_packages_dialog(packages, app=None) -> bool:
     return dialog.user_response
 
 
-def install_packages_dialog_threadsafe(packages):
-    # Call the dialog on the main thread:
-    run_on_main_thread(lambda: install_packages_dialog(packages))
+def install_packages_dialog_threadsafe(packages) -> bool:
+    """Show the install-packages dialog on the Qt main thread and block until
+    the user responds.  Safe to call from any worker thread."""
+    from queue import Empty, Queue
+
+    result_queue = Queue(maxsize=1)
+
+    def _show_dialog():
+        result = install_packages_dialog(packages)
+        result_queue.put(result)
+
+    run_on_main_thread(_show_dialog)
+    try:
+        return result_queue.get(timeout=300)
+    except Empty:
+        return False

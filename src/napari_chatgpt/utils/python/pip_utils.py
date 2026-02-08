@@ -2,7 +2,7 @@ from arbol import aprint, asection
 
 from napari_chatgpt.utils.python.conda_utils import conda_install
 from napari_chatgpt.utils.python.installed_packages import is_package_installed
-from napari_chatgpt.utils.qt.package_dialog import install_packages_dialog
+from napari_chatgpt.utils.qt.package_dialog import install_packages_dialog_threadsafe
 
 ___included_packages = ["numpy", "napari", "magicgui", "scikit-image", "scipy"]
 
@@ -104,7 +104,7 @@ def pip_install(
 
     if len(packages) > 0:
         try:
-            response = not ask_permission or install_packages_dialog(packages=packages)
+            response = not ask_permission or install_packages_dialog_threadsafe(packages=packages)
 
             if response:
                 aprint(f"User accepted to install packages!")
