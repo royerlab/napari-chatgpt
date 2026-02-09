@@ -271,6 +271,14 @@ function onMessage(event) {
             // Parse markdown and render as HTML:
             p.innerHTML = "<strong>" + "Omega: " + "</strong>" + parse_markdown(data.message)
 
+            // Update session token counter:
+            if (data.total_tokens > 0) {
+                const tokenEl = document.getElementById('session-tokens');
+                if (tokenEl) {
+                    tokenEl.textContent = 'Session: ~' + data.total_tokens.toLocaleString() + ' tokens';
+                }
+            }
+
             // Reset subtitle:
             const header = document.getElementById('header');
             header.innerHTML = default_subtitle;

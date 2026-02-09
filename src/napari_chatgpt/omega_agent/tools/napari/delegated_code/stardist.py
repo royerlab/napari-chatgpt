@@ -31,10 +31,13 @@ def stardist_segmentation(
             Image for which to segment cells. Must be 2D or 3D.
 
     model_type: str
-            Model type, pre-trained models include: 'versatile_fluo', 'versatile_he'.
+            Model type, pre-trained models include: 'versatile_fluo', 'versatile_he',
+            'paper_dsb2018', 'demo'.
             'versatile_fluo' is trained on a broad range of fluorescent images.
             'versatile_he' is trained on H&E stained tissue (but may generalize to other
             staining modalities).
+            For 3D images, segmentation is done slice-by-slice using the 2D model.
+            Do NOT use 3D model names — only the above 2D models are valid.
 
 
     normalize: Optional[bool]
@@ -64,6 +67,27 @@ def stardist_segmentation(
     # Raise an error if the image is not 2D or 3D:
     if len(image.shape) > 3:
         raise ValueError("The input image must be 2D or 3D.")
+
+    # Valid StarDist2D pretrained model names (with and without '2D_' prefix):
+    _valid_models = {
+        "versatile_fluo",
+        "versatile_he",
+        "paper_dsb2018",
+        "demo",
+        "2D_versatile_fluo",
+        "2D_versatile_he",
+        "2D_paper_dsb2018",
+        "2D_demo",
+    }
+
+    # Validate model_type:
+    if model_type not in _valid_models:
+        raise ValueError(
+            f"Unknown StarDist model_type: '{model_type}'. "
+            f"Valid options are: 'versatile_fluo', 'versatile_he', 'paper_dsb2018', 'demo' "
+            f"(with or without '2D_' prefix). "
+            f"Note: 3D images are segmented slice-by-slice using 2D models."
+        )
 
     # Add '2D_' as prefix to the model if not yet a prefix:
     if not model_type.startswith("2D_"):
@@ -100,6 +124,12 @@ def stardist_2d(image, scale: float, model_type: str, model: Any | None = None):
 
         model = StarDist2D.from_pretrained(model_type)
 
+    if model is None:
+        raise RuntimeError(
+            f"Failed to load StarDist model '{model_type}'. "
+            f"StarDist2D.from_pretrained() returned None."
+        )
+
     # Run StarDist:
     labels, _ = model.predict_instances(image, scale=scale)
 
@@ -111,6 +141,12 @@ def stardist_3d(image, scale: float, model_type: str, min_segment_size: int):
     from stardist.models import StarDist2D
 
     model = StarDist2D.from_pretrained(model_type)
+
+    if model is None:
+        raise RuntimeError(
+            f"Failed to load StarDist model '{model_type}'. "
+            f"StarDist2D.from_pretrained() returned None."
+        )
 
     # Define a function to segment 2D slices:
     def segment_2d(image):

@@ -67,7 +67,7 @@ def get_description_of_algorithms() -> str:
 
         elif "classic" in algo:
             description += (
-                "Classic for very contrasted and easy to segment 2D or 3D images, "
+                "Classic for threshold-based segmentation (Otsu, Li, Triangle, Yen, etc.) in 2D/3D — fast, no GPU required, "
             )
 
     # remove last comma:

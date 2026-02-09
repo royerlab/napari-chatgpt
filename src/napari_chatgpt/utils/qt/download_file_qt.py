@@ -47,9 +47,9 @@ class ProgressBar(QWidget):
         self.label = QLabel(self)
         self.label.setText(f"Click to download: {filename}")
 
-        self.layout = QVBoxLayout(self)
-        self.layout.addWidget(self.progressBar)
-        self.layout.addWidget(self.label)
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.addWidget(self.progressBar)
+        self.main_layout.addWidget(self.label)
 
     def setProgress(self, progress):
         if self.progressBar.value() < progress:
@@ -80,9 +80,9 @@ class DownloadFileDialog(QDialog):
         self.button = QPushButton("Download")
         self.button.clicked.connect(self.downloadFile)
 
-        self.layout = QVBoxLayout(self)
-        self.layout.addWidget(self.progressBar)
-        self.layout.addWidget(self.button)
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.addWidget(self.progressBar)
+        self.main_layout.addWidget(self.button)
 
     def downloadFile(
         self,

@@ -1,4 +1,4 @@
-.PHONY: help setup install install-dev test test-cov check format lint build clean publish publish-patch
+.PHONY: help setup install install-dev test test-cov check format lint build clean publish publish-patch update-readme update-screenshots update-wiki .check-claude
 
 # Default target
 help:
@@ -15,6 +15,11 @@ help:
 	@echo "  make clean        - Clean build artifacts"
 	@echo "  make publish      - Bump version, commit, tag, and push (triggers PyPI release)"
 	@echo "  make publish-patch- Publish patch version (same day increment)"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  make update-readme      - Update README.md using Claude Code CLI"
+	@echo "  make update-screenshots - Regenerate widget screenshots for wiki"
+	@echo "  make update-wiki        - Update wiki pages using Claude Code CLI"
 
 # =============================================================================
 # Setup & Installation
@@ -127,3 +132,58 @@ publish-patch:
 	echo "Pushing to origin..."; \
 	git push origin main --tags; \
 	echo "Done! GitHub Actions will publish to PyPI."
+
+# =============================================================================
+# Documentation
+# =============================================================================
+
+WIKI_DIR := $(abspath ../napari-chatgpt.wiki)
+
+# Check that Claude Code CLI is installed
+.check-claude:
+	@command -v claude >/dev/null 2>&1 || { \
+		echo "Error: 'claude' CLI not found."; \
+		echo "Install Claude Code first:"; \
+		echo "  npm install -g @anthropic-ai/claude-code"; \
+		echo "See: https://docs.anthropic.com/en/docs/claude-code"; \
+		exit 1; \
+	}
+
+update-readme: .check-claude
+	@echo "Updating README.md with Claude Code..."
+	claude -p --permission-mode acceptEdits \
+	"Review the README.md and check whether it is up-to-date \
+	relative to the current codebase. Look at recent git commits since the \
+	last README-related commit, the current tool list, dependencies, \
+	installation instructions, and project structure. If anything is outdated \
+	or missing, update README.md directly. If everything is already current, \
+	say so and make no changes. Do NOT remove existing video links or images. \
+	Keep the same overall structure and tone."
+	@echo "Done."
+
+update-screenshots:
+	@echo "Regenerating screenshots..."
+	@if [ ! -d "$(WIKI_DIR)" ]; then \
+		echo "Warning: Wiki directory not found at $(WIKI_DIR)"; \
+		echo "Screenshots will be saved to ./screenshots/ instead."; \
+		mkdir -p screenshots; \
+		hatch run docs:screenshots --output-dir screenshots/; \
+	else \
+		hatch run docs:screenshots --output-dir "$(WIKI_DIR)/images/"; \
+	fi
+	@echo "Done."
+
+update-wiki: .check-claude
+	@echo "Updating wiki pages with Claude Code..."
+	@if [ ! -d "$(WIKI_DIR)" ]; then \
+		echo "Error: Wiki directory not found at $(WIKI_DIR)"; \
+		echo "Clone it first: git clone git@github.com:royerlab/napari-chatgpt.wiki.git ../napari-chatgpt.wiki"; \
+		exit 1; \
+	fi
+	claude -p --add-dir "$(WIKI_DIR)" --permission-mode acceptEdits \
+	"Review the wiki pages in $(WIKI_DIR)/ and check whether \
+	they are up-to-date relative to the current codebase. Look at the tools, \
+	dependencies, installation instructions, API key setup, and UI changes. \
+	Update any wiki .md files that are outdated. Do NOT remove existing content \
+	that is still valid. Keep the same overall structure and tone."
+	@echo "Done."

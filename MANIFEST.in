@@ -1,5 +1,7 @@
 include LICENSE
 include README.md
 
+recursive-include src/napari_chatgpt *.yaml
+
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]

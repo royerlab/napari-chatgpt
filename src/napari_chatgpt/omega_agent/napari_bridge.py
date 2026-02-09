@@ -55,12 +55,17 @@ class NapariBridge:
                     self.from_napari_queue.put(guard)
                     enqueue_exception(guard.exception_value)
 
+        self._stop_flag = False
+
         @thread_worker(connect={"yielded": qt_code_executor})
         def omega_napari_worker(to_napari_queue: Queue, from_napari_queue: Queue):
-            while True:
+            while not self._stop_flag:
 
-                # get code from the queue:
-                code = to_napari_queue.get()
+                # get code from the queue (with timeout so we can check the stop flag):
+                try:
+                    code = to_napari_queue.get(timeout=1.0)
+                except Empty:
+                    continue
 
                 # execute code on napari's QT thread:
                 if code is None:
@@ -104,6 +109,14 @@ class NapariBridge:
 
         # Execute delegated function in napari context and return result:
         return self._execute_in_napari_context(_delegated_snapshot_function)
+
+    def stop(self):
+        """Signal the background worker to exit."""
+        self._stop_flag = True
+        try:
+            self.to_napari_queue.put_nowait(None)
+        except Exception:
+            pass
 
     def _execute_in_napari_context(self, delegated_function, timeout: float = 300.0):
         """Execute a function in napari's Qt context.

@@ -104,6 +104,9 @@ def prepare_toolset(tool_context, vision_llm_model_name) -> ToolSet:
     # Adding all tools:
     _append_all_tools(tool_context, tools, vision_llm_model_name)
 
+    # Discover and add external tools via entry points:
+    _discover_external_tools(tool_context, tools)
+
     # Create Toolset from the list of tools:
     toolset = ToolSet(tools)
 
@@ -159,6 +162,12 @@ def _append_all_tools(tool_context, tools, vision_llm_model_name):
 
     tools.append(NapariPluginTool(**tool_context))
 
+    from napari_chatgpt.omega_agent.tools.napari.layer_action_tool import (
+        NapariLayerActionTool,
+    )
+
+    tools.append(NapariLayerActionTool(**tool_context))
+
     from napari_chatgpt.utils.llm.vision import is_vision_available
 
     if is_vision_available():
@@ -172,10 +181,11 @@ def _append_all_tools(tool_context, tools, vision_llm_model_name):
             )
         )
 
-    from napari_chatgpt.utils.system.is_apple_silicon import is_apple_silicon
+    from napari_chatgpt.omega_agent.tools.napari.image_denoising_tool import (
+        _aydin_available,
+    )
 
-    # Future task: remove once Aydin supports Apple Silicon:
-    if not is_apple_silicon():
+    if _aydin_available():
         from napari_chatgpt.omega_agent.tools.napari.image_denoising_tool import (
             ImageDenoisingTool,
         )
@@ -211,3 +221,41 @@ def _append_all_tools(tool_context, tools, vision_llm_model_name):
     )
 
     tools.append(PipInstallTool(**tool_context))
+
+
+def _discover_external_tools(tool_context: dict, tools: list) -> None:
+    """Discover and instantiate tools registered via entry points.
+
+    External packages can register tools by adding an entry point in
+    their ``pyproject.toml``::
+
+        [project.entry-points."napari_chatgpt.tools"]
+        my_tool = "my_package:MyToolClass"
+
+    Each entry point must resolve to a class that subclasses
+    ``BaseOmegaTool``. Invalid entries are logged and skipped.
+    """
+    import importlib.metadata
+
+    from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
+
+    try:
+        eps = importlib.metadata.entry_points(group="napari_chatgpt.tools")
+    except TypeError:
+        # Python 3.9 compatibility: entry_points() doesn't accept group=
+        eps = importlib.metadata.entry_points().get("napari_chatgpt.tools", [])
+
+    for ep in eps:
+        try:
+            tool_class = ep.load()
+            if not (isinstance(tool_class, type) and issubclass(tool_class, BaseOmegaTool)):
+                aprint(
+                    f"Skipping entry point '{ep.name}': "
+                    f"{tool_class} is not a subclass of BaseOmegaTool"
+                )
+                continue
+            tool_instance = tool_class(**tool_context)
+            tools.append(tool_instance)
+            aprint(f"Registered external tool: {ep.name} ({tool_class.__name__})")
+        except Exception as e:
+            aprint(f"Failed to load external tool '{ep.name}': {e}")

@@ -15,7 +15,7 @@ class MultiEditorManager(QWidget):
         super().__init__(parent)
         self.on_text_modified_callback = on_text_modified_callback
         self.editor_widget_class = editor_widget_class
-        self.layout = QVBoxLayout(self)
+        self.main_layout = QVBoxLayout(self)
         self.editors = {}  # Key: filename, Value: PythonCodeEditor instance
         self.current_editor_name = None
         self.current_editor = None
@@ -37,7 +37,7 @@ class MultiEditorManager(QWidget):
         if filename not in self.editors:
             editor = self.editor_widget_class(self)
             self.editors[filename] = editor
-            self.layout.addWidget(editor)
+            self.main_layout.addWidget(editor)
 
         # Set the current editor to the editor for the filename:
         self.current_editor = self.editors[filename]

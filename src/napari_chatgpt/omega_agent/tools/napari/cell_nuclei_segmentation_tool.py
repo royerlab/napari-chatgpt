@@ -54,7 +54,7 @@ Here is an explanation of the parameters:
             Valid parameter for both StarDist and Cellpose. 
             Segmentation model: 
             - For Cellpose it can be: cyto, cyto2, cyto3, nuclei. cyto/cyto2/cyto3 -> cytoplasm (whole cell) models, nuclei -> nucleus model.
-            - For StarDist can be: 'versatile_fluo', 'versatile_he'. 'versatile_fluo' is trained on a broad range of fluorescent images. 'versatile_he' is trained on H&E stained tissue (but may generalize to other staining modalities).
+            - For StarDist can be: 'versatile_fluo', 'versatile_he', 'paper_dsb2018', 'demo'. 'versatile_fluo' is trained on a broad range of fluorescent images. 'versatile_he' is trained on H&E stained tissue (but may generalize to other staining modalities). For 3D images, the 2D model is applied slice-by-slice — do NOT use 3D model names.
             
     normalize: Optional[bool]
             Valid parameter for both StarDist and Cellpose.
@@ -180,6 +180,7 @@ _instructions = """
 - The system adds the result to the viewer automatically — do not call `viewer.add_labels()`.
 - Return only the function `segment(viewer) -> ArrayLike`.
 - Convert the segmented image to `np.uint32` before returning.
+- IMPORTANT: If the user explicitly requests a specific segmentation method (e.g., Otsu, threshold, classic, Li, Triangle, Yen), you MUST use classic_segmentation() with the appropriate threshold_type. Never override the user's explicit method choice with a different algorithm.
 """
 
 

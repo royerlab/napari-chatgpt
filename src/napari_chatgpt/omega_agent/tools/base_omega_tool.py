@@ -22,6 +22,9 @@ class BaseOmegaTool(FunctionTool):
         # Set Tool's name as class:
         self.name = kwargs.get("name", self.__class__.__name__)
 
+        # Store notebook reference (used by PipInstallTool, PythonCodeExecutionTool, etc.):
+        self.notebook = kwargs.get("notebook")
+
     @abstractmethod
     def run_omega_tool(self, query: str = ""):
         """

@@ -1,22 +1,45 @@
-"""A tool for making a napari widget."""
+"""A tool for making a napari widget using an agentic sub-agent with self-correction."""
 
+import sys
 import traceback
 
 from arbol import aprint, asection
+from litemind.agent.agent import Agent
+from litemind.agent.tools.function_tool import FunctionTool
+from litemind.agent.tools.toolset import ToolSet
 from napari import Viewer
 
+from napari_chatgpt.omega_agent.napari_bridge import _get_viewer_info
 from napari_chatgpt.omega_agent.tools.base_napari_tool import BaseNapariTool
+from napari_chatgpt.omega_agent.tools.generic_coding_instructions import (
+    omega_generic_codegen_instructions,
+)
 from napari_chatgpt.utils.python.dynamic_import import dynamic_import
+from napari_chatgpt.utils.python.exception_guard import ExceptionGuard
+from napari_chatgpt.utils.strings.extract_code import extract_code_from_markdown
 from napari_chatgpt.utils.strings.filter_lines import filter_lines
 from napari_chatgpt.utils.strings.find_function_name import (
     find_magicgui_decorated_function_name,
 )
 from napari_chatgpt.utils.strings.trailing_code import remove_trailing_code
+from napari_chatgpt.utils.system.information import system_info
 
-_napari_widget_maker_prompt = """
-**Context**
-You write image processing and analysis functions as napari widgets using magicgui.
-Functions should work on 2D and 3D images (and ideally nD) unless the request specifies otherwise.
+_SUB_AGENT_SYSTEM_PROMPT = """
+You are a specialized code generator for napari magicgui widgets.
+
+**Workflow:**
+1. Generate the widget code based on the user's request.
+2. Call the `submit_widget_code` tool with your code as the `code` argument.
+3. If the tool returns an error, read the error message carefully, fix your code, and call `submit_widget_code` again.
+4. Repeat until the tool returns a success message or you run out of attempts.
+
+**Rules:**
+- Do NOT include these imports (they are automatically prepended):
+  `from magicgui import magicgui`, `from napari.types import ...`,
+  `from napari.layers import ...`, `import numpy as np`, `from typing import Union`
+- Do NOT call `viewer.window.add_dock_widget()` — that is handled automatically after your code succeeds.
+- Do NOT create a new `napari.Viewer()` or call `napari.run()`.
+- You MUST call the `submit_widget_code` tool with your code. Do not just return code as text.
 
 **Instructions:**
 {instructions}
@@ -28,15 +51,7 @@ Functions should work on 2D and 3D images (and ideally nD) unless the request sp
 
 **System Information:**
 {system_information}
-
-**Request:**
-{input}
-
-**Answer in markdown:**
 """
-#
-# Important: all import statements must be inside of the function except for those needed for magicgui and for type hints.
-# All import statements required by function calls within the function must be within the function.
 
 _instructions = """
 
@@ -75,7 +90,8 @@ Write **one** napari + magicgui widget function. The caller handles docking the 
   3. `napari.types.LayerDataTuple` (or a list of tuples).
 
 - To update an existing layer, include `metadata["name"]` in your `LayerDataTuple`.
-- **Never** call `viewer.add_*` or `viewer.window.add_dock_widget()`; use the return value instead.
+- Prefer returning data via return values rather than calling `viewer.add_*()` directly.
+- **Never** call `viewer.window.add_dock_widget()` — docking is handled automatically.
 
 ---
 
@@ -110,15 +126,139 @@ _code_lines_to_filter_out = [
     "viewer = Viewer(",
     "viewer.window.add_dock_widget(",
     "napari.run(",
-    "viewer.add_image(",
-    "viewer.add_labels(",
-    "viewer.add_points(",
-    "viewer.add_shapes(",
-    "viewer.add_surface(",
-    "viewer.add_tracks(",
-    "viewer.add_vectors(",
     "gui_qt(",
 ]
+
+
+class _WidgetCodeSubmitTool(FunctionTool):
+    """Submit widget code for execution. The code argument must contain a complete magicgui-decorated function."""
+
+    def __init__(
+        self,
+        to_napari_queue,
+        from_napari_queue,
+        code_prefix,
+        max_attempts=3,
+    ):
+        super().__init__(
+            func=self.submit_widget_code,
+            description=(
+                "Submit magicgui widget code for execution in napari. "
+                "The code argument must contain a complete @magicgui-decorated function. "
+                "Returns 'Success: ...' if the widget was created, or an error message if it failed."
+            ),
+        )
+        self._to_napari_queue = to_napari_queue
+        self._from_napari_queue = from_napari_queue
+        self._code_prefix = code_prefix
+        self._max_attempts = max_attempts
+        self._attempt_count = 0
+        self.last_successful_code = None
+        self.last_function_name = None
+
+    def submit_widget_code(self, code: str) -> str:
+        """Submit widget code for execution in napari.
+
+        Parameters
+        ----------
+        code : str
+            The complete Python code containing a @magicgui-decorated function.
+
+        Returns
+        -------
+        str
+            Success message if the widget was created, or an error description.
+        """
+        self._attempt_count += 1
+
+        if self._attempt_count > self._max_attempts:
+            return (
+                f"STOP: Maximum attempts ({self._max_attempts}) exceeded. "
+                f"The widget could not be created. Do not retry."
+            )
+
+        with asection(
+            f"WidgetCodeSubmitTool attempt {self._attempt_count}/{self._max_attempts}"
+        ):
+            aprint(f"Received code of length: {len(code)}")
+
+            # Execute on the napari Qt thread via the queue:
+            def delegated_function(v):
+                return self._execute_widget_code(code, v)
+
+            self._to_napari_queue.put(delegated_function)
+            response = self._from_napari_queue.get()
+
+            if isinstance(response, ExceptionGuard):
+                error_desc = response.exception_description or str(
+                    response.exception_value
+                )
+                error_msg = (
+                    f"Error on attempt {self._attempt_count}/{self._max_attempts}: "
+                    f"{response.exception_type_name}: {error_desc}\n"
+                    f"Please fix the code and call submit_widget_code again."
+                )
+                with asection("Widget code execution failed:"):
+                    aprint(error_msg)
+                return error_msg
+
+            # response is a success/error string from _execute_widget_code
+            with asection("Widget code execution result:"):
+                aprint(response)
+            return response
+
+    def _execute_widget_code(self, code: str, viewer: Viewer) -> str:
+        """Execute the widget code on the Qt thread. Exceptions propagate to ExceptionGuard."""
+
+        # Extract code from markdown if needed:
+        code = extract_code_from_markdown(code)
+
+        # Prepend code prefix:
+        code = self._code_prefix + code
+
+        # Add spacing:
+        code = "\n\n" + code + "\n\n"
+
+        # Filter forbidden lines (standard _prepare_code logic):
+        code = filter_lines(
+            code,
+            [
+                "from __future__",
+                "napari.Viewer(",
+                "= Viewer(",
+                "gui_qt(",
+                "viewer.window.add_dock_widget(",
+            ],
+        )
+
+        # Find the magicgui-decorated function name:
+        function_name = find_magicgui_decorated_function_name(code)
+        if not function_name:
+            return (
+                f"Error on attempt {self._attempt_count}/{self._max_attempts}: "
+                f"Could not find a @magicgui-decorated function in the code. "
+                f"Make sure the code has a function decorated with @magicgui. "
+                f"Please fix and call submit_widget_code again."
+            )
+
+        # Filter widget-specific forbidden lines:
+        code = filter_lines(code, _code_lines_to_filter_out)
+
+        # Remove trailing code after the function definition:
+        code = remove_trailing_code(code)
+
+        # Dynamically import and execute:
+        loaded_module = dynamic_import(code)
+        function = getattr(loaded_module, function_name)
+
+        # Dock the widget:
+        viewer.window.add_dock_widget(function, name=function_name)
+
+        # Store the successful code and function name:
+        self.last_successful_code = code
+        self.last_function_name = function_name
+
+        return f"Success: Widget '{function_name}' created and docked in the viewer."
 
 
 class NapariWidgetMakerTool(BaseNapariTool):
@@ -127,15 +267,6 @@ class NapariWidgetMakerTool(BaseNapariTool):
     """
 
     def __init__(self, **kwargs):
-        """
-        Initialize the NapariWidgetMakerTool.
-
-        Parameters
-        ----------
-        **kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, etc.
-        """
         super().__init__(**kwargs)
 
         self.name = "NapariWidgetMakerTool"
@@ -147,9 +278,8 @@ class NapariWidgetMakerTool(BaseNapariTool):
             "this tool will make a napari widget that can apply a Gaussian filter to an image. "
             "Another example: if the input is to 'add a mean parameter to the previous widget', "
             "this tool will make a new version of the previously generated widget, but with mean parameter. "
-            # "Another example: if the input is to 'remove the inexistent parameter num_cores from the Gaussian filter with a sigma parameter widget', "
-            # "this tool will make a new version of the previously generated widget, but without the offending parameter. "
-            "Important: The input must fully describe the widget every time, and in addition describe the modifications or fixes. "
+            "Important: The input must fully describe the widget every time, "
+            "and in addition describe the modifications or fixes. "
             "This tool only makes widgets from function descriptions, "
             "it does not directly process or analyse images or other napari layers. "
             "Only use this tool when you need to make, modify, or fix a widget, not to answer questions! "
@@ -157,74 +287,120 @@ class NapariWidgetMakerTool(BaseNapariTool):
         )
 
         self.code_prefix = _code_prefix
-        self.prompt = _napari_widget_maker_prompt
+        self.prompt = None  # We override run_omega_tool entirely, no sub-LLM prompt
         self.instructions = _instructions
         self.save_last_generated_code = False
         self.return_direct: bool = True
 
-    def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
+    def run_omega_tool(self, query: str = "") -> str:
+        with asection("NapariWidgetMakerTool (agentic):"):
+            with asection("Query:"):
+                aprint(query)
 
-        try:
+            # Build context strings (same as BaseNapariTool.run_omega_tool):
+            if self.last_generated_code:
+                last_generated_code = (
+                    "**Previously Generated Code:**\n"
+                    "Use this code for reference, useful if you need to modify or fix the code. "
+                    "IMPORTANT: This code might not be relevant to the current request or task! "
+                    "You should ignore it, unless you are explicitly asked "
+                    "to fix or modify the last generated widget!\n"
+                    "```python\n" + self.last_generated_code + "\n"
+                    "```\n"
+                )
+            else:
+                last_generated_code = ""
 
-            with asection(f"NapariWidgetMakerTool: "):
-                with asection(f"Query:"):
-                    aprint(query)
-                aprint(f"Resulting in code of length: {len(code)}")
+            filled_generic_instructions = omega_generic_codegen_instructions.format(
+                python_version=str(sys.version.split()[0]),
+                packages=", ".join(self._installed_package_list),
+            )
+            instructions = filled_generic_instructions + self.instructions
 
-                # Prepare code:
-                code = super()._prepare_code(code)
+            viewer_information = (
+                "For reference, below is information about the current state of the napari viewer: \n"
+                + _get_viewer_info()
+            )
+            system_information = (
+                "For reference, below is information about the current system: \n"
+                + system_info(add_python_info=False)
+            )
 
-                # Extracts function name:
-                function_name = find_magicgui_decorated_function_name(code)
+            # Fill the system prompt template:
+            system_prompt = _SUB_AGENT_SYSTEM_PROMPT.format(
+                instructions=instructions,
+                last_generated_code=last_generated_code,
+                viewer_information=viewer_information,
+                system_information=system_information,
+            )
 
-                # If the function exists:
-                if function_name:
+            # Create the submit tool (fresh per invocation — counter resets):
+            submit_tool = _WidgetCodeSubmitTool(
+                to_napari_queue=self.to_napari_queue,
+                from_napari_queue=self.from_napari_queue,
+                code_prefix=self.code_prefix,
+                max_attempts=3,
+            )
 
-                    # Remove any viewer forbidden code:
-                    code = filter_lines(code, _code_lines_to_filter_out)
+            # Create the sub-agent:
+            toolset = ToolSet([submit_tool])
+            sub_agent = Agent(
+                api=self.llm._api,
+                model_name=self.llm.model_name,
+                temperature=self.llm.temperature,
+                toolset=toolset,
+            )
+            sub_agent.append_system_message(system_prompt)
 
-                    # Remove trailing code:
-                    code = remove_trailing_code(code)
+            # Run the sub-agent with the user's query:
+            try:
+                sub_agent(query)
+            except Exception as e:
+                traceback.print_exc()
+                return (
+                    f"Error: {type(e).__name__} with message: '{e}' "
+                    f"occurred while trying to create the requested widget."
+                )
 
-                    # Load the code as module:
-                    loaded_module = dynamic_import(code)
+            # Check if the sub-agent succeeded:
+            if submit_tool.last_successful_code is not None:
+                code = submit_tool.last_successful_code
+                function_name = submit_tool.last_function_name
 
-                    # get the function:
-                    function = getattr(loaded_module, function_name)
+                # Update last generated code for future reference:
+                self.last_generated_code = code
 
-                    # Load the widget in the viewer:
-                    viewer.window.add_dock_widget(function, name=function_name)
+                # Notify activity callback:
+                self.callbacks.on_tool_activity(self, "coding", code=code)
 
-                    # Call the activity callback. At this point we assume the code is correct because it ran!
-                    self.callbacks.on_tool_activity(self, "coding", code=code)
+                # Standalone code with the add_dock_widget call:
+                standalone_code = (
+                    f"{code}\n\n"
+                    f"viewer.window.add_dock_widget({function_name}, name='{function_name}')"
+                )
 
-                    # Standalone code with the viewer.window.add_dock_widget call:
-                    standalone_code = f"{code}\n\nviewer.window.add_dock_widget({function_name}, name='{function_name}')"
+                # Add to notebook:
+                if self.notebook:
+                    self.notebook.add_code_cell(standalone_code)
 
-                    # At this point we assume the code ran successfully and we add it to the notebook:
-                    if self.notebook:
-                        self.notebook.add_code_cell(standalone_code)
+                # Add to MicroPlugin snippet editor:
+                from napari_chatgpt.microplugin.microplugin_window import (
+                    MicroPluginMainWindow,
+                )
 
-                    # Add the snippet to the code snippet editor:
-                    from napari_chatgpt.microplugin.microplugin_window import (
-                        MicroPluginMainWindow,
-                    )
+                MicroPluginMainWindow.add_snippet(
+                    filename=function_name, code=standalone_code
+                )
 
-                    MicroPluginMainWindow.add_snippet(
-                        filename=function_name, code=standalone_code
-                    )
-
-                    message = f"The requested widget has been successfully created and registered to the viewer."
-
-                # If the function does not exist:
-                else:
-                    message = f"Could not find a function for the requested widget."
-
-                with asection(f"Message:"):
+                message = "The requested widget has been successfully created and registered to the viewer."
+                with asection("Result:"):
                     aprint(message)
-
                 return message
-
-        except Exception as e:
-            traceback.print_exc()
-            return f"Error: {type(e).__name__} with message: '{str(e)}' occurred while trying to create the requested widget. "  # with code:\n```python\n{code}\n```\n.
+            else:
+                message = (
+                    "Could not create the requested widget after multiple attempts. "
+                    "Please try rephrasing the request or simplifying the widget."
+                )
+                with asection("Result:"):
+                    aprint(message)
+                return message

@@ -48,7 +48,7 @@ class OmegaQWidget(QWidget):
     # in one of two ways:
     # 1. use a parameter called `napari_viewer`, as done here
     # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
-    def __init__(self, napari_viewer, add_code_editor=True):
+    def __init__(self, napari_viewer: Viewer, add_code_editor: bool = True):
         super().__init__()
         aprint("OmegaQWidget instantiated!")
 
@@ -66,10 +66,10 @@ class OmegaQWidget(QWidget):
         self.micro_plugin_main_window: "MicroPluginMainWindow | None" = None
 
         # Create a QVBoxLayout instance
-        self.layout = QVBoxLayout()
+        self.main_layout = QVBoxLayout()
 
         # Set layout alignment:
-        self.layout.setAlignment(Qt.AlignTop)
+        self.main_layout.setAlignment(Qt.AlignTop)
 
         with asection("Setting up OmegaQWidget UI:"):
 
@@ -98,7 +98,7 @@ class OmegaQWidget(QWidget):
                 self._show_editor_button()
 
             # Set the layout on the application's window
-            self.setLayout(self.layout)
+            self.setLayout(self.main_layout)
 
         # Make sure that when the viewer window closes this widget closes too:
         try:
@@ -108,6 +108,11 @@ class OmegaQWidget(QWidget):
             aprint("Could not connect to viewer's closed signal.")
             traceback.print_exc()
 
+        # Safety net: ensure shutdown runs even if close() is never called:
+        import atexit
+
+        atexit.register(self._shutdown)
+
     def _main_model_selection(self):
 
         aprint("Setting up main model selection UI.")
@@ -115,7 +120,7 @@ class OmegaQWidget(QWidget):
         # Create a QLabel instance
         self.model_label = QLabel("Select a main model:")
         # Add the label to the layout
-        self.layout.addWidget(self.model_label)
+        self.main_layout.addWidget(self.model_label)
         # Create a QComboBox instance
         self.main_model_combo_box = QComboBox()
         # Set tooltip for the combo box
@@ -134,7 +139,7 @@ class OmegaQWidget(QWidget):
             self.main_model_combo_box.addItem(model)
 
         # Add the combo box to the layout
-        self.layout.addWidget(self.main_model_combo_box)
+        self.main_layout.addWidget(self.main_model_combo_box)
 
     def _tool_model_selection(self):
 
@@ -143,7 +148,7 @@ class OmegaQWidget(QWidget):
         # Create a QLabel instance
         self.model_label = QLabel("Select a coding model:")
         # Add the label to the layout
-        self.layout.addWidget(self.model_label)
+        self.main_layout.addWidget(self.model_label)
         # Create a QComboBox instance
         self.tool_model_combo_box = QComboBox()
         # Set tooltip for the combo box
@@ -162,7 +167,7 @@ class OmegaQWidget(QWidget):
             self.tool_model_combo_box.addItem(model)
 
         # Add the combo box to the layout
-        self.layout.addWidget(self.tool_model_combo_box)
+        self.main_layout.addWidget(self.tool_model_combo_box)
 
     @staticmethod
     def _preferred_models(model_list: list[str]):
@@ -222,7 +227,7 @@ class OmegaQWidget(QWidget):
         # Create a QLabel instance
         self.creativity_label = QLabel("Chose the level of creativity:")
         # Add the label to the layout
-        self.layout.addWidget(self.creativity_label)
+        self.main_layout.addWidget(self.creativity_label)
         # Creativity combobox:
         self.creativity_combo_box = QComboBox()
         self.creativity_combo_box.setToolTip(
@@ -240,7 +245,7 @@ class OmegaQWidget(QWidget):
         self.creativity_combo_box.addItem("creative")
         self.creativity_combo_box.setCurrentIndex(0)
         # Add the creativity combobox to the layout:
-        self.layout.addWidget(self.creativity_combo_box)
+        self.main_layout.addWidget(self.creativity_combo_box)
 
     def _memory_type_selection(self):
         aprint("Setting up memory type UI.")
@@ -248,7 +253,7 @@ class OmegaQWidget(QWidget):
         # Create a QLabel instance
         self.memory_type_label = QLabel("Select a memory type:")
         # Add the label to the layout
-        self.layout.addWidget(self.memory_type_label)
+        self.main_layout.addWidget(self.memory_type_label)
         # Create a QComboBox instance
         self.memory_type_combo_box = QComboBox()
         self.memory_type_combo_box.setToolTip(
@@ -261,7 +266,7 @@ class OmegaQWidget(QWidget):
         self.memory_type_combo_box.addItem("bounded")
         self.memory_type_combo_box.addItem("infinite")
         # Add the combo box to the layout
-        self.layout.addWidget(self.memory_type_combo_box)
+        self.main_layout.addWidget(self.memory_type_combo_box)
 
     def _personality_selection(self):
         aprint("Setting up personality UI.")
@@ -269,7 +274,7 @@ class OmegaQWidget(QWidget):
         # Create a QLabel instance
         self.agent_personality_label = QLabel("Select a personality:")
         # Add the label to the layout
-        self.layout.addWidget(self.agent_personality_label)
+        self.main_layout.addWidget(self.agent_personality_label)
         # Create a QComboBox instance
         self.agent_personality_combo_box = QComboBox()
         self.agent_personality_combo_box.setToolTip(
@@ -284,7 +289,7 @@ class OmegaQWidget(QWidget):
         self.agent_personality_combo_box.addItem("mobster")
         self.agent_personality_combo_box.addItem("yoda")
         # Add the combo box to the layout
-        self.layout.addWidget(self.agent_personality_combo_box)
+        self.main_layout.addWidget(self.agent_personality_combo_box)
 
     def _tutorial_mode(self):
         aprint("Setting up tutorial mode UI.")
@@ -303,7 +308,7 @@ class OmegaQWidget(QWidget):
             "multiple options and try to be as didactic as possible. "
         )
         # Add the tutorial mode checkbox to the layout:
-        self.layout.addWidget(self.tutorial_mode_checkbox)
+        self.main_layout.addWidget(self.tutorial_mode_checkbox)
 
     def _builtin_websearch_tool(self):
         aprint("Setting up builtin web search UI.")
@@ -324,7 +329,7 @@ class OmegaQWidget(QWidget):
             "This is not supported by all models, \n"
         )
         # Add the web search tool checkbox to the layout:
-        self.layout.addWidget(self.builtin_websearch_tool_checkbox)
+        self.main_layout.addWidget(self.builtin_websearch_tool_checkbox)
 
     def _save_chats_as_notebooks(self):
         aprint("Setting up save notebooks UI.")
@@ -342,7 +347,7 @@ class OmegaQWidget(QWidget):
             "by default in a folder on the user's desktop."
         )
         # Add the save notebooks checkbox to the layout:
-        self.layout.addWidget(self.save_chats_as_notebooks)
+        self.main_layout.addWidget(self.save_chats_as_notebooks)
 
     def _verbose(self):
         aprint("Setting up verbose UI.")
@@ -362,7 +367,7 @@ class OmegaQWidget(QWidget):
             "in action..."
         )
         # Add the verbose checkbox to the layout:
-        self.layout.addWidget(self.verbose_checkbox)
+        self.main_layout.addWidget(self.verbose_checkbox)
 
     def _start_omega_button(self):
         aprint("Setting up start Omega button UI.")
@@ -377,7 +382,7 @@ class OmegaQWidget(QWidget):
             "previous session."
         )
         # Omega button:
-        self.layout.addWidget(self.start_omega_button)
+        self.main_layout.addWidget(self.start_omega_button)
 
     def _show_editor_button(self):
         aprint("Setting up open editor button UI.")
@@ -395,7 +400,7 @@ class OmegaQWidget(QWidget):
             "back to the viewer.\n"
         )
         # Omega button:
-        self.layout.addWidget(self.show_editor_button)
+        self.main_layout.addWidget(self.show_editor_button)
 
     def _start_omega(self):
         try:
@@ -492,15 +497,29 @@ class OmegaQWidget(QWidget):
         super().setStyleSheet(style)
 
     def close(self):
+        self._shutdown()
+        super().close()
+
+    def _shutdown(self):
+        """Stop all background threads and servers.
+
+        Safe to call multiple times.  When called from ``atexit``, Qt
+        widgets may already be destroyed, so widget operations are
+        wrapped in a try/except.
+        """
+        if getattr(self, "_shutdown_done", False):
+            return
+        self._shutdown_done = True
 
         if self.server:
             self.server.stop()
 
-        if self.micro_plugin_main_window:
-            self.micro_plugin_main_window.hide()
-            self.micro_plugin_main_window.close()
-
-        super().close()
+        try:
+            if self.micro_plugin_main_window:
+                self.micro_plugin_main_window.hide()
+                self.micro_plugin_main_window.close()
+        except RuntimeError:
+            pass  # Qt C++ object already deleted during interpreter shutdown
 
 
 def main():

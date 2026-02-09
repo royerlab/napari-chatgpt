@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
+from arbol import aprint, asection
 from litemind.apis.model_features import ModelFeatures
 
 from napari_chatgpt.llm.api_keys.api_key import set_api_key
@@ -55,6 +57,100 @@ def is_llm_available() -> bool:
         return False
 
 
+def _register_api(combined_api: "CombinedApi", api) -> bool:
+    """Register an API instance into a CombinedApi's model_to_api map.
+
+    Parameters
+    ----------
+    combined_api : CombinedApi
+        The combined API to register into.
+    api : BaseApi
+        The API instance to register.
+
+    Returns
+    -------
+    bool
+        True if the API was registered with at least one model.
+    """
+    try:
+        models = api.list_models()
+        if not models:
+            return False
+        for model in models:
+            if model not in combined_api.model_to_api:
+                combined_api.model_to_api[model] = api
+        combined_api.apis.append(api)
+        return True
+    except Exception as e:
+        aprint(f"Failed to register API {api.__class__.__name__}: {e}")
+        return False
+
+
+def _build_custom_apis(combined_api: "CombinedApi") -> None:
+    """Register custom OpenAI-compatible endpoints and GitHub Models.
+
+    Reads ``custom_endpoints`` from ``AppConfiguration("omega")``
+    (stored in ``~/.omega/config.yaml``). Each entry must specify
+    ``base_url`` and ``api_key_env``.
+
+    Also auto-detects ``GITHUB_TOKEN`` and registers GitHub Models
+    (``https://models.inference.ai.azure.com``) when available.
+    """
+    from napari_chatgpt.utils.configuration.app_configuration import AppConfiguration
+
+    config = AppConfiguration("omega")
+
+    # --- Custom endpoints from config ---
+    custom_endpoints = config["custom_endpoints"] or []
+    if custom_endpoints:
+        from litemind.apis.providers.openai.openai_api import OpenAIApi
+
+        for endpoint in custom_endpoints:
+            name = endpoint.get("name", "custom")
+            base_url = endpoint.get("base_url")
+            api_key_env = endpoint.get("api_key_env")
+
+            if not base_url:
+                aprint(f"Skipping custom endpoint '{name}': missing base_url")
+                continue
+
+            api_key = os.environ.get(api_key_env, "") if api_key_env else ""
+            if not api_key:
+                aprint(
+                    f"Skipping custom endpoint '{name}': "
+                    f"env var '{api_key_env}' not set"
+                )
+                continue
+
+            try:
+                with asection(f"Registering custom endpoint: {name}"):
+                    api = OpenAIApi(api_key=api_key, base_url=base_url)
+                    if _register_api(combined_api, api):
+                        aprint(f"Custom endpoint '{name}' registered successfully")
+                    else:
+                        aprint(f"Custom endpoint '{name}': no models available")
+            except Exception as e:
+                aprint(f"Failed to register custom endpoint '{name}': {e}")
+
+    # --- GitHub Models auto-detection ---
+    github_token = os.environ.get("GITHUB_TOKEN", "")
+    if github_token:
+        try:
+            from litemind.apis.providers.openai.openai_api import OpenAIApi
+
+            with asection("Registering GitHub Models"):
+                api = OpenAIApi(
+                    api_key=github_token,
+                    base_url="https://models.inference.ai.azure.com",
+                )
+                if _register_api(combined_api, api):
+                    aprint("GitHub Models registered successfully")
+                else:
+                    aprint("GitHub Models: no models available")
+        except Exception as e:
+            aprint(f"Failed to register GitHub Models: {e}")
+
+
 def get_litemind_api() -> "CombinedApi":
     """
     Returns the global LiteMind API instance.
@@ -79,6 +175,9 @@ def get_litemind_api() -> "CombinedApi":
         from litemind.apis.combined_api import CombinedApi
 
         __litemind_api = CombinedApi()
+
+        # Register custom endpoints and GitHub Models:
+        _build_custom_apis(__litemind_api)
 
     return __litemind_api
 

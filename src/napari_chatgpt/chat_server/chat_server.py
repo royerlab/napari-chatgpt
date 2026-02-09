@@ -21,6 +21,7 @@ from starlette.staticfiles import StaticFiles
 from uvicorn import Config, Server
 
 from napari_chatgpt.chat_server.chat_response import ChatResponse
+from napari_chatgpt.llm.token_counter_callback import TokenCounterCallback
 from napari_chatgpt.omega_agent.napari_bridge import NapariBridge, _set_viewer_info
 from napari_chatgpt.omega_agent.omega_init import initialize_omega_agent
 from napari_chatgpt.omega_agent.tools.omega_tool_callbacks import OmegaToolCallbacks
@@ -154,6 +155,15 @@ class NapariChatServer:
             if self.notebook:
                 self.notebook.restart()
 
+            # Token counter callback:
+            token_counter = TokenCounterCallback()
+
+            # Register token counter on the LiteMind API:
+            from napari_chatgpt.llm.litemind_api import get_litemind_api
+
+            api = get_litemind_api()
+            api.callback_manager.add_callback(token_counter)
+
             # Tool's callbacks:
             tool_callbacks = OmegaToolCallbacks(
                 _on_tool_start=(
@@ -187,60 +197,63 @@ class NapariChatServer:
             dialog_counter = 0
 
             # Dialog Loop:
-            while True:
-                with asection(f"Dialog iteration {dialog_counter}:"):
-                    try:
-                        aprint(f"Waiting for user input...")
+            try:
+                while True:
+                    with asection(f"Dialog iteration {dialog_counter}:"):
+                        try:
+                            aprint(f"Waiting for user input...")
 
-                        # Receive and send back the client message
-                        prompt = await receive_from_user(websocket)
+                            # Receive and send back the client message
+                            prompt = await receive_from_user(websocket)
 
-                        with asection(f"User prompt:"):
-                            aprint(prompt)
+                            with asection(f"User prompt:"):
+                                aprint(prompt)
 
-                        if self.notebook:
-                            self.notebook.add_markdown_cell("### User:\n" + prompt)
+                            if self.notebook:
+                                self.notebook.add_markdown_cell("### User:\n" + prompt)
 
-                        # get napari viewer info::
-                        viewer_info = self.napari_bridge.get_viewer_info()
-                        _set_viewer_info(viewer_info)
+                            # get napari viewer info::
+                            viewer_info = self.napari_bridge.get_viewer_info()
+                            _set_viewer_info(viewer_info)
 
-                        # call LLM:
-                        await notify_user_omega_thinking(websocket)
-                        # result = agent(prompt)
-                        result = await self.async_run_in_executor(agent, prompt)
+                            # call LLM:
+                            await notify_user_omega_thinking(websocket)
+                            # result = agent(prompt)
+                            result = await self.async_run_in_executor(agent, prompt)
 
-                        with asection(f"Agent response:"):
-                            # Extract text from result:
-                            for i, message in enumerate(result):
-                                with asection(f"Message Block #{i}"):
-                                    aprint(message.to_plain_text())
+                            with asection(f"Agent response:"):
+                                # Extract text from result:
+                                for i, message in enumerate(result):
+                                    with asection(f"Message Block #{i}"):
+                                        aprint(message.to_plain_text())
 
-                        await send_final_response_to_user(result, websocket)
+                            await send_final_response_to_user(result, websocket, token_counter)
 
-                        if self.notebook:
-                            # Add agent response to notebook:
-                            self.notebook.add_markdown_cell(f"### Omega:\n {result}")
+                            if self.notebook:
+                                # Add agent response to notebook:
+                                self.notebook.add_markdown_cell(f"### Omega:\n {result}")
 
-                            # Add snapshot to notebook:
-                            self.notebook.take_snapshot()
+                                # Add snapshot to notebook:
+                                self.notebook.take_snapshot()
 
-                            # write notebook:
-                            self.notebook.write()
+                                # write notebook:
+                                self.notebook.write()
 
-                    except WebSocketDisconnect:
-                        aprint("websocket disconnect")
-                        break
+                        except WebSocketDisconnect:
+                            aprint("websocket disconnect")
+                            break
 
-                    except Exception as e:
-                        traceback.print_exc()
-                        resp = ChatResponse(
-                            sender="agent",
-                            message=f"Sorry, something went wrong ({type(e).__name__}: {str(e)}).",
-                            type="error",
-                        )
-                        await websocket.send_json(resp.dict())
-                dialog_counter += 1
+                        except Exception as e:
+                            traceback.print_exc()
+                            resp = ChatResponse(
+                                sender="agent",
+                                message=f"Sorry, something went wrong ({type(e).__name__}: {str(e)}).",
+                                type="error",
+                            )
+                            await websocket.send_json(resp.dict())
+                    dialog_counter += 1
+            finally:
+                api.callback_manager.remove_callback(token_counter)
 
         async def receive_from_user(websocket: WebSocket) -> str:
 
@@ -263,7 +276,9 @@ class NapariChatServer:
             return question
 
         async def send_final_response_to_user(
-            result: list[Message], websocket: WebSocket
+            result: list[Message],
+            websocket: WebSocket,
+            token_counter: TokenCounterCallback,
         ):
 
             # Filter out non-text messages:
@@ -273,7 +288,12 @@ class NapariChatServer:
             message_str = "\n\n".join([m.to_plain_text() for m in text_result])
 
             # finalise agent response:
-            end_resp = ChatResponse(sender="agent", message=message_str, type="final")
+            end_resp = ChatResponse(
+                sender="agent",
+                message=message_str,
+                type="final",
+                total_tokens=token_counter.total_tokens,
+            )
 
             # Send the response to the user via WebSocket:
             await websocket.send_json(end_resp.dict())
@@ -387,15 +407,21 @@ class NapariChatServer:
         self._start_uvicorn_server(self.app)
 
     def stop(self):
-        with asection("Stopping Uvicorn server"):
+        with asection("Stopping Omega server"):
             self.running = False
+
+            # Stop the napari bridge worker:
+            if self.napari_bridge:
+                self.napari_bridge.stop()
+
+            # Stop the Uvicorn server:
             if self.uvicorn_server:
                 self.uvicorn_server.should_exit = True
             if self.server_thread and self.server_thread.is_alive():
                 self.server_thread.join(timeout=5)
                 if self.server_thread.is_alive():
                     aprint("Warning: Server thread did not stop gracefully")
-            aprint("Uvicorn server stopped!")
+            aprint("Omega server stopped!")
 
     def sync_handler(self, _callable, *args, **kwargs):
         """

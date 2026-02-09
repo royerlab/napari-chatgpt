@@ -23,7 +23,7 @@ class ConsoleWidget(QWidget):
     def initUI(self, margin: int, icon_size: int):
 
         # Main layout
-        self.layout = QVBoxLayout()
+        self.main_layout = QVBoxLayout()
 
         # Top bar layout for the close and clear buttons
         self.topBarLayout = QHBoxLayout()
@@ -54,14 +54,14 @@ class ConsoleWidget(QWidget):
         self.console_output.setLineWrapMode(QTextEdit.NoWrap)
 
         # Add the top bar layout and the console output to the main layout
-        self.layout.addLayout(self.topBarLayout)
-        self.layout.addWidget(self.console_output)
+        self.main_layout.addLayout(self.topBarLayout)
+        self.main_layout.addWidget(self.console_output)
 
         # Set the layout margins:
-        self.layout.setContentsMargins(margin, margin, margin, margin)
+        self.main_layout.setContentsMargins(margin, margin, margin, margin)
 
         # Set the layout to the widget
-        self.setLayout(self.layout)
+        self.setLayout(self.main_layout)
 
         # Hide the widget initially:
         self.hide()

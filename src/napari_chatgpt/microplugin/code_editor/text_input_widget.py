@@ -29,11 +29,11 @@ class TextInputWidget(QWidget):
     def initUI(self, max_height: int, margin: int):
 
         # Layout:
-        self.layout = QHBoxLayout(self)
+        self.main_layout = QHBoxLayout(self)
 
         # Message label:
         self.message_label = QLabel()
-        self.layout.addWidget(self.message_label)
+        self.main_layout.addWidget(self.message_label)
 
         # Input fields (both single-line and multi-line, hidden by default):
         self.single_line_input = QLineEdit()
@@ -42,26 +42,26 @@ class TextInputWidget(QWidget):
             QSizePolicy.Expanding, QSizePolicy.Preferred
         )
         self.single_line_input.returnPressed.connect(self.on_enter)
-        self.layout.addWidget(self.single_line_input)
+        self.main_layout.addWidget(self.single_line_input)
 
         self.multi_line_input = QTextEdit()
         self.multi_line_input.setPlaceholderText("Enter text here")
         self.multi_line_input.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred
         )
-        self.layout.addWidget(self.multi_line_input)
+        self.main_layout.addWidget(self.multi_line_input)
         self.multi_line_input.hide()  # Initially hidden
 
         # Buttons:
         self.enter_button = QPushButton("Enter")
         self.enter_button.clicked.connect(self.on_enter)
-        self.layout.addWidget(self.enter_button)
+        self.main_layout.addWidget(self.enter_button)
 
         self.cancel_button = QPushButton("Cancel")
         self.cancel_button.clicked.connect(self.on_cancel)
-        self.layout.addWidget(self.cancel_button)
+        self.main_layout.addWidget(self.cancel_button)
 
-        self.layout.setContentsMargins(margin, margin, margin, margin)
+        self.main_layout.setContentsMargins(margin, margin, margin, margin)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         self.setMaximumHeight(max_height)
         self.hide()

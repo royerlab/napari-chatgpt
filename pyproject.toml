@@ -4,12 +4,36 @@ build-backend = "hatchling.build"
 
 [project]
 name = "napari-chatgpt"
-description = "A napari plugin that brings an LLM-powered agent (Omega) to interactive image analysis."
+description = "Omega: an autonomous LLM-powered agent for conversational image processing and analysis in napari. Supports OpenAI, Anthropic, and Google Gemini."
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "BSD-3-Clause"
 authors = [{ name = "Loic A. Royer", email = "royerloic@gmail.com" }]
 requires-python = ">=3.10"
 dynamic = ["version"]
+keywords = ["napari", "chatgpt", "llm", "image-processing", "agent", "omega"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: napari",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
 
 # --- runtime dependencies ---
 dependencies = [
@@ -56,14 +80,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-testing = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "napari", "pyqt5", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
+testing = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "pytest-xvfb", "npe2", "napari", "pyqt5", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
 
 [project.entry-points]
 "napari.manifest" = { "napari-chatgpt" = "napari_chatgpt:napari.yaml" }
 
 [project.urls]
 Homepage = "https://github.com/royerlab/napari-chatgpt"
-Issues = "https://github.com/royerlab/napari-chatgpt/issues"
+"Bug Tracker" = "https://github.com/royerlab/napari-chatgpt/issues"
+"Documentation" = "https://github.com/royerlab/napari-chatgpt/wiki"
+"Source Code" = "https://github.com/royerlab/napari-chatgpt"
 
 # -------------------------------------------------------------------------
 # Hatch specifics
@@ -82,7 +108,6 @@ exclude = [
     # developer & CI auxiliaries
     ".github/**",
     ".napari-hub/**",
-    "recipe/**",
     # generated or heavy artefacts
     "dist/**",
     "**/*.egg-info",
@@ -101,8 +126,13 @@ exclude = [
 packages = ["src/napari_chatgpt"]     # wheel only contains code; others auto-excluded :contentReference[oaicite:1]{index=1}
 
 [tool.hatch.envs.hatch-test]
-extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "napari", "pyqt5", "black", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
+extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "pytest-xvfb", "npe2", "napari", "pyqt5", "black", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
 default-args = ["src/"]
+
+[tool.hatch.envs.docs]
+extra-dependencies = ["Pillow>=10.0", "pyqt5"]
+[tool.hatch.envs.docs.scripts]
+screenshots = "python scripts/generate_wiki_screenshots.py {args}"
 
 [tool.isort]
 profile = "black"

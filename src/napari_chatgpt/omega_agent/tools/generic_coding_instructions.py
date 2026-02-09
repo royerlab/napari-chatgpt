@@ -18,6 +18,7 @@ omega_generic_codegen_instructions = """
 - To access a layer by name: `viewer.layers["layer_name"]` (raises `KeyError` if not found). Do NOT use `viewer.layers.get(...)` — `LayerList` has no `.get()` method.
 - Napari layers do not have a 'type' field. To check a layer's type, use: `isinstance(layer, napari.layers.Shapes)`.
 - To rotate the camera: `viewer.camera.angles = (angle_z, angle_y, angle_x)`.
+- **IMPORTANT napari 0.5+ API change for Points layers:** `viewer.add_points()` uses `border_color` and `border_width` (NOT `edge_color`/`edge_width`). Shapes and Vectors layers still use `edge_color`/`edge_width`.
 - Write only safe code that does not delete files or perform destructive actions.
 - Always end code with a `print()` statement summarizing what was accomplished.
 

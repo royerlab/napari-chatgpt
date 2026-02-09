@@ -6,15 +6,16 @@
 [![Downloads](https://pepy.tech/badge/napari-chatgpt)](https://pepy.tech/project/napari-chatgpt)
 [![Downloads](https://pepy.tech/badge/napari-chatgpt/month)](https://pepy.tech/project/napari-chatgpt)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-chatgpt)](https://napari-hub.org/plugins/napari-chatgpt)
+[![Publication](https://img.shields.io/badge/Publication-Nature%20Methods-blue)](https://doi.org/10.1038/s41592-024-02310-w)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10828225.svg)](https://doi.org/10.5281/zenodo.10828225)
 [![GitHub stars](https://img.shields.io/github/stars/royerlab/napari-chatgpt?style=social)](https://github.com/royerlab/napari-chatgpt/)
 [![GitHub forks](https://img.shields.io/github/forks/royerlab/napari-chatgpt?style=social)](https://github.com/royerlab/napari-chatgpt/)
 
-<img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/c85185d2-6d16-472d-a2c8-5680ea869bf2' height='300'>
-<img height="300" alt="image" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/f3ea245e-dd86-4ff2-802e-48c2073cb6f9">
+<img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/c85185d2-6d16-472d-a2c8-5680ea869bf2' height='300' alt='Omega logo'>
+<img height="300" alt="Omega napari plugin screenshot" src="https://github.com/royerlab/napari-chatgpt/assets/1870994/f3ea245e-dd86-4ff2-802e-48c2073cb6f9">
 
 
-A [napari](napari.org) plugin that leverages Large Language Models
+A [napari](https://napari.org) plugin that leverages Large Language Models
 to implement _Omega_, a napari-aware agent capable of performing image processing and analysis tasks
 in a conversational manner.
 
@@ -36,7 +37,7 @@ Omega is an LLM-based and tool-armed autonomous agent that demonstrates the
 potential for Large Language Models (LLMs) to be applied to image processing,
 analysis and visualization.
 Can LLM-based agents write image processing code and napari widgets, correct its
-coding mistakes, performing follow-up analysis, and controlling the napari viewer?
+coding mistakes, perform follow-up analysis, and control the napari viewer?
 The answer appears to be yes.
 
 The publication is available here: [10.1038/s41592-024-02310-w](https://doi.org/10.1038/s41592-024-02310-w).
@@ -56,19 +57,21 @@ https://github.com/royerlab/napari-chatgpt/assets/1870994/bb9b35a4-d0aa-4f82-9e7
 
 As LLMs improve, Omega will become even more adept at handling complex
 image processing and analysis tasks. Through the [LiteMind](https://github.com/royerlab/litemind) library,
-Omega supports multiple LLM providers including OpenAI (GPT-4, GPT-4o), Anthropic (Claude),
-and Google Gemini. Many of the videos (see below and here) are highly reproducible,
+Omega supports multiple LLM providers including OpenAI (GPT-5, GPT-4o), Anthropic (Claude Opus, Sonnet, Haiku),
+and Google Gemini (Gemini 3, Gemini 2.5 Pro/Flash). Many of the videos (see below and here) are highly reproducible,
 with a typically 90% success rate (see preprint for a reproducibility analysis).
 
 Omega could eventually help non-experts process and analyze images, especially
 in the bioimage domain.
 It is also potentially valuable for educative purposes as it could
 assist in teaching image processing and analysis, making it more accessible.
-Although the LLMs powering Omega may still need to be on par with an expert image
+Although the LLMs powering Omega may not yet be on par with an expert image
 analyst or computer vision expert, it is just a matter of time...
 
 Omega holds a conversation with the user and uses different tools to answer questions,
 download and operate on images, write widgets for napari, and more.
+
+<img src='https://raw.githubusercontent.com/royerlab/napari-chatgpt/main/art/omega_chat_ui.png' width='800' alt='Omega chat UI'>
 
 ## Omega's Tools
 
@@ -88,13 +91,17 @@ Omega comes with a comprehensive set of built-in tools:
 - **Web Search** -- search the web, Wikipedia, and find images
 - **Python REPL** -- execute arbitrary Python code
 
+Here is an example of Omega creating a custom image registration widget in napari:
+
+<img src='https://raw.githubusercontent.com/royerlab/napari-chatgpt/main/art/omega_widget_creation.png' width='800' alt='Omega widget creation example'>
+
 ## Omega's Built-in AI-Augmented Code Editor
 
 The Omega AI-Augmented Code Editor is a new feature within Omega, designed to enhance the Omega's user experience. This
 editor is not just a text editor; it's a powerful interface that interacts with the Omega dialogue agent to generate,
 optimize, and manage code for advanced image analysis tasks.
 
-<img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/cf9b1c15-f11a-4e25-a73d-d96915c46c6a' width='800'>
+<img src='https://github.com/royerlab/napari-chatgpt/assets/1870994/cf9b1c15-f11a-4e25-a73d-d96915c46c6a' width='800' alt='Omega AI-augmented code editor'>
 
 #### Key Features
 
@@ -147,9 +154,56 @@ You need an API key from at least one supported LLM provider:
 - **OpenAI** - Get your key at [platform.openai.com](https://platform.openai.com)
 - **Anthropic (Claude)** - Get your key at [console.anthropic.com](https://console.anthropic.com)
 - **Google Gemini** - Get your key at [aistudio.google.com](https://aistudio.google.com)
+- **GitHub Models** - Auto-detected if `GITHUB_TOKEN` is set
+- **Custom endpoints** - Any OpenAI-compatible API (local LLMs, Azure, etc.)
 
 Check [here](https://github.com/royerlab/napari-chatgpt/wiki/APIKeys) for details on API key setup.
 Omega will automatically detect which providers you have configured.
+
+### GitHub Models (free)
+
+If you have a [GitHub personal access token](https://github.com/settings/tokens), Omega can use
+models from the [GitHub Models marketplace](https://github.com/marketplace/models) (GPT-4o, Llama,
+Phi, Mistral, and more) for free with rate limits. Just set the `GITHUB_TOKEN` environment variable:
+
+```bash
+export GITHUB_TOKEN="ghp_your_token_here"
+```
+
+Omega auto-detects this token on startup and registers all available GitHub Models.
+
+### Custom OpenAI-compatible endpoints
+
+You can connect Omega to any OpenAI-compatible API (Azure OpenAI, local LLMs via Ollama/vLLM, or
+third-party providers) by adding entries to `~/.omega/config.yaml`:
+
+```yaml
+custom_endpoints:
+  - name: "Azure GPT-4"
+    base_url: "https://my-resource.openai.azure.com/openai/deployments/gpt-4/v1"
+    api_key_env: "AZURE_OPENAI_API_KEY"
+  - name: "Local Ollama"
+    base_url: "http://localhost:11434/v1"
+    api_key_env: "OLLAMA_API_KEY"
+```
+
+Each endpoint requires a `base_url` and an `api_key_env` (the name of the environment variable
+holding the API key). Models discovered from these endpoints appear in the model dropdown alongside
+built-in providers.
+
+### Extending Omega with custom tools
+
+External packages can register new tools for Omega via Python entry points. Create a class that
+subclasses `BaseOmegaTool` and declare it in your `pyproject.toml`:
+
+```toml
+[project.entry-points."napari_chatgpt.tools"]
+my_tool = "my_package.tools:MyCustomTool"
+```
+
+Omega discovers and loads these tools automatically on startup. See the
+[Extensibility wiki page](https://github.com/royerlab/napari-chatgpt/wiki/Extensibility) for full
+details and examples.
 
 ## Usage:
 
@@ -247,32 +301,6 @@ Distributed under the terms of the [BSD-3] license,
 If you encounter any problems, please [file an issue] along with a detailed
 description.
 
-[napari]: https://github.com/napari/napari
-
-[Cookiecutter]: https://github.com/audreyr/cookiecutter
-
-[@napari]: https://github.com/napari
-
-[MIT]: http://opensource.org/licenses/MIT
-
 [BSD-3]: http://opensource.org/licenses/BSD-3-Clause
 
-[GNU GPL v3.0]: http://www.gnu.org/licenses/gpl-3.0.txt
-
-[GNU LGPL v3.0]: http://www.gnu.org/licenses/lgpl-3.0.txt
-
-[Apache Software License 2.0]: http://www.apache.org/licenses/LICENSE-2.0
-
-[Mozilla Public License 2.0]: https://www.mozilla.org/media/MPL/2.0/index.txt
-
-[cookiecutter-napari-plugin]: https://github.com/napari/cookiecutter-napari-plugin
-
 [file an issue]: https://github.com/royerlab/napari-chatgpt/issues
-
-[napari]: https://github.com/napari/napari
-
-[tox]: https://tox.readthedocs.io/en/latest/
-
-[pip]: https://pypi.org/project/pip/
-
-[PyPI]: https://pypi.org/

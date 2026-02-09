@@ -27,7 +27,18 @@ make build         # Build package
 make clean         # Clean build artifacts
 make publish       # Bump version to today's date, tag, and push (triggers PyPI)
 make publish-patch # Same-day patch release (e.g., 2025.2.1 -> 2025.2.1.1)
+
+# Documentation (requires Claude Code CLI for readme/wiki updates)
+make update-readme      # Review & update README.md relative to codebase
+make update-screenshots # Regenerate widget screenshots for wiki (uses hatch docs env)
+make update-wiki        # Review & update wiki pages relative to codebase
 ```
+
+### Hatch Environments
+
+- **default**: Main development environment with all project dependencies
+- **hatch-test**: Testing environment with pytest, cellpose, stardist, tensorflow
+- **docs**: Documentation environment for screenshot generation (`hatch run docs:screenshots`)
 
 ### Manual Commands
 

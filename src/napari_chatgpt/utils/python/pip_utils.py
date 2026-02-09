@@ -104,7 +104,9 @@ def pip_install(
 
     if len(packages) > 0:
         try:
-            response = not ask_permission or install_packages_dialog_threadsafe(packages=packages)
+            response = not ask_permission or install_packages_dialog_threadsafe(
+                packages=packages
+            )
 
             if response:
                 aprint(f"User accepted to install packages!")

@@ -1,5 +1,5 @@
 cellpose_signature = """
-# Cellpose is better for segmenting non-convex cells, in particular their cytoplasm. It is a deep learning method. The wrapper handles both 2D and 3D images.
+# Cellpose uses deep learning for cell/cytoplasm segmentation. Handles 2D and 3D.
 def cellpose_segmentation( image: ArrayLike,
                            model_type: str = 'cyto',
                            normalize: Optional[bool] = True,
@@ -11,9 +11,10 @@ def cellpose_segmentation( image: ArrayLike,
 """
 
 stardist_signature = """
-# StarDist is better for segmenting nearly convex nuclei. It is a deep learning method. The wrapper handles both 2D and 3D images.
+# StarDist uses deep learning for nuclei detection. Handles 2D and 3D (3D is done slice-by-slice with a 2D model).
+# Valid model_type values: 'versatile_fluo', 'versatile_he', 'paper_dsb2018', 'demo' (do NOT use 3D model names).
 def stardist_segmentation(image: ArrayLike,
-                          model_type: str = '2D_versatile_fluo',
+                          model_type: str = 'versatile_fluo',
                           normalize: Optional[bool] = True,
                           norm_range_low: Optional[float] = 1.0,
                           norm_range_high: Optional[float] = 99.8,
@@ -22,7 +23,7 @@ def stardist_segmentation(image: ArrayLike,
 """
 
 classic_signature = """
-# Classic segmentation is a simple thresholding method that can be used as a baseline and works in 2D, 3D and more dimensions.
+# Classic segmentation supports multiple thresholding methods (Otsu, Li, Triangle, Yen, Isodata, Mean, Minimum). Fast, no GPU needed. Works in 2D, 3D, and higher dimensions.
 def classic_segmentation(image: ArrayLike,
                           threshold_type: str = 'otsu',
                           normalize: Optional[bool] = True,
@@ -33,5 +34,5 @@ def classic_segmentation(image: ArrayLike,
                           closing_steps: int = 1,
                           opening_steps: int = 0,
                           apply_watershed: bool = False,
-                          min_distance: int = 10) -> ArrayLike
+                          min_distance: int = 15) -> ArrayLike
 """
