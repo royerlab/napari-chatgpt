@@ -452,6 +452,10 @@ def start_chat_server(
     save_chats_as_notebooks: bool = False,
     verbose: bool = False,
 ):
+    """
+    Starts the napari chat server in a separate thread.
+
+    """
     with asection("Starting chat server"):
 
         # get configuration:

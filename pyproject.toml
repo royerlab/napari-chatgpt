@@ -125,11 +125,17 @@ exclude = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/napari_chatgpt"]     # wheel only contains code; others auto-excluded :contentReference[oaicite:1]{index=1}
 
+[tool.hatch.envs.default]
+python = "3.12"
+extra-dependencies = ["pyqt5"]
+
 [tool.hatch.envs.hatch-test]
+python = "3.12"
 extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "pytest-xvfb", "npe2", "napari", "pyqt5", "black", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
 default-args = ["src/"]
 
 [tool.hatch.envs.docs]
+python = "3.12"
 extra-dependencies = ["Pillow>=10.0", "pyqt5"]
 [tool.hatch.envs.docs.scripts]
 screenshots = "python scripts/generate_wiki_screenshots.py {args}"
