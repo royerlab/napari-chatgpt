@@ -1,4 +1,5 @@
-# Code vendored from: https://github.com/Nv7-GitHub/googlesearch/blob/master/googlesearch/__init__.py
+"""Wikipedia search utilities using DuckDuckGo site-restricted queries."""
+
 from napari_chatgpt.llm.llm import LLM
 from napari_chatgpt.utils.llm.summarizer import summarize
 from napari_chatgpt.utils.web.duckduckgo import search_ddg
@@ -12,6 +13,23 @@ def search_wikipedia(
     do_summarize: bool = False,
     llm: LLM = None,
 ) -> str:
+    """Search Wikipedia via DuckDuckGo and return article summaries.
+
+    Uses a DuckDuckGo search restricted to wikipedia.org to find
+    relevant articles, then concatenates their summary text.
+
+    Args:
+        query: The search query string.
+        num_results: Maximum number of Wikipedia articles to include.
+        lang: Language/region code for the search (e.g., "en").
+        max_text_length: Maximum character length of the returned text.
+        do_summarize: If True, use an LLM to summarize the results.
+        llm: Optional LLM instance to use for summarization.
+
+    Returns:
+        Concatenated Wikipedia article summaries, truncated to
+        max_text_length characters.
+    """
     # Run a google search specifically on wikipedia:
     results = search_ddg(
         query=f"{query} site:wikipedia.org", num_results=min(10, num_results), lang=lang

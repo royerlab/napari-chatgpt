@@ -1,3 +1,9 @@
+"""Demo script for the CodeDrop server.
+
+Starts a ``CodeDropServer`` that broadcasts its presence on the local
+network and prints any received messages to stdout.
+"""
+
 import sys
 
 from qtpy.QtWidgets import QApplication

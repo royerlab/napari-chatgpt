@@ -1,3 +1,5 @@
+"""Demo script: display a one-time disclaimer dialog."""
+
 import sys
 
 from arbol import aprint

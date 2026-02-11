@@ -1,3 +1,10 @@
+"""Utilities for loading LLM provider API keys into environment variables.
+
+Maps friendly provider names (``"OpenAI"``, ``"Anthropic"``, ``"Gemini"``)
+to their corresponding environment variable names and retrieves keys from
+the encrypted vault when they are not already set.
+"""
+
 import os
 
 from arbol import aprint, asection
@@ -11,18 +18,16 @@ __api_key_names["Gemini"] = "GOOGLE_GEMINI_API_KEY"
 
 
 def set_api_key(api_name: str) -> bool:
-    """
-    Set an API key as an environment variable.
+    """Load an API key into the environment, prompting the user if needed.
 
-    Parameters
-    ----------
-    api_name : str
-        Name of the API key to set.
+    If the key is not already present as an environment variable, opens
+    the encrypted-vault Qt dialog to retrieve or create it.
 
-    Returns
-    -------
-    bool
-        True if the API key was set, False otherwise.
+    Args:
+        api_name: Provider name (e.g. ``"OpenAI"``).
+
+    Returns:
+        True if the key is now set in ``os.environ``, False otherwise.
     """
 
     with asection(f"Setting API key: '{api_name}': "):
@@ -61,6 +66,14 @@ def set_api_key(api_name: str) -> bool:
 
 
 def is_api_key_available(api_name: str) -> bool:
+    """Check whether the API key for the given provider is already set.
+
+    Args:
+        api_name: Provider name (e.g. ``"OpenAI"``).
+
+    Returns:
+        True if the corresponding environment variable is set.
+    """
     # Api key name:
     api_key_name = __api_key_names[api_name]
 

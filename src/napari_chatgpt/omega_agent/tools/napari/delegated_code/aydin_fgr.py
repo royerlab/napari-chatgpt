@@ -1,6 +1,16 @@
+"""Aydin FGR (Noise2Self) denoising delegated code.
+
+This module is injected at runtime by ``ImageDenoisingTool`` when the
+LLM-generated code calls ``aydin_fgr_denoising()``.  It wraps Aydin's
+Noise2Self FGR (Feature Generation and Regression) approach which uses
+machine learning regressors (CatBoost, LGBM, linear, random forest) for
+self-supervised image denoising.
+"""
+
+
 ### SIGNATURE
 def aydin_fgr_denoising(image, batch_axes=None, chan_axes=None, variant=None):
-    """Method to denoise an image with Aydin's Noise2Self FGR (Feature Generation and Regression) approach.
+    """Denoise an image using Aydin's Noise2Self FGR approach.
 
     Parameters
     ----------

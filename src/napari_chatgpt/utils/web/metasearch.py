@@ -1,3 +1,5 @@
+"""Meta-search combining Google and DuckDuckGo results."""
+
 from napari_chatgpt.utils.llm.summarizer import summarize
 from napari_chatgpt.utils.web.duckduckgo import summary_ddg
 from napari_chatgpt.utils.web.google import search_overview
@@ -6,6 +8,23 @@ from napari_chatgpt.utils.web.google import search_overview
 def metasearch(
     query: str, num_results: int = 3, lang: str = "en", do_summarize: bool = True
 ):
+    """Search both Google and DuckDuckGo, then optionally summarize results.
+
+    Combines a Google search overview with DuckDuckGo text results to
+    provide more comprehensive search coverage. Optionally uses an LLM
+    to summarize the combined results.
+
+    Args:
+        query: The search query string.
+        num_results: Maximum number of results from each search engine.
+        lang: Language code for the search (e.g., "en").
+        do_summarize: If True, use an LLM to summarize the combined
+            results.
+
+    Returns:
+        The combined search results as a string, or an LLM-generated
+        summary if do_summarize is True.
+    """
     # Get overview from Google search:
     google_overview = search_overview(query=query, num_results=num_results, lang=lang)
 

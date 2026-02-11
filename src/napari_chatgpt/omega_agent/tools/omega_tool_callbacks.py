@@ -1,3 +1,11 @@
+"""Callback adapter for Omega tool lifecycle events.
+
+Provides ``OmegaToolCallbacks``, which translates LiteMind's
+``BaseToolCallbacks`` interface into simple user-supplied callables so
+that the chat UI can react to tool start, activity, end, and error
+events without depending on LiteMind internals.
+"""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -10,11 +18,11 @@ if TYPE_CHECKING:
 
 
 class OmegaToolCallbacks(BaseToolCallbacks):
-    """
-    OmegaToolCallbacks is a class that provides callback functionality for tool lifecycle events.
-    It inherits from BaseToolCallbacks and implements methods to handle events when a tool starts,
-    ends, or encounters an error. This class is designed to allow users to define custom behavior
-    for these events by passing in callback functions that will be executed at the appropriate times.
+    """Delegates LiteMind tool lifecycle events to user-supplied callables.
+
+    Each callback is a plain function passed at construction time, making
+    it easy to wire tool events into the Qt-based chat UI without
+    subclassing.
     """
 
     def __init__(
@@ -24,26 +32,18 @@ class OmegaToolCallbacks(BaseToolCallbacks):
         _on_tool_end: Callable,
         _on_tool_error: Callable,
     ):
-        """
-        Initialize the OmegaToolCallbacks with specific callback functions.
-        This class is designed to handle tool lifecycle events such as start, activity, end, and error.
-        It allows for custom behavior to be defined when these events occur by passing
-        callback functions that will be invoked at the appropriate times.
+        """Initialise with four lifecycle callback functions.
 
-        Parameters
-        ----------
-        _on_tool_start: Callable
-            A callback function to be called when a tool starts.
-            It should accept the tool instance and any additional arguments.
-        _on_tool_activity: Callable
-            A callback function to be called when a tool is active.
-            It should accept the tool instance, the type of activity, and any additional keyword arguments.
-        _on_tool_end: Callable
-            A callback function to be called when a tool ends.
-            It should accept the tool instance and the result of the tool execution.
-        _on_tool_error: Callable
-            A callback function to be called when a tool encounters an error.
-            It should accept the tool instance and the exception that occurred.
+        Args:
+            _on_tool_start: Called when a tool begins execution.
+                Signature: ``(tool, query) -> None``.
+            _on_tool_activity: Called during tool activity (e.g. code
+                generation). Signature:
+                ``(tool, activity_type, code_or_none) -> Any``.
+            _on_tool_end: Called when a tool finishes successfully.
+                Signature: ``(tool, result) -> None``.
+            _on_tool_error: Called when a tool raises an exception.
+                Signature: ``(tool, exception) -> None``.
         """
 
         self._on_tool_start = _on_tool_start
@@ -52,13 +52,17 @@ class OmegaToolCallbacks(BaseToolCallbacks):
         self._on_tool_error = _on_tool_error
 
     def on_tool_start(self, tool: "BaseTool", *args, **kwargs) -> None:
+        """Dispatch the tool-start event to the user callback."""
         self._on_tool_start(tool, kwargs["query"])
 
     def on_tool_activity(self, tool: "BaseTool", activity_type: str, **kwargs) -> Any:
+        """Dispatch a tool-activity event (e.g. code generation) to the user callback."""
         self._on_tool_activity(tool, activity_type, kwargs.get("code", None))
 
     def on_tool_end(self, tool: "BaseTool", result: Any) -> None:
+        """Dispatch the tool-end event to the user callback."""
         self._on_tool_end(tool, result)
 
     def on_tool_error(self, tool: "BaseTool", exception: Exception) -> None:
+        """Dispatch the tool-error event to the user callback."""
         self._on_tool_error(tool, exception)

@@ -1,3 +1,5 @@
+"""Simple Qt warning dialog that displays an HTML-formatted message."""
+
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMessageBox
 

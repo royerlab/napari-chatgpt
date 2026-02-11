@@ -1,9 +1,30 @@
+"""Inline Yes/No/Cancel question widget for user confirmation prompts."""
+
 from arbol import aprint
 from qtpy.QtWidgets import QHBoxLayout, QLabel, QPushButton, QSizePolicy, QWidget
 
 
 class YesNoCancelQuestionWidget(QWidget):
+    """An inline widget that displays a question with Yes, No, and Cancel buttons.
+
+    Hidden by default. Call ``show_question()`` to display a message and
+    register callbacks. The widget auto-hides after any button is pressed.
+
+    Attributes:
+        yes_callback: Callable invoked when Yes is clicked.
+        no_callback: Callable invoked when No is clicked.
+        cancel_callback: Callable invoked when Cancel is clicked.
+        do_after_callable: Optional callable invoked after any button action.
+    """
+
     def __init__(self, max_height: int = 50, margin: int = 0, parent=None):
+        """Initialize the question widget.
+
+        Args:
+            max_height: Maximum widget height in pixels.
+            margin: Layout margin in pixels.
+            parent: Parent widget.
+        """
 
         super().__init__(parent=parent)
 
@@ -17,6 +38,7 @@ class YesNoCancelQuestionWidget(QWidget):
         self.initUI(max_height=max_height, margin=margin)
 
     def initUI(self, max_height: int, margin: int):
+        """Build the UI with a message label and Yes/No/Cancel buttons."""
         layout = QHBoxLayout()
 
         # Set message:
@@ -64,6 +86,19 @@ class YesNoCancelQuestionWidget(QWidget):
         cancel_callback=None,
         do_after_callable=None,
     ):
+        """Configure and display the question widget.
+
+        Args:
+            message: The question text to display.
+            yes_text: Label for the Yes button.
+            no_text: Label for the No button.
+            cancel_text: Label for the Cancel button. If None, the Cancel
+                button is hidden.
+            yes_callback: Called when Yes is clicked.
+            no_callback: Called when No is clicked.
+            cancel_callback: Called when Cancel is clicked.
+            do_after_callable: Called after any button's callback completes.
+        """
 
         self.message_label.setText(message)
         self.yes_button.setText(yes_text)
@@ -82,6 +117,7 @@ class YesNoCancelQuestionWidget(QWidget):
         self.show()
 
     def on_yes(self):
+        """Invoke the yes callback, then hide the widget."""
         try:
             if self.yes_callback:
                 self.yes_callback()
@@ -96,6 +132,7 @@ class YesNoCancelQuestionWidget(QWidget):
                 self.do_after_callable()
 
     def on_no(self):
+        """Invoke the no callback, then hide the widget."""
         try:
             if self.no_callback:
                 self.no_callback()
@@ -110,6 +147,7 @@ class YesNoCancelQuestionWidget(QWidget):
                 self.do_after_callable()
 
     def on_cancel(self):
+        """Invoke the cancel callback, then hide the widget."""
         try:
             if self.cancel_callback:
                 self.cancel_callback()

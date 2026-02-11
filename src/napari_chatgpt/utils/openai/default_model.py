@@ -1,3 +1,5 @@
+"""Determine the best default OpenAI model from the available model list."""
+
 from arbol import aprint
 
 from napari_chatgpt.utils.openai.model_list import get_openai_model_list
@@ -7,6 +9,14 @@ _default_openai_model_name = None
 
 
 def get_default_openai_model_name() -> str:
+    """Return the highest-version GPT model available via the OpenAI API.
+
+    The result is cached after the first call for the lifetime of the process.
+
+    Returns:
+        Model identifier string (e.g. ``"gpt-4o"``), or ``None`` if no
+        models are available.
+    """
     # Check if the model name is in the cache:
     if _default_openai_model_name is not None:
         aprint(f"Using cached default OpenAI model name: {_default_openai_model_name}")

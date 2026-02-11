@@ -1,4 +1,12 @@
-"""Main entrypoint for the app."""
+"""FastAPI WebSocket chat server bridging the Omega LLM agent and napari.
+
+This module provides :class:`NapariChatServer`, which exposes a web-based
+chat UI over WebSocket. User messages are routed to the Omega agent, which
+can inspect and manipulate the napari viewer through the
+:class:`~napari_chatgpt.omega_agent.napari_bridge.NapariBridge`.  Tool
+activity, errors, and final responses are streamed back to the browser in
+real time.
+"""
 
 import asyncio
 import os
@@ -57,33 +65,25 @@ class NapariChatServer:
         be_didactic: bool = False,
         verbose: bool = False,
     ):
-        """
-        Initializes the NapariChatServer with the provided parameters.
-        This server will run a FastAPI application that listens for WebSocket
-        connections and allows users to interact with the Omega Agent.
+        """Initialize the chat server and register FastAPI routes.
 
-        Parameters
-        ----------
-        notebook: JupyterNotebookFile
-            The Jupyter notebook file to save the chat history and snapshots.
-        napari_bridge: NapariBridge
-            The bridge to communicate with the napari viewer.
-        main_llm_model_name: str
-            The name of the main LLM model to use for the Omega Agent.
-        tool_llm_model_name: str
-            The name of the LLM model to use for tools.
-        temperature: float
-            The temperature for the main LLM model.
-        tool_temperature: float
-            The temperature for the tool LLM model.
-        memory_type: str
-            The type of memory to use for the Omega Agent.
-        agent_personality: str
-            The personality of the Omega Agent.
-        be_didactic: bool
-            Whether the agent should be didactic in its responses.
-        verbose: bool
-            Whether to enable verbose logging for the server.
+        Args:
+            notebook: Jupyter notebook for persisting chat history and
+                viewer snapshots. May be ``None`` to disable logging.
+            napari_bridge: Thread-safe bridge for communicating with the
+                napari viewer.
+            main_llm_model_name: Model name for the main Omega agent LLM.
+            tool_llm_model_name: Model name for tool-specific LLM calls.
+            temperature: Sampling temperature for the main LLM.
+            tool_temperature: Sampling temperature for tool LLM calls.
+            has_builtin_websearch_tool: Whether to enable the built-in
+                web search tool.
+            memory_type: Conversation memory strategy
+                (e.g. ``"standard"``).
+            agent_personality: Personality preset for the Omega agent.
+            be_didactic: If True, the agent provides more explanatory
+                responses.
+            verbose: Enable verbose logging.
         """
 
         # Flag to keep server running, or stop it:
@@ -227,11 +227,15 @@ class NapariChatServer:
                                     with asection(f"Message Block #{i}"):
                                         aprint(message.to_plain_text())
 
-                            await send_final_response_to_user(result, websocket, token_counter)
+                            await send_final_response_to_user(
+                                result, websocket, token_counter
+                            )
 
                             if self.notebook:
                                 # Add agent response to notebook:
-                                self.notebook.add_markdown_cell(f"### Omega:\n {result}")
+                                self.notebook.add_markdown_cell(
+                                    f"### Omega:\n {result}"
+                                )
 
                                 # Add snapshot to notebook:
                                 self.notebook.take_snapshot()
@@ -256,7 +260,7 @@ class NapariChatServer:
                 api.callback_manager.remove_callback(token_counter)
 
         async def receive_from_user(websocket: WebSocket) -> str:
-
+            """Receive a user message, echo it back, and send a start marker."""
             # Receive a question from the user via WebSocket:
             question = await websocket.receive_text()
 
@@ -280,7 +284,7 @@ class NapariChatServer:
             websocket: WebSocket,
             token_counter: TokenCounterCallback,
         ):
-
+            """Send the agent's final text response and token count to the UI."""
             # Filter out non-text messages:
             text_result = [m for m in result if m.has(Text)]
 
@@ -332,7 +336,7 @@ class NapariChatServer:
         def notify_user_omega_tool_activity(
             websocket: WebSocket, tool: BaseTool, activity_type: str, code: str
         ):
-            """Notify user that Omega started using a tool."""
+            """Notify user of tool activity (e.g. code generation and execution)."""
             aprint(f"Tool {tool.name} is {activity_type}...")
             if activity_type == "coding":
                 # Convert name of the tool to a human-readable format:
@@ -397,6 +401,7 @@ class NapariChatServer:
                 self.notebook.add_markdown_cell("### Omega:\n" + "Error:\n" + message)
 
     def _start_uvicorn_server(self, app):
+        """Start the Uvicorn ASGI server on the configured port (blocking)."""
         with asection(f"Starting Uvicorn server on port {self.port}"):
             config = Config(app, port=self.port)
             self.uvicorn_server = Server(config=config)
@@ -404,9 +409,11 @@ class NapariChatServer:
             self.uvicorn_server.run()
 
     def run(self):
+        """Run the chat server (blocking) on the current thread."""
         self._start_uvicorn_server(self.app)
 
     def stop(self):
+        """Gracefully stop the server, napari bridge, and background thread."""
         with asection("Stopping Omega server"):
             self.running = False
 
@@ -424,17 +431,19 @@ class NapariChatServer:
             aprint("Omega server stopped!")
 
     def sync_handler(self, _callable, *args, **kwargs):
-        """
-        A helper function to schedule an async callable from a synchronous
-        (executor) thread.  ``run_coroutine_threadsafe`` is the thread-safe
-        counterpart of ``create_task``.
+        """Schedule an async callable from a synchronous (executor) thread.
+
+        Uses ``run_coroutine_threadsafe`` -- the thread-safe counterpart
+        of ``create_task`` -- to dispatch the coroutine onto the server's
+        event loop.
         """
         asyncio.run_coroutine_threadsafe(_callable(*args, **kwargs), self.event_loop)
 
     def async_run_in_executor(self, func, *args):
-        """
-        Run a function in the default executor and return the result.
-        This is a helper function to run blocking code in an async context.
+        """Run a blocking function in the default executor.
+
+        Returns an awaitable future so that blocking agent calls do not
+        stall the asyncio event loop.
         """
         return self.event_loop.run_in_executor(None, func, *args)
 
@@ -452,9 +461,29 @@ def start_chat_server(
     save_chats_as_notebooks: bool = False,
     verbose: bool = False,
 ):
-    """
-    Starts the napari chat server in a separate thread.
+    """Start the Omega chat server in a background daemon thread.
 
+    Creates a napari viewer (if not provided), sets up the
+    :class:`NapariBridge`, and launches the FastAPI WebSocket server.
+    Optionally opens the chat UI in the default browser.
+
+    Args:
+        viewer: Existing napari viewer instance. A new viewer is
+            created when ``None``.
+        main_llm_model_name: Model name for the main Omega agent.
+        tool_llm_model_name: Model name for tool LLM calls.
+        temperature: Sampling temperature for the main LLM.
+        tool_temperature: Sampling temperature for tool LLM calls.
+        has_builtin_websearch_tool: Enable the built-in web search tool.
+        memory_type: Conversation memory strategy.
+        agent_personality: Personality preset for the agent.
+        be_didactic: If True, agent gives more explanatory answers.
+        save_chats_as_notebooks: Persist chat sessions as Jupyter
+            notebooks.
+        verbose: Enable verbose logging.
+
+    Returns:
+        The running :class:`NapariChatServer` instance.
     """
     with asection("Starting chat server"):
 

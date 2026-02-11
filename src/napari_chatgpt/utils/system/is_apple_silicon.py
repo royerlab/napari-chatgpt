@@ -1,4 +1,8 @@
+"""Detect whether the current machine uses Apple Silicon (ARM64)."""
+
+
 def is_apple_silicon():
+    """Return ``True`` if running on an Apple Silicon (M-series) Mac."""
     import os
     import platform
 

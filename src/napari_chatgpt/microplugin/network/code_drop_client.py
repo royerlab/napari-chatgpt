@@ -1,3 +1,9 @@
+"""Client for discovering and sending code snippets to CodeDrop servers.
+
+Provides network discovery of ``CodeDropServer`` instances via UDP multicast
+and the ability to send code snippets to discovered servers over TCP.
+"""
+
 import json
 import os
 import socket
@@ -12,7 +18,26 @@ from napari_chatgpt.microplugin.network.discover_worker import DiscoverWorker
 
 
 class CodeDropClient(QObject):
+    """Client that discovers CodeDrop servers and sends code snippets to them.
+
+    Uses a ``DiscoverWorker`` running in a background ``QThread`` to listen
+    for multicast announcements from servers, and provides methods to send
+    code messages over TCP connections.
+
+    Attributes:
+        multicast_groups: Multicast groups to listen on for server discovery.
+        servers: Mapping of ``"hostname:port"`` keys to
+            ``(username, address, port)`` tuples for discovered servers.
+    """
+
     def __init__(self, multicast_groups=None):
+        """Initialize the CodeDrop client.
+
+        Args:
+            multicast_groups: Optional list of ``(address, port)`` tuples
+                for multicast discovery. Defaults to the groups defined in
+                ``CodeDropServer._code_drop_multicast_groups``.
+        """
         super().__init__()
 
         if multicast_groups is None:
@@ -33,6 +58,7 @@ class CodeDropClient(QObject):
         self.init_discovery()
 
     def init_discovery(self):
+        """Initialize the server discovery worker and its background thread."""
 
         # Create a worker and move it to a thread
 
@@ -53,11 +79,13 @@ class CodeDropClient(QObject):
         # self.discover_thread.finished.connect(self.discover_thread.deleteLater)
 
     def start_discovering(self):
+        """Start the server discovery background thread."""
         if self.discover_thread is not None:
             # Start the thread and begin discovering servers:
             self.discover_thread.start()
 
     def stop_discovering(self):
+        """Stop the server discovery worker and wait for its thread to finish."""
         if self.discover_worker and self.discover_thread:
             # Ensure there's a stop method to signal the worker to terminate:
             self.discover_worker.stop()
@@ -66,6 +94,14 @@ class CodeDropClient(QObject):
             self.discover_thread = None
 
     def update_servers(self, user_name, server_name, server_address, server_port):
+        """Update the discovered servers registry.
+
+        Args:
+            user_name: Username of the server operator.
+            server_name: Hostname of the server machine.
+            server_address: IP address of the server.
+            server_port: TCP port the server listens on.
+        """
 
         # Server name and port are the key:
         key = f"{server_name}:{server_port}"
@@ -76,6 +112,17 @@ class CodeDropClient(QObject):
     def send_code_message(
         self, server_address: str, server_port: int, filename: str, code: str
     ):
+        """Send a code snippet to a specific server.
+
+        Packages the code along with sender metadata (hostname, username)
+        into a JSON message and sends it via TCP.
+
+        Args:
+            server_address: IP address of the target server.
+            server_port: TCP port of the target server.
+            filename: Name of the code snippet file.
+            code: Python source code to send.
+        """
 
         # get hostname:
         hostname = socket.gethostname()
@@ -100,6 +147,16 @@ class CodeDropClient(QObject):
     def send_message_by_address(
         self, server_address: str, server_port: int, message: str
     ):
+        """Send a raw string message to a server in a background thread.
+
+        Waits for any in-progress send to complete before starting a new
+        one. Gives up after 10 failed attempts to acquire the send slot.
+
+        Args:
+            server_address: IP address of the target server.
+            server_port: TCP port of the target server.
+            message: The message string to send.
+        """
 
         with self.sending_lock:
             # Check if there's already a thread running for sending messages:
@@ -138,6 +195,16 @@ class CodeDropClient(QObject):
             )
 
     def create_send_worker(self, server_address, server_port, message):
+        """Create a QObject worker that sends a message over a TCP socket.
+
+        Args:
+            server_address: IP address of the target server.
+            server_port: TCP port of the target server.
+            message: The message string to send.
+
+        Returns:
+            A ``SendWorker`` instance ready to be moved to a ``QThread``.
+        """
 
         parent_self = self
 
@@ -169,7 +236,9 @@ class CodeDropClient(QObject):
         return SendWorker()
 
     def handle_error(self, e):
+        """Log an error from a worker thread."""
         aprint(f"Error: {e}")
 
     def stop(self):
+        """Stop all background threads (discovery and sending)."""
         self.stop_discovering()

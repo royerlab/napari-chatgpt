@@ -1,4 +1,15 @@
+"""Map OpenAI model names to their maximum context-window token limits."""
+
+
 def openai_max_token_limit(llm_model_name):
+    """Return the maximum token limit for a given OpenAI model name.
+
+    Args:
+        llm_model_name: The OpenAI model identifier string.
+
+    Returns:
+        Maximum number of tokens the model supports.
+    """
     if (
         "gpt-4-1106-preview" in llm_model_name
         or "gpt-4-0125-preview" in llm_model_name

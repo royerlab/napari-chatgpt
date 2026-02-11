@@ -1,8 +1,15 @@
-# Function that checks if the packages stardist or napari-stardist are installed:
+"""Utility functions for detecting installed segmentation backends.
+
+Provides helpers to check whether Cellpose and StarDist are importable,
+and to build human-readable lists and descriptions of available
+segmentation algorithms for use in LLM prompts and tool descriptions.
+"""
+
 from arbol import aprint
 
 
 def check_stardist_installed() -> bool:
+    """Return True if the ``stardist`` package is importable."""
     try:
         import stardist  # noqa: F401
 
@@ -11,8 +18,8 @@ def check_stardist_installed() -> bool:
         return False
 
 
-# Function that checks if the packages cellpose or cellpose-napari are installed:
 def check_cellpose_installed() -> bool:
+    """Return True if the ``cellpose`` package is importable."""
     try:
         import cellpose  # noqa: F401
 
@@ -22,6 +29,14 @@ def check_cellpose_installed() -> bool:
 
 
 def get_list_of_algorithms() -> list:
+    """Return the names of available segmentation algorithms.
+
+    Always includes ``"classic"``; conditionally includes ``"cellpose"``
+    and ``"stardist"`` if their packages are installed.
+
+    Returns:
+        A list of algorithm name strings.
+    """
     algos = []
     if check_cellpose_installed():
         aprint("Cellpose is installed!")
@@ -35,6 +50,14 @@ def get_list_of_algorithms() -> list:
 
 
 def get_description_of_algorithms() -> str:
+    """Build a human-readable description of available segmentation algorithms.
+
+    Generates example usage strings and guidance on when to choose each
+    algorithm.  Used in the ``CellNucleiSegmentationTool`` description.
+
+    Returns:
+        A formatted description string.
+    """
     description = ""
 
     algos = get_list_of_algorithms()
@@ -66,9 +89,7 @@ def get_description_of_algorithms() -> str:
             description += "StarDist for segmenting near-convex nuclei in 2D or 3D, "
 
         elif "classic" in algo:
-            description += (
-                "Classic for threshold-based segmentation (Otsu, Li, Triangle, Yen, etc.) in 2D/3D — fast, no GPU required, "
-            )
+            description += "Classic for threshold-based segmentation (Otsu, Li, Triangle, Yen, etc.) in 2D/3D — fast, no GPU required, "
 
     # remove last comma:
     description = description[:-2]

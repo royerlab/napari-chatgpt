@@ -1,3 +1,5 @@
+"""DuckDuckGo search utilities for web and image queries."""
+
 import traceback
 
 from arbol import aprint, asection
@@ -13,6 +15,19 @@ def summary_ddg(
     lang: str = "en",
     do_summarize: bool = True,
 ) -> str:
+    """Search DuckDuckGo and return results, optionally summarized by an LLM.
+
+    Args:
+        query: The search query string.
+        num_results: Maximum number of search results to return.
+        lang: Language/region code for search results (e.g., "en").
+        do_summarize: If True, the results are summarized using an LLM.
+
+    Returns:
+        A formatted string of search results, or an LLM-generated
+        summary if do_summarize is True. Returns an error message
+        if the search fails.
+    """
     try:
 
         results = search_ddg(query=query, num_results=num_results, lang=lang)
@@ -41,6 +56,19 @@ def summary_ddg(
 def search_ddg(
     query: str, num_results: int = 3, lang: str = "en", safe_search: str = "moderate"
 ) -> list[dict]:
+    """Perform a text search on DuckDuckGo.
+
+    Args:
+        query: The search query string.
+        num_results: Maximum number of results to return.
+        lang: Language/region code (e.g., "en"). Automatically mapped
+            to "en-us" for DuckDuckGo compatibility.
+        safe_search: Safe search level ("on", "moderate", or "off").
+
+    Returns:
+        A list of result dicts, each containing 'title', 'body',
+        and 'href' keys.
+    """
     lang = "en-us" if lang == "en" else lang
 
     results = DDGS().text(
@@ -58,6 +86,18 @@ def search_ddg(
 def search_images_ddg(
     query: str, num_results: int = 3, lang: str = "en", safesearch: str = "moderate"
 ) -> list[dict[str, str | None]]:
+    """Search DuckDuckGo for images matching the query.
+
+    Args:
+        query: The image search query string.
+        num_results: Maximum number of image results to return.
+        lang: Language/region code (e.g., "en").
+        safesearch: Safe search level ("on", "moderate", or "off").
+
+    Returns:
+        A list of dicts with image metadata including URL, title,
+        and source information.
+    """
     lang = "en-us" if lang == "en" else lang
 
     results = DDGS().images(
@@ -78,6 +118,7 @@ def search_images_ddg(
 
 
 def install_latest_ddg():
+    """Install or upgrade the duckduckgo_search package via pip."""
     # Make sure we have the latest version installed:
     try:
         with asection("Installing the latest version of duckduckgo_search:"):

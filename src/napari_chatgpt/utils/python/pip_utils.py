@@ -1,3 +1,11 @@
+"""Pip package management utilities with special-case handling.
+
+Provides functions to install and uninstall Python packages via pip, with
+support for package substitutions (e.g., stardist -> napari-stardist),
+conda-forge fallbacks, macOS/M1 TensorFlow substitutions, and user
+permission dialogs.
+"""
+
 from arbol import aprint, asection
 
 from napari_chatgpt.utils.python.conda_utils import conda_install
@@ -26,28 +34,21 @@ def pip_install(
     skip_if_installed: bool = True,
     ask_permission: bool = True,
 ) -> str:
-    """
-    Install packages using pip.
+    """Install packages using pip with special-case handling.
 
+    Applies package substitutions, removes already-included Omega packages,
+    skips already-installed packages, and optionally prompts the user for
+    permission before installing.
 
-    Parameters
-    ----------
-    packages: List[str]
-        List of packages to install.
-    included: bool
-        If True, remove packages that are already included in Omega.
-    special_rules: bool
-        If True, apply special rules for some packages (e.g. substitutions).
-    skip_if_installed: bool
-        If True, skip packages that are already installed.
-    ask_permission: bool
-        If True, ask user for permission to install packages.
+    Args:
+        packages: List of package names to install.
+        included: If True, remove packages already bundled with Omega.
+        special_rules: If True, apply substitution and conda-forge rules.
+        skip_if_installed: If True, skip already-installed packages.
+        ask_permission: If True, show a dialog asking the user for permission.
 
-    Returns
-    -------
-    str
-        Message indicating the result of the installation process.
-
+    Returns:
+        A message string describing the installation results.
     """
 
     message = ""
@@ -141,6 +142,19 @@ from subprocess import CalledProcessError
 def pip_install_single_package(
     package: str, upgrade: bool = False, skip_if_installed: bool = True
 ) -> str:
+    """Install a single package via pip.
+
+    Handles macOS/M1 TensorFlow substitutions automatically. When upgrade
+    is True, skip_if_installed is forced to False.
+
+    Args:
+        package: Package name to install.
+        upgrade: If True, pass --upgrade to pip and reinstall even if present.
+        skip_if_installed: If True, skip if the package is already installed.
+
+    Returns:
+        A message string indicating success or failure.
+    """
     # Upgrade is a special case:
     if upgrade:
         skip_if_installed = False
@@ -192,6 +206,14 @@ def pip_install_single_package(
 
 
 def pip_uninstall(list_of_packages: list[str]) -> bool:
+    """Uninstall packages using pip, skipping packages not installed.
+
+    Args:
+        list_of_packages: Package names to uninstall.
+
+    Returns:
+        True if all uninstallations succeeded, False if any errors occurred.
+    """
     error_occurred = False
 
     # Ensure it is a list and remove duplicates:

@@ -1,3 +1,5 @@
+"""One-time disclaimer dialog that remembers acknowledgement via app configuration."""
+
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMessageBox
 

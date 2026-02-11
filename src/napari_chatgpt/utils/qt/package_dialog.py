@@ -1,3 +1,5 @@
+"""Dialog for asking the user to approve package installation."""
+
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
     QDialog,
@@ -12,6 +14,14 @@ from napari_chatgpt.utils.qt.qt_app import get_or_create_qt_app, run_on_main_thr
 
 
 class PackageDialog(QDialog):
+    """Modal dialog listing packages and asking the user to install or refuse.
+
+    Attributes:
+        packages: List of package name strings to display.
+        user_response: ``True`` if accepted, ``False`` if rejected,
+            ``None`` before the dialog is closed.
+    """
+
     def __init__(self, packages, parent=None):
         super().__init__(parent, flags=Qt.WindowStaysOnTopHint)
         self.packages = packages
@@ -63,6 +73,15 @@ class PackageDialog(QDialog):
 
 
 def install_packages_dialog(packages, app=None) -> bool:
+    """Show the package-install dialog and return the user's decision.
+
+    Args:
+        packages: List of package names to present.
+        app: Optional ``QApplication`` instance; created if absent.
+
+    Returns:
+        ``True`` if the user accepted, ``False`` otherwise.
+    """
     if not app:
         app = get_or_create_qt_app()
     dialog = PackageDialog(packages)

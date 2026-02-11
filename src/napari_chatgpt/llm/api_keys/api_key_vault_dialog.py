@@ -1,3 +1,10 @@
+"""Qt dialog for entering, decrypting, and resetting encrypted API keys.
+
+Presents a modal dialog that either prompts the user to enter a new API
+key (with a password to encrypt it) or asks for the existing password to
+decrypt a previously stored key.  Backed by :class:`KeyVault`.
+"""
+
 from arbol import aprint
 from qtpy.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QVBoxLayout
 
@@ -5,6 +12,18 @@ from napari_chatgpt.llm.api_keys.api_key_vault import KeyVault
 
 
 class APIKeyDialog(QDialog):
+    """Modal dialog for entering or unlocking an encrypted API key.
+
+    If no key is stored, the dialog prompts for both an API key and a
+    password.  If a key already exists, only the password is required
+    to decrypt it.  The dialog also provides buttons to continue
+    without a key or to reset the stored key entirely.
+
+    Attributes:
+        api_key_name: Display name of the API provider.
+        api_key: The decrypted key, or ``None`` if not yet retrieved.
+        key_vault: :class:`KeyVault` instance managing the encrypted key.
+    """
 
     def __init__(self, api_key_name: str, parent=None):
         super().__init__(parent)
@@ -23,7 +42,7 @@ class APIKeyDialog(QDialog):
         self._populate_layout()
 
     def _clear_layout(self):
-
+        """Remove all widgets from the current layout."""
         layout = self.layout()
 
         while layout.count():
@@ -32,7 +51,7 @@ class APIKeyDialog(QDialog):
                 child.widget().deleteLater()
 
     def _populate_layout(self):
-
+        """Build (or rebuild) the dialog layout based on vault state."""
         layout = self.layout()
 
         if layout is None:
@@ -125,7 +144,7 @@ class APIKeyDialog(QDialog):
         return layout
 
     def enter_button_clicked(self):
-
+        """Handle the Enter button: encrypt a new key or decrypt the existing one."""
         if self.key_vault.is_key_present():
             from cryptography.fernet import InvalidToken
 
@@ -159,7 +178,7 @@ class APIKeyDialog(QDialog):
             self.accept()
 
     def reset_button_clicked(self):
-
+        """Delete the stored key and rebuild the dialog for new key entry."""
         # Clear clear key:
         self.key_vault.clear_key()
 
@@ -173,7 +192,7 @@ class APIKeyDialog(QDialog):
         self._populate_layout()
 
     def get_api_key(self) -> str:
-
+        """Return the decrypted API key and clear the internal reference."""
         # get API key:
         api_key = self.api_key
 
@@ -186,6 +205,18 @@ _already_asked_api_key = {}
 
 
 def request_if_needed_api_key_dialog(api_key_name: str) -> str:
+    """Show the API key dialog if the user has not already been prompted.
+
+    Each provider is only prompted once per session. Subsequent calls for
+    the same ``api_key_name`` return ``None`` immediately.
+
+    Args:
+        api_key_name: Provider name (e.g. ``"OpenAI"``).
+
+    Returns:
+        The decrypted API key, or ``None`` if the user dismissed the
+        dialog or was already prompted.
+    """
     if api_key_name in _already_asked_api_key:
         return None
 

@@ -1,3 +1,5 @@
+"""Retrieve and post-process the list of available OpenAI GPT models."""
+
 import traceback
 
 from arbol import aprint, asection

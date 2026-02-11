@@ -1,3 +1,10 @@
+"""Factory functions for initialising the Omega agent and its toolset.
+
+This module wires together the LLM backend, system prompt, tools, and
+napari communication queues to produce a fully configured ``OmegaAgent``
+ready to handle user conversations.
+"""
+
 from queue import Queue
 
 from arbol import aprint, asection
@@ -32,6 +39,38 @@ def initialize_omega_agent(
     tool_callbacks: BaseToolCallbacks | None = None,
     verbose: bool = False,
 ) -> Agent:
+    """Build and return a fully configured Omega agent.
+
+    This is the main entry point for agent initialisation. It creates
+    the tool LLM, assembles the toolset, attaches the system prompt
+    (including personality and optional didactic mode), and returns the
+    ready-to-use ``OmegaAgent``.
+
+    Args:
+        to_napari_queue: Queue for sending callables to the napari Qt
+            thread.
+        from_napari_queue: Queue for receiving results from the napari
+            Qt thread.
+        main_llm_model_name: Model identifier for the main agent LLM.
+        tool_llm_model_name: Model identifier for the tool sub-LLM
+            used for code generation.
+        temperature: Sampling temperature for the main agent LLM.
+        tool_temperature: Sampling temperature for the tool sub-LLM.
+        has_builtin_websearch_tool: Whether to add a built-in web
+            search tool (if the model supports it).
+        notebook: Optional Jupyter notebook to record generated code.
+        agent_personality: Personality key (see ``prompts.PERSONALITY``).
+        be_didactic: If ``True``, include didactic instructions in the
+            system prompt.
+        tool_callbacks: Optional callbacks for tool lifecycle events.
+        verbose: Enable verbose logging in tools.
+
+    Returns:
+        A configured ``OmegaAgent`` instance.
+
+    Raises:
+        ValueError: If either queue argument is ``None``.
+    """
     if to_napari_queue is None or from_napari_queue is None:
         raise ValueError("to_napari_queue and from_napari_queue must not be None")
 
@@ -99,6 +138,16 @@ def initialize_omega_agent(
 
 
 def prepare_toolset(tool_context, vision_llm_model_name) -> ToolSet:
+    """Create a ``ToolSet`` containing all built-in and external tools.
+
+    Args:
+        tool_context: Dictionary of shared context passed to each tool
+            constructor (queues, LLM, notebook, etc.).
+        vision_llm_model_name: Model name used for the vision tool.
+
+    Returns:
+        A ``ToolSet`` populated with all discovered tools.
+    """
     tools = []
 
     # Adding all tools:
@@ -114,6 +163,16 @@ def prepare_toolset(tool_context, vision_llm_model_name) -> ToolSet:
 
 
 def _append_all_tools(tool_context, tools, vision_llm_model_name):
+    """Instantiate all built-in Omega tools and append them to *tools*.
+
+    Conditionally includes vision and denoising tools based on runtime
+    availability of their dependencies.
+
+    Args:
+        tool_context: Shared context dictionary forwarded to each tool.
+        tools: Mutable list to which new tool instances are appended.
+        vision_llm_model_name: Model name passed to the vision tool.
+    """
     from napari_chatgpt.omega_agent.tools.napari.viewer_control_tool import (
         NapariViewerControlTool,
     )
@@ -248,7 +307,9 @@ def _discover_external_tools(tool_context: dict, tools: list) -> None:
     for ep in eps:
         try:
             tool_class = ep.load()
-            if not (isinstance(tool_class, type) and issubclass(tool_class, BaseOmegaTool)):
+            if not (
+                isinstance(tool_class, type) and issubclass(tool_class, BaseOmegaTool)
+            ):
                 aprint(
                     f"Skipping entry point '{ep.name}': "
                     f"{tool_class} is not a subclass of BaseOmegaTool"

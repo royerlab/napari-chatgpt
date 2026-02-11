@@ -1,3 +1,6 @@
+"""Utilities for checking TCP port availability on localhost."""
+
+
 def is_port_available(port: int):
     """
     Checks if a TCP port is available on localhost.

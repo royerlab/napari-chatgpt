@@ -1,3 +1,10 @@
+"""Utilities for querying installed Python packages.
+
+Provides functions to list installed packages (via pip and conda),
+check whether a specific package is installed, and filter the list
+to signal-processing-related packages.
+"""
+
 import importlib.util
 import traceback
 from functools import lru_cache
@@ -15,6 +22,18 @@ def installed_package_list(
     version: bool = True,
     filter=get_all_signal_processing_related_packages(),
 ):
+    """Return a deduplicated list of installed packages from pip and conda.
+
+    Args:
+        clean_up: If True, exclude AWS and internal library packages.
+        version: If True, include version numbers (e.g., "numpy==1.24.0").
+        filter: Iterable of package name substrings to keep. Only packages
+            containing at least one of these substrings are included.
+            Defaults to signal-processing-related packages.
+
+    Returns:
+        A deduplicated list of installed package names (with optional versions).
+    """
     package_list = pip_list(version=version) + conda_list(version=version)
 
     if clean_up:
@@ -31,6 +50,14 @@ def installed_package_list(
 
 
 def pip_list(version: bool = False):
+    """List packages installed via pip using ``importlib.metadata``.
+
+    Args:
+        version: If True, format entries as "name==version".
+
+    Returns:
+        List of package name strings, or an empty list on error.
+    """
     try:
         import importlib.metadata as metadata
 
@@ -51,6 +78,15 @@ def pip_list(version: bool = False):
 
 
 def conda_list(version: bool = False):
+    """List packages installed via conda by invoking ``conda list``.
+
+    Args:
+        version: If True, format entries as "name==version".
+
+    Returns:
+        List of package name strings, or an empty list on error
+        (e.g., if conda is not available).
+    """
     try:
         import subprocess
 
@@ -79,6 +115,17 @@ def conda_list(version: bool = False):
 
 
 def is_package_installed(package_name: str):
+    """Check whether a Python package is installed.
+
+    Supports version-pinned names (e.g., "numpy==1.24.0"). When a version
+    is specified, the installed version must match exactly.
+
+    Args:
+        package_name: Package name, optionally with "==version" suffix.
+
+    Returns:
+        True if the package is installed (and version matches if specified).
+    """
     try:
         # Extract package name and version if provided
         version_required = None

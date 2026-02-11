@@ -1,3 +1,5 @@
+"""Validate an OpenAI API key by making a lightweight API call."""
+
 from arbol import aprint
 
 

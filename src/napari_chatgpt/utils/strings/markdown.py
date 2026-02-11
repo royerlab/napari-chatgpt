@@ -1,13 +1,20 @@
+"""Utilities for parsing and extracting blocks from Markdown text."""
+
+
 def extract_markdown_blocks(markdown_str, remove_quotes: bool = False):
-    """
-    Extracts and returns blocks of text and code from a markdown string.
+    """Extract text and code blocks from a Markdown string.
+
+    Splits the input into alternating text and code blocks based on
+    triple-backtick (```) delimiters.
 
     Args:
-    markdown_str (str): A string formatted in markdown.
-    remove_quotes (bool, optional): Whether to remove the quotes from the code blocks. Defaults to True.
+        markdown_str: A string formatted in Markdown.
+        remove_quotes: If True, the triple-backtick fence lines are
+            excluded from code blocks. Defaults to False.
 
     Returns:
-    List[str]: A list of strings, where each string is a block of text or code.
+        A list of strings, where each string is a contiguous block of
+        text or code from the input.
     """
 
     blocks = []

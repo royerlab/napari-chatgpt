@@ -10,8 +10,7 @@ from napari_chatgpt.llm.litemind_api import (
 
 # Patch target for AppConfiguration (imported locally)
 _CONFIG_PATCH = (
-    "napari_chatgpt.utils.configuration"
-    ".app_configuration.AppConfiguration"
+    "napari_chatgpt.utils.configuration" ".app_configuration.AppConfiguration"
 )
 
 
@@ -19,12 +18,8 @@ def _mock_config(items=None):
     """Create a mock AppConfiguration that supports [] access."""
     data = items or {}
     mock = MagicMock()
-    mock.__getitem__ = MagicMock(
-        side_effect=lambda key: data.get(key)
-    )
-    mock.get = MagicMock(
-        side_effect=lambda key, default=None: data.get(key, default)
-    )
+    mock.__getitem__ = MagicMock(side_effect=lambda key: data.get(key))
+    mock.get = MagicMock(side_effect=lambda key, default=None: data.get(key, default))
     return mock
 
 
@@ -100,11 +95,11 @@ class TestBuildCustomApis:
 
     @patch(_CONFIG_PATCH)
     def test_missing_base_url_skipped(self, mock_config_cls):
-        mock_config_cls.return_value = _mock_config({
-            "custom_endpoints": [
-                {"name": "bad", "api_key_env": "KEY"}
-            ],
-        })
+        mock_config_cls.return_value = _mock_config(
+            {
+                "custom_endpoints": [{"name": "bad", "api_key_env": "KEY"}],
+            }
+        )
 
         combined = MagicMock()
         combined.model_to_api = {}

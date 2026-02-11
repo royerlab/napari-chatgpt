@@ -1,4 +1,20 @@
+"""Utilities for removing trailing unindented code from Python source."""
+
+
 def remove_trailing_code(code: str):
+    """Remove trailing unindented lines from a code string.
+
+    Finds the last indented line in the code and discards everything
+    after it. This is useful for stripping extraneous text or comments
+    that an LLM may append after the actual code body.
+
+    Args:
+        code: A string containing Python source code.
+
+    Returns:
+        The code truncated after the last indented line, or the
+        original code if no indented lines are found.
+    """
     lines = code.split("\n")
     last_indented_line = None
 

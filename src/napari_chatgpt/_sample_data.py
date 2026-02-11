@@ -1,4 +1,8 @@
-"""Sample data for napari-chatgpt (Omega)."""
+"""Sample data provider for the napari-chatgpt plugin.
+
+Registered as a napari sample-data contribution so users can quickly load
+a test image via *File > Open Sample > napari-chatgpt*.
+"""
 
 from __future__ import annotations
 
@@ -7,12 +11,21 @@ from typing import List, Tuple
 import numpy as np
 
 LayerDataTuple = Tuple[np.ndarray, dict, str]
+"""Type alias for a single napari layer-data tuple ``(data, kwargs, type)``."""
 
 
 def make_sample_data() -> List[LayerDataTuple]:
-    """Return a human mitosis image as sample data.
+    """Return a human-mitosis image as napari sample data.
 
-    Fallback chain: human_mitosis -> cells3d membrane channel -> synthetic.
+    Uses a fallback chain so the function never fails:
+
+    1. ``skimage.data.human_mitosis`` (preferred).
+    2. ``skimage.data.cells3d`` membrane channel.
+    3. Random 256x256 uint8 noise (last resort).
+
+    Returns:
+        A single-element list containing a ``(data, metadata, layer_type)``
+        tuple suitable for ``napari.Viewer.open_sample()``.
     """
     try:
         from skimage.data import human_mitosis

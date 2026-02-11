@@ -1,3 +1,10 @@
+"""Server for receiving code snippets over the local network via CodeDrop.
+
+Broadcasts its presence via UDP multicast so that ``CodeDropClient`` instances
+can discover it, and listens for incoming TCP connections carrying code
+snippet messages.
+"""
+
 import random
 import socket
 import struct
@@ -11,6 +18,20 @@ from napari_chatgpt.microplugin.network.receive_worker import ReceiveWorker
 
 
 class CodeDropServer(QObject):
+    """Server that broadcasts its presence and receives code snippets over TCP.
+
+    Uses a ``BroadcastWorker`` to periodically announce itself on UDP
+    multicast groups and a ``ReceiveWorker`` to accept incoming TCP
+    connections carrying code snippet messages.
+
+    Attributes:
+        multicast_groups: List of ``(address, port)`` multicast destinations.
+        server_hostname: Hostname of this machine.
+        server_port: TCP port the server listens on for incoming messages.
+        callback: Function called with ``(address, message)`` when a
+            message is received.
+    """
+
     _code_drop_multicast_groups = [("224.1.1.1", 5007), ("224.1.1.1", 5008)]
 
     def __init__(
@@ -19,6 +40,17 @@ class CodeDropServer(QObject):
         multicast_groups=None,
         server_port: int | None = None,
     ):
+        """Initialize the CodeDrop server.
+
+        Args:
+            callback: Function called as ``callback(addr, message)`` when
+                a message is received from a client.
+            multicast_groups: Optional list of ``(address, port)`` tuples
+                for multicast broadcasting. Defaults to
+                ``_code_drop_multicast_groups``.
+            server_port: TCP port to listen on. If ``None``, a random
+                available port in the range 5000--5100 is chosen.
+        """
         super().__init__()
 
         if multicast_groups is None:
@@ -73,6 +105,11 @@ class CodeDropServer(QObject):
         self.receive_worker.error.connect(self.handle_error)
 
     def _find_port(self):
+        """Find an available TCP port in the range 5000--5100.
+
+        Returns:
+            An available port number.
+        """
         port = 5000 + random.randint(0, 100)
         while True:
             try:
@@ -86,12 +123,15 @@ class CodeDropServer(QObject):
         return port
 
     def start_broadcasting(self):
+        """Start the multicast broadcast background thread."""
         self.broadcast_thread.start()
 
     def start_receiving(self):
+        """Start the TCP message receiving background thread."""
         self.receive_thread.start()
 
     def stop_broadcasting(self):
+        """Stop the broadcast worker and wait for its thread to finish."""
         if self.broadcast_worker and self.broadcast_thread:
             # Stop the broadcast worker and thread:
             self.broadcast_worker.stop()
@@ -99,6 +139,7 @@ class CodeDropServer(QObject):
             self.broadcast_thread.wait()
 
     def stop_receiving(self):
+        """Stop the receive worker and wait for its thread to finish."""
         if self.receive_worker and self.receive_thread:
             # Stop the receive worker and thread:
             self.receive_worker.stop()
@@ -106,8 +147,10 @@ class CodeDropServer(QObject):
             self.receive_thread.wait()
 
     def stop(self):
+        """Stop both broadcasting and receiving threads."""
         self.stop_broadcasting()
         self.stop_receiving()
 
     def handle_error(self, e):
+        """Log an error from a worker thread."""
         aprint(f"Error: {e}")

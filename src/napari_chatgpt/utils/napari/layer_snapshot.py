@@ -1,3 +1,5 @@
+"""Capture canvas snapshots of individual or all visible napari layers."""
+
 from napari import Viewer
 from PIL import Image
 

@@ -1,15 +1,21 @@
+"""Utilities for filtering lines from text based on substring matching."""
+
+
 def filter_lines(
     text: str, filter_out: list[str] | None = None, comment_lines: bool = False
 ) -> str:
-    """
-    Filters out lines in `text` that contain any of the substrings in `substrings`.
+    """Filter out or comment lines containing specified substrings.
 
     Args:
-        text (str): The input text string.
-        filter_out (list): A list of substrings to filter out.
+        text: The input text string.
+        filter_out: A list of substrings. Lines containing any of these
+            substrings will be filtered or commented out.
+        comment_lines: If True, matching lines are prefixed with '# '
+            instead of being removed entirely.
 
     Returns:
-        str: The filtered text string.
+        The filtered text string with matching lines removed or
+        commented out.
     """
     lines = text.split("\n")
     filter_out = filter_out or []

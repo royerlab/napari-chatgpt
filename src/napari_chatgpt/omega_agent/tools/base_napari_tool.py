@@ -1,3 +1,11 @@
+"""Base class for napari-aware Omega tools that generate and execute code.
+
+Provides ``BaseNapariTool``, which delegates code generation to a sub-LLM,
+sends the resulting callable to the napari Qt thread via queues, and
+collects the execution result. Concrete subclasses override ``_run_code``
+to define tool-specific execution logic.
+"""
+
 import sys
 from pathlib import Path
 from queue import Queue
@@ -22,10 +30,19 @@ from napari_chatgpt.utils.system.information import system_info
 
 
 class BaseNapariTool(BaseOmegaTool):
-    """
-    A base tool that delegates to execution to a sub-LLM and communicates with napari via queues.
-    This tool is designed to generate and execute Python code in the napari environment.
-    It can be used to create widgets, run code, and interact with the napari viewer.
+    """Base tool that delegates code generation to a sub-LLM and executes it in napari.
+
+    The typical lifecycle is:
+
+    1. ``run_omega_tool`` formats a prompt with viewer state and sends it to
+       the sub-LLM, which returns Python code.
+    2. The code is wrapped in a callable and placed on ``to_napari_queue``.
+    3. The Qt-side worker executes the callable and puts the result on
+       ``from_napari_queue``.
+    4. The result (or error) is returned to the calling agent.
+
+    Subclasses must implement ``_run_code`` to define how the generated
+    code is prepared and executed.
     """
 
     def __init__(
@@ -45,36 +62,32 @@ class BaseNapariTool(BaseOmegaTool):
         last_generated_code: str | None = None,
         **kwargs: dict,
     ):
-        """
-        Initialize the tool.
-        Parameters
-        ----------
-        name: str
-            The name of the tool, must be unique.
-        description: str
-            The description of the tool, must be unique.
-        code_prefix: str
-            A prefix to prepend to the generated code, useful for imports or other necessary code.
-        instructions: str
-            Instructions for the sub-LLM, can be used to guide the code generation.
-        prompt: str
-            The prompt to use for the sub-LLM, if None, the tool will not delegate to a sub-LLM.
-        to_napari_queue: Queue
-            The queue to send the generated code to napari for execution.
-        from_napari_queue: Queue
-            The queue to receive the response from napari after executing the code.
-        llm: LLM
-            The LLM to use for code generation, if None, the tool will not delegate to a sub-LLM.
-        return_direct: bool
-            If True, the tool will return the generated code directly, otherwise it will send it to napari.
-        save_last_generated_code: bool
-            If True, the tool will save the last generated code for reference in future calls.
-        verbose: bool
-            If True, the tool will print additional information about the process.
-        last_generated_code: str
-            The last generated code, if any, to be used for reference in the prompt.
-        kwargs: dict
-            Additional keyword arguments, not used in this tool but can be used for future extensions.
+        """Initialise the napari tool.
+
+        Args:
+            name: Unique tool name.
+            description: Human-readable tool description.
+            code_prefix: Python code prepended to every generated
+                snippet (e.g. common imports).
+            instructions: Coding instructions appended to the generic
+                code-generation guidelines for the sub-LLM.
+            prompt: Prompt template for the sub-LLM. If ``None``, no
+                LLM delegation occurs and ``_run_code`` receives
+                ``code=None``.
+            to_napari_queue: Queue for sending callables to napari's Qt
+                thread.
+            from_napari_queue: Queue for receiving execution results
+                from napari's Qt thread.
+            llm: LLM instance used for code generation.
+            return_direct: If ``True``, the tool returns the raw LLM
+                output without executing it.
+            save_last_generated_code: If ``True``, persist the most
+                recent generated code for reference in subsequent calls.
+            verbose: Enable verbose logging.
+            notebook: Optional Jupyter notebook to record generated code.
+            last_generated_code: Seed value for previously generated
+                code, if any.
+            **kwargs: Extra keyword arguments (forwarded to parent).
         """
 
         super().__init__(name=name, description=description, **kwargs)
@@ -95,7 +108,15 @@ class BaseNapariTool(BaseOmegaTool):
         self._installed_package_list = installed_package_list()
 
     def run_omega_tool(self, query: str = "") -> Any:
-        """Use the tool."""
+        """Generate code via the sub-LLM and execute it in napari.
+
+        Args:
+            query: The user request or task description.
+
+        Returns:
+            A success/result string from ``_run_code``, or an error
+            message if execution raised an exception.
+        """
 
         if self.prompt:
             # Instantiate message
@@ -168,9 +189,23 @@ class BaseNapariTool(BaseOmegaTool):
         return response
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
-        """
-        This is the code that is executed, see implementations for details,
-        must return 'Success: ...' if things went well, otherwise it is failure!
+        """Execute tool-specific logic on the Qt thread.
+
+        Subclasses must override this method. The return value should
+        start with ``'Success: ...'`` on success; any other value is
+        treated as a failure by the agent.
+
+        Args:
+            query: The original user request.
+            code: The Python code generated by the sub-LLM, or ``None``
+                if no LLM delegation was configured.
+            viewer: The napari ``Viewer`` instance.
+
+        Returns:
+            A result string describing the outcome.
+
+        Raises:
+            NotImplementedError: Always, unless overridden.
         """
         raise NotImplementedError("This method must be implemented")
 
@@ -179,6 +214,20 @@ class BaseNapariTool(BaseOmegaTool):
         code: str,
         markdown: bool = True,
     ) -> str:
+        """Sanitise and prepare LLM-generated code for execution.
+
+        Strips Markdown fences, prepends the tool's ``code_prefix``,
+        and removes lines that would interfere with the existing napari
+        session (e.g. creating a new viewer or calling ``gui_qt``).
+
+        Args:
+            code: Raw code string, possibly wrapped in Markdown fences.
+            markdown: If ``True``, extract code from Markdown code
+                blocks first.
+
+        Returns:
+            The cleaned Python source ready for execution.
+        """
 
         with asection(f"NapariBaseTool: _prepare_code(markdown={markdown}) "):
 
@@ -213,6 +262,20 @@ class BaseNapariTool(BaseOmegaTool):
             return code
 
     def _execute_code(self, code, viewer) -> str:
+        """Execute prepared Python code in the context of the napari viewer.
+
+        After successful execution the code is saved to the MicroPlugin
+        snippet editor and, if a notebook is configured, appended as a
+        code cell.
+
+        Args:
+            code: Python source code to execute.
+            viewer: The napari ``Viewer`` instance available as
+                ``viewer`` inside the executed code.
+
+        Returns:
+            The captured ``stdout`` output from the executed code.
+        """
 
         with asection(f"Running code:"):
 
@@ -242,6 +305,16 @@ class BaseNapariTool(BaseOmegaTool):
 
 
 def _get_delegated_code(name: str, signature: bool = False):
+    """Load a delegated code template from the ``napari/delegated_code`` directory.
+
+    Args:
+        name: Stem of the ``.py`` file to load (without extension).
+        signature: If ``True``, return only the portion of the file
+            after the ``### SIGNATURE`` marker.
+
+    Returns:
+        The file contents (or the signature portion) as a string.
+    """
     with asection(f"Getting delegated code: '{name}' (signature={signature})"):
         # Get current package folder:
         current_package_folder = Path(__file__).parent

@@ -9,17 +9,13 @@ from litemind.apis.callbacks.base_api_callbacks import BaseApiCallbacks
 def estimate_tokens(text: str) -> int:
     """Estimate token count from text using a word-based heuristic.
 
-    Uses the approximation: tokens ~ words * 1.3, which is reasonable
-    for English text across most tokenizers.
+    Uses the approximation ``tokens ~ words * 1.3``, which is
+    reasonable for English text across most tokenizers.
 
-    Parameters
-    ----------
-    text : str
-        The text to estimate tokens for.
+    Args:
+        text: The text to estimate tokens for.
 
-    Returns
-    -------
-    int
+    Returns:
         Estimated token count, minimum 1 for non-empty text.
     """
     if not text:
@@ -38,9 +34,7 @@ class TokenCounterCallback(BaseApiCallbacks):
     def __init__(self):
         self.total_tokens: int = 0
 
-    def on_text_generation(
-        self, messages: List[Message], response, **kwargs
-    ) -> None:
+    def on_text_generation(self, messages: List[Message], response, **kwargs) -> None:
         """Accumulate estimated tokens for all messages and the response."""
         for m in messages:
             self.total_tokens += estimate_tokens(m.to_plain_text())

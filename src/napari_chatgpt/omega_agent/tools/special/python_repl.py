@@ -1,3 +1,12 @@
+"""Tool for executing short Python code snippets in a sandboxed REPL.
+
+Provides the Omega agent with a lightweight Python REPL for quick
+computations and queries that do not involve the napari viewer or large
+datasets. Code is parsed via ``ast``, sanitized, and executed; stdout
+output (or the return value of the last expression) is captured and
+returned to the agent.
+"""
+
 import ast
 import re
 from contextlib import redirect_stdout
@@ -9,12 +18,26 @@ from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
 
 
 class PythonCodeExecutionTool(BaseOmegaTool):
-    """
-    A tool for running non-napari-related python code in a REPL.
-    This tool can be used to execute very short snippets of python code.
+    """Tool for running short Python snippets in a REPL environment.
+
+    Parses the input as Python source, executes all statements except the
+    last, then evaluates (or executes) the last statement and captures its
+    output. Not intended for napari-related or heavy data processing code.
+
+    Attributes:
+        name: Tool identifier string.
+        description: Human-readable description used by the LLM agent.
+        sanitize_input: Whether to strip backticks and language markers
+            from the input before execution.
     """
 
     def __init__(self, **kwargs):
+        """Initialize the PythonCodeExecutionTool.
+
+        Args:
+            **kwargs: Keyword arguments forwarded to ``BaseOmegaTool``,
+                including an optional ``notebook`` for logging code cells.
+        """
         super().__init__(**kwargs)
 
         self.name = "PythonCodeExecutionTool"
@@ -30,6 +53,20 @@ class PythonCodeExecutionTool(BaseOmegaTool):
         self.sanitize_input: bool = True
 
     def run_omega_tool(self, query: str = ""):
+        """Execute a short Python code snippet and return the output.
+
+        The code is optionally sanitized (backticks and ``python`` markers
+        removed), parsed into an AST, and executed. All statements except
+        the last are executed for side effects; the last statement is
+        evaluated and its result (or captured stdout) is returned.
+
+        Args:
+            query: Python source code to execute.
+
+        Returns:
+            The string representation of the result of the last expression,
+            captured stdout output, or an error message on failure.
+        """
         with asection(f"PythonCodeExecutionTool:"):
             with asection(f"Query:"):
                 aprint(query)
@@ -72,8 +109,18 @@ class PythonCodeExecutionTool(BaseOmegaTool):
 
 
 def sanitize_input(query: str) -> str:
-    # Remove whitespace, backtick & python (if llm mistakes python console as terminal)
+    """Strip markdown code-fence artifacts from a Python code string.
 
+    Removes leading/trailing backticks, whitespace, and an optional
+    ``python`` language identifier that LLMs sometimes include when
+    formatting code as a markdown fenced block.
+
+    Args:
+        query: Raw code string potentially wrapped in markdown backticks.
+
+    Returns:
+        Cleaned Python source code ready for execution.
+    """
     # Removes `, whitespace & python from start
     query = re.sub(r"^(\s|`)*(?i:python)?\s*", "", query)
     # Removes whitespace & ` from end

@@ -1,3 +1,10 @@
+"""Tool for searching and opening web images in the napari viewer.
+
+Uses DuckDuckGo image search to find images matching a query, downloads
+them, and loads them as layers in the napari viewer. Supports requesting
+a specific number of images via parenthesized integers in the query.
+"""
+
 import traceback
 
 import numpy
@@ -14,20 +21,25 @@ from napari_chatgpt.utils.web.duckduckgo import search_images_ddg
 
 
 class WebImageSearchTool(BaseNapariTool):
-    """
-    A tool for searching and opening images from the web in napari.
-    This tool can be used to find and open images such as photographs, paintings, drawings, maps, or any other kind of image.
+    """Tool for searching and opening web images in napari.
+
+    Searches the web for images matching a text query using DuckDuckGo,
+    downloads them, and adds them as image layers in the napari viewer.
+    The number of images to open can be specified in parentheses within
+    the query string (e.g., 'cats (3)' opens 3 cat images).
+
+    Attributes:
+        name: Tool identifier string.
+        description: Human-readable description used by the LLM agent.
+        prompt: Optional prompt override (unused, defaults to None).
     """
 
     def __init__(self, **kwargs):
-        """
-        Initialize the WebImageSearchTool.
+        """Initialize the WebImageSearchTool.
 
-        Parameters
-        ----------
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, etc.
+        Args:
+            **kwargs: Keyword arguments forwarded to ``BaseNapariTool``,
+                including ``notebook``, ``llm``, queue references, etc.
         """
         super().__init__(**kwargs)
 
@@ -43,20 +55,22 @@ class WebImageSearchTool(BaseNapariTool):
         self.prompt: str = None
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
-        """Run the code and return the result.
-        Parameters
-        ----------
-        query : str
-            The query to search for images.
-        code : str
-            The code to run.
-        viewer : Viewer
-            The napari viewer to add the images to.
-        Returns
-        -------
-        str
-            The result of running the code. This will be printed to the user.
+        """Search for images on the web and open them in the napari viewer.
 
+        Parses the query for an optional integer in parentheses to determine
+        how many images to open, performs a DuckDuckGo image search, downloads
+        the results, and adds them as image layers. Skips images that fail to
+        download or decode.
+
+        Args:
+            query: Search query string, optionally containing a count in
+                parentheses (e.g., 'sunset (3)').
+            code: Unused; present for API compatibility with ``BaseNapariTool``.
+            viewer: The napari ``Viewer`` instance to add image layers to.
+
+        Returns:
+            A status message indicating how many images were opened, or an
+            error message if the search or all downloads failed.
         """
         try:
 

@@ -1,3 +1,10 @@
+"""System prompt templates and personality definitions for the Omega agent.
+
+The ``SYSTEM`` template is formatted at runtime with a personality snippet
+(from ``PERSONALITY``) and an optional didactic section (``DIDACTICS``)
+to produce the final system message sent to the LLM.
+"""
+
 # flake8: noqa
 SYSTEM = """
 You are **Omega** — a helpful assistant with deep expertise in image processing, image analysis, and computer vision.

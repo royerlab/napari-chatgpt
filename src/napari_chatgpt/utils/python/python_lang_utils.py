@@ -1,3 +1,11 @@
+"""Python introspection and function discovery utilities.
+
+Provides functions for inspecting Python objects at runtime, including
+retrieving function signatures, docstrings, and type hints; extracting
+fully qualified function names from source code via AST parsing; and
+searching packages for functions by name.
+"""
+
 import ast
 import importlib
 import inspect
@@ -11,6 +19,20 @@ from arbol import aprint
 
 @lru_cache
 def get_function_signature(function_name: str, include_docstring: bool = False) -> str:
+    """Retrieve the signature of a function given its fully qualified name.
+
+    Imports the function and builds a ``def`` signature string with
+    parameter types, defaults, and return type. Optionally includes
+    parsed docstring sections (Description, Parameters, Returns).
+
+    Args:
+        function_name: Fully qualified dotted name (e.g., "numpy.array").
+        include_docstring: If True, append parsed docstring sections.
+
+    Returns:
+        The function signature as a string, or None if the function
+        cannot be found or imported.
+    """
     try:
         module_name, function_name = function_name.rsplit(".", 1)
         module = __import__(module_name, fromlist=[function_name])
@@ -87,6 +109,16 @@ def get_function_signature(function_name: str, include_docstring: bool = False) 
 def object_info_str(
     obj: Any, add_docstrings: bool = True, show_hidden: bool = False
 ) -> str:
+    """Return a string listing all public methods and their signatures for an object.
+
+    Args:
+        obj: The Python object to inspect.
+        add_docstrings: If True, include method docstrings.
+        show_hidden: If True, include methods starting with underscore.
+
+    Returns:
+        A formatted string with the class name and all method signatures.
+    """
     methods = enumerate_methods(
         obj, add_docstrings=add_docstrings, show_hidden=show_hidden
     )
@@ -103,6 +135,16 @@ def object_info_str(
 def enumerate_methods(
     obj: Any, add_docstrings: bool = True, show_hidden: bool = False
 ) -> list[str]:
+    """Yield signature strings for each callable method of an object.
+
+    Args:
+        obj: The Python object to inspect.
+        add_docstrings: If True, append each method's docstring.
+        show_hidden: If True, include methods starting with underscore.
+
+    Yields:
+        Formatted strings containing method signatures and optional docstrings.
+    """
     # List to hold methods:
     methods = []
 
@@ -138,6 +180,14 @@ def enumerate_methods(
 
 @lru_cache
 def get_signature(method):
+    """Build a human-readable signature string for a callable.
+
+    Args:
+        method: A callable whose signature to format.
+
+    Returns:
+        A string like ``"func_name(arg1: int, arg2: str = 'default')"``.
+    """
     method_name = getattr(method, "__name__", repr(method))
     argspec = inspect.getfullargspec(method)
     arg_names = argspec.args
@@ -163,6 +213,19 @@ def get_signature(method):
 
 @lru_cache
 def get_function_info(function_path: str, add_docstrings: bool = False):
+    """Get signature and optional docstring for a function by its dotted path.
+
+    First attempts a direct import. If that fails, progressively searches
+    broader parent packages for the function name.
+
+    Args:
+        function_path: Fully qualified dotted path (e.g., "scipy.ndimage.convolve").
+        add_docstrings: If True, include the function's docstring.
+
+    Returns:
+        A string with the function signature (and docstring), or a
+        "not found" message.
+    """
     parts = function_path.split(".")
     function_name = parts[-1]
 
@@ -197,6 +260,15 @@ def get_function_info(function_path: str, add_docstrings: bool = False):
 
 
 def find_functions_in_package(pkg_name: str, function_name: str):
+    """Recursively search a package for functions matching a given name.
+
+    Args:
+        pkg_name: Dotted package name to search (e.g., "scipy.ndimage").
+        function_name: The function name to look for.
+
+    Returns:
+        A list of (package_path, function_object) tuples for each match.
+    """
     import warnings  # to ignore deprecation warnings
 
     with warnings.catch_warnings():
@@ -226,6 +298,16 @@ def find_functions_in_package(pkg_name: str, function_name: str):
 def find_function_info_in_package(
     pkg_name: str, function_name: str, add_docstrings: bool = True
 ):
+    """Search a package for functions by name and return their signatures.
+
+    Args:
+        pkg_name: Dotted package name to search.
+        function_name: The function name to look for.
+        add_docstrings: If True, include each function's docstring.
+
+    Returns:
+        A list of formatted signature strings (with optional docstrings).
+    """
     functions = find_functions_in_package(pkg_name, function_name)
 
     info_list = []
@@ -248,6 +330,17 @@ def find_function_info_in_package(
 
 @lru_cache
 def extract_package_path(path: str):
+    """Extract a dotted package/function path from a natural-language string.
+
+    Prefers the longest dotted qualified name found (e.g., "scipy.ndimage.convolve").
+    Falls back to the last standalone word if no dotted name is found.
+
+    Args:
+        path: A string that may contain a dotted package path.
+
+    Returns:
+        The extracted package path string, or None if no match is found.
+    """
     # Match dotted qualified names (e.g. scipy.ndimage.convolve)
     # requiring at least one dot to distinguish from plain words:
     dotted_pattern = re.compile(r"\b\w+(?:\.\w+)+\b")
@@ -271,6 +364,20 @@ def extract_package_path(path: str):
 def extract_fully_qualified_function_names(
     code: str, unzip_result: bool = False
 ) -> list[str]:
+    """Extract fully qualified function names from Python source code via AST.
+
+    Parses import statements and function calls to resolve short names
+    to their fully qualified forms (e.g., ``np.array`` -> ``numpy.array``).
+
+    Args:
+        code: Python source code to parse.
+        unzip_result: If True, return two parallel lists (qualified names,
+            original call expressions) instead of a list of tuples.
+
+    Returns:
+        A list of (fully_qualified_name, original_call) tuples, or two
+        parallel lists if unzip_result is True. Returns None on parse error.
+    """
     try:
         function_calls = []
         import_statements = {}
@@ -318,12 +425,28 @@ def extract_fully_qualified_function_names(
 
 
 def unzip(list_of_tuples):
+    """Transpose a list of tuples into a list of lists.
+
+    Args:
+        list_of_tuples: A list of tuples to unzip.
+
+    Returns:
+        A list of lists, one per tuple position.
+    """
     unzipped = zip(*list_of_tuples)
     return [list(items) for items in unzipped]
 
 
 @lru_cache
 def function_exists(function_name: str) -> bool:
+    """Check whether a fully qualified function name can be imported and called.
+
+    Args:
+        function_name: Fully qualified dotted name (e.g., "os.path.exists").
+
+    Returns:
+        True if the function exists and is callable.
+    """
     try:
         module_name, function_name = function_name.rsplit(".", 1)
         module = importlib.import_module(module_name)
@@ -336,6 +459,14 @@ def function_exists(function_name: str) -> bool:
 
 @lru_cache
 def get_imported_modules(code: str) -> list[str]:
+    """Extract module names from all import statements in Python source code.
+
+    Args:
+        code: Python source code to parse.
+
+    Returns:
+        A list of unique module name strings found in import statements.
+    """
     tree = ast.parse(code)
     imported_modules = set()
 

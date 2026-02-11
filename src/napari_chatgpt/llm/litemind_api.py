@@ -1,3 +1,12 @@
+"""Global LiteMind API singleton and LLM factory functions.
+
+Provides :func:`get_litemind_api` (a lazily-initialised ``CombinedApi``
+that aggregates all available LLM providers), :func:`get_model_list`,
+and :func:`get_llm` for obtaining configured :class:`LLM` instances.
+Custom OpenAI-compatible endpoints and GitHub Models are automatically
+registered when their environment variables are set.
+"""
+
 from __future__ import annotations
 
 import os
@@ -17,15 +26,14 @@ __litemind_api = None
 
 
 def is_llm_available() -> bool:
-    """
-    Checks if the LiteMind API is available.
+    """Check whether at least one LLM provider is available.
 
-    This function checks if the global LiteMind API instance is initialized.
-    If it is not initialized, it will return False, indicating that the API
-    is not available.
+    Verifies that LiteMind has concrete API implementations (excluding
+    ``DefaultApi`` and ``CombinedApi``) and that the global
+    ``CombinedApi`` can be initialised.
 
     Returns:
-        bool: True if the LiteMind API is available, False otherwise.
+        True if a usable LLM provider is available, False otherwise.
     """
     try:
         # Check that the list API_IMPLEMENTATIONS contains at least one API implementation except for DefaultApi and CombinedApi:
@@ -58,18 +66,13 @@ def is_llm_available() -> bool:
 
 
 def _register_api(combined_api: "CombinedApi", api) -> bool:
-    """Register an API instance into a CombinedApi's model_to_api map.
+    """Register an API instance into a CombinedApi's model-to-api map.
 
-    Parameters
-    ----------
-    combined_api : CombinedApi
-        The combined API to register into.
-    api : BaseApi
-        The API instance to register.
+    Args:
+        combined_api: The combined API to register into.
+        api: The API instance to register.
 
-    Returns
-    -------
-    bool
+    Returns:
         True if the API was registered with at least one model.
     """
     try:
@@ -152,15 +155,14 @@ def _build_custom_apis(combined_api: "CombinedApi") -> None:
 
 
 def get_litemind_api() -> "CombinedApi":
-    """
-    Returns the global LiteMind API instance.
+    """Return the lazily-initialised global ``CombinedApi`` singleton.
 
-    This function provides access to the global LiteMind API instance,
-    which is initialized with the CombinedApi class. It allows for
-    interaction with various LLM providers and features.
+    On first call, loads API keys from the encrypted vault (prompting
+    the user via the Qt dialog if needed), creates a ``CombinedApi``,
+    and registers any custom endpoints or GitHub Models.
 
     Returns:
-        CombinedApi: The global LiteMind API instance.
+        The global ``CombinedApi`` instance.
     """
 
     # This module provides a global instance of the LiteMind API.
@@ -184,14 +186,12 @@ def get_litemind_api() -> "CombinedApi":
 
 @lru_cache
 def get_model_list() -> list[str]:
-    """
-    Returns a list of available models from the LiteMind API.
+    """Return the cached list of models that support text generation.
 
-    This function retrieves the list of models supported by the global
-    LiteMind API instance.
+    Results are cached via ``@lru_cache`` so subsequent calls are free.
 
     Returns:
-        list: A list of model names available in the LiteMind API.
+        Model name strings available through the global API.
     """
     api = get_litemind_api()
     from litemind.apis.model_features import ModelFeatures
@@ -200,19 +200,14 @@ def get_model_list() -> list[str]:
 
 
 def has_model_support_for(model_name: str, features: list[ModelFeatures]) -> bool:
-    """
-    Checks if a specific model supports the given features.
+    """Check whether a model supports all of the requested features.
 
-    Parameters
-    ----------
-    model_name: str
-        The name of the model to check.
-    features: List[ModelFeatures]
-        A list of features to check for support.
+    Args:
+        model_name: The name of the model to check.
+        features: Features the model must support.
 
-    Returns
-    -------
-    bool: True if the model supports all specified features, False otherwise.
+    Returns:
+        True if the model supports every feature in the list.
     """
     api = get_litemind_api()
     return api.has_model_support_for(features=features, model_name=model_name)
@@ -223,25 +218,17 @@ def get_llm(
     temperature: float = 0.0,
     features: list[ModelFeatures] | None = None,
 ) -> LLM:
-    """
-    Returns an LLM instance based on the provided features.
+    """Create an :class:`LLM` instance, optionally auto-selecting the best model.
 
-    Parameters
-    ----------
-    model_name: str
-        The name of the model to use. If None, the best model for the
-        specified features will be selected.
-    temperature: float
-        The temperature for the LLM. Default is 0.0, which means deterministic output.
-    features : List[ModelFeatures]
-        A list of features that the desired model should support.
-        This is used to determine the best model for the given features.
+    Args:
+        model_name: Explicit model name. When ``None``, the best
+            available model for the requested features is chosen.
+        temperature: Sampling temperature (0.0 = deterministic).
+        features: Required model capabilities. Defaults to
+            ``[ModelFeatures.TextGeneration]``.
 
-    Returns
-    -------
-    LLM: An instance of the LLM class configured with the best model
-         for the specified features.
-
+    Returns:
+        A configured :class:`LLM` wrapper ready for text generation.
     """
 
     if features is None:

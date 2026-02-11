@@ -1,3 +1,5 @@
+"""Image intensity normalization based on percentile ranges."""
+
 import numpy as np
 from napari.types import ArrayLike
 from numpy import percentile, ravel

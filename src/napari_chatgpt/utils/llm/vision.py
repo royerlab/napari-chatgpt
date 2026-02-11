@@ -1,3 +1,5 @@
+"""Vision utilities for checking model capabilities and describing images via LLM."""
+
 from arbol import aprint, asection
 from litemind import CombinedApi
 from litemind.apis.base_api import BaseApi

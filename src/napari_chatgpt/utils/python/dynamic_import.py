@@ -1,3 +1,9 @@
+"""Dynamic module loading and code execution utilities.
+
+Provides functions to dynamically load Python code as modules at runtime
+and execute arbitrary code strings with captured stdout.
+"""
+
 import importlib.util
 import tempfile
 from contextlib import redirect_stdout
@@ -9,6 +15,18 @@ from arbol import aprint, asection
 
 
 def dynamic_import(module_code: str, name: str = None) -> Any | None:
+    """Dynamically load a Python code string as an importable module.
+
+    Writes the code to a temporary file and loads it as a Python module
+    using ``importlib``.
+
+    Args:
+        module_code: Python source code to load as a module.
+        name: Optional module name. If None, a random name is generated.
+
+    Returns:
+        The loaded module object, or None if loading fails.
+    """
     # Module name:
     if not name:
         name = f"some_code_{randint(0, 999999999)}"
@@ -38,6 +56,20 @@ def execute_code({}):
 
 
 def execute_as_module(code_str, name: str = None, **kwargs) -> str:
+    """Execute a code string as a module function with captured stdout.
+
+    Wraps the code inside an ``execute_code`` function, loads it as a
+    dynamic module, and calls the function with the provided keyword
+    arguments. All stdout output is captured and returned.
+
+    Args:
+        code_str: Python source code to execute.
+        name: Optional module name for the dynamically loaded module.
+        **kwargs: Variables to pass as arguments to the generated function.
+
+    Returns:
+        Captured stdout output from the code execution.
+    """
     with asection(f"Executing code as module (length={len(code_str)})"):
 
         # Create a function in the new module that will receive the variables

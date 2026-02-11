@@ -1,3 +1,5 @@
+"""Demo script: display a warning dialog with HTML content."""
+
 import sys
 
 from qtpy.QtWidgets import QApplication

@@ -1,3 +1,5 @@
+"""3D instance segmentation by merging axis-aligned 2D segmentation slices."""
+
 from collections.abc import Callable
 
 import numpy
@@ -17,6 +19,28 @@ def segment_3d_from_segment_2d(
     iterations: int = 2,
     debug_view: bool = False,
 ):
+    """Produce a 3D label volume by segmenting 2D slices along all three axes.
+
+    Slices along Z, Y, and X are segmented independently with
+    *segment_2d_func*, then the three binary masks are intersected.
+    Morphological closing/opening cleans the mask before labels from the
+    Z-axis segmentation are merged across slices based on overlap.
+
+    Args:
+        image: 3D image array of shape ``(Z, Y, X)``.
+        segment_2d_func: Callable that takes a 2D image and returns a label array.
+        min_segment_size: Minimum segment size in pixels; smaller segments
+            are removed per slice.
+        overlap_threshold: Fraction of overlap required to merge two labels
+            across adjacent slices.
+        iterations: Number of morphological dilation/erosion iterations for
+            mask cleaning.
+        debug_view: If ``True``, open a napari viewer to inspect intermediate
+            merge results.
+
+    Returns:
+        3D label array with merged segment labels.
+    """
     # Segment the 2D slices along z axis:
     aprint("Segmenting 2D slices along z axis")
     labels_z = segment_2d_z_slices(
@@ -74,6 +98,16 @@ def segment_3d_from_segment_2d(
 
 
 def segment_2d_z_slices(image, segment_2d_func: Callable, min_segment_size: int = 32):
+    """Segment each Z-slice of a 3D image independently using a 2D function.
+
+    Args:
+        image: 3D image array of shape ``(Z, Y, X)``.
+        segment_2d_func: Callable that segments a single 2D image.
+        min_segment_size: Minimum segment size; smaller objects are removed.
+
+    Returns:
+        3D uint32 label array with per-slice segmentation.
+    """
     # Initialize an empty list to collect the segmented slices
     segmented_slices = []
 
@@ -100,6 +134,14 @@ def segment_2d_z_slices(image, segment_2d_func: Callable, min_segment_size: int 
 
 
 def make_slice_labels_different(stack):
+    """Re-index labels so that every Z-slice uses globally unique label IDs.
+
+    Args:
+        stack: 3D label array modified in-place.
+
+    Returns:
+        The same array with per-slice labels offset to be unique across slices.
+    """
     # Max label index:
     max_label_index = 0
 
@@ -122,6 +164,20 @@ def make_slice_labels_different(stack):
 
 
 def merge_2d_segments(stack, overlap_threshold: int = 1, debug_view: bool = True):
+    """Merge labels across consecutive Z-slices based on spatial overlap.
+
+    Adjacent slices are compared and overlapping labels exceeding
+    *overlap_threshold* are unified to the smallest label ID.
+
+    Args:
+        stack: 3D label array with globally unique per-slice labels.
+        overlap_threshold: Minimum overlap fraction to trigger merging.
+        debug_view: If ``True``, open a napari viewer after each non-empty
+            slice for inspection.
+
+    Returns:
+        The label array with merged labels.
+    """
     with asection("Merging 2D segments"):
 
         # Iterate through each z-plane

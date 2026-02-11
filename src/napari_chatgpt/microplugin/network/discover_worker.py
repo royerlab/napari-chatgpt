@@ -1,3 +1,9 @@
+"""Qt worker that discovers CodeDrop servers via UDP multicast listening.
+
+Listens on configured multicast groups for broadcast messages from
+``BroadcastWorker`` instances and emits signals when servers are found.
+"""
+
 import socket
 import struct
 from time import sleep
@@ -7,6 +13,22 @@ from qtpy.QtCore import QObject, Signal, Slot
 
 
 class DiscoverWorker(QObject):
+    """Worker that listens for CodeDrop server broadcast announcements.
+
+    Joins a UDP multicast group and continuously listens for server
+    identity messages in ``username:hostname:port`` format. Emits
+    ``server_discovered`` for each announcement received.
+
+    Attributes:
+        server_discovered: Signal emitted with ``(user_name, server_name,
+            server_addr, server_port)`` when a server is found.
+        error: Signal emitted when an exception occurs.
+        finished: Signal emitted when the worker finishes.
+        multicast_groups: Multicast groups to listen on.
+        is_running: Whether the worker loop should continue.
+        is_enabled: Whether discovery is currently active.
+    """
+
     # Signal for discovered servers:
     server_discovered = Signal(
         str, str, str, int
@@ -19,19 +41,34 @@ class DiscoverWorker(QObject):
     finished = Signal()
 
     def __init__(self, multicast_groups):
+        """Initialize the discover worker.
+
+        Args:
+            multicast_groups: List of ``(address, port)`` tuples for
+                multicast groups to listen on.
+        """
         super().__init__()
         self.multicast_groups = multicast_groups
         self.is_running = True
         self.is_enabled = True
 
     def stop(self):
+        """Signal the discovery loop to stop."""
         self.is_running = False
 
     def close(self):
+        """Alias for ``stop()``."""
         self.stop()
 
     @Slot()
     def discover_servers(self):
+        """Listen for server broadcast messages on multicast groups.
+
+        Binds to the first available multicast group, joins it, and
+        continuously receives broadcast messages. Each valid message
+        triggers a ``server_discovered`` signal emission. Runs until
+        ``stop()`` is called.
+        """
         try:
             available_multicast_group = None
             # Trying to bind to any of multicast groups (useful for testing purposes):

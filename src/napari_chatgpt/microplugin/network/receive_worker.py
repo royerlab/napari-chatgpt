@@ -1,3 +1,9 @@
+"""Qt worker that listens for incoming TCP messages from CodeDrop clients.
+
+Runs a TCP server in a background thread, accepting connections and
+reading complete messages which are then emitted via Qt signals.
+"""
+
 import socket
 
 from arbol import aprint
@@ -5,6 +11,20 @@ from qtpy.QtCore import QObject, Signal, Slot
 
 
 class ReceiveWorker(QObject):
+    """Worker that accepts TCP connections and receives code snippet messages.
+
+    Binds to a TCP port and listens for incoming connections. Each
+    connection is read until closed, and the complete message is emitted
+    via the ``message_received`` signal.
+
+    Attributes:
+        message_received: Signal emitted with ``(address_tuple, message_str)``
+            for each received message.
+        error: Signal emitted when an exception occurs.
+        port: TCP port to listen on.
+        is_running: Whether the worker loop should continue.
+    """
+
     # Signal for received messages:
     message_received = Signal(tuple, str)  # Signal for received messages
 
@@ -12,15 +32,29 @@ class ReceiveWorker(QObject):
     error = Signal(Exception)
 
     def __init__(self, port):
+        """Initialize the receive worker.
+
+        Args:
+            port: TCP port number to bind and listen on.
+        """
         super().__init__()
         self.port = port
         self.is_running = True
 
     def stop(self):
+        """Signal the receive loop to stop."""
         self.is_running = False
 
     @Slot()
     def receive_messages(self):
+        """Run the TCP server loop, accepting and reading incoming messages.
+
+        Creates a TCP server socket, binds to the configured port, and
+        loops accepting connections with a 1-second timeout. Each
+        connection is read in 1024-byte chunks until closed, then the
+        complete message is emitted via ``message_received``. Runs until
+        ``stop()`` is called.
+        """
         try:
             aprint(f"Listening for messages on port: {self.port}")
 

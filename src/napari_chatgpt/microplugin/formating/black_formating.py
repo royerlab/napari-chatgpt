@@ -1,8 +1,17 @@
+"""Utilities for formatting Python code and files using Black."""
+
 from pathlib import Path
 
 
 def format_code(code: str) -> str:
-    """Format the code using black."""
+    """Format a Python code string using Black.
+
+    Args:
+        code: Python source code to format.
+
+    Returns:
+        The formatted code string, or the original code if formatting fails.
+    """
     try:
 
         from black import Mode, format_str
@@ -20,7 +29,12 @@ def format_code(code: str) -> str:
 
 
 def format_file(file_path: str | Path) -> None:
-    """Format the file using black."""
+    """Format a Python file in-place using Black.
+
+    Args:
+        file_path: Path to the Python file to format. Accepts both
+            string paths and ``pathlib.Path`` objects.
+    """
 
     try:
         # Ensure file_path is a Path object

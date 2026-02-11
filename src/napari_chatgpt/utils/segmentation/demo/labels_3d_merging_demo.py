@@ -1,3 +1,5 @@
+"""Demo script: 3D segmentation by merging 2D StarDist slices on the cells3d dataset."""
+
 import napari
 import skimage
 

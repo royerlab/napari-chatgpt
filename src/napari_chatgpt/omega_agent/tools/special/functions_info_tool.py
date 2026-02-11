@@ -1,4 +1,9 @@
-"""A tool for querying the signature and docstrings of python functions."""
+"""Tool for querying signatures and docstrings of Python functions.
+
+Given a fully qualified function name (e.g., ``scipy.ndimage.convolve``),
+this tool imports the function and returns its signature with type hints.
+Prefixing the query with ``*`` also includes the full docstring.
+"""
 
 import traceback
 
@@ -14,9 +19,24 @@ _MAX_RESULT_LENGTH = 4096
 
 
 class PythonFunctionsInfoTool(BaseOmegaTool):
-    """A tool for querying function signatures and docstrings."""
+    """Tool for retrieving Python function signatures and docstrings.
+
+    Accepts a fully qualified function name, imports it, and returns
+    its signature (with type hints when available). If the query is
+    prefixed with ``*``, the full docstring is included as well. Results
+    longer than ``_MAX_RESULT_LENGTH`` characters are truncated.
+
+    Attributes:
+        name: Tool identifier string.
+        description: Human-readable description used by the LLM agent.
+    """
 
     def __init__(self, **kwargs):
+        """Initialize the PythonFunctionsInfoTool.
+
+        Args:
+            **kwargs: Keyword arguments forwarded to ``BaseOmegaTool``.
+        """
         super().__init__(**kwargs)
 
         self.name = "PythonFunctionsInfoTool"
@@ -37,7 +57,16 @@ class PythonFunctionsInfoTool(BaseOmegaTool):
         )
 
     def run_omega_tool(self, query: str = ""):
+        """Look up and return the signature (and optionally docstring) of a function.
 
+        Args:
+            query: Fully qualified function name (e.g., ``'numpy.mean'``).
+                Prefix with ``*`` to include the full docstring.
+
+        Returns:
+            A string containing the function signature and optional
+            docstring, or an error message if the function cannot be found.
+        """
         with asection("PythonFunctionsInfoTool:"):
             with asection("Query:"):
                 aprint(query)

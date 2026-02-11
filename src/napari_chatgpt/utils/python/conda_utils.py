@@ -1,3 +1,9 @@
+"""Conda package management utilities.
+
+Provides functions to install and uninstall Python packages using conda,
+with duplicate filtering and pre-installation checks.
+"""
+
 import subprocess
 
 from arbol import aprint, asection
@@ -6,6 +12,15 @@ from napari_chatgpt.utils.python.installed_packages import is_package_installed
 
 
 def conda_install(list_of_packages: list[str], channel: str | None = None) -> bool:
+    """Install packages using conda, skipping already-installed ones.
+
+    Args:
+        list_of_packages: Package names to install.
+        channel: Optional conda channel (e.g., "conda-forge").
+
+    Returns:
+        True if all installations succeeded, False if any errors occurred.
+    """
     # Ensure it is a list and remove duplicates:
     list_of_packages = list(set(list_of_packages))
 
@@ -44,6 +59,14 @@ def conda_install(list_of_packages: list[str], channel: str | None = None) -> bo
 
 
 def conda_uninstall(list_of_packages: list[str]) -> bool:
+    """Uninstall packages using conda, skipping packages not installed.
+
+    Args:
+        list_of_packages: Package names to uninstall.
+
+    Returns:
+        True if all uninstallations succeeded, False if any errors occurred.
+    """
     error_occurred = False
 
     with asection(f"Uninstalling up to {len(list_of_packages)} packages with conda:"):
