@@ -1,11 +1,20 @@
+"""Utilities for extracting parenthesized integers from strings."""
+
+
 def find_integer_in_parenthesis(string: str) -> tuple[str, int]:
-    """Finds an integer surrounded by parenthesis in a string and returns that integer and the text without the number in parenthesis.
+    """Find an integer in parentheses and return it with the cleaned text.
+
+    Locates the first parenthesized integer in the string, extracts it,
+    and returns both the integer and the string with the parenthesized
+    portion removed.
 
     Args:
-      string: The string to search.
+        string: The string to search for a parenthesized integer.
 
     Returns:
-      A tuple containing the integer and the text without the number in parenthesis.
+        A tuple of (cleaned_text, integer) where cleaned_text has the
+        parenthesized number removed, or None if no parenthesized
+        integer is found.
     """
 
     # Find the index of the first parenthesis.

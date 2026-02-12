@@ -1,3 +1,10 @@
+"""Password-protected encrypted storage for LLM API keys.
+
+Keys are encrypted with Fernet (AES-128-CBC + HMAC-SHA256) using a
+password-derived key (PBKDF2-HMAC-SHA256, 390 000 iterations). Each
+key is stored as a JSON file under ``~/.omega_api_keys/``.
+"""
+
 import base64
 import json
 import os
@@ -11,9 +18,19 @@ _LEGACY_SALT = b"123456789"
 
 
 class KeyVault:
+    """Encrypted vault for a single API key, persisted as a JSON file.
+
+    Attributes:
+        keys_file: Path to the JSON file storing the encrypted key.
+    """
 
     def __init__(self, key_name: str, folder_path: str = "~/.omega_api_keys"):
+        """Create a vault for the given key name.
 
+        Args:
+            key_name: Logical name used as the JSON filename stem.
+            folder_path: Directory in which to store encrypted key files.
+        """
         # Define the path to the directory where the key file will be stored
         keys_dir = os.path.expanduser(folder_path)
 
@@ -24,12 +41,22 @@ class KeyVault:
         self.keys_file = os.path.join(keys_dir, f"{key_name}.json")
 
     def clear_key(self):
+        """Delete the encrypted key file from disk, if it exists."""
         try:
             os.remove(self.keys_file)
         except OSError:
             pass
 
     def write_api_key(self, api_key: str, password: str) -> str:
+        """Encrypt and persist an API key protected by a password.
+
+        Args:
+            api_key: The plaintext API key to store.
+            password: Password used to derive the encryption key.
+
+        Returns:
+            The base64-encoded ciphertext written to disk.
+        """
         # Generate a random salt for new keys (16 bytes)
         salt = os.urandom(16)
 
@@ -49,7 +76,7 @@ class KeyVault:
             return encrypted_key
 
     def is_key_present(self) -> bool:
-
+        """Check whether an encrypted key file exists and is non-empty."""
         try:
             with open(self.keys_file) as f:
 
@@ -62,6 +89,18 @@ class KeyVault:
             return False
 
     def read_api_key(self, password: str) -> str:
+        """Decrypt and return the stored API key.
+
+        Args:
+            password: The password used when the key was written.
+
+        Returns:
+            The plaintext API key.
+
+        Raises:
+            cryptography.fernet.InvalidToken: If the password is incorrect.
+            FileNotFoundError: If no key file exists.
+        """
         with open(self.keys_file) as f:
             # Load the dictionary from the file
             data = json.load(f)
@@ -84,6 +123,7 @@ class KeyVault:
 
 
 def _normalise_password(password: str, salt: bytes):
+    """Derive a Fernet-compatible key from a password and salt via PBKDF2."""
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
@@ -97,6 +137,7 @@ def _normalise_password(password: str, salt: bytes):
 
 
 def _encode64(message: str | bytes):
+    """Base64-encode a string or bytes, returning an ASCII string."""
     if type(message) == str:
         message = message.encode("ascii")
 
@@ -106,6 +147,7 @@ def _encode64(message: str | bytes):
 
 
 def _decode64(message_b64: str, to_string: bool = True):
+    """Decode a base64-encoded ASCII string, optionally returning bytes."""
     base64_bytes = message_b64.encode("ascii")
     message = base64.b64decode(base64_bytes)
     if to_string:

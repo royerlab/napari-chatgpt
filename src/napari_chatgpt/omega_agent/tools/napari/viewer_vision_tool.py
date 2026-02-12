@@ -1,4 +1,10 @@
-"""A tool for controlling a napari instance."""
+"""Tool for visually describing napari viewer contents using a vision LLM.
+
+This module provides ``NapariViewerVisionTool``, which captures a screenshot
+of the napari canvas (or a specific layer) and sends it to a vision-capable
+LLM to produce a natural-language description.  It supports querying a
+specific layer by name, the currently selected layer, or the entire canvas.
+"""
 
 import re
 import tempfile
@@ -13,21 +19,26 @@ from napari_chatgpt.utils.napari.layer_snapshot import capture_canvas_snapshot
 
 
 class NapariViewerVisionTool(BaseNapariTool):
-    """
-    A tool for describing visually an individual layer.
+    """Tool for visually describing napari layers or canvas using a vision LLM.
+
+    Captures a screenshot of a specific layer, the selected layer, or the
+    entire canvas, then sends it to a vision-capable LLM for description.
+    Layer names are specified in the query using ``*layer_name*`` syntax.
+
+    This tool does not use the sub-LLM code-generation pipeline; the
+    ``prompt`` and ``instructions`` attributes are set to ``None``.
+
+    Attributes:
+        vision_model_name: Identifier of the vision LLM used for description.
     """
 
     def __init__(self, vision_model_name: str, **kwargs):
-        """
-        Initialize the NapariViewerVisionTool.
+        """Initialize the vision tool.
 
-        Parameters
-        ----------
-        vision_model_name: str
-            The name of the vision model to use for image description.
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, etc.
+        Args:
+            vision_model_name: The model name/identifier for the vision LLM
+                (e.g. ``"gpt-4o"``).
+            **kwargs: Forwarded to ``BaseNapariTool.__init__``.
         """
 
         super().__init__(**kwargs)
@@ -50,7 +61,21 @@ class NapariViewerVisionTool(BaseNapariTool):
         self.vision_model_name = vision_model_name
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
+        """Capture a viewer/layer screenshot and describe it with a vision LLM.
 
+        Parses the query for an optional ``*layer_name*`` reference to
+        determine which layer or canvas region to capture.  Falls back to
+        describing the entire canvas if no layer name is specified.
+
+        Args:
+            query: The user's visual question, optionally prefixed with
+                ``*layer_name*``.
+            code: Unused (no LLM code generation for this tool).
+            viewer: The active napari viewer instance.
+
+        Returns:
+            A description of the visual contents, or an error message.
+        """
         try:
             with asection(f"NapariViewerVisionTool:"):
                 with asection(f"Query:"):
@@ -144,6 +169,20 @@ class NapariViewerVisionTool(BaseNapariTool):
 def _get_description_for_selected_layer(
     query, viewer, vision_model_name: str, reset_view: bool = False
 ):
+    """Get a vision-LLM description for the currently selected layer.
+
+    If no layer is selected, falls back to the first layer (if any).
+    If multiple layers are selected, uses the current/active one.
+
+    Args:
+        query: The augmented visual query string.
+        viewer: The napari viewer instance.
+        vision_model_name: Model identifier for the vision LLM.
+        reset_view: Whether to reset the camera view before capturing.
+
+    Returns:
+        A description message string.
+    """
     with asection(f"Getting description for selected layer. "):
         aprint(f"Query: '{query}'")
 
@@ -213,6 +252,16 @@ def _get_description_for_selected_layer(
 
 
 def _get_description_for_whole_canvas(query, viewer, vision_model_name):
+    """Get a vision-LLM description for the entire napari canvas.
+
+    Args:
+        query: The augmented visual query string.
+        viewer: The napari viewer instance.
+        vision_model_name: Model identifier for the vision LLM.
+
+    Returns:
+        A description message string.
+    """
     with asection(f"Getting description for whole canvas.'"):
         aprint(f"Query: '{query}'")
 
@@ -234,6 +283,20 @@ def _get_layer_image_description(
     delete: bool = False,
     reset_view: bool = False,
 ) -> str:
+    """Capture a canvas snapshot and describe it using a vision LLM.
+
+    Args:
+        viewer: The napari viewer instance.
+        query: The visual query to send alongside the image.
+        vision_model_name: Model identifier for the vision LLM.
+        layer_name: If provided, isolate this layer for the screenshot.
+            If ``None``, capture the entire canvas.
+        delete: Whether to delete the temporary PNG file after use.
+        reset_view: Whether to reset the camera view before capturing.
+
+    Returns:
+        A formatted message containing the LLM's description.
+    """
     # Capture the image of the specific layer
 
     from PIL import Image

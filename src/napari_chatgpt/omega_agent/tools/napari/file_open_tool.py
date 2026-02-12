@@ -1,4 +1,11 @@
-"""A tool for opening ome-zarr files in napari"""
+"""Tool for opening image files in the napari viewer.
+
+This module provides ``NapariFileOpenTool``, which accepts a newline-delimited
+list of local file paths or URLs, optionally paired with a specific reader
+plugin name, and opens each one in the napari viewer.  Supported formats
+include .tif, .png, .jpg, .zarr, and any format for which a napari reader
+plugin is available.
+"""
 
 import traceback
 
@@ -10,20 +17,22 @@ from napari_chatgpt.utils.napari.open_in_napari import open_in_napari
 
 
 class NapariFileOpenTool(BaseNapariTool):
-    """
-    A tool for opening image files in napari.
-    This tool can open various image formats such as .tif, .png, .jpg, .zarr, and more.
+    """Tool for opening image files in the napari viewer.
+
+    Accepts a newline-delimited list of file paths or URLs.  Each entry may
+    optionally specify a reader plugin in brackets, e.g.
+    ``path/to/file.zarr [napari-ome-zarr]``.  The tool iterates over entries,
+    attempts to open each one, and reports which files succeeded or failed.
+
+    This tool does not use the sub-LLM code-generation pipeline; the
+    ``prompt`` and ``instructions`` attributes are set to ``None``.
     """
 
     def __init__(self, **kwargs):
-        """
-        Initialize the NapariFileOpenTool.
+        """Initialize the file-open tool.
 
-        Parameters
-        ----------
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, etc.
+        Args:
+            **kwargs: Forwarded to ``BaseNapariTool.__init__``.
         """
         super().__init__(**kwargs)
 
@@ -41,7 +50,21 @@ class NapariFileOpenTool(BaseNapariTool):
         self.instructions: str = None
 
     def _run_code(self, query: str, code: str, viewer: Viewer) -> str:
+        """Open one or more image files in the napari viewer.
 
+        Parses the newline-delimited query for file paths and optional reader
+        plugin names, then attempts to open each file.  Returns a summary
+        indicating which files were opened successfully and which failed.
+
+        Args:
+            query: Newline-delimited list of file paths / URLs (with optional
+                ``[plugin_name]`` suffixes).
+            code: Unused (no LLM code generation for this tool).
+            viewer: The active napari viewer instance.
+
+        Returns:
+            A summary message listing opened files and any errors encountered.
+        """
         with asection(f"NapariFileOpenTool:"):
             with asection(f"Query:"):
                 aprint(query)

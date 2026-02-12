@@ -1,3 +1,5 @@
+"""Demo script: show the package-installation approval dialog."""
+
 from napari_chatgpt.utils.qt.package_dialog import install_packages_dialog
 
 if __name__ == "__main__":

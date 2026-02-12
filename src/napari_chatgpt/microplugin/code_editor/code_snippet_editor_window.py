@@ -1,3 +1,5 @@
+"""Standalone window wrapping the CodeSnippetEditorWidget."""
+
 import sys
 
 from qtpy.QtCore import Qt
@@ -15,6 +17,15 @@ if hasattr(Qt, "AA_EnableHighDpiScaling"):
 
 
 class CodeSnippetEditorWindow(QMainWindow):
+    """QMainWindow hosting a CodeSnippetEditorWidget.
+
+    The window title includes the folder path, hostname, and CodeDrop server
+    port for easy identification when sharing code between peers.
+
+    Attributes:
+        code_editor_widget: The embedded CodeSnippetEditorWidget instance.
+    """
+
     def __init__(
         self,
         folder_path: str,
@@ -25,20 +36,16 @@ class CodeSnippetEditorWindow(QMainWindow):
         *args,
         **kwargs,
     ):
-        """
-        Create a main window for the Python code snippet editor.
+        """Initialize the editor window.
 
-        Parameters
-        ----------
-        folder_path : str
-            The path to the folder containing the Python code snippets.
-
-        args : list
-            Positional arguments to pass to the parent class.
-
-        kwargs : dict
-            Keyword arguments to pass to the parent class.
-
+        Args:
+            folder_path: Path to the folder containing Python code snippets.
+            title: Window title prefix.
+            size: Optional ``(width, height)`` tuple for the initial window size.
+            variables: Variables injected when executing snippets.
+            parent: Parent widget.
+            *args: Additional positional arguments for QMainWindow.
+            **kwargs: Additional keyword arguments for QMainWindow.
         """
         super().__init__(parent=parent, *args, **kwargs)
 
@@ -68,6 +75,7 @@ class CodeSnippetEditorWindow(QMainWindow):
         self.resize(size or self.code_editor_widget.sizeHint())
 
     def close(self):
+        """Close the editor widget and then the window."""
         self.code_editor_widget.close()
         super().close()
 

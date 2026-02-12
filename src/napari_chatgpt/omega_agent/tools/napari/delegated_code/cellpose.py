@@ -1,3 +1,11 @@
+"""Cellpose-based cell segmentation delegated code.
+
+This module is injected at runtime by ``CellNucleiSegmentationTool`` when the
+LLM-generated code calls ``cellpose_segmentation()``.  It wraps the Cellpose
+library to provide a unified 2D/3D segmentation interface with optional
+normalization and small-segment removal.
+"""
+
 from collections.abc import Sequence
 
 from napari.types import ArrayLike

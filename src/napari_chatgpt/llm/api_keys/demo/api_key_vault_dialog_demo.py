@@ -1,3 +1,10 @@
+"""Demo script for the API key vault dialog.
+
+Launches a minimal Qt window with a button that opens the
+:class:`~napari_chatgpt.llm.api_keys.api_key_vault_dialog.APIKeyDialog`
+for the OpenAI provider.
+"""
+
 import sys
 
 from qtpy.QtWidgets import QApplication, QMainWindow, QPushButton
@@ -8,6 +15,8 @@ from napari_chatgpt.llm.api_keys.api_key_vault_dialog import (
 
 
 class MainWindow(QMainWindow):
+    """Minimal main window with a single button to trigger the dialog."""
+
     def __init__(self):
         super().__init__()
 

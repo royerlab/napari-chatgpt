@@ -1,3 +1,10 @@
+"""Tool for downloading files from URLs to local storage.
+
+Extracts URLs from the agent's input text, downloads each file to the
+current working directory, and returns the resulting local file paths
+so subsequent tools can operate on the downloaded files.
+"""
+
 from arbol import aprint, asection
 
 from napari_chatgpt.omega_agent.tools.base_omega_tool import BaseOmegaTool
@@ -6,12 +13,23 @@ from napari_chatgpt.utils.strings.extract_urls import extract_urls
 
 
 class FileDownloadTool(BaseOmegaTool):
-    """
-    A tool for downloading files from URLs.
-    This tool can download files from valid and syntactically correct URLs.
+    """Tool for downloading files from URLs to the local filesystem.
+
+    Parses the input for valid URLs, downloads each file, and returns
+    the local file paths. Useful as a prerequisite step before tools
+    that need to operate on local files (e.g., opening images in napari).
+
+    Attributes:
+        name: Tool identifier string (set to ``'UrlDownloadTool'``).
+        description: Human-readable description used by the LLM agent.
     """
 
     def __init__(self, **kwargs):
+        """Initialize the FileDownloadTool.
+
+        Args:
+            **kwargs: Keyword arguments forwarded to ``BaseOmegaTool``.
+        """
         super().__init__(**kwargs)
 
         self.name = "UrlDownloadTool"
@@ -25,7 +43,15 @@ class FileDownloadTool(BaseOmegaTool):
         )
 
     def run_omega_tool(self, query: str = ""):
+        """Extract URLs from the query and download the corresponding files.
 
+        Args:
+            query: Free-text input that may contain one or more URLs.
+
+        Returns:
+            A success message listing downloaded file paths, an error if no
+            valid URLs are found, or an error message if downloading fails.
+        """
         try:
             with asection("FileDownloadTool:"):
                 with asection("Query:"):

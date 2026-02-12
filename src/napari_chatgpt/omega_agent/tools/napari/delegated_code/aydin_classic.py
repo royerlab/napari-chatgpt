@@ -1,9 +1,16 @@
+"""Aydin Classic denoising delegated code.
+
+This module is injected at runtime by ``ImageDenoisingTool`` when the
+LLM-generated code calls ``aydin_classic_denoising()``.  It wraps the
+Aydin Classic class which provides filter-based denoising with multiple
+variants (Butterworth, bilateral, wavelet, etc.).
+"""
+
 ### SIGNATURE
 
 
 def aydin_classic_denoising(image, batch_axes=None, chan_axes=None, variant=None):
-    """Method to denoise an image with  Aydin's Classic denoising restoration algorithms.
-
+    """Denoise an image using Aydin's Classic filter-based restoration algorithms.
 
     Parameters
     ----------

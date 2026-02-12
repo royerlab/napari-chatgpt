@@ -1,3 +1,5 @@
+"""Qt-based file download dialog with a progress bar."""
+
 import os
 import sys
 import traceback
@@ -17,6 +19,13 @@ from qtpy.QtWidgets import (
 
 
 def download_file_qt(url: str, filename: str, folder: str):
+    """Show a modal download dialog and download a file with progress feedback.
+
+    Args:
+        url: URL of the file to download.
+        filename: Name to save the downloaded file as.
+        folder: Directory to save the downloaded file into.
+    """
     # Check if there is already a QApplication instance running
     if not QApplication.instance():
         # If not, create a new QApplication instance
@@ -38,6 +47,8 @@ def download_file_qt(url: str, filename: str, folder: str):
 
 
 class ProgressBar(QWidget):
+    """Widget combining a QProgressBar and a text label for download progress."""
+
     def __init__(self, filename: str, parent=None):
         super().__init__(parent)
 
@@ -63,6 +74,8 @@ class ProgressBar(QWidget):
 
 
 class DownloadFileDialog(QDialog):
+    """Modal dialog that lets the user trigger a file download with progress."""
+
     def __init__(
         self,
         url: str = "https://people.math.sc.edu/Burkardt/data/tif/at3_1m4_01.tif",
@@ -112,6 +125,8 @@ class DownloadFileDialog(QDialog):
 
 
 class DownloadWorker(QThread):
+    """Background thread that downloads a file in chunks and reports progress."""
+
     def __init__(self, url: str, filename: str, folder: str, progressBar):
 
         super().__init__()

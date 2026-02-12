@@ -1,3 +1,5 @@
+"""File download utilities with browser-like HTTP headers."""
+
 import os
 import tempfile
 import urllib.parse
@@ -34,6 +36,15 @@ def _download_file(url, file_path) -> str:
 
 
 def download_files(urls, path=None) -> list[str]:
+    """Download multiple files from URLs to a local directory.
+
+    Args:
+        urls: Iterable of URLs to download.
+        path: Destination directory. Defaults to the current working directory.
+
+    Returns:
+        List of absolute file paths for the downloaded files.
+    """
     # Defaults to working directory:
     path = path or os.getcwd()
 
@@ -60,6 +71,15 @@ def download_files(urls, path=None) -> list[str]:
 
 
 def download_file_stealth(url, file_path=None) -> str:
+    """Download a file, optionally to a temporary location.
+
+    Args:
+        url: URL to download.
+        file_path: Destination path. If ``None``, a temporary file is created.
+
+    Returns:
+        Path to the downloaded file, or ``None`` on failure.
+    """
     response = requests.get(url, headers=_DOWNLOAD_HEADERS, stream=True, timeout=60)
 
     if response.status_code == 200:

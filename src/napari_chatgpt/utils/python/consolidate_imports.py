@@ -1,16 +1,19 @@
+"""Utility for consolidating and deduplicating Python import statements."""
+
+
 def consolidate_imports(code):
-    """
-    Consolidate import statements in a given Python code string.
-    Parameters
-    ----------
-    code:   str
-        The Python code as a string in which to consolidate import statements.
+    """Consolidate import statements in a Python code string.
 
-    Returns
-    -------
-    str
-        The Python code with consolidated import statements.
+    Collects all import statements from the top of the code, deduplicates
+    them, sorts them alphabetically, and places them before the remaining
+    code body. Blank lines and comments within the import section are
+    discarded.
 
+    Args:
+        code: Python source code as a string.
+
+    Returns:
+        The code with deduplicated, sorted imports at the top.
     """
 
     # Split the code into lines

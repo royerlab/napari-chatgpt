@@ -1,3 +1,5 @@
+"""Python code editor widget with syntax highlighting and Jedi auto-completion."""
+
 import jedi  # Make sure jedi is installed
 from qtpy.QtCore import QStringListModel, Qt
 from qtpy.QtGui import QTextCursor
@@ -9,7 +11,23 @@ from napari_chatgpt.microplugin.code_editor.python_syntax_highlighting import (
 
 
 class PythonCodeEditor(QPlainTextEdit):
+    """A QPlainTextEdit-based Python code editor.
+
+    Features include:
+    - Python syntax highlighting via PythonSyntaxHighlighter.
+    - Jedi-powered auto-completion with popup display.
+    - Auto-indentation after Python block statements.
+    - Tab-to-spaces conversion.
+    - Undoable ``setPlainText`` via ``setPlainTextUndoable``.
+
+    Attributes:
+        tab_length: Number of spaces per tab stop.
+        python_syntax_highlighter: The attached syntax highlighter.
+        completer: The Jedi-powered QCompleter instance.
+    """
+
     def __init__(self, parent=None):
+        """Initialize the editor with syntax highlighting and auto-completion."""
         super().__init__(parent)
 
         # Tab Length Customization
@@ -30,11 +48,21 @@ class PythonCodeEditor(QPlainTextEdit):
         self.completer.activated.connect(self.insertCompletion)
 
     def textUnderCursor(self):
+        """Return the word currently under the text cursor.
+
+        Returns:
+            The selected word text, or an empty string if none.
+        """
         text_cursor = self.textCursor()
         text_cursor.select(QTextCursor.WordUnderCursor)
         return text_cursor.selectedText()
 
     def insertCompletion(self, completion):
+        """Insert the selected completion text at the cursor position.
+
+        Args:
+            completion: The full completion string selected by the user.
+        """
         if self.completer.widget() != self:
             return
         tc = self.textCursor()
@@ -45,6 +73,12 @@ class PythonCodeEditor(QPlainTextEdit):
         self.setTextCursor(tc)
 
     def keyPressEvent(self, event):
+        """Handle key presses for auto-completion, auto-indentation, and editing.
+
+        Triggers completions after typing a dot, auto-indents after block
+        statements (if, for, def, etc.), and delegates to the completer
+        when its popup is visible.
+        """
         if self.completer:
             if self.completer.popup().isVisible():
                 if event.key() in (
@@ -96,6 +130,12 @@ class PythonCodeEditor(QPlainTextEdit):
             self.updateCompleter()
 
     def updateCompleter(self, show_completions=False):
+        """Query Jedi for completions and update the completer popup.
+
+        Args:
+            show_completions: If True, force showing completions even when the
+                word under the cursor is empty (e.g., after typing a dot).
+        """
         text_under_cursor = self.textUnderCursor()
         if text_under_cursor != "" or show_completions:
 
@@ -122,6 +162,14 @@ class PythonCodeEditor(QPlainTextEdit):
             self.completer.popup().hide()
 
     def setPlainTextUndoable(self, text):
+        """Replace all editor content with the given text as an undoable operation.
+
+        Unlike ``setPlainText()``, this uses an edit block so the change can
+        be reverted with Ctrl+Z.
+
+        Args:
+            text: The new text content to set.
+        """
         # Obtain the current text cursor from the editor
         tc = self.textCursor()
 

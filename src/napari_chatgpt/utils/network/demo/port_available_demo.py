@@ -1,3 +1,5 @@
+"""Demo script: start a simple HTTP server to test port-availability detection."""
+
 # main to test automatic port increment in the omega server:
 if __name__ == "__main__":
     # now start a simple server asynchronously on that port to occupy it:

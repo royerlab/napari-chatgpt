@@ -1,4 +1,9 @@
-"""A tool for running python code in a REPL."""
+"""Tool for installing Python packages via pip.
+
+Allows the Omega agent to install missing Python packages at runtime.
+Already-installed packages are detected and skipped. Installation
+requires user permission via an interactive dialog.
+"""
 
 import traceback
 
@@ -10,12 +15,25 @@ from napari_chatgpt.utils.python.pip_utils import pip_install
 
 
 class PipInstallTool(BaseOmegaTool):
-    """
-    A tool installing python packages with pip.
-    This tool can be used to install packages that are not installed by default in the napari environment.
+    """Tool for installing Python packages with pip.
+
+    Accepts a comma-separated list of package names (with optional version
+    specifiers), filters out already-installed packages, and installs the
+    remainder after requesting user permission. Optionally logs the
+    install command to a Jupyter notebook.
+
+    Attributes:
+        name: Tool identifier string.
+        description: Human-readable description used by the LLM agent.
     """
 
     def __init__(self, **kwargs):
+        """Initialize the PipInstallTool.
+
+        Args:
+            **kwargs: Keyword arguments forwarded to ``BaseOmegaTool``,
+                including an optional ``notebook`` for logging installs.
+        """
         super().__init__(**kwargs)
 
         self.name = "PipInstallTool"
@@ -29,7 +47,16 @@ class PipInstallTool(BaseOmegaTool):
         )
 
     def run_omega_tool(self, query: str = ""):
+        """Parse the package list, skip already-installed ones, and pip-install the rest.
 
+        Args:
+            query: Comma-separated list of package names with optional
+                version specifiers (e.g., ``'numpy==1.24, scipy'``).
+
+        Returns:
+            A status message indicating which packages were installed
+            or already present, or an error message on failure.
+        """
         with asection(f"PipInstallTool:"):
             with asection(f"Query:"):
                 aprint(query)

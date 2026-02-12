@@ -1,10 +1,18 @@
+"""Collect and format system and Python environment information."""
+
 import platform
 import sys
 
 
 def system_info(add_python_info: bool = False):
-    """
-    Returns a string with information about the system: machine, operating system (all details), version of Python, etc.
+    """Return a markdown-fenced block with machine and OS details.
+
+    Args:
+        add_python_info: If ``True``, include Python version, compiler,
+            implementation, and build information.
+
+    Returns:
+        A string wrapped in a ``system_info`` code fence.
     """
 
     # Get the system information:

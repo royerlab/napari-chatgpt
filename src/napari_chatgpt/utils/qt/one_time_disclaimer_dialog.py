@@ -1,3 +1,5 @@
+"""One-time disclaimer dialog that remembers acknowledgement via app configuration."""
+
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMessageBox
 
@@ -7,18 +9,19 @@ from napari_chatgpt.utils.configuration.app_configuration import AppConfiguratio
 def show_one_time_disclaimer_dialog(
     html_message: str, message_title: str = "Disclaimer", app_name: str = "omega"
 ) -> int:
-    """
-    Show a one-time disclaimer dialog with a message in HTML format.
+    """Show a one-time disclaimer dialog with a message in HTML format.
 
-    Parameters
-    ----------
-    html_message:
-        The message to display in HTML format.
+    If the user has already acknowledged the disclaimer (stored in the
+    app configuration), the dialog is skipped and ``QMessageBox.Ok`` is
+    returned immediately.
 
-    Returns
-    -------
-    int
+    Args:
+        html_message: The message to display in HTML format.
+        message_title: Title for the dialog window.
+        app_name: Application name used for configuration storage.
 
+    Returns:
+        The ``QMessageBox`` button code (e.g. ``QMessageBox.Ok``).
     """
 
     # Get app configuration:

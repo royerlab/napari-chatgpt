@@ -1,14 +1,20 @@
+"""Utilities for cleaning up Python code by removing invalid lines."""
+
 from arbol import aprint
 
 
 def remove_invalid_python_lines(code: str):
-    """Removes any text line that is not valid Python from a string.
+    """Remove lines that are not individually valid Python statements.
+
+    Each line is compiled independently; lines that raise a SyntaxError
+    are removed and logged via aprint.
 
     Args:
-      string: The string to be processed.
+        code: A string containing Python code, potentially with
+            non-Python text mixed in.
 
     Returns:
-      The string with any invalid Python lines removed.
+        The code with invalid lines removed, joined by newlines.
     """
 
     lines = code.splitlines()

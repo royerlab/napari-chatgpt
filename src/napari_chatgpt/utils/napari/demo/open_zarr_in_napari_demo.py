@@ -1,3 +1,5 @@
+"""Demo script: open a remote Zarr dataset in a napari viewer."""
+
 import napari
 
 from napari_chatgpt.utils.napari.open_in_napari import open_zarr_in_napari

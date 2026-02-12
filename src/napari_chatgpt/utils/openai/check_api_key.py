@@ -1,18 +1,15 @@
+"""Validate an OpenAI API key by making a lightweight API call."""
+
 from arbol import aprint
 
 
 def check_openai_api_key(openai_api_key: str) -> bool:
-    """
-    Check if the OpenAI API key is valid.
+    """Check if the OpenAI API key is valid.
 
-    Parameters
-    ----------
-    openai_api_key : str
-        The OpenAI API key to check.
+    Args:
+        openai_api_key: The OpenAI API key to check.
 
-    Returns
-    -------
-    bool
+    Returns:
         True if the API key is valid, False otherwise.
     """
     try:

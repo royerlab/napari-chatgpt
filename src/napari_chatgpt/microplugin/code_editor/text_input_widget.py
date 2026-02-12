@@ -1,3 +1,5 @@
+"""Inline text input widget with single-line and multi-line modes."""
+
 from arbol import aprint
 from qtpy.QtWidgets import (
     QHBoxLayout,
@@ -11,7 +13,27 @@ from qtpy.QtWidgets import (
 
 
 class TextInputWidget(QWidget):
+    """An inline widget for prompting the user for text input.
+
+    Supports both single-line (QLineEdit) and multi-line (QTextEdit) input
+    modes. The widget is hidden by default and shown via ``show_input()``.
+    Callbacks are invoked on Enter or Cancel, then the widget auto-hides.
+
+    Attributes:
+        enter_callback: Callable invoked with the input text on Enter.
+        cancel_callback: Callable invoked with an empty string on Cancel.
+        do_after_callable: Optional callable invoked after either action.
+        multi_line: Whether the current input session uses multi-line mode.
+    """
+
     def __init__(self, max_height: int = 50, margin: int = 0, parent=None):
+        """Initialize the text input widget.
+
+        Args:
+            max_height: Maximum widget height in pixels.
+            margin: Layout margin in pixels.
+            parent: Parent widget.
+        """
 
         super().__init__(parent=parent)
 
@@ -27,6 +49,7 @@ class TextInputWidget(QWidget):
         self.initUI(max_height=max_height, margin=margin)
 
     def initUI(self, max_height: int, margin: int):
+        """Build the UI with message label, input fields, and action buttons."""
 
         # Layout:
         self.main_layout = QHBoxLayout(self)
@@ -79,6 +102,21 @@ class TextInputWidget(QWidget):
         multi_line: bool = False,
         max_height: int | None = None,
     ):
+        """Configure and display the text input widget.
+
+        Args:
+            message: Label text displayed next to the input field.
+            placeholder_text: Placeholder shown when the input is empty.
+            default_text: Pre-filled text in the input field.
+            enter_text: Label for the confirm button.
+            cancel_text: Label for the cancel button. If empty, the cancel
+                button is hidden.
+            enter_callback: Called with the input text when confirmed.
+            cancel_callback: Called with an empty string when cancelled.
+            do_after_callable: Called after either confirm or cancel completes.
+            multi_line: If True, use a multi-line QTextEdit instead of QLineEdit.
+            max_height: Optional override for the widget's maximum height.
+        """
 
         # Set multi_line:
         self.multi_line = multi_line
@@ -122,6 +160,7 @@ class TextInputWidget(QWidget):
         self.show()
 
     def on_enter(self):
+        """Invoke the enter callback with the current input text, then hide."""
         input_text = (
             self.current_input.text()
             if not self.multi_line
@@ -141,6 +180,7 @@ class TextInputWidget(QWidget):
                 self.do_after_callable(input_text)
 
     def on_cancel(self):
+        """Invoke the cancel callback with an empty string, then hide."""
         try:
             if self.cancel_callback:
                 self.cancel_callback("")

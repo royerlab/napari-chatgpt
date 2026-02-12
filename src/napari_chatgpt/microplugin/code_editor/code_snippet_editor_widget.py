@@ -1,3 +1,10 @@
+"""Widget for managing and editing a folder of Python code snippets.
+
+Provides a file list, multi-tab code editor, toolbar with actions (new, duplicate,
+delete, format, AI-assisted operations), network code sharing via CodeDrop,
+and an integrated console for script execution output.
+"""
+
 import json
 import os
 import sys
@@ -41,14 +48,29 @@ from napari_chatgpt.microplugin.network.code_drop_server import CodeDropServer
 
 
 class CodeSnippetEditorWidget(QWidget):
-    def __init__(self, folder_path: str, variables: dict | None = None, parent=None):
-        """
-        Create a widget for editing Python code snippets.
+    """Main widget for browsing, editing, and running Python code snippets.
 
-        Parameters
-        ----------
-        folder_path : str
-            The path to the folder containing the Python code snippets.
+    Combines a file list sidebar, a multi-file code editor with syntax
+    highlighting and auto-completion, a toolbar with file management and
+    AI-powered actions, network code sharing (CodeDrop), and an output
+    console.
+
+    Attributes:
+        folder_path: Path to the directory containing ``.py`` snippet files.
+        variables: Variables injected into the execution namespace when running code.
+        client: CodeDrop network client for peer discovery and sending.
+        server: CodeDrop network server for receiving code from peers.
+        is_llm_available: Whether an LLM API is available for AI features.
+        llm_model_name: Model name used for AI-powered code operations.
+    """
+
+    def __init__(self, folder_path: str, variables: dict | None = None, parent=None):
+        """Initialize the code snippet editor widget.
+
+        Args:
+            folder_path: Path to the folder containing Python code snippets.
+            variables: Optional dict of variables available when executing snippets.
+            parent: Parent widget.
         """
         super().__init__(parent)
         self.folder_path = folder_path
@@ -82,6 +104,7 @@ class CodeSnippetEditorWidget(QWidget):
         self.llm_model_name = None
 
     def init_UI(self):
+        """Build the complete UI: toolbar, file list, editor, and auxiliary widgets."""
         main_layout = QVBoxLayout(self)
 
         # Initialize the toolbar
@@ -205,6 +228,11 @@ class CodeSnippetEditorWidget(QWidget):
         self.populate_list()
 
     def show_context_menu(self, position):
+        """Display a right-click context menu for the file list.
+
+        Args:
+            position: The local position where the context menu was requested.
+        """
 
         # Create the context menu:
         context_menu = QMenu(self)
@@ -258,9 +286,20 @@ class CodeSnippetEditorWidget(QWidget):
         context_menu.exec_(self.list_widget.mapToGlobal(position))
 
     def on_server_discovered(self, server_name, server_address, port_number):
+        """Log a newly discovered CodeDrop server."""
         aprint(f"Discovered server: {server_name} at {server_address}:{port_number}")
 
     def server_message_received(self, addr, message):
+        """Handle an incoming code message from a CodeDrop peer.
+
+        Parses the JSON message, prepends provenance metadata, and prompts
+        the user to accept or reject the received file.
+
+        Args:
+            addr: Tuple of ``(ip_address, port)`` of the sender.
+            message: JSON-encoded string containing hostname, username,
+                filename, and code fields.
+        """
 
         # Get IP address and port number:
         ip_address, port = addr
@@ -292,6 +331,12 @@ class CodeSnippetEditorWidget(QWidget):
         )
 
     def populate_list(self, selected_filename: str | None = None):
+        """Scan the folder and populate the file list widget with ``.py`` files.
+
+        Args:
+            selected_filename: If provided, select and load this file after
+                populating. Otherwise, selects the first file.
+        """
 
         # Clear the list widget and dictionaries:
         self.list_widget.clear()
@@ -364,6 +409,16 @@ class CodeSnippetEditorWidget(QWidget):
     def truncate_filename(
         self, filename: str, index: int | None = None, max_length: int = 40
     ) -> str:
+        """Truncate a filename to fit within a maximum display length.
+
+        Args:
+            filename: The original filename to truncate.
+            index: Optional numeric suffix to disambiguate duplicate display names.
+            max_length: Maximum character length for the display name.
+
+        Returns:
+            The truncated filename with ellipsis, or the original if short enough.
+        """
 
         # Convert index to string if it is not None:
         if index is not None:
@@ -379,10 +434,12 @@ class CodeSnippetEditorWidget(QWidget):
         return filename
 
     def on_text_modified(self):
+        """Auto-save callback triggered when the editor text changes."""
         # Save the file when the text is modified:
         self.save_current_file()
 
     def load_snippet(self):
+        """Load the code snippet for the currently selected file list item."""
 
         # Get the current item:
         current = self.list_widget.currentItem()
@@ -397,6 +454,11 @@ class CodeSnippetEditorWidget(QWidget):
             self.load_snippet_by_filename(filename)
 
     def load_snippet_by_filename(self, filename):
+        """Switch the editor to the given file and load its contents.
+
+        Args:
+            filename: Name of the ``.py`` file (relative to ``folder_path``).
+        """
 
         # Switch editor to the file:
         self.editor_manager.switch_to(filename)
@@ -409,6 +471,7 @@ class CodeSnippetEditorWidget(QWidget):
             self.editor_manager.current_editor.setPlainTextUndoable(file.read())
 
     def save_current_file(self):
+        """Save the current editor contents to disk."""
 
         # If there is a currently open file, save it:
         if self.currently_open_filename:
@@ -425,6 +488,16 @@ class CodeSnippetEditorWidget(QWidget):
                 file.write(self.editor_manager.current_editor.toPlainText())
 
     def new_file(self, filename: str, code: str | None = "", postfix_if_exists="_copy"):
+        """Create a new Python file in the folder and refresh the list.
+
+        If a file with the given name already exists, a postfix is appended
+        (with an incrementing number) to avoid overwriting.
+
+        Args:
+            filename: Desired filename (``'.py'`` extension added if missing).
+            code: Initial code content for the new file.
+            postfix_if_exists: Suffix appended to avoid name collisions.
+        """
 
         # Make sure the file has '.py' extension:
         if not filename.endswith(".py"):
@@ -473,6 +546,7 @@ class CodeSnippetEditorWidget(QWidget):
         self.populate_list(filename)
 
     def new_file_dialog(self):
+        """Show a text input dialog prompting the user for a new filename."""
 
         def _new_file(filename_text: str):
             # if no file is selected but the editor has contents, use it as the new file's content:
@@ -504,6 +578,7 @@ class CodeSnippetEditorWidget(QWidget):
         )
 
     def duplicate_file(self):
+        """Duplicate the currently selected file with a ``_copy`` suffix."""
 
         # get current item:
         current_item = self.list_widget.currentItem()
@@ -544,6 +619,7 @@ class CodeSnippetEditorWidget(QWidget):
             self.populate_list(new_filename)
 
     def delete_file_from_context_menu(self):
+        """Delete the file selected via the context menu."""
 
         # Get current item:
         current_item = self.list_widget.currentItem()
@@ -557,6 +633,11 @@ class CodeSnippetEditorWidget(QWidget):
             self.delete_file(filename_to_delete)
 
     def delete_file(self, filename=None):
+        """Prompt for confirmation and delete the specified or current file.
+
+        Args:
+            filename: File to delete. Defaults to the currently open file.
+        """
         # Determine which file to delete:
         file_to_delete = filename or self.currently_open_filename
 
@@ -589,6 +670,7 @@ class CodeSnippetEditorWidget(QWidget):
             )
 
     def rename_file(self):
+        """Show a text input dialog to rename the currently selected file."""
 
         # Get current line:
         current_item = self.list_widget.currentItem()
@@ -631,6 +713,7 @@ class CodeSnippetEditorWidget(QWidget):
             # )  # Exclude '.py' extension
 
     def clean_and_reformat_current_file(self):
+        """Reformat the current file's code using Black and save it."""
         if self.currently_open_filename:
 
             # Make sure that there is an editor <=> at least one file in the list:
@@ -650,6 +733,7 @@ class CodeSnippetEditorWidget(QWidget):
             self.save_current_file()
 
     def open_file_in_system(self):
+        """Open the currently selected file with the system's default application."""
         # Get current item:
         current_item = self.list_widget.currentItem()
 
@@ -676,6 +760,7 @@ class CodeSnippetEditorWidget(QWidget):
                 )
 
     def find_file_in_system(self):
+        """Open the snippet folder in the system's file manager."""
 
         # Open the folder in the system for different OS:
         # First OSX:
@@ -694,6 +779,7 @@ class CodeSnippetEditorWidget(QWidget):
             os.system(f"xdg-open {self.folder_path}")
 
     def check_code_safety_with_AI(self):
+        """Use an LLM to analyze the current file's code for safety concerns."""
         if self.currently_open_filename:
 
             # Make sure that there is an editor <=> at least one file in the list:
@@ -725,6 +811,7 @@ class CodeSnippetEditorWidget(QWidget):
             dialog.exec_()
 
     def comment_code_with_AI(self):
+        """Use an LLM to add or improve comments and explanations in the current file."""
         if self.currently_open_filename:
 
             # Make sure that there is an editor <=> at least one file in the list:
@@ -743,6 +830,7 @@ class CodeSnippetEditorWidget(QWidget):
             self.editor_manager.current_editor.setPlainTextUndoable(code)
 
     def modify_code_with_AI(self):
+        """Prompt the user for instructions and use an LLM to modify the current code."""
         if self.currently_open_filename:
 
             def _modify_code(request: str):
@@ -797,6 +885,7 @@ class CodeSnippetEditorWidget(QWidget):
             )
 
     def send_current_file(self):
+        """Open the CodeDrop send dialog for the currently open file."""
 
         # Send the file if there is a currently open file:
         if self.currently_open_filename:
@@ -814,6 +903,7 @@ class CodeSnippetEditorWidget(QWidget):
             )
 
     def run_current_file(self):
+        """Execute the current file as a module and display output in the console."""
 
         # Run the file if there is a currently open file:
         if self.currently_open_filename:
@@ -855,6 +945,7 @@ class CodeSnippetEditorWidget(QWidget):
                 )
 
     def current_list_item_changed(self, current, previous):
+        """Handle file list selection changes by loading the newly selected snippet."""
 
         # If the current item is different from the previous one, load the snippet:
         if current and (previous is None or current.text() != previous.text()):
@@ -862,6 +953,7 @@ class CodeSnippetEditorWidget(QWidget):
             self.load_snippet()
 
     def close(self):
+        """Stop network services, close editors, and clean up child widgets."""
         # Stop the server:
         self.server.stop()
 

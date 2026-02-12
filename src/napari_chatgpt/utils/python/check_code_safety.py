@@ -1,3 +1,9 @@
+"""LLM-powered code safety assessment.
+
+Uses an LLM to evaluate Python code and assign a safety rating (A through E)
+based on potential risks such as file I/O, network access, and resource usage.
+"""
+
 import re
 import sys
 
@@ -37,7 +43,22 @@ End your response with exactly: 'Rating: *X*' where X is A-E.
 
 def check_code_safety(
     code: str, llm: LLM = None, model_name: str = None, verbose: bool = False
-) -> str:
+) -> tuple[str, str]:
+    """Assess the safety of Python code using an LLM.
+
+    The LLM evaluates the code and assigns a safety rank from A (pure
+    computation, no I/O) to E (destructive or suspicious operations).
+
+    Args:
+        code: Python source code to evaluate.
+        llm: LLM instance to use. If None, a default is created.
+        model_name: Name of the LLM model (unused, reserved for future use).
+        verbose: Whether to enable verbose output.
+
+    Returns:
+        A tuple of (explanation, rank) where explanation is the LLM's
+        reasoning and rank is a single letter A-E, or "Unknown" on failure.
+    """
     with asection(f"Checking safety of code of length: {len(code)}"):
 
         try:
@@ -93,7 +114,14 @@ def check_code_safety(
 
 
 def _extract_safety_rank(response: str) -> str:
-    """Extract safety rank (A-E) from LLM response using multiple patterns."""
+    """Extract safety rank (A-E) from LLM response using multiple regex patterns.
+
+    Args:
+        response: The full text response from the LLM.
+
+    Returns:
+        A single uppercase letter A-E, or "Unknown" if no rank is found.
+    """
     # Patterns to match various LLM formatting styles:
     # *A*, **A**, \*A\*, rated A, Rank: A, rating: A, etc.
     patterns = [

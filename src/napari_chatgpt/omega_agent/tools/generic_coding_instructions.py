@@ -1,3 +1,11 @@
+"""Generic code-generation instructions shared across all napari tools.
+
+The ``omega_generic_codegen_instructions`` template is formatted at
+runtime with the current Python version and list of installed packages,
+then prepended to each tool's specific instructions before being sent
+to the sub-LLM for code generation.
+"""
+
 omega_generic_codegen_instructions = """
 **Coding Strategy:**
 1. Plan your approach step by step before coding.

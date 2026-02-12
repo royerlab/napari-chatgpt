@@ -1,7 +1,23 @@
+"""Utilities for extracting Python code blocks from Markdown text."""
+
 import re
 
 
 def extract_code_from_markdown(markdown: str):
+    """Extract Python code from Markdown fenced code blocks.
+
+    Finds all ```python ... ``` blocks in the input and joins them
+    together. If no Python code blocks are found, returns the input
+    string unchanged.
+
+    Args:
+        markdown: A string potentially containing Markdown-formatted
+            Python code blocks.
+
+    Returns:
+        The extracted Python code as a single string, or the original
+        input if no Python code blocks are detected.
+    """
     if "```python" in markdown and "```" in markdown:
 
         # Regex:

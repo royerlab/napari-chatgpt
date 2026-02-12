@@ -1,3 +1,10 @@
+"""Main window for the MicroPlugin code editor integrated with napari.
+
+Provides a singleton-based code snippet editor window that inherits napari's
+stylesheet and allows users to create, edit, and manage micro-plugins
+(small code snippets) from within the napari viewer.
+"""
+
 import os
 import sys
 
@@ -12,6 +19,17 @@ from napari_chatgpt.microplugin.code_editor.code_snippet_editor_window import (
 
 
 class MicroPluginMainWindow(CodeSnippetEditorWindow):
+    """Singleton main window for editing and managing napari micro-plugins.
+
+    Extends CodeSnippetEditorWindow with napari integration, including
+    stylesheet inheritance, persistent storage of code snippets, and
+    network-based code sharing. Uses a singleton pattern so only one
+    instance exists per application.
+
+    Attributes:
+        llm_model_name: Name of the LLM model used for AI-assisted editing.
+    """
+
     _singleton_pattern_active = True
     _singleton_instance = None
     _singleton_instance_initialized = False
@@ -39,6 +57,15 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
         *args,
         **kwargs,
     ):
+        """Initialize the MicroPlugin main window.
+
+        Args:
+            napari_viewer: The napari viewer instance to integrate with.
+            folder_path: Directory for storing micro-plugin files. Defaults
+                to ``~/microplugins`` or the configured path.
+            size: Optional ``(width, height)`` tuple for the window.
+            parent: Optional parent Qt widget.
+        """
 
         # If the singleton instance is already initialized, just return it:
         if (
@@ -111,6 +138,16 @@ class MicroPluginMainWindow(CodeSnippetEditorWindow):
 
     @staticmethod
     def add_snippet(filename: str, code: str | None = None):
+        """Add a new code snippet file to the editor.
+
+        Creates a new file in the micro-plugins folder with the given
+        filename and optional code content. If the file already exists,
+        a ``_new_from_omega`` suffix is appended.
+
+        Args:
+            filename: Name for the new snippet file.
+            code: Optional Python source code for the snippet.
+        """
 
         # Create a new file with the given code:
         MicroPluginMainWindow._singleton_instance.code_editor_widget.new_file(

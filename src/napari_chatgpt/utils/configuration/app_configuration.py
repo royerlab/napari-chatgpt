@@ -1,3 +1,5 @@
+"""Thread-safe, per-application YAML configuration backed by the user's home directory."""
+
 import os
 from threading import Lock
 from typing import Any
@@ -6,6 +8,21 @@ import yaml
 
 
 class AppConfiguration:
+    """Singleton configuration manager for a named application.
+
+    Each application gets its own config directory at ``~/.{app_name}/`` and a
+    ``config.yaml`` file that persists user settings.  Default values are merged
+    from a supplied dict or YAML file.
+
+    The class implements the singleton pattern keyed by *app_name* so that
+    repeated instantiation returns the same object.
+
+    Attributes:
+        app_name: Name of the application (used for the config directory).
+        config_file: Absolute path to the user's ``config.yaml``.
+        config_data: Merged configuration dictionary.
+    """
+
     _instances = {}
     _lock = Lock()
 
@@ -36,6 +53,12 @@ class AppConfiguration:
         self.load_configurations()
 
     def load_default_config(self):
+        """Load default configuration from a dict or a YAML file path.
+
+        Returns:
+            dict: The default configuration dictionary, or empty dict
+                if the source is unavailable.
+        """
         if isinstance(self.default_config, dict):
             return self.default_config
         elif isinstance(self.default_config, str):
@@ -46,6 +69,7 @@ class AppConfiguration:
         return {}
 
     def load_configurations(self):
+        """Load and merge default and user-specific configurations."""
         # Load default configurations
         default_config = self.load_default_config()
 
@@ -60,10 +84,20 @@ class AppConfiguration:
         self.config_data = {**default_config, **user_config}
 
     def save_configurations(self):
+        """Persist the current configuration to disk as YAML."""
         with open(self.config_file, "w") as file:
             yaml.dump(self.config_data, file)
 
     def get(self, key, default: Any = None):
+        """Retrieve a config value by key, storing *default* if the key is absent.
+
+        Args:
+            key: Configuration key to look up.
+            default: Value to return (and persist) when the key is missing.
+
+        Returns:
+            The configuration value, or *default*.
+        """
         value = self.config_data.get(key)
         if value is None:
             value = default

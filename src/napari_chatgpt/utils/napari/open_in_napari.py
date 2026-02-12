@@ -1,3 +1,5 @@
+"""Open files and URLs in napari using multiple fallback strategies."""
+
 import tempfile
 import traceback
 from typing import TYPE_CHECKING
@@ -7,6 +9,19 @@ if TYPE_CHECKING:
 
 
 def open_in_napari(viewer: "Viewer", url: str, plugin: str = "napari") -> bool:
+    """Open a file or URL in the napari viewer, trying multiple backends.
+
+    Attempts, in order: the native napari opener, Zarr/OME-Zarr, imageio,
+    and video (pyav).
+
+    Args:
+        viewer: The napari ``Viewer`` instance.
+        url: File path or URL to open.
+        plugin: napari plugin name for the initial open attempt.
+
+    Returns:
+        ``True`` if the file was successfully opened, ``False`` otherwise.
+    """
     try:
         viewer.open(url, plugin=plugin)
         return True
@@ -22,6 +37,15 @@ def open_in_napari(viewer: "Viewer", url: str, plugin: str = "napari") -> bool:
 
 
 def open_video_in_napari(viewer: "Viewer", url: str):
+    """Download and open a video file (mp4, mpg, mov, avi, m4v) in napari.
+
+    Args:
+        viewer: The napari ``Viewer`` instance.
+        url: URL pointing to a video file.
+
+    Returns:
+        ``True`` if the video was successfully opened, ``False`` otherwise.
+    """
     try:
         # First we check if it is a file that we can reasonably expect to open:
         if not (
@@ -58,6 +82,7 @@ def open_video_in_napari(viewer: "Viewer", url: str):
 
 
 def _open_imageio_in_napari(viewer: "Viewer", url: str) -> bool:
+    """Try opening a URL or path with imageio and adding it as an image layer."""
     try:
         import imageio.v3 as imageio
 
@@ -72,6 +97,7 @@ def _open_imageio_in_napari(viewer: "Viewer", url: str) -> bool:
 
 
 def open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
+    """Open a Zarr or OME-Zarr dataset in napari, trying OME-Zarr first."""
     if _open_ome_zarr_in_napari(viewer, url):
         return True
     elif _open_zarr_in_napari(viewer, url):
@@ -81,6 +107,7 @@ def open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
 
 
 def _open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
+    """Try opening a URL or path as a plain Zarr store."""
     try:
         import zarr
 
@@ -96,6 +123,7 @@ def _open_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
 
 
 def _open_ome_zarr_in_napari(viewer: "Viewer", url: str) -> bool:
+    """Try opening a URL or path as an OME-Zarr dataset using ome-zarr."""
     try:
         from ome_zarr.io import parse_url
         from ome_zarr.reader import Reader

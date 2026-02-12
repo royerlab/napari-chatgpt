@@ -1,3 +1,12 @@
+"""Function signature strings for the segmentation backends.
+
+These string constants contain the function signatures (without bodies) for
+``cellpose_segmentation``, ``stardist_segmentation``, and
+``classic_segmentation``.  They are injected into the LLM prompt by
+``CellNucleiSegmentationTool`` so the sub-LLM knows which functions are
+available and how to call them.
+"""
+
 cellpose_signature = """
 # Cellpose uses deep learning for cell/cytoplasm segmentation. Handles 2D and 3D.
 def cellpose_segmentation( image: ArrayLike,

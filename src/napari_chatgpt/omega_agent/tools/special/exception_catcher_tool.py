@@ -1,4 +1,10 @@
-"""A tool for catching and reporting uncaught exceptions."""
+"""Tool for catching, queuing, and reporting uncaught exceptions.
+
+Installs a custom ``sys.excepthook`` that captures unhandled exceptions
+into a thread-safe queue. The Omega agent can then query this tool to
+retrieve detailed exception descriptions including tracebacks, which is
+useful for automated debugging workflows.
+"""
 
 import queue
 import sys
@@ -11,38 +17,52 @@ from napari_chatgpt.utils.python.exception_description import (
     exception_description,
 )
 
-# Create a queue to store exception information
+# Thread-safe queue that accumulates unhandled exceptions.
 exception_queue = queue.Queue()
 
 
 def _uncaught_exception_handler(exctype, value, _traceback):
-    # Store the exception information in the queue
+    """Custom ``sys.excepthook`` that enqueues exceptions for later retrieval.
+
+    Args:
+        exctype: The exception class.
+        value: The exception instance.
+        _traceback: The traceback object.
+    """
     enqueue_exception(value)
     aprint(value)
     traceback.print_exc()
 
 
 def enqueue_exception(exception):
+    """Add an exception to the global exception queue.
+
+    Args:
+        exception: The exception instance to enqueue.
+    """
     exception_queue.put(exception)
 
 
 class ExceptionCatcherTool(BaseOmegaTool):
-    """
-    A tool that catches all uncaught exceptions and
-    makes them available to Omega. This tool is useful
-    for debugging and understanding issues that occur
-    during the execution of Omega tools.
+    """Tool that captures uncaught exceptions and reports them to the agent.
+
+    On initialization, replaces ``sys.excepthook`` with a custom handler
+    that stores exceptions in a module-level queue. When invoked, drains
+    the queue and returns formatted exception descriptions with tracebacks.
+
+    Attributes:
+        name: Tool identifier string.
+        description: Human-readable description used by the LLM agent.
     """
 
     def __init__(self, **kwargs):
-        """
-        Initialize the ExceptionCatcherTool.
+        """Initialize the ExceptionCatcherTool and install the exception hook.
 
-        Parameters
-        ----------
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, etc.
+        Replaces ``sys.excepthook`` so that all uncaught exceptions are
+        captured into ``exception_queue`` for later retrieval.
+
+        Args:
+            **kwargs: Keyword arguments forwarded to ``BaseOmegaTool``.
         """
         super().__init__(**kwargs)
 
@@ -61,7 +81,16 @@ class ExceptionCatcherTool(BaseOmegaTool):
         )
 
     def run_omega_tool(self, query: str = ""):
+        """Retrieve and format queued uncaught exceptions.
 
+        Args:
+            query: A string containing the number of exceptions to report.
+                If not a valid integer, all queued exceptions are returned.
+
+        Returns:
+            A formatted string listing exception descriptions, or a message
+            indicating no exceptions were recorded.
+        """
         with asection("ExceptionCatcherTool:"):
 
             if exception_queue.qsize() == 0:

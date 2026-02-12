@@ -1,3 +1,12 @@
+"""StarDist-based cell/nuclei segmentation delegated code.
+
+This module is injected at runtime by ``CellNucleiSegmentationTool`` when the
+LLM-generated code calls ``stardist_segmentation()``.  It wraps StarDist2D
+pretrained models to provide a unified 2D/3D segmentation interface.  For 3D
+images, segmentation is performed slice-by-slice using the 2D model with
+subsequent label merging across slices.
+"""
+
 from typing import Any
 
 from napari.types import ArrayLike
@@ -118,6 +127,20 @@ def stardist_segmentation(
 
 
 def stardist_2d(image, scale: float, model_type: str, model: Any | None = None):
+    """Run StarDist2D prediction on a single 2D image.
+
+    Args:
+        image: 2D image array to segment.
+        scale: Scaling factor applied before prediction.
+        model_type: Pretrained model name (e.g. ``"2D_versatile_fluo"``).
+        model: Pre-loaded StarDist2D model instance, or ``None`` to load one.
+
+    Returns:
+        Integer labels array with segmented regions.
+
+    Raises:
+        RuntimeError: If the model fails to load.
+    """
     if model is None:
         # Get the StarDist model:
         from stardist.models import StarDist2D
@@ -137,6 +160,23 @@ def stardist_2d(image, scale: float, model_type: str, model: Any | None = None):
 
 
 def stardist_3d(image, scale: float, model_type: str, min_segment_size: int):
+    """Run StarDist segmentation on a 3D image via slice-by-slice 2D prediction.
+
+    Loads the StarDist2D model once and applies it to each 2D slice along
+    axis 0, then merges labels across slices using IoU-based matching.
+
+    Args:
+        image: 3D image array to segment.
+        scale: Scaling factor applied before prediction.
+        model_type: Pretrained model name (e.g. ``"2D_versatile_fluo"``).
+        min_segment_size: Minimum segment size passed to the merging step.
+
+    Returns:
+        Integer labels array with segmented regions.
+
+    Raises:
+        RuntimeError: If the model fails to load.
+    """
     # Get the StarDist model once:
     from stardist.models import StarDist2D
 

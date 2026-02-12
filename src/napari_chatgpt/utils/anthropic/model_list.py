@@ -1,3 +1,5 @@
+"""Utilities for retrieving the list of available Anthropic Claude models."""
+
 from arbol import asection
 
 

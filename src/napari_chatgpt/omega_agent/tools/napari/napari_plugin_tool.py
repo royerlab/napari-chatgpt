@@ -1,4 +1,14 @@
-"""Tool for discovering and executing installed napari plugin functions."""
+"""Tool for discovering and executing installed napari plugin functions.
+
+This module provides ``NapariPluginTool`` and the supporting ``PluginCatalog``.
+At initialization the catalog scans all npe2 plugin manifests to discover
+available widgets, readers, and writers.  The tool operates in two modes:
+
+* **Info mode** -- returns a formatted catalog listing when the query contains
+  keywords like "list", "available", or "which plugin".
+* **Execution mode** -- delegates to the sub-LLM code-generation pipeline to
+  write and execute code that uses a discovered plugin function.
+"""
 
 import inspect
 import logging
@@ -61,8 +71,21 @@ _INFO_KEYWORDS = re.compile(
 
 
 class PluginCatalog:
-    """Scans npe2 plugin manifests and builds a catalog of available
-    plugin contributions (widgets, readers, writers)."""
+    """Scans npe2 plugin manifests and builds a catalog of available contributions.
+
+    On construction, discovers all enabled napari plugins via npe2 and
+    introspects their widgets, readers, and writers.  Provides formatted
+    output methods for embedding in LLM prompts or returning to the user.
+
+    Attributes:
+        widgets: List of widget contribution dicts (plugin, display_name,
+            python_name, signature, docstring, kind).
+        readers: List of reader contribution dicts (plugin, command,
+            python_name, filename_patterns).
+        writers: List of writer contribution dicts (plugin, command,
+            python_name, filename_extensions, layer_types).
+        error_log: Warnings/errors encountered during catalog building.
+    """
 
     def __init__(self):
         self.widgets: list[dict] = []
@@ -76,6 +99,7 @@ class PluginCatalog:
     # Catalog building
     # ------------------------------------------------------------------
     def _build_catalog(self):
+        """Discover all npe2 plugins and collect their contributions."""
         try:
             from npe2 import PluginManager
         except ImportError:
@@ -142,6 +166,7 @@ class PluginCatalog:
                 self._plugin_names.add(plugin_name)
 
     def _process_widget(self, plugin_name, contrib, cmd_map):
+        """Introspect a single widget contribution and add it to the catalog."""
         display_name = contrib.display_name or ""
         autogenerate = getattr(contrib, "autogenerate", False)
 
@@ -176,6 +201,7 @@ class PluginCatalog:
         )
 
     def _process_reader(self, plugin_name, contrib, cmd_map):
+        """Extract reader metadata and add it to the catalog."""
         command_id = getattr(contrib, "command", None) or ""
         patterns = getattr(contrib, "filename_patterns", []) or []
         python_name = cmd_map.get(command_id, command_id)
@@ -189,6 +215,7 @@ class PluginCatalog:
         )
 
     def _process_writer(self, plugin_name, contrib, cmd_map):
+        """Extract writer metadata and add it to the catalog."""
         command_id = getattr(contrib, "command", None) or ""
         extensions = getattr(contrib, "filename_extensions", []) or []
         layer_types = getattr(contrib, "layer_types", []) or []
@@ -316,19 +343,38 @@ class PluginCatalog:
     # Helpers
     # ------------------------------------------------------------------
     def is_empty(self) -> bool:
+        """Return True if no contributions were discovered."""
         return not (self.widgets or self.readers or self.writers)
 
     def get_plugin_count(self) -> int:
+        """Return the number of distinct plugins with contributions."""
         return len(self._plugin_names)
 
     def _total_items(self) -> int:
+        """Return the total number of widgets + readers + writers."""
         return len(self.widgets) + len(self.readers) + len(self.writers)
 
 
 class NapariPluginTool(BaseNapariTool):
-    """Tool that discovers and executes installed napari plugin functions."""
+    """Tool that discovers and executes installed napari plugin functions.
+
+    Operates in two modes depending on the user query:
+
+    * **Info mode** -- triggered by keywords like "list" or "available";
+      returns the plugin catalog directly without invoking the sub-LLM.
+    * **Execution mode** -- delegates to the sub-LLM to generate code that
+      uses a plugin function, then executes it on the Qt thread.
+
+    Attributes:
+        catalog: The ``PluginCatalog`` built at initialization time.
+    """
 
     def __init__(self, **kwargs):
+        """Initialize the plugin tool and build the plugin catalog.
+
+        Args:
+            **kwargs: Forwarded to ``BaseNapariTool.__init__``.
+        """
         super().__init__(**kwargs)
 
         self.name = "NapariPluginTool"
@@ -375,6 +421,15 @@ class NapariPluginTool(BaseNapariTool):
     # Dual-mode dispatch
     # ------------------------------------------------------------------
     def run_omega_tool(self, query: str = "") -> str:
+        """Dispatch to info mode or execution mode based on the query.
+
+        Args:
+            query: The user's request text.
+
+        Returns:
+            Either a formatted catalog (info mode) or the result of code
+            execution (execution mode).
+        """
         # Info mode: return catalog directly, no sub-LLM or Qt round-trip:
         if _INFO_KEYWORDS.search(query):
             with asection("NapariPluginTool: info mode"):
@@ -394,6 +449,16 @@ class NapariPluginTool(BaseNapariTool):
     # Code execution (runs on Qt thread via napari bridge)
     # ------------------------------------------------------------------
     def _run_code(self, request: str, code: str, viewer: Viewer) -> str:
+        """Execute LLM-generated plugin code on the napari viewer.
+
+        Args:
+            request: The original user request text.
+            code: Python source code generated by the sub-LLM.
+            viewer: The active napari viewer instance.
+
+        Returns:
+            A success or error message string.
+        """
         try:
             with asection("NapariPluginTool:"):
                 with asection("Request:"):
@@ -477,6 +542,7 @@ def _truncate_list(items: list, max_show: int) -> str:
 
 
 def _truncate(text: str, max_len: int) -> str:
+    """Truncate text to at most ``max_len`` characters, adding ellipsis."""
     if not text:
         return ""
     text = text.replace("\n", " ").strip()

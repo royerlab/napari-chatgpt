@@ -1,3 +1,5 @@
+"""Widget for sending code snippets to discovered network peers via CodeDrop."""
+
 from collections.abc import Callable
 
 from arbol import aprint
@@ -8,6 +10,17 @@ from napari_chatgpt.microplugin.network.code_drop_client import CodeDropClient
 
 
 class CodeDropSendWidget(QWidget):
+    """Widget providing a UI to select a discovered peer and send code to them.
+
+    Displays a dropdown of discovered CodeDrop servers, a Send button, and a
+    Cancel button. The server list refreshes periodically while the widget is
+    visible.
+
+    Attributes:
+        code_drop_client: The CodeDropClient used for peer discovery and sending.
+        refresh_interval: Server list refresh interval in milliseconds.
+    """
+
     def __init__(
         self,
         code_drop_client: CodeDropClient,
@@ -15,6 +28,14 @@ class CodeDropSendWidget(QWidget):
         margin: int = 0,
         refresh_interval: int = 1,
     ):
+        """Initialize the code drop send widget.
+
+        Args:
+            code_drop_client: Client for discovering and communicating with peers.
+            max_height: Maximum widget height in pixels.
+            margin: Layout margin in pixels.
+            refresh_interval: How often to refresh the server list, in seconds.
+        """
 
         super().__init__()
 
@@ -31,6 +52,7 @@ class CodeDropSendWidget(QWidget):
         self.timer = None
 
     def initUI(self, max_height: int, margin: int):
+        """Build the widget UI with server dropdown, Send, and Cancel buttons."""
 
         # Layout:
         layout = QHBoxLayout(self)
@@ -70,6 +92,11 @@ class CodeDropSendWidget(QWidget):
         self.hide()
 
     def update_server_list(self):
+        """Refresh the server dropdown from the client's discovered servers.
+
+        Preserves the current selection if the previously selected server is
+        still available.
+        """
 
         def _identifier(username_address_port):
             if not username_address_port:
@@ -109,6 +136,7 @@ class CodeDropSendWidget(QWidget):
             self.username_address_port_combo_box.setCurrentIndex(0)
 
     def send_code(self):
+        """Send the current code to the selected server and hide the widget."""
 
         # Get the selected server address and port:
         username_address_port = self.username_address_port_combo_box.currentData()
@@ -140,6 +168,7 @@ class CodeDropSendWidget(QWidget):
         self.canceled()
 
     def canceled(self):
+        """Hide the widget, disable discovery, and stop refreshing."""
 
         # Hide:
         self.hide()
@@ -151,6 +180,7 @@ class CodeDropSendWidget(QWidget):
         self.stop_server_list_refresh()
 
     def start_server_list_refresh(self):
+        """Start a periodic timer to refresh the discovered server list."""
 
         # Initial refresh:
         self.update_server_list()
@@ -164,6 +194,7 @@ class CodeDropSendWidget(QWidget):
         self.destroyed.connect(self.stop_server_list_refresh)
 
     def stop_server_list_refresh(self):
+        """Stop the periodic server list refresh timer."""
         # Stop the timer:
         if self.timer:
             self.timer.stop()
@@ -171,6 +202,11 @@ class CodeDropSendWidget(QWidget):
             self.timer = None
 
     def show_send_dialog(self, get_code_callable: Callable[[], tuple[str, str]]):
+        """Show the send dialog, enabling discovery and server list refresh.
+
+        Args:
+            get_code_callable: A callable returning ``(filename, code)`` to send.
+        """
 
         # Store the filename and code:
         self.get_code_callable = get_code_callable
@@ -185,9 +221,11 @@ class CodeDropSendWidget(QWidget):
         self.show()
 
     def stop(self):
+        """Stop the server list refresh timer."""
         # Stop refreshing server list:
         self.stop_server_list_refresh()
 
     def close(self):
+        """Stop refresh and close the widget."""
         self.stop()
         super().close()

@@ -1,3 +1,5 @@
+"""Retrieve and post-process the list of available OpenAI GPT models."""
+
 import traceback
 
 from arbol import aprint, asection
@@ -6,21 +8,14 @@ from napari_chatgpt.llm.api_keys.api_key import set_api_key
 
 
 def get_openai_model_list(filter: str = "gpt", verbose: bool = False) -> list:
-    """
-    Get the list of all OpenAI ChatGPT models.
+    """Get the list of all OpenAI ChatGPT models.
 
-    Parameters
-    ----------
-    filter : str
-        Filter to apply to the list of models.
-    verbose : bool
-        Verbosity flag.
+    Args:
+        filter: Filter to apply to the list of models.
+        verbose: Verbosity flag.
 
-    Returns
-    -------
-    list
+    Returns:
         List of models.
-
     """
 
     with asection(f"Enumerating all OpenAI ChatGPT models:"):
@@ -81,19 +76,16 @@ def get_openai_model_list(filter: str = "gpt", verbose: bool = False) -> list:
 
 
 def postprocess_openai_model_list(model_list: list) -> list:
-    """
-    Postprocess the list of OpenAI models. This is useful to remove problematic models from the list and sort models in decreasing order of quality.
+    """Postprocess the list of OpenAI models.
 
-    Parameters
-    ----------
-    model_list : list
-        List of models.
+    This is useful to remove problematic models from the list and sort models
+    in decreasing order of quality.
 
-    Returns
-    -------
-    list
+    Args:
+        model_list: List of models.
+
+    Returns:
         Postprocessed list of models.
-
     """
 
     try:

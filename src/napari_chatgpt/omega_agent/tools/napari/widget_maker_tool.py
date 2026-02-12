@@ -1,4 +1,11 @@
-"""A tool for making a napari widget using an agentic sub-agent with self-correction."""
+"""Tool for creating napari magicgui widgets via an agentic sub-agent.
+
+This module provides ``NapariWidgetMakerTool``, which uses a self-correcting
+sub-agent loop to generate, validate, and dock ``@magicgui``-decorated
+widget functions in the napari viewer.  The sub-agent is given a
+``submit_widget_code`` tool that executes the generated code on the Qt
+thread and provides error feedback, allowing up to 3 retry attempts.
+"""
 
 import sys
 import traceback
@@ -131,7 +138,17 @@ _code_lines_to_filter_out = [
 
 
 class _WidgetCodeSubmitTool(FunctionTool):
-    """Submit widget code for execution. The code argument must contain a complete magicgui-decorated function."""
+    """FunctionTool that the sub-agent calls to submit and execute widget code.
+
+    Each invocation sends the code to the napari Qt thread for execution.
+    If the code fails, the error is returned so the sub-agent can fix it
+    and retry (up to ``max_attempts``).
+
+    Attributes:
+        last_successful_code: The code string that last succeeded, or ``None``.
+        last_function_name: The name of the last successfully created widget
+            function, or ``None``.
+    """
 
     def __init__(
         self,
@@ -159,15 +176,13 @@ class _WidgetCodeSubmitTool(FunctionTool):
     def submit_widget_code(self, code: str) -> str:
         """Submit widget code for execution in napari.
 
-        Parameters
-        ----------
-        code : str
-            The complete Python code containing a @magicgui-decorated function.
+        Args:
+            code: The complete Python code containing a
+                ``@magicgui``-decorated function.
 
-        Returns
-        -------
-        str
-            Success message if the widget was created, or an error description.
+        Returns:
+            Success message if the widget was created, or an error
+            description.
         """
         self._attempt_count += 1
 
@@ -208,7 +223,19 @@ class _WidgetCodeSubmitTool(FunctionTool):
             return response
 
     def _execute_widget_code(self, code: str, viewer: Viewer) -> str:
-        """Execute the widget code on the Qt thread. Exceptions propagate to ExceptionGuard."""
+        """Execute widget code on the Qt thread and dock the resulting widget.
+
+        Prepends the code prefix, filters forbidden lines, finds the
+        ``@magicgui``-decorated function, dynamically imports it, and docks
+        it in the viewer.  Exceptions propagate to ``ExceptionGuard``.
+
+        Args:
+            code: The raw Python code from the sub-agent.
+            viewer: The active napari viewer instance.
+
+        Returns:
+            A success or error message string.
+        """
 
         # Extract code from markdown if needed:
         code = extract_code_from_markdown(code)
@@ -262,11 +289,24 @@ class _WidgetCodeSubmitTool(FunctionTool):
 
 
 class NapariWidgetMakerTool(BaseNapariTool):
-    """
-    A tool for making napari widgets
+    """LLM-driven tool for creating ``@magicgui`` widgets in napari.
+
+    Unlike other napari tools, this one uses an agentic sub-agent loop with
+    self-correction: the sub-agent generates widget code, submits it via
+    ``_WidgetCodeSubmitTool``, and retries on failure (up to 3 attempts).
+    The resulting widget is automatically docked in the napari viewer.
+
+    Attributes:
+        code_prefix: Common imports prepended to generated code.
+        instructions: Detailed coding instructions for the sub-agent.
     """
 
     def __init__(self, **kwargs):
+        """Initialize the widget maker tool.
+
+        Args:
+            **kwargs: Forwarded to ``BaseNapariTool.__init__``.
+        """
         super().__init__(**kwargs)
 
         self.name = "NapariWidgetMakerTool"
@@ -293,6 +333,19 @@ class NapariWidgetMakerTool(BaseNapariTool):
         self.return_direct: bool = True
 
     def run_omega_tool(self, query: str = "") -> str:
+        """Create a magicgui widget using a self-correcting sub-agent.
+
+        Builds the system prompt with viewer/system context, creates a
+        fresh ``_WidgetCodeSubmitTool`` and sub-agent, and runs the agent
+        with the user's query.  On success, the widget code is saved to
+        the notebook and snippet editor.
+
+        Args:
+            query: Plain-text description of the desired widget.
+
+        Returns:
+            A success message if the widget was created, or an error message.
+        """
         with asection("NapariWidgetMakerTool (agentic):"):
             with asection("Query:"):
                 aprint(query)

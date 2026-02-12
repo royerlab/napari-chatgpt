@@ -1,3 +1,11 @@
+"""Classic threshold-based cell segmentation delegated code.
+
+This module is injected at runtime by ``CellNucleiSegmentationTool`` when the
+LLM-generated code calls ``classic_segmentation()``.  It provides
+threshold-based segmentation with multiple thresholding algorithms (Otsu, Li,
+Triangle, etc.), optional morphological operations, and watershed separation.
+"""
+
 from napari.types import ArrayLike
 from numpy import ndarray, uint32, zeros
 from scipy.ndimage import distance_transform_edt, gaussian_filter

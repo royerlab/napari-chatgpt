@@ -1,8 +1,9 @@
-"""
-napari_chatgpt OmegaQWidget
+"""Main napari dock-widget for the Omega LLM agent.
 
-# OmegaQWidget.py
-
+This module defines :class:`OmegaQWidget`, the primary Qt widget that is
+registered as a napari plugin.  It exposes controls for model selection,
+creativity / temperature, personality, and various toggles, and launches
+the Omega chat server when the user clicks **Start**.
 """
 
 import sys
@@ -44,11 +45,29 @@ MicroPluginMainWindow._singleton_pattern_active = True
 
 
 class OmegaQWidget(QWidget):
-    # your QWidget.__init__ can optionally request the napari viewer instance
-    # in one of two ways:
-    # 1. use a parameter called `napari_viewer`, as done here
-    # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
+    """Napari dock widget that controls the Omega LLM agent.
+
+    The widget provides UI elements for selecting models, adjusting
+    creativity (temperature), choosing a personality, and toggling features
+    such as web search, tutorial mode, and chat-to-notebook saving.
+    Pressing the *Start* button launches a :class:`NapariChatServer` that
+    opens a browser-based chat interface connected to the napari viewer.
+
+    Attributes:
+        viewer: The napari ``Viewer`` instance this widget is attached to.
+        server: The running :class:`NapariChatServer`, or ``None``.
+        config: Persistent application configuration store.
+        micro_plugin_main_window: Optional MicroPlugin code editor window.
+    """
+
     def __init__(self, napari_viewer: Viewer, add_code_editor: bool = True):
+        """Initialise the Omega widget and build its UI.
+
+        Args:
+            napari_viewer: The napari viewer instance to attach to.
+            add_code_editor: If ``True``, instantiate the MicroPlugin code
+                editor alongside the main controls.
+        """
         super().__init__()
         aprint("OmegaQWidget instantiated!")
 
@@ -114,7 +133,7 @@ class OmegaQWidget(QWidget):
         atexit.register(self._shutdown)
 
     def _main_model_selection(self):
-
+        """Add the main (conversation) model drop-down to the layout."""
         aprint("Setting up main model selection UI.")
 
         # Create a QLabel instance
@@ -142,7 +161,7 @@ class OmegaQWidget(QWidget):
         self.main_layout.addWidget(self.main_model_combo_box)
 
     def _tool_model_selection(self):
-
+        """Add the coding / tool model drop-down to the layout."""
         aprint("Setting up tool model selection UI.")
 
         # Create a QLabel instance
@@ -171,6 +190,16 @@ class OmegaQWidget(QWidget):
 
     @staticmethod
     def _preferred_models(model_list: list[str]):
+        """Sort *model_list* in-place so preferred/frontier models appear first.
+
+        Retired or obsolete models are removed entirely.  The remaining
+        models are ordered by a hand-curated tier list that interleaves
+        providers (Anthropic, OpenAI, Google) so users see the best options
+        regardless of which API keys they have configured.
+
+        Args:
+            model_list: Mutable list of model name strings; modified in-place.
+        """
         # Models to exclude (retired or way too old):
         _excluded = {
             "claude-3-opus",  # Retired Jan 2026
@@ -222,6 +251,7 @@ class OmegaQWidget(QWidget):
         model_list.sort(key=_sort_key)
 
     def _creativity_level(self):
+        """Add the creativity (temperature) combo box to the layout."""
         aprint("Setting up creativity level UI.")
 
         # Create a QLabel instance
@@ -248,6 +278,7 @@ class OmegaQWidget(QWidget):
         self.main_layout.addWidget(self.creativity_combo_box)
 
     def _memory_type_selection(self):
+        """Add the conversation memory-type combo box to the layout."""
         aprint("Setting up memory type UI.")
 
         # Create a QLabel instance
@@ -269,6 +300,7 @@ class OmegaQWidget(QWidget):
         self.main_layout.addWidget(self.memory_type_combo_box)
 
     def _personality_selection(self):
+        """Add the agent personality combo box to the layout."""
         aprint("Setting up personality UI.")
 
         # Create a QLabel instance
@@ -292,6 +324,7 @@ class OmegaQWidget(QWidget):
         self.main_layout.addWidget(self.agent_personality_combo_box)
 
     def _tutorial_mode(self):
+        """Add the tutorial / didactic mode checkbox to the layout."""
         aprint("Setting up tutorial mode UI.")
 
         # Get app configuration:
@@ -311,6 +344,7 @@ class OmegaQWidget(QWidget):
         self.main_layout.addWidget(self.tutorial_mode_checkbox)
 
     def _builtin_websearch_tool(self):
+        """Add the built-in web search toggle checkbox to the layout."""
         aprint("Setting up builtin web search UI.")
 
         # Get app configuration:
@@ -332,6 +366,7 @@ class OmegaQWidget(QWidget):
         self.main_layout.addWidget(self.builtin_websearch_tool_checkbox)
 
     def _save_chats_as_notebooks(self):
+        """Add the 'save chats as Jupyter notebooks' checkbox to the layout."""
         aprint("Setting up save notebooks UI.")
 
         # Get app configuration:
@@ -350,6 +385,7 @@ class OmegaQWidget(QWidget):
         self.main_layout.addWidget(self.save_chats_as_notebooks)
 
     def _verbose(self):
+        """Add the high-verbosity console logging checkbox to the layout."""
         aprint("Setting up verbose UI.")
 
         # Get app configuration:
@@ -370,6 +406,7 @@ class OmegaQWidget(QWidget):
         self.main_layout.addWidget(self.verbose_checkbox)
 
     def _start_omega_button(self):
+        """Add the 'Start Conversing with Omega' push-button to the layout."""
         aprint("Setting up start Omega button UI.")
 
         # Start Omega button:
@@ -385,6 +422,7 @@ class OmegaQWidget(QWidget):
         self.main_layout.addWidget(self.start_omega_button)
 
     def _show_editor_button(self):
+        """Add the 'Show Code Editor' push-button to the layout."""
         aprint("Setting up open editor button UI.")
 
         # Start Omega button:
@@ -403,6 +441,13 @@ class OmegaQWidget(QWidget):
         self.main_layout.addWidget(self.show_editor_button)
 
     def _start_omega(self):
+        """Launch (or restart) the Omega chat server with current UI settings.
+
+        Shows a one-time disclaimer dialog on first run, stops any
+        previously running server, then starts a new
+        :class:`NapariChatServer` using the model, temperature,
+        personality, and feature toggles selected in the widget.
+        """
         try:
             with asection("Starting Omega now!"):
 
@@ -462,6 +507,7 @@ class OmegaQWidget(QWidget):
             traceback.print_exc()
 
     def _show_editor(self):
+        """Show the MicroPlugin code editor window and bring it to the front."""
         try:
             if not self.micro_plugin_main_window:
                 aprint("MicroPluginMainWindow not instantiated.")
@@ -488,7 +534,7 @@ class OmegaQWidget(QWidget):
             traceback.print_exc()
 
     def setStyleSheet(self, style):
-
+        """Apply *style* to this widget and propagate it to the code editor."""
         # Set the stylesheet for the micro plugin main window:
         if self.micro_plugin_main_window:
             self.micro_plugin_main_window.setStyleSheet(style)
@@ -497,6 +543,7 @@ class OmegaQWidget(QWidget):
         super().setStyleSheet(style)
 
     def close(self):
+        """Shut down background services and close the widget."""
         self._shutdown()
         super().close()
 
@@ -523,6 +570,7 @@ class OmegaQWidget(QWidget):
 
 
 def main():
+    """Run the Omega widget standalone with a fresh napari viewer (for debugging)."""
     app = QApplication(sys.argv)
 
     # You need to create an instance of napari.viewer.Viewer

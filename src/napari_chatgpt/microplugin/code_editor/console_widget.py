@@ -1,3 +1,5 @@
+"""Read-only console output widget for displaying script execution results."""
+
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
     QApplication,
@@ -10,7 +12,21 @@ from qtpy.QtWidgets import (
 
 
 class ConsoleWidget(QWidget):
+    """A popup console widget that displays formatted info and error messages.
+
+    Messages are displayed with color coding (green for info, red for errors)
+    and the widget auto-shows when a message is appended. Includes close and
+    clear buttons.
+    """
+
     def __init__(self, margin: int = 0, icon_size: int = 20, parent=None):
+        """Initialize the console widget.
+
+        Args:
+            margin: Layout margin in pixels.
+            icon_size: Width and height of the close/clear buttons in pixels.
+            parent: Parent widget.
+        """
 
         super().__init__(parent=parent)
 
@@ -21,6 +37,7 @@ class ConsoleWidget(QWidget):
         self.initUI(margin=margin, icon_size=icon_size)
 
     def initUI(self, margin: int, icon_size: int):
+        """Build the console UI with close/clear buttons and a read-only text area."""
 
         # Main layout
         self.main_layout = QVBoxLayout()
@@ -67,12 +84,13 @@ class ConsoleWidget(QWidget):
         self.hide()
 
     def append_message(self, message: str, message_type: str = "info"):
-        """
-        Append a message to the console output.
+        """Append a message to the console output and show the widget.
 
         Args:
-        message (str): The message to append.
-        message_type (str): The type of message ('info', 'error', etc.). Can be used to format messages differently.
+            message: The message text to append. Whitespace is preserved
+                using HTML non-breaking spaces.
+            message_type: Message category for color formatting. ``'info'``
+                renders green, ``'error'`` renders red.
         """
 
         # Clean the message:
@@ -103,9 +121,7 @@ class ConsoleWidget(QWidget):
         self.show()
 
     def clear_console(self):
-        """
-        Clear the console output.
-        """
+        """Clear all messages from the console output."""
         self.console_output.clear()
 
 

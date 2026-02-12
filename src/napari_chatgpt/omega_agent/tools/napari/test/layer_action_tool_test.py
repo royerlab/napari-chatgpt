@@ -35,12 +35,7 @@ def test_parse_action_metadata_defaults():
         _parse_action_metadata,
     )
 
-    code = (
-        "# ACTION_TITLE: My Action\n"
-        "\n"
-        "def my_action(ll):\n"
-        "    pass\n"
-    )
+    code = "# ACTION_TITLE: My Action\n" "\n" "def my_action(ll):\n" "    pass\n"
     meta = _parse_action_metadata(code)
     assert meta["title"] == "My Action"
     assert meta["category"] == "filter"  # default

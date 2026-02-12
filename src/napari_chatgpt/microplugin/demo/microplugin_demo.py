@@ -1,3 +1,10 @@
+"""Demo script for the MicroPlugin editor window.
+
+Launches a standalone ``MicroPluginMainWindow`` (without napari) using a
+temporary directory for snippet storage. Useful for testing the editor
+UI independently.
+"""
+
 import sys
 import tempfile
 import traceback

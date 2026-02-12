@@ -1,7 +1,18 @@
+"""Utilities for finding function names in Python source code strings."""
+
 import re
 
 
 def find_function_name(code: str):
+    """Find the name of the first function defined in a code string.
+
+    Args:
+        code: A string containing Python source code.
+
+    Returns:
+        The name of the first function found, or None if no function
+        definition is present.
+    """
     # Define a regular expression pattern to match the function name
     pattern = r"def\s+(\w+)\("
 
@@ -17,6 +28,19 @@ def find_function_name(code: str):
 
 
 def find_magicgui_decorated_function_name(code: str):
+    """Find the name of the first function decorated with @magicgui.
+
+    Scans the code line by line looking for a ``@magicgui`` decorator,
+    then extracts the name of the immediately following function
+    definition.
+
+    Args:
+        code: A string containing Python source code.
+
+    Returns:
+        The name of the magicgui-decorated function, or None if no
+        such function is found.
+    """
     # Split the code into lines:
     lines = code.split("\n")
 

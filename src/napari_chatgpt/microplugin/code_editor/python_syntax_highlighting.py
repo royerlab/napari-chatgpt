@@ -1,10 +1,22 @@
-# syntax.py
+"""Python syntax highlighter for QTextDocument-based editors.
+
+Supports keyword, operator, brace, string, comment, numeric literal, and
+multi-line string highlighting with a color scheme suited for dark UIs.
+"""
 
 from qtpy import QtCore, QtGui
 
 
 def format(color, style=""):
-    """Return a QTextCharFormat with the given attributes."""
+    """Create a QTextCharFormat with the given color and optional style.
+
+    Args:
+        color: A named color string (e.g., ``'#C68261'`` or ``'lightGray'``).
+        style: Space-separated style keywords. Supports ``'bold'`` and ``'italic'``.
+
+    Returns:
+        A configured QTextCharFormat instance.
+    """
     _color = QtGui.QColor()
     _color.setNamedColor(color)
 
@@ -34,7 +46,16 @@ STYLES = {
 
 
 class PythonSyntaxHighlighter(QtGui.QSyntaxHighlighter):
-    """Syntax highlighter for the Python language."""
+    """QSyntaxHighlighter for the Python language.
+
+    Highlights keywords, operators, braces, strings (single-line and multi-line),
+    comments, numeric literals, ``self``, and ``def``/``class`` identifiers.
+
+    Attributes:
+        keywords: List of Python keyword strings to highlight.
+        operators: List of regex patterns for Python operators.
+        braces: List of regex patterns for braces/brackets/parentheses.
+    """
 
     # Python keywords
     keywords = [
@@ -118,6 +139,11 @@ class PythonSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     ]
 
     def __init__(self, parent: QtGui.QTextDocument) -> None:
+        """Initialize the highlighter and compile all syntax rules.
+
+        Args:
+            parent: The QTextDocument to apply highlighting to.
+        """
         super().__init__(parent)
 
         # Multi-line strings (expression, flag, style)
@@ -205,11 +231,17 @@ class PythonSyntaxHighlighter(QtGui.QSyntaxHighlighter):
             in_multiline = self.match_multiline(text, *self.tri_double)
 
     def match_multiline(self, text, delimiter, in_state, style):
-        """Do highlighting of multi-line strings. ``delimiter`` should be a
-        ``QRegExp`` for triple-single-quotes or triple-double-quotes, and
-        ``in_state`` should be a unique integer to represent the corresponding
-        state changes when inside those strings. Returns True if we're still
-        inside a multi-line string when this function is finished.
+        """Apply highlighting for multi-line strings (triple-quoted).
+
+        Args:
+            text: The text block to highlight.
+            delimiter: QRegExp matching the triple-quote delimiter (``'''`` or ``\"\"\"``).
+            in_state: Unique integer representing the block state when inside
+                this type of multi-line string.
+            style: QTextCharFormat to apply to the matched text.
+
+        Returns:
+            True if the block ends inside an unclosed multi-line string.
         """
         # If inside triple-single quotes, start at 0
         if self.previousBlockState() == in_state:

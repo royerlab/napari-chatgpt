@@ -1,4 +1,10 @@
-"""A tool for querying the list of installed packages."""
+"""Tool for querying the list of installed Python packages.
+
+Provides the Omega agent with the ability to discover which Python
+packages (and their versions) are currently installed, optionally
+filtering by a substring query. Useful for verifying availability
+before generating code that depends on specific libraries.
+"""
 
 import traceback
 
@@ -13,12 +19,23 @@ _MAX_PACKAGES = 200
 
 
 class PythonPackageInfoTool(BaseOmegaTool):
-    """
-    A tool for querying and searching the list of
-    installed packages.
+    """Tool for searching and listing installed Python packages.
+
+    Returns a sorted, deduplicated list of installed packages. An
+    optional substring query filters results; an empty query returns
+    all packages (up to ``_MAX_PACKAGES``).
+
+    Attributes:
+        name: Tool identifier string (set to ``'PackageInfoTool'``).
+        description: Human-readable description used by the LLM agent.
     """
 
     def __init__(self, **kwargs):
+        """Initialize the PythonPackageInfoTool.
+
+        Args:
+            **kwargs: Keyword arguments forwarded to ``BaseOmegaTool``.
+        """
         super().__init__(**kwargs)
 
         self.name = "PackageInfoTool"
@@ -30,7 +47,16 @@ class PythonPackageInfoTool(BaseOmegaTool):
         )
 
     def run_omega_tool(self, query: str = ""):
+        """Search installed packages and return matching entries.
 
+        Args:
+            query: Substring to filter package names by. An empty string
+                returns all installed packages (up to ``_MAX_PACKAGES``).
+
+        Returns:
+            A newline-separated list of matching package names and
+            versions, or an error message if retrieval fails.
+        """
         with asection("PythonPackageInfoTool:"):
             with asection("Query:"):
                 aprint(query)

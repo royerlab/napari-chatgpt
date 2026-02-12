@@ -1,8 +1,19 @@
+"""LLM-powered text summarization utility."""
+
 from napari_chatgpt.llm.litemind_api import get_llm
 from napari_chatgpt.llm.llm import LLM
 
 
 def summarize(text: str, llm: LLM = None):
+    """Summarize text using an LLM, retaining key ideas in at most 3 paragraphs.
+
+    Args:
+        text: The text to summarize.
+        llm: LLM instance to use. If ``None``, the default LLM is created.
+
+    Returns:
+        A concise plain-text summary, or the original text if it is empty.
+    """
     # Clean up text:
     text = text.strip()
 

@@ -1,3 +1,9 @@
+"""LLM-powered code modification based on natural-language requests.
+
+Uses an LLM to apply targeted modifications to Python code while preserving
+the original intent, structure, and formatting.
+"""
+
 import sys
 
 from arbol import aprint, asection
@@ -42,6 +48,21 @@ def modify_code(
     model_name: str | None = None,
     verbose: bool = False,
 ) -> str:
+    """Modify Python code according to a natural-language request using an LLM.
+
+    If the request is empty, the LLM is asked to address TODO and FIXME
+    comments in the code. Returns the original code unchanged on error.
+
+    Args:
+        code: Python source code to modify.
+        request: Natural-language description of the desired changes.
+        llm: LLM instance to use. If None, one is created from model_name.
+        model_name: Name of the LLM model to instantiate if llm is None.
+        verbose: Whether to enable verbose output.
+
+    Returns:
+        The modified Python source code.
+    """
     with asection(f"Modifying code upon request for code of length: {len(code)}"):
 
         try:

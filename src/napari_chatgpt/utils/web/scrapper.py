@@ -1,3 +1,5 @@
+"""Web scraping utilities for extracting visible text from HTML pages."""
+
 import random
 import re
 import time
@@ -10,6 +12,17 @@ from napari_chatgpt.utils.web.headers import _scrapping_request_headers
 
 
 def _tag_visible(element):
+    """Check whether a BeautifulSoup element is visible on the page.
+
+    Filters out elements inside non-visible tags (style, script, head,
+    meta, etc.) and HTML comments.
+
+    Args:
+        element: A BeautifulSoup NavigableString element.
+
+    Returns:
+        True if the element would be visible to a user, False otherwise.
+    """
     if element.parent.name in [
         "style",
         "script",
@@ -31,6 +44,26 @@ def text_from_html(
     min_words: int = 5,
     sort_snippets_by_decreasing_size: bool = True,
 ):
+    """Extract visible text from an HTML document body.
+
+    Parses HTML, extracts all visible text snippets, and optionally
+    cleans, filters, sorts, and limits them.
+
+    Args:
+        body: Raw HTML string to parse.
+        cleanup: If True, strip whitespace, remove short snippets,
+            and collapse repeated whitespace in the output.
+        max_text_snippets: Maximum number of text snippets to include.
+            None means no limit.
+        min_words: Minimum word count for a snippet to be kept
+            (only applies when cleanup is True).
+        sort_snippets_by_decreasing_size: If True, sort snippets by
+            length in descending order before limiting.
+
+    Returns:
+        A single string with extracted text snippets separated by
+        '----' delimiters.
+    """
     # Instantiates a BeautifulSoup scrapper:
     soup = BeautifulSoup(body, "html.parser")
 
@@ -71,6 +104,7 @@ def text_from_html(
 
 
 def _current_time_ms():
+    """Return the current time in milliseconds."""
     current_time = round(time.time() * 1000)
     return current_time
 
@@ -86,6 +120,24 @@ def text_from_url(
     sort_snippets_by_decreasing_size: bool = True,
     max_query_freq_hz: float = 100,
 ) -> str:
+    """Fetch a URL and extract its visible text content.
+
+    Downloads the page, extracts visible text using BeautifulSoup,
+    and applies rate limiting to avoid overwhelming servers.
+
+    Args:
+        url: The URL to fetch and scrape.
+        cleanup: If True, clean up whitespace and filter short snippets.
+        max_text_snippets: Maximum number of text snippets to return.
+        min_words_per_snippet: Minimum word count per snippet.
+        sort_snippets_by_decreasing_size: If True, sort snippets by
+            length in descending order.
+        max_query_freq_hz: Maximum query frequency in Hz for rate
+            limiting between successive calls.
+
+    Returns:
+        Extracted visible text from the page as a single string.
+    """
     global _last_query_time_ms
 
     with Session() as session:

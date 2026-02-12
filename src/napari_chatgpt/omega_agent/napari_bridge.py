@@ -1,3 +1,12 @@
+"""Thread-safe bridge between the Omega agent and the napari Qt event loop.
+
+This module provides ``NapariBridge``, which uses a pair of queues and
+napari's ``@thread_worker`` decorator to safely execute arbitrary callables
+on the Qt thread from a background (non-GUI) thread. It also maintains a
+thread-safe global cache of viewer information so that tools can inspect
+viewer state without blocking the Qt thread.
+"""
+
 import threading
 from collections.abc import Callable
 from queue import Empty, Queue
@@ -21,17 +30,40 @@ _viewer_info = None
 
 
 def _set_viewer_info(viewer_info):
+    """Store viewer information in the thread-safe global cache.
+
+    Args:
+        viewer_info: Serialised viewer state to cache.
+    """
     global _viewer_info
     with _viewer_info_lock:
         _viewer_info = viewer_info
 
 
 def _get_viewer_info():
+    """Retrieve the cached viewer information in a thread-safe manner.
+
+    Returns:
+        The most recently cached viewer information, or ``None``.
+    """
     with _viewer_info_lock:
         return _viewer_info
 
 
 class NapariBridge:
+    """Queue-based bridge for executing code on napari's Qt thread.
+
+    The bridge spawns a background ``@thread_worker`` that polls a
+    *to_napari_queue* for callables. Each callable is yielded so that
+    napari's signal/slot mechanism invokes it on the Qt event loop. The
+    result (or any caught exception) is placed on a *from_napari_queue*
+    for the caller to retrieve.
+
+    Attributes:
+        viewer: The napari ``Viewer`` instance this bridge is bound to.
+        to_napari_queue: Queue for sending callables to the Qt thread.
+        from_napari_queue: Queue for receiving results from the Qt thread.
+    """
 
     def __init__(self, viewer: Viewer):
         self.viewer = viewer
@@ -77,6 +109,12 @@ class NapariBridge:
         self.worker = omega_napari_worker(self.to_napari_queue, self.from_napari_queue)
 
     def get_viewer_info(self) -> str:
+        """Collect viewer state information on the Qt thread and return it.
+
+        Returns:
+            A string summarising the current viewer state, or an error
+            message if the information could not be retrieved.
+        """
 
         # Setting up delegated function:
         delegated_function = lambda v: get_viewer_info(v)
@@ -96,6 +134,12 @@ class NapariBridge:
             return "Could not get information about the viewer because of an error."
 
     def take_snapshot(self):
+        """Take a screenshot of the napari viewer on the Qt thread.
+
+        Returns:
+            A ``PIL.Image.Image`` of the full napari window, or ``None``
+            / an error string if the screenshot fails.
+        """
 
         # Delegated function:
         def _delegated_snapshot_function(viewer: Viewer):
@@ -119,19 +163,22 @@ class NapariBridge:
             pass
 
     def _execute_in_napari_context(self, delegated_function, timeout: float = 300.0):
-        """Execute a function in napari's Qt context.
+        """Execute a callable in napari's Qt context via the queue bridge.
 
-        Parameters
-        ----------
-        delegated_function : Callable
-            Function to execute in napari context.
-        timeout : float
-            Maximum time to wait for response in seconds. Default 300s (5 min).
+        The callable is placed on ``to_napari_queue`` and the method blocks
+        until a result appears on ``from_napari_queue`` or the timeout
+        elapses.
 
-        Returns
-        -------
-        Any
-            Result from the delegated function, or error message/None on failure.
+        Args:
+            delegated_function: A callable accepting a ``napari.Viewer``
+                and returning an arbitrary result.
+            timeout: Maximum seconds to wait for a response. Defaults to
+                300 (5 minutes).
+
+        Returns:
+            The value returned by *delegated_function*, an error message
+            string if an exception was caught, or ``None`` on unexpected
+            failure.
         """
         try:
             # Send code to napari:

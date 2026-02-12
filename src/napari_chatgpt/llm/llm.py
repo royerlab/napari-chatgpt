@@ -1,26 +1,27 @@
+"""Lightweight LLM wrapper for text generation via the LiteMind API."""
+
 from litemind.agent.messages.message import Message
 from litemind.apis.base_api import BaseApi
 
 
 class LLM:
-    """
-    A class to represent a simple completion LLM based on  Litemind.
+    """Simple text-completion wrapper around a LiteMind ``BaseApi``.
+
+    Provides a ``generate`` method that accepts a prompt string (with
+    optional system instructions and template variables) and returns a
+    list of ``Message`` objects from the underlying LLM provider.
     """
 
     def __init__(
         self, api: BaseApi, model_name: str | None = None, temperature: float = 0.0
     ):
-        """
-        Initializes the LLM with the given API and model name.
+        """Initialize the LLM wrapper.
 
-        Parameters
-        ----------
-        api: BaseApi
-            The API to use for generating text.
-        model_name: Optional[str]
-            The name of the model to use for text generation. If None, the default model will be used.
-        temperature: float
-            The temperature for the text generation. Default is 0.0, which means deterministic output.
+        Args:
+            api: LiteMind API backend used for text generation.
+            model_name: Model to use. If ``None``, the API's default
+                model is used.
+            temperature: Sampling temperature (0.0 = deterministic).
         """
         self._api = api
         self.model_name = model_name
@@ -34,24 +35,19 @@ class LLM:
         model_name: str | None = None,
         temperature: float | None = None,
     ) -> list[Message]:
-        """
-        Generates a response from the LLM based on the provided prompt and instructions.
-        Parameters
-        ----------
-        prompt: str
-            The prompt to send to the LLM.
-        system: Optional[str]
-            Instructions to provide context or guidance for the LLM.
-        variables: Optional[dict]
-            Variables to format the prompt with.
-        model_name: Optional[str]
-            The name of the model to use for text generation. If None, the model set during initialization will be used.
-        temperature: Optional[float]
-            The temperature for the text generation. Default is None in which case it uses the temperature set during initialization.
-        Returns
-        -------
-        List[Message]
-            A list of messages containing the generated response from the LLM.
+        """Generate a response from the LLM.
+
+        Args:
+            prompt: User prompt (may contain template placeholders when
+                *variables* is provided).
+            system: Optional system-level instructions prepended to the
+                conversation.
+            variables: Template variables substituted into *prompt*.
+            model_name: Override the model set at init time.
+            temperature: Override the temperature set at init time.
+
+        Returns:
+            A list of ``Message`` objects containing the LLM's response.
         """
 
         # List of messages to send to the LLM:

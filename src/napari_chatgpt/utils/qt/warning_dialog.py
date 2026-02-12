@@ -1,20 +1,17 @@
+"""Simple Qt warning dialog that displays an HTML-formatted message."""
+
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QMessageBox
 
 
 def show_warning_dialog(html_message: str) -> int:
-    """
-    Show a warning dialog with a message in HTML format.
+    """Show a warning dialog with a message in HTML format.
 
-    Parameters
-    ----------
-    html_message: str
-        The message to display in HTML format.
+    Args:
+        html_message: The message to display in HTML format.
 
-    Returns
-    -------
-    int
-
+    Returns:
+        The ``QMessageBox`` button code (e.g. ``QMessageBox.Ok``).
     """
     dialog = QMessageBox()
     dialog.setIcon(QMessageBox.Warning)

@@ -1,3 +1,10 @@
+"""Tool for performing web searches to answer questions.
+
+Provides the Omega agent with the ability to search the web using a
+metasearch backend when it lacks the knowledge to answer a question
+directly.
+"""
+
 import traceback
 
 from arbol import aprint, asection
@@ -7,20 +14,22 @@ from napari_chatgpt.utils.web.metasearch import metasearch
 
 
 class WebSearchTool(BaseOmegaTool):
-    """
-    A tool for searching the web for information.
-    This tool can be used to find answers to questions or gather information on various topics.
+    """Tool for searching the web using a metasearch backend.
+
+    Accepts a plain-text search query and returns aggregated results from
+    multiple search engines. Intended for cases where the LLM does not
+    already know the answer.
+
+    Attributes:
+        name: Tool identifier string.
+        description: Human-readable description used by the LLM agent.
     """
 
     def __init__(self, **kwargs):
-        """
-        Initialize the WebSearchTool.
+        """Initialize the WebSearchTool.
 
-        Parameters
-        ----------
-        kwargs: dict
-            Additional keyword arguments to pass to the base class.
-            This can include parameters like `notebook`, etc.
+        Args:
+            **kwargs: Keyword arguments forwarded to ``BaseOmegaTool``.
         """
         super().__init__(**kwargs)
 
@@ -34,7 +43,15 @@ class WebSearchTool(BaseOmegaTool):
         )
 
     def run_omega_tool(self, query: str = ""):
-        """Use the tool."""
+        """Execute a web search and return the results.
+
+        Args:
+            query: Plain-text search query string.
+
+        Returns:
+            Search results as a formatted string, or an error message
+            if the search fails.
+        """
         try:
 
             with asection(f"WebSearchTool:"):

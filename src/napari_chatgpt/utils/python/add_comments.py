@@ -1,3 +1,9 @@
+"""LLM-powered automatic code commenting, docstring, and type hint generation.
+
+Uses an LLM to add explanatory comments, NumPy/SciPy-style docstrings,
+and type hints to Python code without altering its functionality.
+"""
+
 import sys
 
 from arbol import aprint, asection
@@ -35,6 +41,21 @@ Do not change the code's functionality, structure, or logic.
 def add_comments(
     code: str, llm: LLM = None, model_name: str = None, verbose: bool = False
 ) -> str:
+    """Add comments, docstrings, and type hints to Python code using an LLM.
+
+    Sends the code to an LLM with instructions to annotate it without
+    changing functionality. Returns the original code unchanged if an
+    error occurs.
+
+    Args:
+        code: Python source code to annotate.
+        llm: LLM instance to use. If None, a default is created.
+        model_name: Name of the LLM model (unused, reserved for future use).
+        verbose: Whether to enable verbose output.
+
+    Returns:
+        The annotated Python code with comments, docstrings, and type hints.
+    """
     with asection(
         f"Automatically adds comments, docstrings and types for code of length: {len(code)}"
     ):

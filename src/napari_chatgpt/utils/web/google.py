@@ -1,4 +1,8 @@
-# Code vendored from: https://github.com/Nv7-GitHub/googlesearch/blob/master/googlesearch/__init__.py
+"""Google search utilities, vendored from googlesearch library.
+
+Code vendored from:
+https://github.com/Nv7-GitHub/googlesearch/blob/master/googlesearch/__init__.py
+"""
 
 import random
 
@@ -17,10 +21,10 @@ _useragent_list = [
 
 
 def _get_useragent():
+    """Return a randomly selected browser User-Agent string."""
     return random.choice(_useragent_list)
 
 
-"""googlesearch is a Python library for searching Google, easily."""
 from time import sleep
 
 from bs4 import BeautifulSoup
@@ -28,6 +32,21 @@ from requests import get
 
 
 def _req(term, results, lang, start, timeout):
+    """Send a search request to Google and return the HTTP response.
+
+    Args:
+        term: The URL-encoded search term.
+        results: Number of results to request.
+        lang: Language code for the search (e.g., "en").
+        start: Pagination offset for results.
+        timeout: Request timeout in seconds.
+
+    Returns:
+        The HTTP response object from the Google search request.
+
+    Raises:
+        requests.HTTPError: If the response status code indicates an error.
+    """
     headers = {**_scrapping_request_headers}
     headers["User-Agent"] = _get_useragent()
 
@@ -47,6 +66,14 @@ def _req(term, results, lang, start, timeout):
 
 
 class SearchResult:
+    """A single Google search result with URL, title, and description.
+
+    Attributes:
+        url: The URL of the search result.
+        title: The title text of the search result.
+        description: The description snippet of the search result.
+    """
+
     def __init__(self, url, title, description):
         self.url = url
         self.title = title
@@ -63,6 +90,18 @@ def search_overview(
     max_text_snippets: int = 5,
     max_query_freq_hz: float = 0.5,
 ) -> str:
+    """Get a text overview of Google search results by scraping the results page.
+
+    Args:
+        query: The search query string.
+        num_results: Number of results to request from Google.
+        lang: Language code for the search (e.g., "en").
+        max_text_snippets: Maximum number of text snippets to extract.
+        max_query_freq_hz: Maximum query frequency in Hz for rate limiting.
+
+    Returns:
+        Extracted visible text from the Google search results page.
+    """
     url = f"https://www.google.com/search?q={query}&num={num_results}&hl={lang}"
     text = text_from_url(
         url, max_text_snippets=max_text_snippets, max_query_freq_hz=max_query_freq_hz
@@ -78,7 +117,20 @@ def search_google(
     sleep_interval: int = 0,
     timeout: int = 5,
 ) -> str:
-    """Search the Google search engine"""
+    """Search Google and yield result URLs or SearchResult objects.
+
+    Args:
+        query: The search query string.
+        num_results: Maximum number of results to return.
+        lang: Language code for the search (e.g., "en").
+        advanced: If True, yield SearchResult objects instead of
+            plain URL strings.
+        sleep_interval: Seconds to sleep between paginated requests.
+        timeout: Request timeout in seconds.
+
+    Yields:
+        URL strings, or SearchResult objects if advanced is True.
+    """
 
     escaped_term = query.replace(" ", "+")
 

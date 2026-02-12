@@ -1,3 +1,9 @@
+"""Demo script for the CodeDrop client.
+
+Starts a ``CodeDropClient``, discovers servers on the local network,
+and sends a test message to each discovered server.
+"""
+
 import sys
 
 from qtpy.QtWidgets import QApplication
