@@ -42,13 +42,11 @@ from napari_chatgpt.utils.strings.camel_case_to_normal import (
 
 
 class NapariChatServer:
-    """
-    A chat server that allows users to interact with a napari viewer
-    through a web interface, using Omega Agent to process requests and
-    perform actions in the napari environment.
-    This server uses FastAPI to handle WebSocket connections and
-    provides a real-time chat interface for users to communicate with
-    the Omega Agent.
+    """Chat server bridging the web UI, Omega Agent, and napari viewer.
+
+    Uses FastAPI to handle WebSocket connections and provides a real-time
+    chat interface for users to communicate with the Omega Agent, which
+    processes requests and performs actions in the napari environment.
     """
 
     def __init__(

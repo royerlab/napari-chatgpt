@@ -43,7 +43,7 @@ End your response with exactly: 'Rating: *X*' where X is A-E.
 
 def check_code_safety(
     code: str, llm: LLM = None, model_name: str = None, verbose: bool = False
-) -> str:
+) -> tuple[str, str]:
     """Assess the safety of Python code using an LLM.
 
     The LLM evaluates the code and assigns a safety rank from A (pure

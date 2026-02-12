@@ -10,21 +10,15 @@ def is_vision_available(
     api: BaseApi | None = None,
     model_name: str | None = None,
 ) -> bool:
-    """
-    Check if vision is available.
+    """Check if vision is available.
 
-    Parameters
-    ----------
-    api : BaseApi, optional
-        API to use for checking availability. If None, uses CombinedApi.
-    model_name : str, optional
-        Specific model name to check for vision capabilities. If None, checks all models.
+    Args:
+        api: API to use for checking availability. If None, uses CombinedApi.
+        model_name: Specific model name to check for vision capabilities.
+            If None, checks all models.
 
-    Returns
-    -------
-    bool
+    Returns:
         True if the model is available, False otherwise.
-
     """
 
     with asection(f"Checking if vision is available:"):
@@ -59,27 +53,17 @@ def describe_image(
     model_name: str | None = None,
     number_of_tries: int = 4,
 ) -> str:
-    """
-    Describe an image using GPT-vision.
+    """Describe an image using GPT-vision.
 
-    Parameters
-    ----------
-    image_path: str
-        Path to the image to describe
-    query  : str
-        Query to send to GPT
-    model_name   : str
-        Model to use
-    max_tokens  : int
-        Maximum number of tokens to use
-    number_of_tries : int
-        Number of times to try to send the request to GPT.
+    Args:
+        image_path: Path to the image to describe.
+        query: Query to send to GPT.
+        api: API to use for describing the image. If None, uses CombinedApi.
+        model_name: Model to use.
+        number_of_tries: Number of times to try to send the request to GPT.
 
-    Returns
-    -------
-    str
-        Description of the image
-
+    Returns:
+        Description of the image.
     """
 
     with asection(f"Describe a given image at path: '{image_path}':"):

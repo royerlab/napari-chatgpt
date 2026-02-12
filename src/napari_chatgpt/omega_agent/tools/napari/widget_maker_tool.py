@@ -176,15 +176,13 @@ class _WidgetCodeSubmitTool(FunctionTool):
     def submit_widget_code(self, code: str) -> str:
         """Submit widget code for execution in napari.
 
-        Parameters
-        ----------
-        code : str
-            The complete Python code containing a @magicgui-decorated function.
+        Args:
+            code: The complete Python code containing a
+                ``@magicgui``-decorated function.
 
-        Returns
-        -------
-        str
-            Success message if the widget was created, or an error description.
+        Returns:
+            Success message if the widget was created, or an error
+            description.
         """
         self._attempt_count += 1
 

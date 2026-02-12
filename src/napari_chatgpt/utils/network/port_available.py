@@ -2,16 +2,13 @@
 
 
 def is_port_available(port: int):
-    """
-    Checks if a TCP port is available on localhost.
-    Parameters
-    ----------
-    port : int
+    """Check if a TCP port is available on localhost.
 
-    Returns
-    -------
-    True if the port is available, False otherwise.
+    Args:
+        port: The TCP port number to check.
 
+    Returns:
+        True if the port is available, False otherwise.
     """
     # Checks if TCP port is available on localhost:
     import socket
@@ -21,17 +18,14 @@ def is_port_available(port: int):
 
 
 def find_first_port_available(start: int, end: int):
-    """
-    Finds the first available port in a range.
-    Parameters
-    ----------
-    start : int
-    end : int
+    """Find the first available TCP port in a range.
 
-    Returns
-    -------
-    The first available port in the range, or None if no port is available.
+    Args:
+        start: The beginning of the port range (inclusive).
+        end: The end of the port range (exclusive).
 
+    Returns:
+        The first available port number, or None if no port is available.
     """
     for port in range(start, end):
         if is_port_available(port):

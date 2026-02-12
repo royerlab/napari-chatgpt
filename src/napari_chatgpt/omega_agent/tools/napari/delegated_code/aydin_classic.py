@@ -12,7 +12,6 @@ variants (Butterworth, bilateral, wavelet, etc.).
 def aydin_classic_denoising(image, batch_axes=None, chan_axes=None, variant=None):
     """Denoise an image using Aydin's Classic filter-based restoration algorithms.
 
-
     Parameters
     ----------
     image : numpy.ndarray

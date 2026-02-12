@@ -26,6 +26,12 @@ class APIKeyDialog(QDialog):
     """
 
     def __init__(self, api_key_name: str, parent=None):
+        """Initialize the API key dialog.
+
+        Args:
+            api_key_name: Display name of the API provider (e.g. ``"OpenAI"``).
+            parent: Optional parent Qt widget.
+        """
         super().__init__(parent)
 
         # Set the dialog box to be modal, so that it blocks interaction with the main window

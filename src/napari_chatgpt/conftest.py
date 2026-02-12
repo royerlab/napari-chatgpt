@@ -5,7 +5,7 @@ import pytest
 
 @pytest.fixture
 def sample_html():
-    """A crafted HTML string with script/style/visible text for scrapper tests."""
+    """A crafted HTML string with script/style/visible text for scraper tests."""
     return (
         "<html><head><title>Test</title>"
         "<style>body { color: red; }</style>"

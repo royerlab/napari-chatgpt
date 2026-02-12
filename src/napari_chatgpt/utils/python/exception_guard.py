@@ -22,6 +22,14 @@ class ExceptionGuard(contextlib.AbstractContextManager):
     """
 
     def __init__(self, allow_print=False, print_stacktrace=True):
+        """Initialize the exception guard.
+
+        Args:
+            allow_print: If True, allow print statements within the guarded
+                block. Defaults to False.
+            print_stacktrace: If True, print the full stacktrace when an
+                exception is caught. Defaults to True.
+        """
         self.allow_print = allow_print
         self.print_stacktrace = print_stacktrace
         self.exception: Exception = None
