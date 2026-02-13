@@ -171,7 +171,16 @@ def classic_segmentation(
         labels = label(binary_image)
 
     # Remove small objects:
-    labels = remove_small_objects(labels, max_size=min_segment_size - 1)
+    try:
+        # scikit-image >= 0.24 (min_size deprecated in 0.26)
+        labels = remove_small_objects(
+            labels, max_size=min_segment_size - 1
+        )
+    except TypeError:
+        # scikit-image < 0.24
+        labels = remove_small_objects(
+            labels, min_size=min_segment_size
+        )
 
     # Convert the segmented image to np.uint32 before returning the segmentation
     labels = labels.astype(uint32)

@@ -30,7 +30,12 @@ def test_napari_viewer_info():
     thresh = threshold_otsu(coins)
     bw = closing(coins > thresh, footprint_rectangle((4, 4)))
     # remove artifacts connected to image border
-    cleared = remove_small_objects(clear_border(bw), max_size=19)
+    try:
+        # scikit-image >= 0.24 (min_size deprecated in 0.26)
+        cleared = remove_small_objects(clear_border(bw), max_size=19)
+    except TypeError:
+        # scikit-image < 0.24
+        cleared = remove_small_objects(clear_border(bw), min_size=20)
     # label image regions
     label_image = label(cleared)
     viewer.add_labels(label_image, name="segmentation")
