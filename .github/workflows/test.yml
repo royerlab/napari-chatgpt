@@ -23,7 +23,10 @@ jobs:
       # Prevent TensorFlow/PyTorch from trying to initialise CUDA on
       # CPU-only runners (CUDA pip packages are present but no GPU
       # driver exists, which causes an indefinite hang).
-      CUDA_VISIBLE_DEVICES: ""
+      CUDA_VISIBLE_DEVICES: "-1"
+      # Force CPU-only mode for PyTorch and TensorFlow
+      TORCH_CUDA_ARCH_LIST: ""
+      USE_CUDA: "0"
 
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +47,23 @@ jobs:
 
       - name: Install package with test dependencies
         run: pip install -e ".[testing]"
+
+      - name: Verify imports (diagnose hangs)
+        timeout-minutes: 5
+        run: |
+          python -c "
+          import sys, os
+          print('Python:', sys.version)
+          print('CUDA_VISIBLE_DEVICES:', os.environ.get('CUDA_VISIBLE_DEVICES'))
+          print('Importing numpy...'); import numpy; print('  OK')
+          print('Importing napari...'); import napari; print('  OK')
+          print('Importing napari_chatgpt...'); import napari_chatgpt; print('  OK')
+          print('All imports successful')
+          "
+
+      - name: Collect tests (diagnose hangs)
+        timeout-minutes: 5
+        run: xvfb-run pytest src/ --co --timeout=120 -k "not integration and not llm and not slow" 2>&1 | tail -20
 
       - name: Run tests
         run: xvfb-run pytest src/ -v --timeout=300 -k "not integration and not llm and not slow"
