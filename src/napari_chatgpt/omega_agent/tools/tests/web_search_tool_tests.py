@@ -6,6 +6,7 @@ from napari_chatgpt.omega_agent.tools.search.web_search_tool import (
 )
 
 
+@pytest.mark.integration
 def test_web_search_tool():
     try:
         tool = WebSearchTool()

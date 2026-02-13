@@ -1,8 +1,11 @@
 """Tests for the delegated_code/utils.py module.
 
-These tests verify that the package check functions actually attempt
-to import the packages rather than returning True unconditionally.
+These tests verify that the package check functions correctly detect
+whether packages are installed without triggering heavy imports
+(e.g. TensorFlow via stardist, PyTorch via cellpose).
 """
+
+import importlib.util
 
 import pytest
 
@@ -26,39 +29,15 @@ def test_check_cellpose_installed_returns_bool():
     assert isinstance(result, bool)
 
 
-def test_check_stardist_actually_checks_import():
-    """Test that check_stardist_installed actually tries to import stardist.
-
-    This test verifies the fix for the bug where the function had an empty
-    try block and always returned True.
-    """
-    # We can't guarantee stardist is installed, but we can verify
-    # that the function's behavior matches the actual import status
-    try:
-        import stardist  # noqa: F401
-
-        stardist_available = True
-    except ImportError:
-        stardist_available = False
-
+def test_check_stardist_matches_find_spec():
+    """Test that check_stardist_installed agrees with importlib.util.find_spec."""
+    stardist_available = importlib.util.find_spec("stardist") is not None
     assert check_stardist_installed() == stardist_available
 
 
-def test_check_cellpose_actually_checks_import():
-    """Test that check_cellpose_installed actually tries to import cellpose.
-
-    This test verifies the fix for the bug where the function had an empty
-    try block and always returned True.
-    """
-    # We can't guarantee cellpose is installed, but we can verify
-    # that the function's behavior matches the actual import status
-    try:
-        import cellpose  # noqa: F401
-
-        cellpose_available = True
-    except ImportError:
-        cellpose_available = False
-
+def test_check_cellpose_matches_find_spec():
+    """Test that check_cellpose_installed agrees with importlib.util.find_spec."""
+    cellpose_available = importlib.util.find_spec("cellpose") is not None
     assert check_cellpose_installed() == cellpose_available
 
 

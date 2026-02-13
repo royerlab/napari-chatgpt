@@ -5,27 +5,29 @@ and to build human-readable lists and descriptions of available
 segmentation algorithms for use in LLM prompts and tool descriptions.
 """
 
+import importlib.util
+
 from arbol import aprint
 
 
 def check_stardist_installed() -> bool:
-    """Return True if the ``stardist`` package is importable."""
-    try:
-        import stardist  # noqa: F401
+    """Return True if the ``stardist`` package is installed.
 
-        return True
-    except ImportError:
-        return False
+    Uses ``importlib.util.find_spec`` to avoid actually importing the
+    package (which would pull in TensorFlow and trigger slow CUDA
+    initialisation on headless CI runners).
+    """
+    return importlib.util.find_spec("stardist") is not None
 
 
 def check_cellpose_installed() -> bool:
-    """Return True if the ``cellpose`` package is importable."""
-    try:
-        import cellpose  # noqa: F401
+    """Return True if the ``cellpose`` package is installed.
 
-        return True
-    except ImportError:
-        return False
+    Uses ``importlib.util.find_spec`` to avoid actually importing the
+    package (which would pull in PyTorch and trigger slow CUDA
+    initialisation on headless CI runners).
+    """
+    return importlib.util.find_spec("cellpose") is not None
 
 
 def get_list_of_algorithms() -> list:

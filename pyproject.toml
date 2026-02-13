@@ -80,7 +80,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-testing = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "pytest-xvfb", "npe2", "napari", "pyqt5", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
+testing = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "pytest-xvfb", "pytest-timeout", "npe2", "napari", "pyqt5", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
 
 [project.entry-points]
 "napari.manifest" = { "napari-chatgpt" = "napari_chatgpt:napari.yaml" }
@@ -131,7 +131,7 @@ extra-dependencies = ["pyqt5"]
 
 [tool.hatch.envs.hatch-test]
 python = "3.12"
-extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "pytest-xvfb", "npe2", "napari", "pyqt5", "black", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
+extra-dependencies = ["tox", "pytest", "pytest-cov", "pytest-mock", "pytest-qt", "pytest-xvfb", "pytest-timeout", "npe2", "napari", "pyqt5", "black", "cellpose", "stardist", "tensorflow", "nvidia-cuda-nvcc-cu12"]
 default-args = ["src/"]
 
 [tool.hatch.envs.docs]

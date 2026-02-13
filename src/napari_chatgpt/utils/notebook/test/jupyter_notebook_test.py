@@ -1,5 +1,6 @@
 import tempfile
 
+import pytest
 import requests
 
 from napari_chatgpt.utils.notebook.jupyter_notebook import JupyterNotebookFile
@@ -46,6 +47,7 @@ def download_image(url, file):
     file.flush()  # Ensure all data is written to the file
 
 
+@pytest.mark.integration
 def test_add_image_cell():
     # URL of the image
     image_url = "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png"

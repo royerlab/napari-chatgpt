@@ -6,6 +6,7 @@ the encrypted vault when they are not already set.
 """
 
 import os
+import sys
 
 from arbol import aprint, asection
 
@@ -17,11 +18,25 @@ __api_key_names["Anthropic"] = "ANTHROPIC_API_KEY"
 __api_key_names["Gemini"] = "GOOGLE_GEMINI_API_KEY"
 
 
+def _is_interactive() -> bool:
+    """Return True if running in an interactive environment with a display.
+
+    Returns False when running under pytest or in CI, where blocking
+    Qt dialogs would hang indefinitely.
+    """
+    if "pytest" in sys.modules:
+        return False
+    if os.environ.get("CI"):
+        return False
+    return True
+
+
 def set_api_key(api_name: str) -> bool:
     """Load an API key into the environment, prompting the user if needed.
 
     If the key is not already present as an environment variable, opens
-    the encrypted-vault Qt dialog to retrieve or create it.
+    the encrypted-vault Qt dialog to retrieve or create it.  In
+    non-interactive environments (CI, pytest) the dialog is skipped.
 
     Args:
         api_name: Provider name (e.g. ``"OpenAI"``).
@@ -38,8 +53,16 @@ def set_api_key(api_name: str) -> bool:
 
         # If key is already present, no need to do anything:
         if is_api_key_available(api_name):
-            aprint(f"API key is already set as an environment variable!")
+            aprint("API key is already set as an environment variable!")
             return True
+
+        # Skip interactive dialog in non-interactive environments:
+        if not _is_interactive():
+            aprint(
+                "Non-interactive environment detected,"
+                " skipping API key dialog."
+            )
+            return False
 
         # Something technical required for Qt to be happy:
         app = get_or_create_qt_app()
@@ -51,7 +74,7 @@ def set_api_key(api_name: str) -> bool:
                 request_if_needed_api_key_dialog,
             )
 
-            aprint(f"Requesting key from user via user interface...")
+            aprint("Requesting key from user via user interface...")
             api_key = request_if_needed_api_key_dialog(api_name)
 
         # Potentially releases the Qt app, MUST BE KEPT!:
