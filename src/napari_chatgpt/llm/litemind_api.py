@@ -29,8 +29,8 @@ def is_llm_available() -> bool:
     """Check whether at least one LLM provider is available.
 
     Verifies that LiteMind has concrete API implementations (excluding
-    ``DefaultApi`` and ``CombinedApi``) and that the global
-    ``CombinedApi`` can be initialised.
+    ``DefaultApi`` and ``CombinedApi``), that at least one API key is
+    set, and that the global ``CombinedApi`` can be initialised.
 
     Returns:
         True if a usable LLM provider is available, False otherwise.
@@ -51,6 +51,15 @@ def is_llm_available() -> bool:
 
         # If there are no API implementations available, return False:
         if len(api_implementations) == 0:
+            return False
+
+        # Quick check: if no API keys are available, skip expensive
+        # initialisation (which may show a blocking Qt dialog):
+        from napari_chatgpt.llm.api_keys.api_key import is_api_key_available
+
+        if not any(
+            is_api_key_available(name) for name in ["OpenAI", "Anthropic", "Gemini"]
+        ):
             return False
 
         # If the global LiteMind API instance is initialized, return True:
