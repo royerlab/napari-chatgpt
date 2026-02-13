@@ -6,6 +6,7 @@ from napari_chatgpt.omega_agent.tools.search.wikipedia_search_tool import (
 )
 
 
+@pytest.mark.integration
 def test_wikipedia_search_tool():
     try:
         tool = WikipediaSearchTool()
