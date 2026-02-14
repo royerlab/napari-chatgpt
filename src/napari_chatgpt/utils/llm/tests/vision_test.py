@@ -52,7 +52,7 @@ def _get_image_path(image_name: str):
 
     # Combine the two to get the absolute path
     absolute_path = os.path.join(
-        current_dir, os.path.join("../../openai/test/images/", image_name)
+        current_dir, os.path.join("../../openai/tests/images/", image_name)
     )
 
     aprint(absolute_path)

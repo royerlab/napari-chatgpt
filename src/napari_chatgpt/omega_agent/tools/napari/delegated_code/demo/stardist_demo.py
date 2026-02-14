@@ -1,4 +1,4 @@
-from napari_chatgpt.omega_agent.tools.napari.delegated_code.test.stardist_test import (
+from napari_chatgpt.omega_agent.tools.napari.delegated_code.tests.stardist_test import (
     test_stardist_2d,
     test_stardist_3d,
 )

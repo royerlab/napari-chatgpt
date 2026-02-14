@@ -1,4 +1,4 @@
-from napari_chatgpt.omega_agent.tools.napari.delegated_code.test.cellpose_test import (
+from napari_chatgpt.omega_agent.tools.napari.delegated_code.tests.cellpose_test import (
     test_cellpose_2d,
     test_cellpose_3d,
 )
