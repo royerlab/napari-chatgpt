@@ -1,4 +1,4 @@
-from napari_chatgpt.omega_agent.tools.napari.delegated_code.test.classic_test import (
+from napari_chatgpt.omega_agent.tools.napari.delegated_code.tests.classic_test import (
     test_classic_2d,
     test_classic_3d,
 )

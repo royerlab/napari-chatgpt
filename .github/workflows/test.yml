@@ -49,4 +49,4 @@ jobs:
         run: pip install -e ".[testing]"
 
       - name: Run tests
-        run: xvfb-run pytest src/ -v --timeout=300 -k "not integration and not llm and not slow"
+        run: xvfb-run pytest src/ -v --timeout=300 -m "not integration and not llm and not slow"

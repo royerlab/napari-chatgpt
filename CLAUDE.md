@@ -44,7 +44,7 @@ make update-wiki        # Review & update wiki pages relative to codebase
 
 ```bash
 # Run a single test file
-pytest src/napari_chatgpt/llm/api_keys/test/api_key_vault_test.py -v
+pytest src/napari_chatgpt/llm/api_keys/tests/api_key_vault_test.py -v
 
 # Run tests via tox (multi-environment)
 tox
